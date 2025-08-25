@@ -63,4 +63,13 @@ class UJC_Date_Helper {
         // Konwertuj UTC z bazy na lokalny czas WordPress
         return wp_date('Ymd', strtotime($date . ' UTC'));
     }
+    
+    /**
+     * Formatuje timestamp dla użytkownika (DD.MM.YYYY HH:MM)
+     * Konwertuje UTC timestamp na lokalną strefę czasową WordPress
+     */
+    public static function format_timestamp_for_user($timestamp) {
+        if (empty($timestamp)) return '';
+        return wp_date('d.m.Y H:i', $timestamp);
+    }
 }

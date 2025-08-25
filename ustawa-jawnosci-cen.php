@@ -2,7 +2,7 @@
 /**
  * Plugin Name: DeweloperJawneCeny
  * Description: Plugin do automatyzacji procesu dostarczania danych zgodnie z wymogami Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego
- * Version: 1.12.6
+ * Version: 1.13.0
  * Author: Deweloper
  */
 
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 define('UJC_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('UJC_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('UJC_DB_VERSION', '1.1');
-define('UJC_VERSION', '1.12.5');
+define('UJC_VERSION', '1.13.0');
 
 class DeweloperJawneCeny {
     private static $instance = null;

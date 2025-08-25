@@ -141,7 +141,7 @@ class UJC_Schema_Manager {
         $sql = "CREATE TABLE $table (
             id int(11) NOT NULL AUTO_INCREMENT,
             
-            rodzaj_nieruchomosci enum('Lokal mieszkalny', 'Dom jednorodzinny') NOT NULL,
+            rodzaj_nieruchomosci enum('Lokal mieszkalny', 'Dom jednorodzinny', 'Miejsce postojowe', 'Komórka lokatorska', 'Część nieruchomości', 'Garaż') NOT NULL,
             nr_lokalu varchar(50) NOT NULL,
             powierzchnia_uzytkowa decimal(8,2) NOT NULL,
             
@@ -177,10 +177,10 @@ class UJC_Schema_Manager {
             id int(11) NOT NULL AUTO_INCREMENT,
             resource_id int(11) NOT NULL,
             
-            typ_dodatku varchar(100) NOT NULL,
-            oznaczenie_dodatku varchar(50),
-            cena_dodatku decimal(10,2),
-            data_cena_dodatku datetime,
+            rodzaj_czesci varchar(100) NOT NULL,
+            oznaczenie_czesci varchar(50),
+            cena_czesci decimal(10,2),
+            data_cena_czesci datetime,
             
             typ_prawa varchar(100),
             wartosc_prawa decimal(10,2),

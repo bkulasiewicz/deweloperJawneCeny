@@ -45,12 +45,16 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                                         <option value="">Wybierz rodzaj</option>
                                         <option value="Lokal mieszkalny">Lokal mieszkalny</option>
                                         <option value="Dom jednorodzinny">Dom jednorodzinny</option>
+                                        <option value="Miejsce postojowe">Miejsce postojowe</option>
+                                        <option value="Komórka lokatorska">Komórka lokatorska</option>
+                                        <option value="Część nieruchomości">Część nieruchomości</option>
+                                        <option value="Garaż">Garaż</option>
                                     </select>
                                 </td>
                             </tr>
                             <tr>
-                                <th><label for="modal-nr_lokalu">Nr Lokalu/Domu *</label></th>
-                                <td><input type="text" id="modal-nr_lokalu" name="nr_lokalu" required class="regular-text" placeholder="np. A1, 15, 2/3"></td>
+                                <th><label for="modal-nr_lokalu">Identyfikator *</label></th>
+                                <td><input type="text" id="modal-nr_lokalu" name="nr_lokalu" required class="regular-text" placeholder="np. A1, MP-15, KL-2, G3"></td>
                             </tr>
                             <tr>
                                 <th><label for="modal-powierzchnia_uzytkowa">Powierzchnia użytkowa [m²] *</label></th>
@@ -89,6 +93,62 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                                 </td>
                             </tr>
                         </table>
+                        
+                        <!-- Sekcja części nieruchomości - generyczna -->
+                        <h3 style="margin-top: 20px;">Części nieruchomości</h3>
+                        <div id="extras-container">
+                            <div class="extra-item" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
+                                <table class="form-table">
+                                    <tr>
+                                        <th style="width: 150px;">
+                                            <label>Rodzaj części</label>
+                                        </th>
+                                        <td>
+                                            <select class="extra-type-select" name="extras[0][typ]" style="width: 200px;">
+                                                <option value="">-- wybierz typ --</option>
+                                                <optgroup label="Pomieszczenia">
+                                                    <option value="Miejsce postojowe">Miejsce postojowe</option>
+                                                    <option value="Komórka lokatorska">Komórka lokatorska</option>
+                                                    <option value="Garaż">Garaż</option>
+                                                    <option value="Piwnica">Piwnica</option>
+                                                    <option value="Strych">Strych</option>
+                                                </optgroup>
+                                                <optgroup label="Części nieruchomości">
+                                                    <option value="Balkon">Balkon</option>
+                                                    <option value="Taras">Taras</option>
+                                                    <option value="Ogródek">Ogródek</option>
+                                                    <option value="Udział w gruncie">Udział w gruncie</option>
+                                                </optgroup>
+                                                <optgroup label="Prawa">
+                                                    <option value="Prawo do tarasu">Prawo do tarasu</option>
+                                                    <option value="Prawo do ogródka">Prawo do ogródka</option>
+                                                </optgroup>
+                                                <optgroup label="Świadczenia">
+                                                    <option value="Opłata rezerwacyjna">Opłata rezerwacyjna</option>
+                                                    <option value="Opłata administracyjna">Opłata administracyjna</option>
+                                                </optgroup>
+                                                <option value="custom">Inny (wpisz własny)</option>
+                                            </select>
+                                            <input type="text" class="extra-custom-type" name="extras[0][custom_typ]" placeholder="Wpisz własny typ" style="display: none; margin-left: 10px; width: 200px;">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><label>Oznaczenie</label></th>
+                                        <td>
+                                            <input type="text" name="extras[0][oznaczenie]" class="regular-text" placeholder="np. MP-15, KL-2, 1/100">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><label>Cena [zł]</label></th>
+                                        <td>
+                                            <input type="number" name="extras[0][cena]" step="0.01" min="0" class="regular-text">
+                                            <button type="button" class="button remove-extra" style="margin-left: 10px;">Usuń</button>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <button type="button" id="add-extra-btn" class="button">+ Dodaj kolejną część</button>
                     </div>
                     
                     <div class="ujc-modal-footer">
@@ -215,6 +275,14 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                         $('#modal-cena_calkowita').val(data.cena_calkowita || '');
                         $('#modal-cena_z_dodatkami').val(data.cena_z_dodatkami || '');
                         $('#modal-status').val(data.status || 'dostepny');
+                        
+                        // Załaduj dane dodatków jeśli istnieją
+                        if (data.extras && data.extras.length > 0) {
+                            $('#extras-container').empty();
+                            data.extras.forEach((extra, index) => {
+                                addExtraItem(index, extra);
+                            });
+                        }
                     } else {
                         console.error('Error loading resource data:', response.data);
                         alert('❌ Błąd ładowania danych zasobu: ' + (response.data || 'Nieznany błąd'));
@@ -237,6 +305,96 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
             $('#ujc-resource-modal').on('click', function(e) {
                 if (e.target === this) {
                     closeModal();
+                }
+            });
+            
+            // Obsługa dynamicznych części nieruchomości
+            let extraIndex = 1;
+            
+            // Funkcja dodawania nowej części nieruchomości
+            window.addExtraItem = function(index = null, data = null) {
+                const currentIndex = index !== null ? index : extraIndex++;
+                const extraHtml = `
+                    <div class="extra-item" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
+                        <table class="form-table">
+                            <tr>
+                                <th style="width: 150px;">
+                                    <label>Typ dodatku</label>
+                                </th>
+                                <td>
+                                    <select class="extra-type-select" name="extras[${currentIndex}][typ]" style="width: 200px;">
+                                        <option value="">-- wybierz typ --</option>
+                                        <optgroup label="Pomieszczenia">
+                                            <option value="Miejsce postojowe">Miejsce postojowe</option>
+                                            <option value="Komórka lokatorska">Komórka lokatorska</option>
+                                            <option value="Garaż">Garaż</option>
+                                            <option value="Piwnica">Piwnica</option>
+                                            <option value="Strych">Strych</option>
+                                        </optgroup>
+                                        <optgroup label="Części nieruchomości">
+                                            <option value="Balkon">Balkon</option>
+                                            <option value="Taras">Taras</option>
+                                            <option value="Ogródek">Ogródek</option>
+                                            <option value="Udział w gruncie">Udział w gruncie</option>
+                                        </optgroup>
+                                        <optgroup label="Prawa">
+                                            <option value="Prawo do tarasu">Prawo do tarasu</option>
+                                            <option value="Prawo do ogródka">Prawo do ogródka</option>
+                                        </optgroup>
+                                        <optgroup label="Świadczenia">
+                                            <option value="Opłata rezerwacyjna">Opłata rezerwacyjna</option>
+                                            <option value="Opłata administracyjna">Opłata administracyjna</option>
+                                        </optgroup>
+                                        <option value="custom">Inny (wpisz własny)</option>
+                                    </select>
+                                    <input type="text" class="extra-custom-type" name="extras[${currentIndex}][custom_typ]" 
+                                           placeholder="Wpisz własny typ" style="display: none; margin-left: 10px; width: 200px;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><label>Oznaczenie</label></th>
+                                <td>
+                                    <input type="text" name="extras[${currentIndex}][oznaczenie]" class="regular-text" 
+                                           placeholder="np. MP-15, KL-2, 1/100" value="${data ? data.oznaczenie_dodatku || '' : ''}">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><label>Cena [zł]</label></th>
+                                <td>
+                                    <input type="number" name="extras[${currentIndex}][cena]" step="0.01" min="0" class="regular-text"
+                                           value="${data ? data.cena_dodatku || '' : ''}">
+                                    <button type="button" class="button remove-extra" style="margin-left: 10px;">Usuń</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                `;
+                
+                $('#extras-container').append(extraHtml);
+                
+                // Ustaw wartość typu jeśli istnieje
+                if (data && data.typ_dodatku) {
+                    $(`[name="extras[${currentIndex}][typ]"]`).val(data.typ_dodatku);
+                }
+            };
+            
+            // Dodaj nową część nieruchomości
+            $('#add-extra-btn').on('click', function() {
+                addExtraItem();
+            });
+            
+            // Usuń część nieruchomości
+            $(document).on('click', '.remove-extra', function() {
+                $(this).closest('.extra-item').remove();
+            });
+            
+            // Obsługa wyboru "Inny"
+            $(document).on('change', '.extra-type-select', function() {
+                const $customInput = $(this).siblings('.extra-custom-type');
+                if ($(this).val() === 'custom') {
+                    $customInput.show();
+                } else {
+                    $customInput.hide().val('');
                 }
             });
             

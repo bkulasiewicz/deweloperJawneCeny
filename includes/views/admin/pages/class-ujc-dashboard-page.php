@@ -90,14 +90,14 @@ class UJC_Dashboard_Page {
                         <?php if ($next_scheduled): ?>
                         <p><strong>Następne generowanie:</strong> 
                             <span style="color: #0073aa;">
-                                <?php echo date('Y-m-d H:i:s', $next_scheduled) . ' UTC'; ?>
+                                <?php echo UJC_Date_Helper::format_timestamp_for_user($next_scheduled); ?>
                             </span>
                         </p>
                         <?php endif; ?>
                         
                         <?php if ($last_generation_time): ?>
                         <p><strong>Ostatnia akcja:</strong> 
-                            <?php echo date('Y-m-d H:i:s', $last_generation_time); ?>
+                            <?php echo UJC_Date_Helper::format_timestamp_for_user($last_generation_time); ?>
                             <?php if ($last_generation_status): ?>
                                 <?php if ($last_generation_status === 'success'): ?>
                                     <span style="color: #007600;">✅ Sukces</span>
@@ -231,7 +231,7 @@ class UJC_Dashboard_Page {
             
             echo '<div class="ujc-history-item" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #ddd;">';
             echo '<div>';
-            echo '<span style="font-weight: 500;">' . date('Y-m-d H:i:s', $entry['timestamp']) . '</span>';
+            echo '<span style="font-weight: 500;">' . UJC_Date_Helper::format_timestamp_for_user($entry['timestamp']) . '</span>';
             echo '<small style="margin-left: 10px; color: #666;">(' . esc_html($type_label) . ')</small>';
             if ($entry['status'] !== 'success') {
                 echo '<br><small style="color: #d63638;">' . esc_html($entry['message'] ?? 'Błąd generowania') . '</small>';
