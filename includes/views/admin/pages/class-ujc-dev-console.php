@@ -1,0 +1,421 @@
+<?php
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * DEV Console - narzędzia deweloperskie
+ * Dostępne tylko gdy WP_DEBUG=true
+ */
+class UJC_Dev_Console {
+    
+    public function __construct() {
+        // Inicjalizuj tylko w trybie deweloperskim
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            add_action('wp_ajax_ujc_dev_clear_table', [$this, 'ajax_clear_table']);
+            add_action('wp_ajax_ujc_dev_download_logs', [$this, 'ajax_download_logs']);
+            add_action('wp_ajax_ujc_dev_set_interval', [$this, 'ajax_dev_set_interval']);
+        }
+    }
+    
+    /**
+     * Sprawdź czy DEV Console jest dostępna
+     */
+    public static function is_available() {
+        return defined('WP_DEBUG') && WP_DEBUG;
+    }
+    
+    /**
+     * AJAX handler do czyszczenia tabel
+     */
+    public function ajax_clear_table() {
+        // Podwójne sprawdzenie bezpieczeństwa
+        if (!self::is_available()) {
+            wp_send_json_error('Funkcja dostępna tylko w trybie deweloperskim');
+            return;
+        }
+        
+        check_ajax_referer('ujc_admin_nonce', 'ujc_nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Brak uprawnień administratora');
+            return;
+        }
+        
+        $table_type = sanitize_text_field($_POST['table_type'] ?? '');
+        
+        global $wpdb;
+        
+        try {
+            switch ($table_type) {
+                case 'developer':
+                    $table = $wpdb->prefix . 'ujc_developer_info';
+                    $wpdb->query("TRUNCATE TABLE $table");
+                    wp_send_json_success('Dane dostawcy zostały usunięte');
+                    break;
+                    
+                case 'investment':
+                    $table = $wpdb->prefix . 'ujc_investment_info';
+                    $wpdb->query("TRUNCATE TABLE $table");
+                    wp_send_json_success('Dane inwestycji zostały usunięte');
+                    break;
+                    
+                case 'resources':
+                    error_log('UJC DEV: Starting resources cleanup');
+                    
+                    // Lista wszystkich tabel związanych z zasobami (nowe i stare nazwy)
+                    $tables_to_clear = [
+                        $wpdb->prefix . 'ujc_price_history',
+                        $wpdb->prefix . 'ujc_resource_extras',
+                        $wpdb->prefix . 'ujc_resources',
+                        // Stare nazwy jako fallback
+                        $wpdb->prefix . 'ujc_property_extras', 
+                        $wpdb->prefix . 'ujc_properties'
+                    ];
+                    
+                    $cleared_count = 0;
+                    foreach ($tables_to_clear as $table) {
+                        try {
+                            // Sprawdź czy tabela istnieje
+                            $exists = $wpdb->get_var("SHOW TABLES LIKE '$table'") == $table;
+                            if ($exists) {
+                                $row_count = $wpdb->get_var("SELECT COUNT(*) FROM $table");
+                                if ($row_count > 0) {
+                                    $result = $wpdb->query("DELETE FROM $table");
+                                    
+                                    // Sprawdź błędy SQL
+                                    if ($wpdb->last_error) {
+                                        error_log("UJC DEV: SQL Error for $table: " . $wpdb->last_error);
+                                        continue; // Przejdź do następnej tabeli
+                                    }
+                                    
+                                    error_log("UJC DEV: Cleared table $table - deleted $result rows");
+                                    $cleared_count++;
+                                }
+                            }
+                        } catch (Exception $e) {
+                            error_log("UJC DEV: Exception clearing table $table: " . $e->getMessage());
+                            continue;
+                        }
+                    }
+                    
+                    if ($cleared_count > 0) {
+                        wp_send_json_success("Wyczyszczono $cleared_count tabel zasobów");
+                    } else {
+                        wp_send_json_success('Tabele zasobów były już puste');
+                    }
+                    break;
+                    
+                case 'all':
+                    UJC_Schema_Manager::drop_tables();
+                    UJC_Database_Versioning::force_recreate_tables();
+                    wp_send_json_success('CAŁA BAZA ZOSTAŁA ZRESETOWANA!');
+                    break;
+                    
+                default:
+                    wp_send_json_error('Nieprawidłowy typ tabeli: ' . $table_type);
+            }
+        } catch (Exception $e) {
+            error_log('UJC DEV Console Error: ' . $e->getMessage());
+            wp_send_json_error('Błąd bazy danych: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * AJAX handler do pobierania logów
+     */
+    public function ajax_download_logs() {
+        // Podwójne sprawdzenie bezpieczeństwa
+        if (!self::is_available()) {
+            wp_send_json_error('Funkcja dostępna tylko w trybie deweloperskim');
+            return;
+        }
+        
+        check_ajax_referer('ujc_admin_nonce', 'ujc_nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Brak uprawnień administratora');
+            return;
+        }
+        
+        $log_content = $this->get_debug_logs();
+        
+        if (empty($log_content)) {
+            wp_send_json_error('Brak logów do pobrania lub nie można odczytać pliku logów');
+            return;
+        }
+        
+        // Zwróć logi jako tekst do pobrania przez frontend
+        wp_send_json_success([
+            'logs' => $log_content,
+            'filename' => 'ujc-debug-logs-' . date('Y-m-d-H-i-s') . '.txt'
+        ]);
+    }
+    
+    /**
+     * Pobiera logi debugowania
+     */
+    private function get_debug_logs() {
+        $logs = [];
+        
+        // Możliwe lokalizacje logów WordPress
+        $possible_log_files = [
+            WP_CONTENT_DIR . '/debug.log',
+            ABSPATH . 'wp-content/debug.log',
+            ini_get('error_log'),
+            '/var/log/apache2/error.log',
+            '/var/log/nginx/error.log'
+        ];
+        
+        // Przeszukaj logi w poszukiwaniu wpisów UJC
+        foreach ($possible_log_files as $log_file) {
+            if ($log_file && file_exists($log_file) && is_readable($log_file)) {
+                $content = file_get_contents($log_file);
+                if ($content !== false) {
+                    // Znajdź linie zawierające UJC
+                    $lines = explode("\n", $content);
+                    foreach ($lines as $line) {
+                        if (stripos($line, 'UJC:') !== false || stripos($line, 'ujc_') !== false) {
+                            $logs[] = $line;
+                        }
+                    }
+                    break; // Jeśli znaleźliśmy logi, przerwij
+                }
+            }
+        }
+        
+        // Jeśli nie ma logów UJC, pokaż ostatnie 100 linii z głównego logu
+        if (empty($logs)) {
+            foreach ($possible_log_files as $log_file) {
+                if ($log_file && file_exists($log_file) && is_readable($log_file)) {
+                    $content = file_get_contents($log_file);
+                    if ($content !== false) {
+                        $lines = explode("\n", $content);
+                        $logs = array_slice($lines, -100); // Ostatnie 100 linii
+                        array_unshift($logs, "=== OSTATNIE 100 LINII LOGÓW (brak specyficznych logów UJC) ===");
+                        break;
+                    }
+                }
+            }
+        } else {
+            array_unshift($logs, "=== LOGI UJC z " . date('Y-m-d H:i:s') . " ===");
+        }
+        
+        return implode("\n", $logs);
+    }
+    
+    /**
+     * AJAX handler do ustawiania interwału generowania (tylko DEV)
+     */
+    public function ajax_dev_set_interval() {
+        if (!self::is_available()) {
+            wp_send_json_error('Funkcja dostępna tylko w trybie deweloperskim');
+            return;
+        }
+        
+        check_ajax_referer('ujc_admin_nonce', 'ujc_nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Brak uprawnień administratora');
+            return;
+        }
+        
+        $interval = sanitize_text_field($_POST['interval'] ?? '24hours');
+        
+        $allowed_intervals = ['1min', '15min', '1hour', '24hours'];
+        if (!in_array($interval, $allowed_intervals)) {
+            wp_send_json_error('Nieprawidłowy interwał');
+            return;
+        }
+        
+        update_option('ujc_generation_interval', $interval);
+        
+        wp_clear_scheduled_hook('ujc_generate_files_cycle');
+        
+        $automated_generator = new UJC_Automated_Generator();
+        $next_run = ($interval === '24hours') ? 
+            $automated_generator->calculate_next_utc_midnight() : 
+            time();
+            
+        wp_schedule_event($next_run, $automated_generator->get_cron_schedule($interval), 'ujc_generate_files_cycle');
+        
+        wp_send_json_success('Interwał ustawiony: ' . $interval);
+    }
+    
+    /**
+     * Renderuje kafelek DEV Console
+     */
+    public static function render_console_tile() {
+        if (!self::is_available()) {
+            return '';
+        }
+        
+        $current_interval = get_option('ujc_generation_interval', '24hours');
+        $automation_enabled = get_option('ujc_automation_enabled', true);
+        
+        ob_start();
+        ?>
+        <div class="ujc-dev-console">
+            <h2 style="margin-top: 0;">🔧 DEV Console</h2>
+            <p style="color: #d63638; font-size: 12px; margin-bottom: 15px;">
+                <strong>⚠️ Tryb deweloperski</strong> - Te funkcje są dostępne tylko gdy WP_DEBUG=true
+            </p>
+            
+            <div class="ujc-dev-actions" style="flex-grow: 1;">
+                <h3>Automatyzacja:</h3>
+                <div style="margin: 10px 0; padding: 10px; background: #f0f0f1; border-left: 3px solid #0073aa;">
+                    <p><strong>Status:</strong> <?php echo $automation_enabled ? '✅ Włączona' : '❌ Wyłączona'; ?></p>
+                    <p><strong>Aktualny interwał:</strong> 
+                        <?php 
+                        $interval_labels = [
+                            '1min' => '1 minuta',
+                            '15min' => '15 minut', 
+                            '1hour' => '1 godzina',
+                            '24hours' => '24 godziny (północ UTC)'
+                        ];
+                        echo $interval_labels[$current_interval] ?? $current_interval;
+                        ?>
+                    </p>
+                    
+                    <label for="ujc-interval-select">Ustaw częstotliwość generowania:</label>
+                    <select id="ujc-interval-select" style="margin-left: 10px;">
+                        <option value="1min" <?php selected($current_interval, '1min'); ?>>Co 1 minutę</option>
+                        <option value="15min" <?php selected($current_interval, '15min'); ?>>Co 15 minut</option>
+                        <option value="1hour" <?php selected($current_interval, '1hour'); ?>>Co 1 godzinę</option>
+                        <option value="24hours" <?php selected($current_interval, '24hours'); ?>>Co 24 godziny (północ UTC)</option>
+                    </select>
+                    <button type="button" class="button button-primary" onclick="setGenerationInterval()" style="margin-left: 10px;">
+                        ⚙️ Ustaw interwał
+                    </button>
+                </div>
+                
+                <h3>Debugowanie:</h3>
+                <button type="button" class="button button-primary" onclick="downloadLogs()" style="margin: 5px; background-color: #2271b1;">
+                    📋 Pobierz logi debugowania
+                </button>
+                
+                <h3 style="margin-top: 20px;">Czyszczenie tabel:</h3>
+                <button type="button" class="button button-secondary" onclick="confirmClearTable('developer', 'dane dostawcy')" style="margin: 5px;">
+                    🗑️ Usuń dane dostawcy
+                </button>
+                <button type="button" class="button button-secondary" onclick="confirmClearTable('investment', 'dane inwestycji')" style="margin: 5px;">
+                    🗑️ Usuń dane inwestycji
+                </button>
+                <button type="button" class="button button-secondary" onclick="confirmClearTable('resources', 'wszystkie zasoby')" style="margin: 5px;">
+                    🗑️ Usuń wszystkie zasoby
+                </button>
+                
+                <hr style="margin: 20px 0;">
+                
+                <button type="button" class="button" onclick="confirmClearTable('all', 'WSZYSTKIE DANE')" style="background-color: #d63638; color: white; border-color: #d63638; margin: 5px;">
+                    ⚠️ RESETUJ CAŁĄ BAZĘ
+                </button>
+            </div>
+        </div>
+        
+        <script>
+        function setGenerationInterval() {
+            const select = document.getElementById('ujc-interval-select');
+            const interval = select.value;
+            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
+            
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '⏳ Ustawianie...';
+            button.disabled = true;
+            
+            jQuery.post(ajaxurl, {
+                action: 'ujc_dev_set_interval',
+                interval: interval,
+                ujc_nonce: nonce
+            }, function(response) {
+                if (response.success) {
+                    alert('✅ ' + response.data);
+                    location.reload();
+                } else {
+                    alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
+                }
+            }).fail(function(xhr, status, error) {
+                console.error('Set interval AJAX Error:', xhr, status, error);
+                alert('❌ Błąd połączenia: ' + error);
+            }).always(function() {
+                button.textContent = originalText;
+                button.disabled = false;
+            });
+        }
+        
+        function downloadLogs() {
+            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
+            
+            // Pokaż loading
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '⏳ Pobieranie logów...';
+            button.disabled = true;
+            
+            jQuery.post(ajaxurl, {
+                action: 'ujc_dev_download_logs',
+                ujc_nonce: nonce
+            }, function(response) {
+                if (response.success) {
+                    // Utwórz plik do pobrania
+                    const blob = new Blob([response.data.logs], { type: 'text/plain' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = response.data.filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    
+                    alert('✅ Logi zostały pobrane');
+                } else {
+                    alert('❌ Błąd: ' + (response.data || 'Nie można pobrać logów'));
+                }
+            }).fail(function(xhr, status, error) {
+                console.error('Download logs AJAX Error:', xhr, status, error);
+                alert('❌ Błąd połączenia: ' + error);
+            }).always(function() {
+                button.textContent = originalText;
+                button.disabled = false;
+            });
+        }
+        
+        function confirmClearTable(type, description) {
+            const message = `Czy na pewno chcesz usunąć ${description}?\n\nTa operacja jest nieodwracalna!`;
+            
+            if (confirm(message)) {
+                const secondConfirm = `OSTATNIE OSTRZEŻENIE!\n\nUsuwasz: ${description}\n\nKliknij OK aby kontynuować.`;
+                if (confirm(secondConfirm)) {
+                    clearTableData(type);
+                }
+            }
+        }
+
+        function clearTableData(type) {
+            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
+            
+            jQuery.post(ajaxurl, {
+                action: 'ujc_dev_clear_table',
+                table_type: type,
+                ujc_nonce: nonce
+            }, function(response) {
+                if (response.success) {
+                    alert('✅ ' + response.data);
+                    location.reload();
+                } else {
+                    alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
+                }
+            }).fail(function(xhr, status, error) {
+                console.error('DEV Console AJAX Error:', xhr, status, error);
+                alert('❌ Błąd połączenia: ' + error);
+            });
+        }
+        </script>
+        <?php
+        return ob_get_clean();
+    }
+}
