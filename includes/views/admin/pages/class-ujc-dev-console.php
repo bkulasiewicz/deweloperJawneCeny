@@ -45,66 +45,24 @@ class UJC_Dev_Console {
         
         $table_type = sanitize_text_field($_POST['table_type'] ?? '');
         
-        global $wpdb;
+        $resetUseCase = new ResetDatabaseUseCase();
         
         try {
             switch ($table_type) {
                 case 'developer':
-                    $table = $wpdb->prefix . 'ujc_developer_info';
-                    $wpdb->query("TRUNCATE TABLE $table");
+                    $resetUseCase->resetDeveloperData();
                     wp_send_json_success('Dane dostawcy zostały usunięte');
                     break;
                     
                 case 'investment':
-                    $table = $wpdb->prefix . 'ujc_investment_info';
-                    $wpdb->query("TRUNCATE TABLE $table");
+                    $resetUseCase->resetInvestmentData();
                     wp_send_json_success('Dane inwestycji zostały usunięte');
                     break;
                     
                 case 'resources':
                     error_log('UJC DEV: Starting resources cleanup');
-                    
-                    // Lista wszystkich tabel związanych z zasobami (nowe i stare nazwy)
-                    $tables_to_clear = [
-                        $wpdb->prefix . 'ujc_price_history',
-                        $wpdb->prefix . 'ujc_resource_extras',
-                        $wpdb->prefix . 'ujc_resources',
-                        // Stare nazwy jako fallback
-                        $wpdb->prefix . 'ujc_property_extras', 
-                        $wpdb->prefix . 'ujc_properties'
-                    ];
-                    
-                    $cleared_count = 0;
-                    foreach ($tables_to_clear as $table) {
-                        try {
-                            // Sprawdź czy tabela istnieje
-                            $exists = $wpdb->get_var("SHOW TABLES LIKE '$table'") == $table;
-                            if ($exists) {
-                                $row_count = $wpdb->get_var("SELECT COUNT(*) FROM $table");
-                                if ($row_count > 0) {
-                                    $result = $wpdb->query("DELETE FROM $table");
-                                    
-                                    // Sprawdź błędy SQL
-                                    if ($wpdb->last_error) {
-                                        error_log("UJC DEV: SQL Error for $table: " . $wpdb->last_error);
-                                        continue; // Przejdź do następnej tabeli
-                                    }
-                                    
-                                    error_log("UJC DEV: Cleared table $table - deleted $result rows");
-                                    $cleared_count++;
-                                }
-                            }
-                        } catch (Exception $e) {
-                            error_log("UJC DEV: Exception clearing table $table: " . $e->getMessage());
-                            continue;
-                        }
-                    }
-                    
-                    if ($cleared_count > 0) {
-                        wp_send_json_success("Wyczyszczono $cleared_count tabel zasobów");
-                    } else {
-                        wp_send_json_success('Tabele zasobów były już puste');
-                    }
+                    $result = $resetUseCase->resetAllData();
+                    wp_send_json_success($result[0]);
                     break;
                     
                 case 'all':

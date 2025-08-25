@@ -19,8 +19,8 @@ class UJC_Shortcode {
             'limit' => 10
         ], $atts);
         
-        $service = new UJC_Resource_Service();
-        $resources = $service->getAll();
+        $useCase = new GetAllResourcesUseCase();
+        $resources = $useCase->execute();
         
         if (empty($resources)) {
             return '<p>Brak dostępnych nieruchomości.</p>';

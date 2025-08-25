@@ -37,8 +37,6 @@ class UJC_Admin {
         require_once UJC_PLUGIN_DIR . 'includes/views/admin/components/class-ujc-history-modal.php';
         require_once UJC_PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-item.php';
         
-        // Załaduj usługi
-        require_once UJC_PLUGIN_DIR . 'includes/services/class-ujc-resource-importer.php';
         
         // Inicjalizuj strony zgodnie z Dependency Injection
         new UJC_Dashboard_Page();
@@ -48,7 +46,6 @@ class UJC_Admin {
         new UJC_Investment_Modal();
         new UJC_History_Modal();
         new UJC_Dev_Console();
-        new UJC_Resource_Importer();
     }
     
     public function add_admin_menu() {

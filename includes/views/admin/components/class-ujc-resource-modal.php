@@ -391,8 +391,8 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
             
             error_log('UJC: Resource data to save: ' . print_r($data, true));
             
-            $service = new UJC_Resource_Service();
-            $result = $service->create($data);
+            $useCase = new SaveResourceUseCase();
+            $result = $useCase->execute($data);
             error_log('UJC: Resource create result: ' . print_r($result, true));
             
             // Sprawdź czy result zawiera błąd walidacji
@@ -425,8 +425,8 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
             $resource_id = intval($_POST['resource_id'] ?? 0);
             error_log('UJC: Loading resource ID: ' . $resource_id);
             
-            $service = new UJC_Resource_Service();
-            $resource = $service->getById($resource_id);
+            $useCase = new GetResourceByIdUseCase();
+            $resource = $useCase->execute($resource_id);
             error_log('UJC: Resource data retrieved: ' . print_r($resource, true));
             
             if ($resource) {
@@ -456,12 +456,13 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
             $data = $this->sanitize_resource_data();
             
             // Zaktualizuj daty tylko dla zmienionych cen
-            $service = new UJC_Resource_Service();
-            $old_data = $service->getById($resource_id);
+            $getUseCase = new GetResourceByIdUseCase();
+            $old_data = $getUseCase->execute($resource_id);
             $current_datetime = UJC_Date_Helper::current_datetime();
             $data = $this->update_price_dates_if_changed($data, $old_data, $current_datetime);
             
-            $result = $service->update($resource_id, $data);
+            $saveUseCase = new SaveResourceUseCase();
+            $result = $saveUseCase->execute($data, $resource_id);
             
             // Sprawdź czy result zawiera błąd walidacji
             if (is_array($result) && isset($result['error'])) {

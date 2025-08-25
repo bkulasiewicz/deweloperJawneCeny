@@ -33,7 +33,8 @@ class UJC_Automated_Generator {
      * Inicjalizuje cykliczną automatyzację - domyślnie północ UTC dla klientów
      */
     public function init_automation() {
-        $current_interval = get_option('ujc_generation_interval', '24hours');
+        $settings_repository = new SettingsRepository();
+        $current_interval = $settings_repository->getGenerationInterval();
         
         if (!wp_next_scheduled('ujc_generate_files_cycle')) {
             $next_run = $this->calculate_next_utc_midnight();
@@ -47,7 +48,8 @@ class UJC_Automated_Generator {
      * Oblicza czas następnej północy UTC dla klientów produkcyjnych
      */
     public function calculate_next_utc_midnight() {
-        $current_interval = get_option('ujc_generation_interval', '24hours');
+        $settings_repository = new SettingsRepository();
+        $current_interval = $settings_repository->getGenerationInterval();
         
         if ($current_interval === '24hours') {
             $utc_timezone = new DateTimeZone('UTC');
@@ -73,7 +75,8 @@ class UJC_Automated_Generator {
             wp_die('Nieprawidłowy interwał');
         }
         
-        update_option('ujc_generation_interval', $interval);
+        $settings_repository = new SettingsRepository();
+        $settings_repository->setGenerationInterval($interval);
         
         wp_clear_scheduled_hook('ujc_generate_files_cycle');
         
@@ -130,11 +133,13 @@ class UJC_Automated_Generator {
      * Dodaje switch on/off dla klientów
      */
     public function is_automation_enabled() {
-        return get_option('ujc_automation_enabled', true);
+        $settings_repository = new SettingsRepository();
+        return $settings_repository->isAutomationEnabled();
     }
     
     public function set_automation_enabled($enabled) {
-        update_option('ujc_automation_enabled', (bool)$enabled);
+        $settings_repository = new SettingsRepository();
+        $settings_repository->setAutomationEnabled($enabled);
     }
     
     /**
@@ -143,8 +148,9 @@ class UJC_Automated_Generator {
      */
     public function generate_all_files() {
         if (!$this->is_automation_enabled()) {
-            update_option('ujc_last_generation_status', 'Automatyzacja wyłączona przez użytkownika');
-            update_option('ujc_last_generation_time', time());
+            $settings_repository = new SettingsRepository();
+            $settings_repository->setLastGenerationStatus('Automatyzacja wyłączona przez użytkownika');
+            $settings_repository->setLastGenerationTime();
             
             // Dodaj informację o wyłączonej automatyzacji
             $this->add_to_history('disabled', 'automatyczne', 'Automatyzacja wyłączona przez użytkownika');
@@ -164,8 +170,9 @@ class UJC_Automated_Generator {
             }
             
             // Zapisz status sukcesu
-            update_option('ujc_last_generation_status', 'success');
-            update_option('ujc_last_generation_time', time());
+            $settings_repository = new SettingsRepository();
+            $settings_repository->setLastGenerationStatus('success');
+            $settings_repository->setLastGenerationTime();
             
             // Dodaj do historii
             $this->add_to_history('success', 'automatyczne', 'Pliki wygenerowane pomyślnie');
@@ -184,8 +191,9 @@ class UJC_Automated_Generator {
             $detailed_error = $this->get_detailed_error_message($e);
             
             // Zapisz status błędu
-            update_option('ujc_last_generation_status', $detailed_error);
-            update_option('ujc_last_generation_time', time());
+            $settings_repository = new SettingsRepository();
+            $settings_repository->setLastGenerationStatus($detailed_error);
+            $settings_repository->setLastGenerationTime();
             
             // Dodaj błąd do historii
             $this->add_to_history('error', 'automatyczne', $detailed_error);
@@ -199,7 +207,8 @@ class UJC_Automated_Generator {
      * Dodaje wpis do historii generowania
      */
     public function add_to_history($status, $type, $message) {
-        $history = get_option('ujc_generation_history', []);
+        $settings_repository = new SettingsRepository();
+        $history = $settings_repository->getGenerationHistory();
         
         // Dodaj nowy wpis
         $history[] = [
@@ -214,7 +223,7 @@ class UJC_Automated_Generator {
             $history = array_slice($history, -50);
         }
         
-        update_option('ujc_generation_history', $history);
+        $settings_repository->setGenerationHistory($history);
     }
     
     /**
@@ -233,8 +242,9 @@ class UJC_Automated_Generator {
             }
             
             // Zapisz status sukcesu
-            update_option('ujc_last_generation_status', 'success (' . $source . ')');
-            update_option('ujc_last_generation_time', time());
+            $settings_repository = new SettingsRepository();
+            $settings_repository->setLastGenerationStatus('success (' . $source . ')');
+            $settings_repository->setLastGenerationTime();
             
             // Dodaj do historii
             $this->add_to_history('success', $source, 'Pliki wygenerowane pomyślnie');
@@ -251,8 +261,9 @@ class UJC_Automated_Generator {
             $detailed_error = $this->get_detailed_error_message($e);
             
             // Zapisz status błędu
-            update_option('ujc_last_generation_status', $detailed_error . ' (' . $source . ')');
-            update_option('ujc_last_generation_time', time());
+            $settings_repository = new SettingsRepository();
+            $settings_repository->setLastGenerationStatus($detailed_error . ' (' . $source . ')');
+            $settings_repository->setLastGenerationTime();
             
             // Dodaj błąd do historii
             $this->add_to_history('error', $source, $detailed_error);

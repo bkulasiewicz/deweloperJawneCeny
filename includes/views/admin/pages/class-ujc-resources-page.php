@@ -334,4 +334,22 @@ class UJC_Resources_Page {
         }
     }
     
+    public function ajax_import_resources() {
+        check_ajax_referer('ujc_admin_nonce', 'ujc_nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Brak uprawnień');
+        }
+        
+        try {
+            $importUseCase = new ImportResourcesUseCase();
+            $result = $importUseCase->execute($_FILES['import_file']);
+            
+            wp_send_json_success($result);
+            
+        } catch (Exception $e) {
+            error_log('UJC Import Error: ' . $e->getMessage());
+            wp_send_json_error($e->getMessage());
+        }
+    }
 }

@@ -251,8 +251,8 @@ class UJC_Dashboard_Page {
     }
     
     private function get_properties_count() {
-        global $wpdb;
-        $table = $wpdb->prefix . 'ujc_resources';
-        return (int) $wpdb->get_var("SELECT COUNT(*) FROM $table");
+        $repository = new UJC_Resource_Repository();
+        $resources = $repository->readAll();
+        return count($resources);
     }
 }

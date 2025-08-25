@@ -273,4 +273,49 @@ class UJC_Schema_Manager {
         
         return !empty($constraints);
     }
+    
+    /**
+     * Usuwa tabelę developer_info i odtwarza ją
+     */
+    public static function reset_developer_table() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'ujc_developer_info';
+        $wpdb->query("DROP TABLE IF EXISTS $table");
+        self::create_developer_table($wpdb, $wpdb->get_charset_collate());
+    }
+    
+    /**
+     * Usuwa tabelę investment_info i odtwarza ją
+     */
+    public static function reset_investment_table() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'ujc_investment_info';
+        $wpdb->query("DROP TABLE IF EXISTS $table");
+        self::create_investment_table($wpdb, $wpdb->get_charset_collate());
+    }
+    
+    /**
+     * Usuwa wszystkie tabele związane z zasobami i odtwarza je
+     */
+    public static function reset_resources_tables() {
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        $tables = [
+            'ujc_resources',
+            'ujc_resource_extras', 
+            'ujc_price_history',
+            'ujc_properties',
+            'ujc_property_extras'
+        ];
+        
+        foreach ($tables as $table_suffix) {
+            $table = $wpdb->prefix . $table_suffix;
+            $wpdb->query("DROP TABLE IF EXISTS $table");
+        }
+        
+        self::create_resources_table($wpdb, $charset_collate);
+        self::create_extras_table($wpdb, $charset_collate);
+        self::create_price_history_table($wpdb, $charset_collate);
+    }
 }
