@@ -13,10 +13,7 @@ class UJC_Resource_Repository {
         global $wpdb;
         $table = $wpdb->prefix . 'ujc_resources';
         
-        $sql = "SELECT r.*, i.name as project_name 
-                FROM $table r 
-                LEFT JOIN {$wpdb->prefix}ujc_investments i ON r.investment_id = i.id 
-                ORDER BY r.created_at DESC";
+        $sql = "SELECT r.* FROM $table r ORDER BY r.created_at DESC";
                 
         return $wpdb->get_results($sql, ARRAY_A);
     }

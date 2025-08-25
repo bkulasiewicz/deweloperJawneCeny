@@ -24,8 +24,6 @@ class UJC_Automated_Generator {
         $this->xml_generator = new UJC_XML_Generator();
         
         add_action('init', [$this, 'init_automation']);
-        add_filter('wp_ajax_ujc_set_interval', [$this, 'ajax_set_interval']);
-        add_filter('wp_ajax_nopriv_ujc_set_interval', [$this, 'ajax_set_interval']);
         add_filter('cron_schedules', [$this, 'add_custom_cron_schedules']);
     }
     
@@ -287,8 +285,8 @@ class UJC_Automated_Generator {
         if (strpos($message, 'Błąd generowania CSV') !== false) {
             $developer_repo = new UJC_Developer_Repository();
             $developer = $developer_repo->read();
-            $price_history_repo = new UJC_Price_History_Repository();
-            $properties = $price_history_repo->readForExport();
+            $resource_repo = new UJC_Resource_Repository();
+            $properties = $resource_repo->readAll();
             
             if (!$developer) {
                 return "Błąd CSV: Brak danych dewelopera. Uzupełnij dane dewelopera w zakładce 'Dane Dostawcy'.";

@@ -12,8 +12,8 @@ class UJC_CSV_Generator {
     public function generate_daily_csv() {
         $developer_repo = new UJC_Developer_Repository();
         $developer = $developer_repo->read();
-        $price_history_repo = new UJC_Price_History_Repository();
-        $properties = $price_history_repo->readForExport();
+        $resource_repo = new UJC_Resource_Repository();
+        $properties = $resource_repo->readAll();
         
         if (!$developer || empty($properties)) {
             return false;

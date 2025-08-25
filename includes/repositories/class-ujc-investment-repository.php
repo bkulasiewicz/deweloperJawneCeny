@@ -11,7 +11,7 @@ class UJC_Investment_Repository {
      */
     public function read() {
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_investments';
+        $table = $wpdb->prefix . 'ujc_investment_info';
         
         return $wpdb->get_row("SELECT * FROM $table LIMIT 1", ARRAY_A);
     }
@@ -21,7 +21,7 @@ class UJC_Investment_Repository {
      */
     public function save($data) {
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_investments';
+        $table = $wpdb->prefix . 'ujc_investment_info';
         
         // Sprawdź czy już istnieje rekord
         $existing = $this->read();

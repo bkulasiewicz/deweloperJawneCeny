@@ -11,6 +11,7 @@ class SettingsRepository {
     const LAST_GENERATION_STATUS = 'ujc_last_generation_status';
     const LAST_GENERATION_TIME = 'ujc_last_generation_time';
     const GENERATION_HISTORY = 'ujc_generation_history';
+    const DB_VERSION = 'ujc_db_version';
     
     /**
      * Zwraca interwał generowania plików (1min, 15min, 1hour, 24hours)
@@ -81,5 +82,19 @@ class SettingsRepository {
      */
     public function setGenerationHistory($history) {
         return update_option(self::GENERATION_HISTORY, $history);
+    }
+    
+    /**
+     * Zwraca wersję bazy danych
+     */
+    public function getDbVersion($default = '0') {
+        return get_option(self::DB_VERSION, $default);
+    }
+    
+    /**
+     * Ustawia wersję bazy danych
+     */
+    public function setDbVersion($version) {
+        return update_option(self::DB_VERSION, $version);
     }
 }

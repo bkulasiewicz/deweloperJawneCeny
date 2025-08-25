@@ -22,6 +22,11 @@ class UJC_Shortcode {
         $useCase = new GetAllResourcesUseCase();
         $resources = $useCase->execute();
         
+        // Pobierz nazwę projektu z inwestycji
+        $investment_repo = new UJC_Investment_Repository();
+        $investment = $investment_repo->read();
+        $project_name = $investment ? $investment['name'] : 'Brak nazwy projektu';
+        
         if (empty($resources)) {
             return '<p>Brak dostępnych nieruchomości.</p>';
         }
@@ -32,7 +37,7 @@ class UJC_Shortcode {
         foreach ($resources as $resource) {
             $output .= '<div class="ujc-property-item">';
             $output .= '<h4>' . esc_html($resource['rodzaj_nieruchomosci']) . ' ' . esc_html($resource['nr_lokalu']) . '</h4>';
-            $output .= '<p><strong>Projekt:</strong> ' . esc_html($resource['project_name']) . '</p>';
+            $output .= '<p><strong>Projekt:</strong> ' . esc_html($project_name) . '</p>';
             $output .= '<p><strong>Cena m²:</strong> ' . number_format($resource['cena_m2'], 2, ',', ' ') . ' zł</p>';
             
             if ($resource['cena_calkowita']) {

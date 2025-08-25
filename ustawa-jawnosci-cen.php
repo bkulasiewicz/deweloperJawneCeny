@@ -2,7 +2,7 @@
 /**
  * Plugin Name: DeweloperJawneCeny
  * Description: Plugin do automatyzacji procesu dostarczania danych zgodnie z wymogami Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego
- * Version: 1.12.0
+ * Version: 1.12.6
  * Author: Deweloper
  */
 
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 define('UJC_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('UJC_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('UJC_DB_VERSION', '1.1');
-define('UJC_VERSION', '1.11.0');
+define('UJC_VERSION', '1.12.5');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -45,14 +45,24 @@ class DeweloperJawneCeny {
         require_once UJC_PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
         require_once UJC_PLUGIN_DIR . 'includes/core/class-ujc-database-versioning.php';
         
-        // Models
-        require_once UJC_PLUGIN_DIR . 'includes/models/class-ujc-resource.php';
         
         // Repositories
         require_once UJC_PLUGIN_DIR . 'includes/repositories/class-ujc-developer-repository.php';
         require_once UJC_PLUGIN_DIR . 'includes/repositories/class-ujc-investment-repository.php';
         require_once UJC_PLUGIN_DIR . 'includes/repositories/class-ujc-resource-repository.php';
         require_once UJC_PLUGIN_DIR . 'includes/repositories/class-ujc-price-history-repository.php';
+        require_once UJC_PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
+        
+        // UseCases
+        require_once UJC_PLUGIN_DIR . 'includes/UseCases/SaveResourceUseCase.php';
+        require_once UJC_PLUGIN_DIR . 'includes/UseCases/GetResourceByIdUseCase.php';
+        require_once UJC_PLUGIN_DIR . 'includes/UseCases/GetAllResourcesUseCase.php';
+        require_once UJC_PLUGIN_DIR . 'includes/UseCases/ImportResourcesUseCase.php';
+        require_once UJC_PLUGIN_DIR . 'includes/UseCases/ResetDatabaseUseCase.php';
+        require_once UJC_PLUGIN_DIR . 'includes/UseCases/SaveDeveloperInfoUseCase.php';
+        require_once UJC_PLUGIN_DIR . 'includes/UseCases/SaveInvestmentInfoUseCase.php';
+        require_once UJC_PLUGIN_DIR . 'includes/UseCases/GenerateFilesManuallyUseCase.php';
+        require_once UJC_PLUGIN_DIR . 'includes/UseCases/ToggleAutomationUseCase.php';
         
         // Controllers
         require_once UJC_PLUGIN_DIR . 'includes/controllers/class-ujc-csv-generator.php';
@@ -62,7 +72,7 @@ class DeweloperJawneCeny {
         // Views - Frontend
         require_once UJC_PLUGIN_DIR . 'includes/views/frontend/class-ujc-shortcode.php';
         
-        
+        // Inicjalizuj klasy po załadowaniu wszystkich zależności
         if (is_admin()) {
             require_once UJC_PLUGIN_DIR . 'includes/views/admin/class-ujc-admin.php';
             new UJC_Admin();
@@ -121,6 +131,8 @@ class DeweloperJawneCeny {
     public function activate() {
         try {
             require_once UJC_PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
+            require_once UJC_PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
+            
             UJC_Schema_Manager::create_tables();
             
             $upload_dir = wp_upload_dir();
@@ -130,7 +142,7 @@ class DeweloperJawneCeny {
             }
             
             $settings_repository = new SettingsRepository();
-            $settings_repository->set('ujc_db_version', UJC_DB_VERSION);
+            $settings_repository->setDbVersion(UJC_DB_VERSION);
             
         } catch (Exception $e) {
             error_log('UJC Activation Error: ' . $e->getMessage());
