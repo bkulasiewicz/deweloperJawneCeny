@@ -28,7 +28,7 @@
                     <a href="#funkcje">Funkcje</a>
                     <a href="#cennik">Cennik</a>
                     <a href="#kontakt">Kontakt</a>
-                    <a href="#demo" class="btn btn--primary">Demo</a>
+                    <a href="demo.html" class="btn btn--outline">Demo</a>
                 </div>
             </nav>
         </div>
@@ -46,7 +46,7 @@
                     Zarządzaj cenami, generuj pliki XML/CSV i publikuj dane automatycznie.
                 </p>
                 <div class="hero__cta">
-                    <a href="#demo" class="btn btn--primary btn--large">Wypróbuj za darmo</a>
+                    <a href="demo.html" class="btn btn--primary btn--large">Zobacz demo</a>
                     <a href="#funkcje" class="btn btn--secondary btn--large">Zobacz funkcje</a>
                 </div>
                 <div class="hero__badge">
@@ -224,16 +224,17 @@
         </div>
     </section>
 
+
     <!-- Pricing Section -->
     <section id="cennik" class="pricing">
         <div class="container">
             <h2 class="section-title">Prosty cennik</h2>
-            <p class="section-subtitle">Bez ukrytych kosztów. Bez długich umów. Anuluj w każdej chwili.</p>
+            <p class="section-subtitle">Przejrzyste ceny. Prosty billing. Zawsze aktualne z wymogami prawa.</p>
             
             <div class="pricing__toggle">
                 <span class="toggle__label">Miesięcznie</span>
                 <label class="toggle">
-                    <input type="checkbox" id="billing-toggle">
+                    <input type="checkbox" id="billing-toggle" checked>
                     <span class="toggle__slider"></span>
                 </label>
                 <span class="toggle__label">Rocznie <span class="discount">-29%</span></span>
@@ -250,11 +251,10 @@
                         <span class="price__period">na zawsze</span>
                     </div>
                     <div class="card__features">
-                        <div class="feature">✅ Do 4 zasobów</div>
+                        <div class="feature">✅ Do 4 zasobów automatycznie</div>
                         <div class="feature">✅ Podstawowa automatyzacja</div>
                         <div class="feature">✅ Pliki XML/CSV</div>
                         <div class="feature">✅ Panel WordPress</div>
-                        <div class="feature">✅ Email support</div>
                     </div>
                     <button class="card__cta btn btn--secondary">Wypróbuj za darmo</button>
                 </div>
@@ -263,10 +263,10 @@
                     <div class="card__badge">Najpopularniejszy</div>
                     <div class="card__header">
                         <h3>Professional</h3>
-                        <p>Dla średnich projektów</p>
+                        <p>Dla większych projektów</p>
                     </div>
                     <div class="card__price">
-                        <span class="price__amount" data-monthly="139" data-yearly="99">139 zł</span>
+                        <span class="price__amount" data-monthly="139" data-yearly="99">99 zł</span>
                         <span class="price__period">/miesiąc</span>
                     </div>
                     <div class="card__features">
@@ -274,7 +274,7 @@
                         <div class="feature">✅ Pełna automatyzacja</div>
                         <div class="feature">✅ Import masowy CSV</div>
                         <div class="feature">✅ Historia cen</div>
-                        <div class="feature">✅ Priorytetowy support</div>
+                        <div class="feature">✅ Wsparcie techniczne</div>
                         <div class="feature">✅ Aktualizacje prawne</div>
                     </div>
                     <button class="card__cta btn btn--primary">Zacznij teraz</button>
@@ -282,22 +282,21 @@
 
                 <div class="pricing__card">
                     <div class="card__header">
-                        <h3>Enterprise</h3>
-                        <p>Dla dużych deweloperów</p>
+                        <h3>Wdrożenie 24h</h3>
+                        <p>Pełna implementacja w 1 dzień</p>
                     </div>
                     <div class="card__price">
                         <span class="price__amount">Ustal cenę</span>
-                        <span class="price__period">indywidualnie</span>
+                        <span class="price__period">jednorazowo</span>
                     </div>
                     <div class="card__features">
-                        <div class="feature">✅ Wszystko z Professional</div>
-                        <div class="feature">✅ Wiele inwestycji</div>
-                        <div class="feature">✅ API dostęp</div>
-                        <div class="feature">✅ Dedykowane wsparcie</div>
-                        <div class="feature">✅ Szkolenia zespołu</div>
-                        <div class="feature">✅ SLA 99.9%</div>
+                        <div class="feature">⚡ Instalacja w 24 godziny</div>
+                        <div class="feature">✅ Import wszystkich danych</div>
+                        <div class="feature">✅ Konfiguracja automatyzacji</div>
+                        <div class="feature">✅ Szkolenie zespołu</div>
+                        <div class="feature">✅ Pełne wsparcie techniczne</div>
                     </div>
-                    <button class="card__cta btn btn--secondary">Skontaktuj się</button>
+                    <button class="card__cta btn btn--secondary">Zamów wdrożenie</button>
                 </div>
             </div>
 
@@ -305,12 +304,8 @@
                 <h3>Najczęściej zadawane pytania</h3>
                 <div class="faq__grid">
                     <div class="faq__item">
-                        <h4>Czy mogę anulować w każdej chwili?</h4>
-                        <p>Tak, bez żadnych kar. Anuluj subskrypcję kiedy chcesz.</p>
-                    </div>
-                    <div class="faq__item">
-                        <h4>Co się stanie po przekroczeniu limitu zasobów?</h4>
-                        <p>System automatycznie zaproponuje upgrade do wyższego planu.</p>
+                        <h4>Jak działa rozliczenie roczne?</h4>
+                        <p>Płatność roczna to oszczędność 29%. Płacisz raz za cały rok z góry.</p>
                     </div>
                     <div class="faq__item">
                         <h4>Czy plugin będzie aktualizowany z nowymi przepisami?</h4>
@@ -321,41 +316,6 @@
         </div>
     </section>
 
-    <!-- Testimonials -->
-    <section class="testimonials">
-        <div class="container">
-            <h2 class="section-title">Co mówią nasi klienci</h2>
-            <div class="testimonials__grid">
-                <div class="testimonial">
-                    <div class="testimonial__content">
-                        <p>"Oszczędza mi 10 godzin miesięcznie. Plugin naprawdę działa jak obiecano."</p>
-                    </div>
-                    <div class="testimonial__author">
-                        <strong>Marek Kowalski</strong>
-                        <span>CEO, Kowalski Development</span>
-                    </div>
-                </div>
-                <div class="testimonial">
-                    <div class="testimonial__content">
-                        <p>"Pierwszy raz nie martwię się o zgodność z ustawą. Wszystko automatyczne."</p>
-                    </div>
-                    <div class="testimonial__author">
-                        <strong>Anna Nowak</strong>
-                        <span>Dyrektor ds. Prawnych, Baltic Homes</span>
-                    </div>
-                </div>
-                <div class="testimonial">
-                    <div class="testimonial__content">
-                        <p>"ROI zwrócił się już w pierwszym miesiącu. Polecam każdemu deweloperowi."</p>
-                    </div>
-                    <div class="testimonial__author">
-                        <strong>Piotr Wiśniewski</strong>
-                        <span>Założyciel, Green City Invest</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- CTA Section -->
     <section class="cta">
