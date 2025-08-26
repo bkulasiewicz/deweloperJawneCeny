@@ -142,9 +142,10 @@ class UJC_Dashboard_Page {
                 button.textContent = '⏳ Zmienianie...';
                 button.disabled = true;
                 
+                const ajaxUrl = typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl;
                 const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
                 
-                jQuery.post(ajaxurl, {
+                jQuery.post(ajaxUrl, {
                     action: 'ujc_toggle_automation',
                     enabled: enable,
                     nonce: nonce

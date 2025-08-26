@@ -164,7 +164,9 @@ class UJC_Resources_Page {
             </div>
             
             <!-- Lista zasobów z ulepszonym layoutem -->
-            <div id="resources-list" class="ujc-resources-grid">Ładowanie...</div>
+            <div id="resources-list" class="ujc-resources-grid">
+                <?php $this->render_resources_list(); ?>
+            </div>
             
             <!-- Hidden file input for import -->
             <input type="file" id="ujc-import-file" accept=".csv" style="display: none;">
@@ -181,46 +183,9 @@ class UJC_Resources_Page {
             
             <script>
             jQuery(document).ready(function($) {
-                // Funkcja ładowania listy zasobów
+                // Lista renderowana w PHP - odświeżenie strony po zmianach
                 window.loadResourcesList = function() {
-                    $('#resources-list').html('<div class="ujc-resource-item">Ładowanie...</div>');
-                    
-                    $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, {
-                        action: 'ujc_get_resources',
-                        ujc_nonce: '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>'
-                    }, function(response) {
-                        if (response.success && response.data) {
-                            const resources = response.data;
-                            
-                            if (resources.length === 0) {
-                                $('#resources-list').html(`
-                                    <div class="ujc-no-resources">
-                                        <p>Brak zasobów. Kliknij "Dodaj Zasób" aby rozpocząć.</p>
-                                        <p style="margin-top: 15px; font-size: 14px; color: #666;">
-                                            Możesz również zaimportować zasoby z pliku CSV. Import pozwoli Ci szybko dodać wiele nieruchomości jednocześnie.
-                                        </p>
-                                        <button type="button" class="button button-secondary" onclick="openImportDialog()" style="margin-top: 10px; display: flex; align-items: center; gap: 5px;">
-                                            <span class="dashicons dashicons-upload" style="font-size: 16px; line-height: 1;"></span>
-                                            <span>Importuj z CSV</span>
-                                        </button>
-                                    </div>
-                                `);
-                                return;
-                            }
-                            
-                            // Użyj komponentu z osobnego pliku
-                            let html = '';
-                            resources.forEach(function(resource) {
-                                html += UJC_Resource_Item.renderHTML(resource);
-                            });
-                            
-                            $('#resources-list').html(html);
-                        } else {
-                            $('#resources-list').html('<div class="ujc-resource-item">Błąd ładowania listy zasobów.</div>');
-                        }
-                    }).fail(function() {
-                        $('#resources-list').html('<div class="ujc-resource-item">Błąd połączenia przy ładowaniu zasobów.</div>');
-                    });
+                    location.reload();
                 };
                 
                 // Import functionality
@@ -259,7 +224,7 @@ class UJC_Resources_Page {
                         success: function(response) {
                             if (response.success) {
                                 alert('✅ Importowano ' + (response.data.imported || 0) + ' zasobów!');
-                                loadResourcesList();
+                                location.reload();
                             } else {
                                 alert('❌ Błąd importu: ' + (response.data || 'Nieznany błąd'));
                                 $('#resources-list').html(originalHtml);
@@ -276,13 +241,38 @@ class UJC_Resources_Page {
                         }
                     });
                 });
-                
-                // Załaduj listę przy starcie
-                loadResourcesList();
             });
             </script>
         </div>
         <?php
+    }
+    
+    /**
+     * Renderuje listę zasobów bezpośrednio w PHP
+     */
+    private function render_resources_list() {
+        $resource_repo = new UJC_Resource_Repository();
+        $resources = $resource_repo->readAll();
+        
+        if (empty($resources)) {
+            ?>
+            <div class="ujc-no-resources">
+                <p>Brak zasobów. Kliknij "Dodaj Zasób" aby rozpocząć.</p>
+                <p style="margin-top: 15px; font-size: 14px; color: #666;">
+                    Możesz również zaimportować zasoby z pliku CSV. Import pozwoli Ci szybko dodać wiele nieruchomości jednocześnie.
+                </p>
+                <button type="button" class="button button-secondary" onclick="openImportDialog()" style="margin-top: 10px; display: flex; align-items: center; gap: 5px;">
+                    <span class="dashicons dashicons-upload" style="font-size: 16px; line-height: 1;"></span>
+                    <span>Importuj z CSV</span>
+                </button>
+            </div>
+            <?php
+            return;
+        }
+        
+        foreach ($resources as $resource) {
+            echo UJC_Resource_Item::render_item_html($resource);
+        }
     }
     
     /**
@@ -298,21 +288,23 @@ class UJC_Resources_Page {
         $resource_repo = new UJC_Resource_Repository();
         $resources = $resource_repo->readAll();
         
-        // Formatuj dane dla frontend
+        // Przekaż surowe dane - formatowanie w JavaScript
         $formatted_resources = [];
         foreach ($resources as $resource) {
             $formatted_resources[] = [
                 'id' => $resource['id'],
                 'rodzaj_nieruchomosci' => $resource['rodzaj_nieruchomosci'],
                 'nr_lokalu' => $resource['nr_lokalu'],
-                'powierzchnia_uzytkowa' => number_format($resource['powierzchnia_uzytkowa'], 2),
-                'cena_m2' => number_format($resource['cena_m2'], 2, ',', ' '),
-                'cena_calkowita' => $resource['cena_calkowita'] ? number_format($resource['cena_calkowita'], 2, ',', ' ') : '-',
-                'cena_z_dodatkami' => $resource['cena_z_dodatkami'] ? number_format($resource['cena_z_dodatkami'], 2, ',', ' ') : '-',
+                'powierzchnia_uzytkowa' => $resource['powierzchnia_uzytkowa'],
+                'cena_m2' => $resource['cena_m2'],
+                'cena_calkowita' => $resource['cena_calkowita'],
+                'cena_z_dodatkami' => $resource['cena_z_dodatkami'],
                 'status' => $resource['status'],
-                'data_cena_m2' => UJC_Date_Helper::format_for_user($resource['data_cena_m2']),
-                'data_cena_calkowita' => $resource['data_cena_calkowita'] ? UJC_Date_Helper::format_for_user($resource['data_cena_calkowita']) : '-',
-                'data_cena_z_dodatkami' => $resource['data_cena_z_dodatkami'] ? UJC_Date_Helper::format_for_user($resource['data_cena_z_dodatkami']) : '-'
+                'data_cena_m2' => $resource['data_cena_m2'],
+                'data_cena_calkowita' => $resource['data_cena_calkowita'],
+                'data_cena_z_dodatkami' => $resource['data_cena_z_dodatkami'],
+                'created_at' => $resource['created_at'],
+                'updated_at' => $resource['updated_at']
             ];
         }
         

@@ -38,10 +38,10 @@ class UJC_Admin {
         require_once UJC_PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-item.php';
         
         
-        // Inicjalizuj strony zgodnie z Dependency Injection
-        new UJC_Dashboard_Page();
-        new UJC_Supplier_Data_Page();
-        new UJC_Resources_Page();
+        // Inicjalizuj strony zgodnie z Dependency Injection - przechowaj instancje
+        $this->dashboard_page_instance = new UJC_Dashboard_Page();
+        $this->supplier_data_page_instance = new UJC_Supplier_Data_Page();
+        $this->resources_page_instance = new UJC_Resources_Page();
         new UJC_Resource_Modal();
         new UJC_Investment_Modal();
         new UJC_History_Modal();
@@ -88,18 +88,15 @@ class UJC_Admin {
     }
     
     public function dashboard_page() {
-        $page = new UJC_Dashboard_Page();
-        $page->render();
+        $this->dashboard_page_instance->render();
     }
     
     public function developer_page() {
-        $page = new UJC_Supplier_Data_Page();
-        $page->render();
+        $this->supplier_data_page_instance->render();
     }
     
     public function resources_page() {
-        $page = new UJC_Resources_Page();
-        $page->render();
+        $this->resources_page_instance->render();
     }
     
     public function publication_page() {

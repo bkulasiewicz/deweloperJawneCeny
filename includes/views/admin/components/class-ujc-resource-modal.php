@@ -5,6 +5,7 @@ if (!defined('ABSPATH')) {
 }
 
 require_once UJC_PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
+require_once UJC_PLUGIN_DIR . 'includes/views/admin/components/class-ujc-property-parts-tooltip.php';
 
 /**
  * Komponent modalu dla zasobów - Single Responsibility Principle
@@ -50,6 +51,9 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                                         <option value="Część nieruchomości">Część nieruchomości</option>
                                         <option value="Garaż">Garaż</option>
                                     </select>
+                                    <p class="description" style="margin-top: 5px;">
+                                        <?php echo UJC_Property_Parts_Tooltip::render_icon(); ?>
+                                    </p>
                                 </td>
                             </tr>
                             <tr>
@@ -76,13 +80,6 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                                 </td>
                             </tr>
                             <tr>
-                                <th><label for="modal-cena_z_dodatkami">Cena z dodatkami</label></th>
-                                <td>
-                                    <input type="number" id="modal-cena_z_dodatkami" name="cena_z_dodatkami" step="0.01" min="0" class="regular-text"> zł
-                                    <p class="description">Cena uwzględniająca inne składowe (opcjonalne)</p>
-                                </td>
-                            </tr>
-                            <tr>
                                 <th><label for="modal-status">Status</label></th>
                                 <td>
                                     <select id="modal-status" name="status">
@@ -95,9 +92,13 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                         </table>
                         
                         <!-- Sekcja części nieruchomości - generyczna -->
-                        <h3 style="margin-top: 20px;">Części nieruchomości</h3>
+                        <div style="display: flex; align-items: center; margin-top: 20px;">
+                            <h3 style="margin: 0; flex-grow: 1;">Części nieruchomości</h3>
+                            <button type="button" id="add-extra-btn" class="button">Dodaj</button>
+                        </div>
                         <div id="extras-container">
-                            <div class="extra-item" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
+                            <div class="extra-item" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; position: relative;">
+                                <button type="button" class="remove-extra button" style="position: absolute; top: 5px; right: 5px;">Usuń</button>
                                 <table class="form-table">
                                     <tr>
                                         <th style="width: 150px;">
@@ -142,13 +143,25 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                                         <th><label>Cena [zł]</label></th>
                                         <td>
                                             <input type="number" name="extras[0][cena]" step="0.01" min="0" class="regular-text">
-                                            <button type="button" class="button remove-extra" style="margin-left: 10px;">Usuń</button>
                                         </td>
                                     </tr>
                                 </table>
                             </div>
                         </div>
-                        <button type="button" id="add-extra-btn" class="button">+ Dodaj kolejną część</button>
+                        
+                        <!-- Cena uwzględniająca inne składowe - pokazuje się tylko gdy są części -->
+                        <div id="final-price-section" style="display: none; margin-top: 20px;">
+                            <h3>Cena finalna</h3>
+                            <table class="form-table">
+                                <tr>
+                                    <th><label for="modal-cena_z_dodatkami">Cena uwzględniająca inne składowe</label></th>
+                                    <td>
+                                        <input type="number" id="modal-cena_z_dodatkami" name="cena_z_dodatkami" step="0.01" min="0" class="regular-text"> zł
+                                        <p class="description">Cena końcowa uwzględniająca wszystkie składowe zgodnie z art. 19a ust. 1 (opcjonalne)</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                     
                     <div class="ujc-modal-footer">
@@ -283,6 +296,9 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                                 addExtraItem(index, extra);
                             });
                         }
+                        
+                        // Zaktualizuj widoczność sekcji ceny finalnej
+                        toggleFinalPriceSection();
                     } else {
                         console.error('Error loading resource data:', response.data);
                         alert('❌ Błąd ładowania danych zasobu: ' + (response.data || 'Nieznany błąd'));
@@ -315,11 +331,12 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
             window.addExtraItem = function(index = null, data = null) {
                 const currentIndex = index !== null ? index : extraIndex++;
                 const extraHtml = `
-                    <div class="extra-item" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px;">
+                    <div class="extra-item" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; position: relative;">
+                        <button type="button" class="remove-extra button" style="position: absolute; top: 5px; right: 5px;">Usuń</button>
                         <table class="form-table">
                             <tr>
                                 <th style="width: 150px;">
-                                    <label>Typ dodatku</label>
+                                    <label>Rodzaj części</label>
                                 </th>
                                 <td>
                                     <select class="extra-type-select" name="extras[${currentIndex}][typ]" style="width: 200px;">
@@ -363,7 +380,6 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                                 <td>
                                     <input type="number" name="extras[${currentIndex}][cena]" step="0.01" min="0" class="regular-text"
                                            value="${data ? data.cena_dodatku || '' : ''}">
-                                    <button type="button" class="button remove-extra" style="margin-left: 10px;">Usuń</button>
                                 </td>
                             </tr>
                         </table>
@@ -378,14 +394,27 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                 }
             };
             
+            // Funkcja sprawdzająca czy pokazać sekcję ceny finalnej
+            function toggleFinalPriceSection() {
+                const extrasCount = $('#extras-container .extra-item').length;
+                if (extrasCount > 0) {
+                    $('#final-price-section').show();
+                } else {
+                    $('#final-price-section').hide();
+                    $('#modal-cena_z_dodatkami').val(''); // Wyczyść wartość
+                }
+            }
+            
             // Dodaj nową część nieruchomości
             $('#add-extra-btn').on('click', function() {
                 addExtraItem();
+                toggleFinalPriceSection();
             });
             
             // Usuń część nieruchomości
             $(document).on('click', '.remove-extra', function() {
                 $(this).closest('.extra-item').remove();
+                toggleFinalPriceSection();
             });
             
             // Obsługa wyboru "Inny"

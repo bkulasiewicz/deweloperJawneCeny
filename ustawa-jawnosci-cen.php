@@ -2,7 +2,7 @@
 /**
  * Plugin Name: DeweloperJawneCeny
  * Description: Plugin do automatyzacji procesu dostarczania danych zgodnie z wymogami Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego
- * Version: 1.13.1
+ * Version: 1.15.1
  * Author: Deweloper
  */
 
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 define('UJC_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('UJC_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('UJC_DB_VERSION', '1.1');
-define('UJC_VERSION', '1.13.1');
+define('UJC_VERSION', '1.15.1');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -92,20 +92,7 @@ class DeweloperJawneCeny {
     }
     
     public function enqueue_admin_scripts($hook) {
-        if (strpos($hook, 'ujc') !== false) {
-            wp_enqueue_script('ujc-admin', UJC_PLUGIN_URL . 'assets/admin.js', ['jquery'], '1.0', true);
-            wp_enqueue_style('ujc-admin', UJC_PLUGIN_URL . 'assets/admin.css', [], '1.0');
-            
-            wp_localize_script('ujc-admin', 'ujc_ajax', [
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce' => wp_create_nonce('ujc_admin_nonce'),
-                'strings' => [
-                    'saving' => 'Zapisywanie...',
-                    'saved' => 'Zapisano!',
-                    'error' => 'Błąd podczas zapisywania'
-                ]
-            ]);
-        }
+        // Skrypty są zarządzane przez UJC_Admin
     }
     
     public function enqueue_frontend_scripts() {
