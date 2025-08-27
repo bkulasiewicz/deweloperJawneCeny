@@ -10,7 +10,12 @@ class ToggleAutomationUseCase {
         try {
             $enabled = filter_var($enabled, FILTER_VALIDATE_BOOLEAN);
             
-            update_option('ujc_automation_enabled', $enabled);
+            $settings_repository = new SettingsRepository();
+            $settings_repository->setAutomationEnabled($enabled);
+            
+            // Zarządzaj cron job
+            $generator = new UJC_Automated_Generator();
+            $generator->toggle_cron_job($enabled);
             
             $message = $enabled ? 'Automatyzacja została włączona' : 'Automatyzacja została wyłączona';
             

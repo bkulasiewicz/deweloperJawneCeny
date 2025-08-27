@@ -50,18 +50,6 @@
     padding: 5px 0;
 }
 
-.ujc-property-item {
-    background: #fff;
-    border: 1px solid #ccd0d4;
-    border-radius: 4px;
-    padding: 15px;
-    margin: 10px 0;
-}
-
-.ujc-property-item h4 {
-    margin: 0 0 10px 0;
-    color: #0073aa;
-}
 
 .ujc-date {
     color: #666;

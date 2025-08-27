@@ -10,8 +10,7 @@ if (!defined('ABSPATH')) {
  */
 class UJC_Automated_Generator {
     
-    private $csv_generator;
-    private $xml_generator;
+    private $settings_repository;
     private $intervals = [
         '1min' => 60,
         '15min' => 900,
@@ -20,8 +19,7 @@ class UJC_Automated_Generator {
     ];
     
     public function __construct() {
-        $this->csv_generator = new UJC_CSV_Generator();
-        $this->xml_generator = new UJC_XML_Generator();
+        $this->settings_repository = new SettingsRepository();
         
         add_action('init', [$this, 'init_automation']);
         add_filter('cron_schedules', [$this, 'add_custom_cron_schedules']);
@@ -31,8 +29,7 @@ class UJC_Automated_Generator {
      * Inicjalizuje cykliczną automatyzację - domyślnie północ UTC dla klientów
      */
     public function init_automation() {
-        $settings_repository = new SettingsRepository();
-        $current_interval = $settings_repository->getGenerationInterval();
+        $current_interval = $this->settings_repository->getGenerationInterval();
         
         if (!wp_next_scheduled('ujc_generate_files_cycle')) {
             $next_run = $this->calculate_next_utc_midnight();
@@ -46,17 +43,9 @@ class UJC_Automated_Generator {
      * Oblicza czas następnej północy UTC dla klientów produkcyjnych
      */
     public function calculate_next_utc_midnight() {
-        $settings_repository = new SettingsRepository();
-        $current_interval = $settings_repository->getGenerationInterval();
-        
-        if ($current_interval === '24hours') {
-            $utc_timezone = new DateTimeZone('UTC');
-            $now_utc = new DateTime('now', $utc_timezone);
-            $midnight_utc = new DateTime('tomorrow midnight', $utc_timezone);
-            return $midnight_utc->getTimestamp();
-        }
-        
-        return time();
+        $utc_timezone = new DateTimeZone('UTC');
+        $midnight_utc = new DateTime('tomorrow midnight', $utc_timezone);
+        return $midnight_utc->getTimestamp();
     }
     
     /**
@@ -73,8 +62,7 @@ class UJC_Automated_Generator {
             wp_die('Nieprawidłowy interwał');
         }
         
-        $settings_repository = new SettingsRepository();
-        $settings_repository->setGenerationInterval($interval);
+        $this->settings_repository->setGenerationInterval($interval);
         
         wp_clear_scheduled_hook('ujc_generate_files_cycle');
         
@@ -131,223 +119,109 @@ class UJC_Automated_Generator {
      * Dodaje switch on/off dla klientów
      */
     public function is_automation_enabled() {
-        $settings_repository = new SettingsRepository();
-        return $settings_repository->isAutomationEnabled();
+        return $this->settings_repository->isAutomationEnabled();
     }
     
     public function set_automation_enabled($enabled) {
-        $settings_repository = new SettingsRepository();
-        $settings_repository->setAutomationEnabled($enabled);
+        $this->settings_repository->setAutomationEnabled($enabled);
+    }
+    
+    /**
+     * Zarządzaj cron job na podstawie stanu automatyzacji
+     */
+    public function toggle_cron_job($enabled) {
+        if ($enabled) {
+            // Włącz automatyzację - dodaj cron job jeśli nie istnieje
+            if (!wp_next_scheduled('ujc_generate_files_cycle')) {
+                $current_interval = $this->settings_repository->getGenerationInterval();
+                
+                $next_run = ($current_interval === '24hours') ? 
+                    $this->calculate_next_utc_midnight() : 
+                    time();
+                    
+                wp_schedule_event($next_run, $this->get_cron_schedule($current_interval), 'ujc_generate_files_cycle');
+            }
+        } else {
+            // Wyłącz automatyzację - usuń cron job
+            wp_clear_scheduled_hook('ujc_generate_files_cycle');
+        }
     }
     
     /**
      * Główna metoda - generuje wszystkie wymagane pliki automatycznie
-     * Cykliczne działanie z możliwością wyłączenia przez klienta
      */
     public function generate_all_files() {
         if (!$this->is_automation_enabled()) {
-            $settings_repository = new SettingsRepository();
-            $settings_repository->setLastGenerationStatus('Automatyzacja wyłączona przez użytkownika');
-            $settings_repository->setLastGenerationTime();
-            
-            // Dodaj informację o wyłączonej automatyzacji
-            $this->add_to_history('disabled', 'automatyczne', 'Automatyzacja wyłączona przez użytkownika');
-            
-            error_log('UJC: Automatyczne generowanie wyłączone przez klienta');
+            $this->settings_repository->setLastGenerationStatus('Automatyzacja wyłączona');
+            $this->settings_repository->setLastGenerationTime();
+            $this->add_to_history('disabled', 'Automatyzacja wyłączona');
+            error_log('UJC: Automatyczne generowanie wyłączone');
             return false;
         }
-        try {
-            $csv_result = $this->csv_generator->generate_daily_csv();
-            if (!$csv_result) {
-                throw new Exception('Błąd generowania CSV');
-            }
-            
-            $xml_result = $this->xml_generator->generate_xml($csv_result['url']);
-            if (!$xml_result) {
-                throw new Exception('Błąd generowania XML');
-            }
-            
-            // Zapisz status sukcesu
-            $settings_repository = new SettingsRepository();
-            $settings_repository->setLastGenerationStatus('success');
-            $settings_repository->setLastGenerationTime();
-            
-            // Dodaj do historii
-            $this->add_to_history('success', 'automatyczne', 'Pliki wygenerowane pomyślnie');
-            
-            error_log('UJC: Pliki wygenerowane automatycznie o ' . date('Y-m-d H:i:s'));
-            
-            return [
-                'success' => true,
-                'csv' => $csv_result,
-                'xml' => $xml_result,
-                'message' => 'Pliki wygenerowane automatycznie'
-            ];
-            
-        } catch (Exception $e) {
-            // Przygotuj szczegółowy opis błędu
-            $detailed_error = $this->get_detailed_error_message($e);
-            
-            // Zapisz status błędu
-            $settings_repository = new SettingsRepository();
-            $settings_repository->setLastGenerationStatus($detailed_error);
-            $settings_repository->setLastGenerationTime();
-            
-            // Dodaj błąd do historii
-            $this->add_to_history('error', 'automatyczne', $detailed_error);
-            
-            error_log('UJC: Błąd automatycznego generowania: ' . $detailed_error);
-            return new WP_Error('generation_failed', 'Błąd generowania: ' . $detailed_error);
+        
+        // Wywołaj UseCase do generowania
+        $result = GenerateFilesUseCase::execute();
+        
+        // Zapisz status
+        if ($result['success']) {
+            $this->settings_repository->setLastGenerationStatus('success');
+            $this->settings_repository->setLastGenerationTime();
+            $this->add_to_history('success', 'Pliki wygenerowane pomyślnie');
+            error_log('UJC: Pliki wygenerowane o ' . date('Y-m-d H:i:s'));
+        } else {
+            $this->settings_repository->setLastGenerationStatus($result['error']);
+            $this->settings_repository->setLastGenerationTime();
+            $this->add_to_history('error', $result['error']);
+            error_log('UJC: Błąd generowania: ' . $result['error']);
         }
+        
+        return $result;
     }
+    
+    const HISTORY_LIMIT = 50;
     
     /**
      * Dodaje wpis do historii generowania
      */
-    public function add_to_history($status, $type, $message) {
-        $settings_repository = new SettingsRepository();
-        $history = $settings_repository->getGenerationHistory();
+    public function add_to_history($status, $message) {
+        $history = $this->settings_repository->getGenerationHistory();
         
         // Dodaj nowy wpis
         $history[] = [
             'timestamp' => time(),
             'status' => $status,
-            'type' => $type,
             'message' => $message
         ];
         
-        // Ogranicz historię do 50 ostatnich wpisów
-        if (count($history) > 50) {
-            $history = array_slice($history, -50);
+        // Ogranicz historię do ostatnich wpisów
+        if (count($history) > self::HISTORY_LIMIT) {
+            $history = array_slice($history, -self::HISTORY_LIMIT);
         }
         
-        $settings_repository->setGenerationHistory($history);
+        $this->settings_repository->setGenerationHistory($history);
     }
     
     /**
      * Publiczna metoda do generowania plików - używana przez wszystkie komponenty
      */
-    public function generate_files_manual($source = 'manual') {
-        try {
-            $csv_result = $this->csv_generator->generate_daily_csv();
-            if (!$csv_result) {
-                throw new Exception('Błąd generowania CSV');
-            }
-            
-            $xml_result = $this->xml_generator->generate_xml($csv_result['url']);
-            if (!$xml_result) {
-                throw new Exception('Błąd generowania XML');
-            }
-            
-            // Zapisz status sukcesu
-            $settings_repository = new SettingsRepository();
-            $settings_repository->setLastGenerationStatus('success (' . $source . ')');
-            $settings_repository->setLastGenerationTime();
-            
-            // Dodaj do historii
-            $this->add_to_history('success', $source, 'Pliki wygenerowane pomyślnie');
-            
-            return [
-                'success' => true,
-                'message' => 'Pliki zostały wygenerowane i opublikowane pomyślnie',
-                'csv' => $csv_result,
-                'xml' => $xml_result
-            ];
-            
-        } catch (Exception $e) {
-            // Przygotuj szczegółowy opis błędu
-            $detailed_error = $this->get_detailed_error_message($e);
-            
-            // Zapisz status błędu
-            $settings_repository = new SettingsRepository();
-            $settings_repository->setLastGenerationStatus($detailed_error . ' (' . $source . ')');
-            $settings_repository->setLastGenerationTime();
-            
-            // Dodaj błąd do historii
-            $this->add_to_history('error', $source, $detailed_error);
-            
-            error_log('UJC: Błąd generowania (' . $source . '): ' . $detailed_error);
-            
-            return [
-                'success' => false,
-                'error' => $detailed_error
-            ];
-        }
-    }
-    
-    /**
-     * Tworzy szczegółowy opis błędu na podstawie wyjątku
-     */
-    private function get_detailed_error_message(Exception $e) {
-        $message = $e->getMessage();
+    public function generate_files_manual() {
+        // Wywołaj UseCase do generowania
+        $result = GenerateFilesUseCase::execute();
         
-        // Sprawdź czy to błąd generowania CSV
-        if (strpos($message, 'Błąd generowania CSV') !== false) {
-            $developer_repo = new UJC_Developer_Repository();
-            $developer = $developer_repo->read();
-            $resource_repo = new UJC_Resource_Repository();
-            $properties = $resource_repo->readAll();
-            
-            if (!$developer) {
-                return "Błąd CSV: Brak danych dewelopera. Uzupełnij dane dewelopera w zakładce 'Dane Dostawcy'.";
-            }
-            
-            if (empty($properties)) {
-                return "Błąd CSV: Brak nieruchomości do eksportu. Dodaj nieruchomości w zakładce 'Zasoby'.";
-            }
-            
-            $upload_dir = wp_upload_dir();
-            $ujc_dir = $upload_dir['basedir'] . '/ujc-data';
-            
-            if (!is_dir($ujc_dir) && !wp_mkdir_p($ujc_dir)) {
-                return "Błąd CSV: Nie można utworzyć katalogu " . $ujc_dir . ". Sprawdź uprawnienia do zapisu.";
-            }
-            
-            if (!is_writable($ujc_dir)) {
-                return "Błąd CSV: Brak uprawnień do zapisu w katalogu " . $ujc_dir . ". Sprawdź uprawnienia plików.";
-            }
-            
-            return "Błąd CSV: Nieznany błąd podczas tworzenia pliku. Sprawdź logi serwera.";
+        // Zapisz status
+        if ($result['success']) {
+            $this->settings_repository->setLastGenerationStatus('success');
+            $this->settings_repository->setLastGenerationTime();
+            $this->add_to_history('success', 'Pliki wygenerowane pomyślnie');
+            error_log('UJC: Pliki wygenerowane ręcznie o ' . date('Y-m-d H:i:s'));
+        } else {
+            $this->settings_repository->setLastGenerationStatus($result['error']);
+            $this->settings_repository->setLastGenerationTime();
+            $this->add_to_history('error', $result['error']);
+            error_log('UJC: Błąd generowania: ' . $result['error']);
         }
         
-        // Sprawdź czy to błąd generowania XML
-        if (strpos($message, 'Błąd generowania XML') !== false) {
-            $upload_dir = wp_upload_dir();
-            $ujc_dir = $upload_dir['basedir'] . '/ujc-data';
-            
-            if (!is_dir($ujc_dir)) {
-                return "Błąd XML: Katalog " . $ujc_dir . " nie istnieje.";
-            }
-            
-            if (!is_writable($ujc_dir)) {
-                return "Błąd XML: Brak uprawnień do zapisu w katalogu " . $ujc_dir . ". Sprawdź uprawnienia plików.";
-            }
-            
-            return "Błąd XML: Nieznany błąd podczas tworzenia pliku XML lub MD5. Sprawdź logi serwera.";
-        }
-        
-        // Sprawdź błędy związane z uprawnieniami
-        if (strpos($message, 'Permission denied') !== false || strpos($message, 'permission') !== false) {
-            return "Błąd uprawnień: " . $message . ". Sprawdź uprawnienia plików i katalogów.";
-        }
-        
-        // Sprawdź błędy dyskowe
-        if (strpos($message, 'No space left') !== false || strpos($message, 'disk full') !== false) {
-            return "Błąd dysku: Brak miejsca na dysku. " . $message;
-        }
-        
-        // Sprawdź błędy PHP
-        if (strpos($message, 'Fatal error') !== false) {
-            return "Błąd PHP: " . $message . ". Sprawdź konfigurację PHP i logi błędów.";
-        }
-        
-        // Sprawdź błędy bazy danych
-        if (strpos($message, 'database') !== false || strpos($message, 'MySQL') !== false) {
-            return "Błąd bazy danych: " . $message . ". Sprawdź połączenie z bazą danych.";
-        }
-        
-        // Domyślny szczegółowy opis
-        return "Błąd: " . $message . " (Czas: " . date('Y-m-d H:i:s') . ")";
+        return $result;
     }
     
 }

@@ -17,9 +17,9 @@ class UJC_Publication_Page {
         check_ajax_referer('ujc_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
         
-        require_once UJC_PLUGIN_DIR . 'includes/UseCases/GenerateFilesManuallyUseCase.php';
+        require_once UJC_PLUGIN_DIR . 'includes/UseCases/GenerateFilesUseCase.php';
         
-        $result = GenerateFilesManuallyUseCase::execute();
+        $result = GenerateFilesUseCase::execute();
         
         if ($result['success']) {
             wp_send_json_success($result['message']);

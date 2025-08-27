@@ -2,7 +2,7 @@
 /**
  * Plugin Name: DeweloperJawneCeny
  * Description: Plugin do automatyzacji procesu dostarczania danych zgodnie z wymogami Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego
- * Version: 1.15.2
+ * Version: 1.15.3
  * Author: Deweloper
  */
 
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 define('UJC_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('UJC_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('UJC_DB_VERSION', '1.1');
-define('UJC_VERSION', '1.15.2');
+define('UJC_VERSION', '1.15.3');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -61,7 +61,7 @@ class DeweloperJawneCeny {
         require_once UJC_PLUGIN_DIR . 'includes/UseCases/ResetDatabaseUseCase.php';
         require_once UJC_PLUGIN_DIR . 'includes/UseCases/SaveDeveloperInfoUseCase.php';
         require_once UJC_PLUGIN_DIR . 'includes/UseCases/SaveInvestmentInfoUseCase.php';
-        require_once UJC_PLUGIN_DIR . 'includes/UseCases/GenerateFilesManuallyUseCase.php';
+        require_once UJC_PLUGIN_DIR . 'includes/UseCases/GenerateFilesUseCase.php';
         require_once UJC_PLUGIN_DIR . 'includes/UseCases/ToggleAutomationUseCase.php';
         
         // Controllers

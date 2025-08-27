@@ -304,9 +304,7 @@ class UJC_Schema_Manager {
         $tables = [
             'ujc_resources',
             'ujc_resource_extras', 
-            'ujc_price_history',
-            'ujc_properties',
-            'ujc_property_extras'
+            'ujc_price_history'
         ];
         
         foreach ($tables as $table_suffix) {
