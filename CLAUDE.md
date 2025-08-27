@@ -8,13 +8,25 @@ This is a WordPress plugin called "DeweloperJawneCeny" that automates the proces
 
 ## Architecture
 
+### Naming Conventions
+The codebase follows consistent, clean naming without prefixes:
+- **Use Cases**: `{Action}{Entity}UseCase` (e.g., `GenerateCSVFileUseCase`, `SaveResourceUseCase`)
+- **Services/Helpers**: `{Purpose}{Service}` (e.g., `CSVFormatter`, `FileManager`, `DateHelper`)
+- **Repositories**: `{Entity}Repository` (e.g., `DeveloperRepository`, `ResourceRepository`)
+- **Controllers**: `{Purpose}Controller` (e.g., `AutomatedGenerator`, `FileDownloadHandler`)
+- **Database Tables**: `{table_name}` (no prefixes - e.g., `developers`, `resources`)
+- **Constants**: `{CONSTANT_NAME}` (no prefixes - e.g., `PLUGIN_DIR`, `DB_VERSION`)
+- **CSS**: `.{semantic-name}` or `#{semantic-name}` (no prefixes - e.g., `.admin-page`, `#resource-form`)
+- **Variables**: Domain-specific names (`$resources`, not `$properties`)
+
 ### Use Case Pattern
 The codebase follows a Use Case pattern for business logic:
 - **Location**: `includes/UseCases/`
 - **Pattern**: Each use case is a class handling a specific business operation
 - **Key Use Cases**:
   - `SaveResourceUseCase` - Saves property resources
-  - `GenerateFilesUseCase` - File generation (CSV and XML)
+  - `GenerateCSVFileUseCase` - CSV file generation
+  - `GenerateXMLFileUseCase` - XML file generation
   - `ToggleAutomationUseCase` - Toggle automated publishing
   - `ImportResourcesUseCase` - Import property data from CSV
 
@@ -22,26 +34,34 @@ The codebase follows a Use Case pattern for business logic:
 Data access is handled through repositories:
 - **Location**: `includes/repositories/`
 - **Key Repositories**:
-  - `UJC_Developer_Repository` - Developer data management
-  - `UJC_Investment_Repository` - Investment project management
-  - `UJC_Resource_Repository` - Property resource management
-  - `UJC_Price_History_Repository` - Price change tracking
+  - `DeveloperRepository` - Developer data management
+  - `InvestmentRepository` - Investment project management
+  - `ResourceRepository` - Property resource management
+  - `PriceHistoryRepository` - Price change tracking
   - `SettingsRepository` - Plugin settings
 
+### Service Layer
+Pure business logic and formatting services:
+- **Location**: `includes/services/`
+- **Key Services**:
+  - `CSVFormatter` - Pure CSV generation logic
+  - `XMLFormatter` - Pure XML generation logic
+  - `FileManager` - File system operations
+  - `DateHelper` - Date formatting utilities
+
 ### MVC Structure
-- **Controllers** (`includes/controllers/`): Handle automation and generation
-  - `UJC_XML_Generator` - XML file generation logic
-  - `UJC_CSV_Generator` - CSV file generation logic
-  - `UJC_Automated_Generator` - Automation management (cron, history, status)
+- **Controllers** (`includes/controllers/`): Handle automation and orchestration
+  - `AutomatedGenerator` - Automation management (cron, history, status)
+  - `FileDownloadHandler` - File serving and download management
 - **Views** (`includes/views/`): Admin interface and frontend display
-  - Admin pages extend `abstract-ujc-admin-page.php`
+  - Admin pages extend `AbstractAdminPage`
   - Components for modals and UI elements
 - **Models**: Data structures are managed through repositories
 
 ### Database Architecture
-- Custom WordPress tables with prefix `ujc_`
-- Versioning system: `UJC_Database_Versioning` manages schema updates
-- Current DB version: 1.1 (defined in `UJC_DB_VERSION`)
+- Custom WordPress tables: `developers`, `resources`, `investments`, `price_history`
+- Versioning system: `DatabaseVersioning` manages schema updates
+- Current DB version: 1.1 (defined in `DB_VERSION`)
 
 ## Development Commands
 
@@ -69,26 +89,26 @@ wp plugin status ustawa-jawnosci-cen
 ## Key Files and Entry Points
 
 - **Main Plugin File**: `ustawa-jawnosci-cen.php` - Plugin initialization and dependency loading
-- **Admin Interface**: `includes/views/admin/class-ujc-admin.php` - Admin menu and page routing
-- **Database Schema**: `includes/core/class-ujc-schema-manager.php` - Table creation and updates
-- **Automated Publishing**: `includes/controllers/class-ujc-automated-generator.php` - Cron job management
+- **Admin Interface**: `includes/views/admin/AdminInterface.php` - Admin menu and page routing
+- **Database Schema**: `includes/core/SchemaManager.php` - Table creation and updates
+- **Automated Publishing**: `includes/controllers/AutomatedGenerator.php` - Cron job management
 
 ## Data Flow
 
 1. Developer/Investment data is entered via admin interface
 2. Property resources are added with pricing information
-3. `GenerateFilesUseCase` handles all file generation (CSV and XML)
-4. `UJC_Automated_Generator` manages automation (scheduling, history, status)
+3. `GenerateCSVFileUseCase` and `GenerateXMLFileUseCase` handle file generation
+4. `AutomatedGenerator` manages automation (scheduling, history, status)
 5. Files are stored in `/wp-content/uploads/ujc-data/`
 6. Price changes are tracked in history table
-7. Frontend shortcode system prepared for future implementation
+7. Public data can be displayed via shortcode `[ujc_public_data]`
 
 ## Important Constants
 
-- `UJC_PLUGIN_DIR` - Plugin directory path
-- `UJC_PLUGIN_URL` - Plugin URL
-- `UJC_DB_VERSION` - Database schema version (1.1)
-- `UJC_VERSION` - Plugin version (check `ustawa-jawnosci-cen.php` for current)
+- `PLUGIN_DIR` - Plugin directory path
+- `PLUGIN_URL` - Plugin URL
+- `DB_VERSION` - Database schema version (1.1)
+- `VERSION` - Plugin version (check `ustawa-jawnosci-cen.php` for current)
 
 ## File Generation Format
 

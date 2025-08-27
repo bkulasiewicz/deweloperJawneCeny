@@ -5,76 +5,32 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Generator CSV - podstawowa implementacja MVP
+ * Pure CSV formatting service - only handles CSV generation logic
+ * File management is handled by FileManager
  */
-class UJC_CSV_Generator {
+class CSVFormatter {
     
-    public function generate_daily_csv() {
-        $developer_repo = new UJC_Developer_Repository();
-        $developer = $developer_repo->read();
-        $resource_repo = new UJC_Resource_Repository();
-        $properties = $resource_repo->readAll();
+    /**
+     * Generate CSV rows from developer and resources data
+     * 
+     * @param array $developer Developer data
+     * @param array $resources Array of resource data
+     * @return Generator CSV rows as generator for memory efficiency
+     */
+    public function generate(array $developer, array $resources): Generator {
+        // Yield headers first
+        yield $this->getCsvHeaders();
         
-        if (!$developer || empty($properties)) {
-            return false;
+        // Yield data rows
+        foreach ($resources as $resource) {
+            yield $this->resourceToRow($developer, $resource);
         }
-        
-        // Przygotuj dane CSV
-        $csv_data = [];
-        $csv_data[] = $this->get_csv_headers();
-        
-        foreach ($properties as $property) {
-            $csv_data[] = $this->property_to_csv_row($developer, $property);
-        }
-        
-        // Zapisz CSV
-        $upload_dir = wp_upload_dir();
-        $ujc_dir = $upload_dir['basedir'] . '/ujc-data';
-        if (!file_exists($ujc_dir)) {
-            wp_mkdir_p($ujc_dir);
-        }
-        
-        // NAZWA zgodna z wymaganiami ustawy: Ceny-ofertowe-mieszkan-dewelopera-{nazwa dewelopera}-{YYYY-MM-DD}.csv
-        $developer_name_clean = $this->sanitize_filename_part($developer['nazwa']);
-        $date_string = date('Y-m-d');
-        $filename = "Ceny-ofertowe-mieszkan-dewelopera-{$developer_name_clean}-{$date_string}.csv";
-        $filepath = $ujc_dir . '/' . $filename;
-        
-        $file = fopen($filepath, 'w');
-        if (!$file) {
-            return false;
-        }
-        
-        foreach ($csv_data as $row) {
-            fputcsv($file, $row, ';');
-        }
-        fclose($file);
-        
-        // MD5 NIE jest wymagane dla CSV (tylko dla XML)
-        
-        return [
-            'success' => true,
-            'filepath' => $filepath,
-            'filename' => $filename,
-            'url' => $upload_dir['baseurl'] . '/ujc-data/' . $filename
-        ];
     }
     
     /**
-     * Czyści część nazwy pliku (usuwa niebezpieczne znaki) zgodnie z wymaganiami ustawy
+     * Get CSV headers according to Polish law requirements
      */
-    private function sanitize_filename_part($name) {
-        // Usuń polskie znaki i zastąp bezpiecznymi
-        $name = iconv('UTF-8', 'ASCII//TRANSLIT', $name);
-        // Usuń wszystko oprócz liter, cyfr, myślników
-        $name = preg_replace('/[^a-zA-Z0-9\-]/', '-', $name);
-        // Usuń wielokrotne myślniki
-        $name = preg_replace('/-+/', '-', $name);
-        // Usuń myślniki z początku i końca
-        return trim($name, '-');
-    }
-    
-    private function get_csv_headers() {
+    private function getCsvHeaders(): array {
         return [
             'Nazwa dewelopera',
             'Forma prawna dewelopera',
@@ -137,11 +93,14 @@ class UJC_CSV_Generator {
         ];
     }
     
-    private function property_to_csv_row($developer, $property) {
-        // Pobierz pierwszy dodatek (dla MVP)
-        $first_extra = $property['extras'][0] ?? [];
+    /**
+     * Convert resource data to CSV row
+     */
+    private function resourceToRow(array $developer, array $resource): array {
+        // Get first extra for MVP
+        $first_extra = $resource['extras'][0] ?? [];
         
-        return [
+        $row = [
             $developer['nazwa'] ?? '',
             $developer['forma_prawna'] ?? '',
             $developer['nr_krs'] ?? '',
@@ -153,7 +112,7 @@ class UJC_CSV_Generator {
             $developer['fax'] ?? '',
             $developer['strona_www'] ?? '',
             
-            // Adres siedziby
+            // Headquarters address
             $developer['siedz_wojewodztwo'] ?? '',
             $developer['siedz_powiat'] ?? '',
             $developer['siedz_gmina'] ?? '',
@@ -163,7 +122,7 @@ class UJC_CSV_Generator {
             $developer['siedz_lokal'] ?? '',
             $developer['siedz_kod'] ?? '',
             
-            // Adres sprzedaży
+            // Sales address
             $developer['sprzed_wojewodztwo'] ?? $developer['siedz_wojewodztwo'] ?? '',
             $developer['sprzed_powiat'] ?? $developer['siedz_powiat'] ?? '',
             $developer['sprzed_gmina'] ?? $developer['siedz_gmina'] ?? '',
@@ -176,60 +135,74 @@ class UJC_CSV_Generator {
             $developer['dodatkowe_lokalizacje'] ?? '',
             $developer['sposob_kontaktu'] ?? '',
             
-            // Projekt
-            $property['proj_wojewodztwo'] ?? '',
-            $property['proj_powiat'] ?? '',
-            $property['proj_gmina'] ?? '',
-            $property['proj_miejscowosc'] ?? '',
-            $property['proj_ulica'] ?? '',
-            $property['proj_nr'] ?? '',
-            $property['proj_kod'] ?? '',
+            // Project location
+            $resource['proj_wojewodztwo'] ?? '',
+            $resource['proj_powiat'] ?? '',
+            $resource['proj_gmina'] ?? '',
+            $resource['proj_miejscowosc'] ?? '',
+            $resource['proj_ulica'] ?? '',
+            $resource['proj_nr'] ?? '',
+            $resource['proj_kod'] ?? '',
             
-            // Nieruchomość - używamy aktualnych cen z historii lub podstawowych
-            $property['rodzaj_nieruchomosci'] ?? '',
-            $property['nr_lokalu'] ?? '',
-            $property['current_cena_m2'] ?? $property['cena_m2'] ?? '',
-            UJC_Date_Helper::format_for_csv($property['current_data_zmiany'] ?? $property['data_cena_m2']),
+            // Property - use current prices from history or basic ones
+            $resource['rodzaj_nieruchomosci'] ?? '',
+            $resource['nr_lokalu'] ?? '',
+            $resource['current_cena_m2'] ?? $resource['cena_m2'] ?? '',
+            DateHelper::formatForCsv($resource['current_data_zmiany'] ?? $resource['data_cena_m2']),
             
-            // Cena całkowita
-            $property['current_cena_calkowita'] ?? $property['cena_calkowita'] ?? '',
-            UJC_Date_Helper::format_for_csv($property['current_data_zmiany'] ?? $property['data_cena_calkowita']),
-            $property['current_cena_z_dodatkami'] ?? $property['cena_z_dodatkami'] ?? '',
-            UJC_Date_Helper::format_for_csv($property['current_data_zmiany'] ?? $property['data_cena_z_dodatkami']),
+            // Total price
+            $resource['current_cena_calkowita'] ?? $resource['cena_calkowita'] ?? '',
+            DateHelper::formatForCsv($resource['current_data_zmiany'] ?? $resource['data_cena_calkowita']),
+            $resource['current_cena_z_dodatkami'] ?? $resource['cena_z_dodatkami'] ?? '',
+            DateHelper::formatForCsv($resource['current_data_zmiany'] ?? $resource['data_cena_z_dodatkami']),
             
-            // Części nieruchomości (pobierz z tabeli parts)
-            $property['first_part']['rodzaj_czesci'] ?? '',
-            $property['first_part']['oznaczenie_czesci'] ?? '', 
-            $property['first_part']['cena_czesci'] ?? '',
-            UJC_Date_Helper::format_for_csv($property['first_part']['data_cena_czesci'] ?? null),
+            // Property parts (get from parts table)
+            $resource['first_part']['rodzaj_czesci'] ?? '',
+            $resource['first_part']['oznaczenie_czesci'] ?? '', 
+            $resource['first_part']['cena_czesci'] ?? '',
+            DateHelper::formatForCsv($resource['first_part']['data_cena_czesci'] ?? null),
             
-            // Pomieszczenia przynależne
+            // Associated rooms
             $first_extra['typ_dodatku'] ?? '',
             $first_extra['oznaczenie_dodatku'] ?? '',
             $first_extra['cena_dodatku'] ?? '',
-            UJC_Date_Helper::format_for_csv($first_extra['data_cena_dodatku'] ?? null),
+            DateHelper::formatForCsv($first_extra['data_cena_dodatku'] ?? null),
             
-            // Prawa
+            // Rights
             $first_extra['typ_prawa'] ?? '',
             $first_extra['wartosc_prawa'] ?? '',
-            UJC_Date_Helper::format_for_csv($first_extra['data_wartosc_prawa'] ?? null),
+            DateHelper::formatForCsv($first_extra['data_wartosc_prawa'] ?? null),
             
-            // Inne świadczenia
+            // Other services
             $first_extra['typ_swiadczenia'] ?? '',
             $first_extra['wartosc_swiadczenia'] ?? '',
-            UJC_Date_Helper::format_for_csv($first_extra['data_wartosc_swiadczenia'] ?? null),
+            DateHelper::formatForCsv($first_extra['data_wartosc_swiadczenia'] ?? null),
             
             $developer['prospekt_url'] ?? ''
         ];
         
-        // Zastąp wszystkie puste wartości na 'X' zgodnie z szablonem ustawy
-        return $this->apply_csv_empty_rules($row);
+        // Replace all empty values with 'X' according to law template
+        return $this->applyCsvEmptyRules($row);
     }
     
     /**
-     * Zastępuje puste wartości na 'X' zgodnie z szablonem CSV ustawy
+     * Replace empty values with 'X' according to CSV law template
      */
-    private function apply_csv_empty_rules($row) {
+    private function applyCsvEmptyRules(array $row): array {
         return array_map(fn($value) => empty($value) ? 'X' : $value, $row);
+    }
+    
+    /**
+     * Clean filename part (remove unsafe characters) according to law requirements
+     */
+    public function sanitizeFilenamePart(string $name): string {
+        // Remove Polish characters and replace with safe ones
+        $name = iconv('UTF-8', 'ASCII//TRANSLIT', $name);
+        // Remove everything except letters, numbers, hyphens
+        $name = preg_replace('/[^a-zA-Z0-9\\-]/', '-', $name);
+        // Remove multiple hyphens
+        $name = preg_replace('/-+/', '-', $name);
+        // Remove hyphens from start and end
+        return trim($name, '-');
     }
 }

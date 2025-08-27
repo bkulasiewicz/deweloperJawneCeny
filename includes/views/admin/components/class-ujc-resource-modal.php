@@ -4,8 +4,8 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-require_once UJC_PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
-require_once UJC_PLUGIN_DIR . 'includes/views/admin/components/class-ujc-property-parts-tooltip.php';
+require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
+require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-property-parts-tooltip.php';
 
 /**
  * Komponent modalu dla zasobów - Single Responsibility Principle

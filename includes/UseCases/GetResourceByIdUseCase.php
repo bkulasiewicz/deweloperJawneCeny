@@ -9,7 +9,7 @@ class GetResourceByIdUseCase {
     private $repository;
     
     public function __construct() {
-        $this->repository = new UJC_Resource_Repository();
+        $this->repository = new ResourceRepository();
     }
     
     public function execute($resource_id) {

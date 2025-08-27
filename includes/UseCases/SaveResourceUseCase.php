@@ -10,8 +10,8 @@ class SaveResourceUseCase {
     private $price_history_repo;
     
     public function __construct() {
-        $this->repository = new UJC_Resource_Repository();
-        $this->price_history_repo = new UJC_Price_History_Repository();
+        $this->repository = new ResourceRepository();
+        $this->price_history_repo = new PriceHistoryRepository();
     }
     
     public function execute($data, $resource_id = null) {

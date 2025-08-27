@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-require_once UJC_PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
+require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
 
 /**
  * Strona danych dostawcy - przeprojektowana z lepszym UX

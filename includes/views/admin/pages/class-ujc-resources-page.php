@@ -130,9 +130,9 @@ class UJC_Resources_Page {
     
     private function render_resources_form($investment) {
         // Załaduj komponenty modalowe i itemów
-        require_once UJC_PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-modal.php';
-        require_once UJC_PLUGIN_DIR . 'includes/views/admin/components/class-ujc-investment-modal.php';
-        require_once UJC_PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-item.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-modal.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-investment-modal.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-item.php';
         $resourceModal = new UJC_Resource_Modal();
         $investmentModal = new UJC_Investment_Modal();
         
@@ -315,7 +315,7 @@ class UJC_Resources_Page {
         check_ajax_referer('ujc_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
         
-        require_once UJC_PLUGIN_DIR . 'includes/UseCases/SaveInvestmentInfoUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/SaveInvestmentInfoUseCase.php';
         
         $result = SaveInvestmentInfoUseCase::execute($_POST);
         

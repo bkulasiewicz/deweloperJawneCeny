@@ -22,20 +22,20 @@ class UJC_Admin {
     
     private function load_admin_pages() {
         // Załaduj abstrakcyjną klasę bazową
-        require_once UJC_PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
+        require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
         
         // Załaduj strony admin
-        require_once UJC_PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-dashboard-page.php';
-        require_once UJC_PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-supplier-data-page.php';
-        require_once UJC_PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-resources-page.php';
-        require_once UJC_PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-publication-page.php';
-        require_once UJC_PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-dev-console.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-dashboard-page.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-supplier-data-page.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-resources-page.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-publication-page.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-dev-console.php';
         
         // Załaduj komponenty UI
-        require_once UJC_PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-modal.php';
-        require_once UJC_PLUGIN_DIR . 'includes/views/admin/components/class-ujc-investment-modal.php';
-        require_once UJC_PLUGIN_DIR . 'includes/views/admin/components/class-ujc-history-modal.php';
-        require_once UJC_PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-item.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-modal.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-investment-modal.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-history-modal.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-item.php';
         
         
         // Inicjalizuj strony zgodnie z Dependency Injection - przechowaj instancje
@@ -51,7 +51,7 @@ class UJC_Admin {
     public function add_admin_menu() {
         add_menu_page(
             'DeweloperJawneCeny',
-            'Pulpit',
+            'DeweloperJawneCeny',
             'manage_options',
             'ujc-dashboard',
             [$this, 'dashboard_page'],
@@ -109,8 +109,8 @@ class UJC_Admin {
             return;
         }
         
-        wp_enqueue_script('ujc-admin-js', UJC_PLUGIN_URL . 'assets/admin.js', ['jquery'], UJC_VERSION, true);
-        wp_enqueue_style('ujc-admin-css', UJC_PLUGIN_URL . 'assets/admin.css', [], UJC_VERSION);
+        wp_enqueue_script('ujc-admin-js', PLUGIN_URL . 'assets/admin.js', ['jquery'], VERSION, true);
+        wp_enqueue_style('ujc-admin-css', PLUGIN_URL . 'assets/admin.css', [], VERSION);
         
         wp_localize_script('ujc-admin-js', 'ujc_ajax', [
             'ajax_url' => admin_url('admin-ajax.php'),

@@ -4,14 +4,14 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class UJC_Price_History_Repository {
+class PriceHistoryRepository {
     
     /**
-     * Pobiera historię cen dla zasobu
+     * Get price history for resource
      */
     public function readByResourceId($resource_id) {
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_price_history';
+        $table = $wpdb->prefix . 'ujc_price_history'; // Will be updated to 'price_history' later
         
         return $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM $table WHERE resource_id = %d ORDER BY data_zmiany DESC", 
@@ -20,21 +20,21 @@ class UJC_Price_History_Repository {
     }
     
     /**
-     * Zapisuje historię zmian cen (rozszerzona logika)
+     * Save price change history (extended logic)
      */
     public function saveHistory($resource_id, $old_data, $new_data) {
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_price_history';
+        $table = $wpdb->prefix . 'ujc_price_history'; // Will be updated to 'price_history' later
         
-        // Sprawdź czy rzeczywiście nastąpiła zmiana cen
+        // Check if price really changed
         $price_changed = false;
         $history_data = [
             'resource_id' => $resource_id,
-            'data_zmiany' => UJC_Date_Helper::current_datetime(),
+            'data_zmiany' => DateHelper::currentDatetime(),
             'user_id' => get_current_user_id()
         ];
         
-        // Sprawdź zmianę ceny m2
+        // Check price per sqm change
         if (isset($old_data['cena_m2']) && isset($new_data['cena_m2']) && 
             $old_data['cena_m2'] != $new_data['cena_m2']) {
             $history_data['cena_m2_old'] = $old_data['cena_m2'];
@@ -44,7 +44,7 @@ class UJC_Price_History_Repository {
             $history_data['cena_m2_new'] = $new_data['cena_m2'];
         }
         
-        // Sprawdź zmianę ceny całkowitej
+        // Check total price change
         if (isset($old_data['cena_calkowita']) && isset($new_data['cena_calkowita']) && 
             $old_data['cena_calkowita'] != $new_data['cena_calkowita']) {
             $history_data['cena_calkowita_old'] = $old_data['cena_calkowita'];
@@ -54,7 +54,7 @@ class UJC_Price_History_Repository {
             $history_data['cena_calkowita_new'] = $new_data['cena_calkowita'];
         }
         
-        // Sprawdź zmianę ceny z dodatkami
+        // Check price with extras change
         if (isset($old_data['cena_z_dodatkami']) && isset($new_data['cena_z_dodatkami']) && 
             $old_data['cena_z_dodatkami'] != $new_data['cena_z_dodatkami']) {
             $history_data['cena_z_dodatkami_old'] = $old_data['cena_z_dodatkami'];
@@ -64,7 +64,7 @@ class UJC_Price_History_Repository {
             $history_data['cena_z_dodatkami_new'] = $new_data['cena_z_dodatkami'];
         }
         
-        // Zapisz historię tylko jeśli nastąpiła zmiana lub to pierwszy wpis
+        // Save history only if price changed or it's first entry
         if ($price_changed || empty($old_data)) {
             return $wpdb->insert($table, $history_data);
         }
@@ -73,22 +73,22 @@ class UJC_Price_History_Repository {
     }
     
     /**
-     * Zapisuje nowy wpis w historii cen (prosta wersja)
+     * Save new price history entry (simple version)
      */
     public function save($data) {
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_price_history';
+        $table = $wpdb->prefix . 'ujc_price_history'; // Will be updated to 'price_history' later
         
         return $wpdb->insert($table, $data);
     }
     
     /**
-     * Pobiera pełną historię cen do eksportu CSV
+     * Get full price history for CSV export
      */
     public function readForExport() {
         global $wpdb;
-        $history_table = $wpdb->prefix . 'ujc_price_history';
-        $resources_table = $wpdb->prefix . 'ujc_resources';
+        $history_table = $wpdb->prefix . 'ujc_price_history'; // Will be updated to 'price_history' later
+        $resources_table = $wpdb->prefix . 'ujc_resources'; // Will be updated to 'resources' later
         
         $sql = "
             SELECT DISTINCT

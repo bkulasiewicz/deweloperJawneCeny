@@ -4,33 +4,33 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class UJC_Developer_Repository {
+class DeveloperRepository {
     
     /**
-     * Pobiera dane dewelopera
+     * Get developer data
      */
     public function read() {
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_developer_info';
+        $table = $wpdb->prefix . 'ujc_developer_info'; // Will be updated to 'developers' later
         
         return $wpdb->get_row("SELECT * FROM $table LIMIT 1", ARRAY_A);
     }
     
     /**
-     * Zapisuje dane dewelopera (create lub update)
+     * Save developer data (create or update)
      */
     public function save($data) {
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_developer_info';
+        $table = $wpdb->prefix . 'ujc_developer_info'; // Will be updated to 'developers' later
         
-        // Sprawdź czy już istnieje rekord
+        // Check if record already exists
         $existing = $this->read();
         
         if ($existing) {
-            // Aktualizuj istniejący
+            // Update existing
             return $wpdb->update($table, $data, ['id' => $existing['id']]);
         } else {
-            // Utwórz nowy
+            // Create new
             return $wpdb->insert($table, $data);
         }
     }
