@@ -24,7 +24,7 @@ class UJC_History_Modal {
         }
         
         $resource_id = intval($_POST['resource_id'] ?? 0);
-        $price_history_repo = new UJC_Price_History_Repository();
+        $price_history_repo = new PriceHistoryRepository();
         $history = $price_history_repo->readByResourceId($resource_id);
         
         ob_start();
@@ -35,7 +35,7 @@ class UJC_History_Modal {
             echo '<thead><tr><th>Data zmiany</th><th>Cena m²</th><th>Cena całkowita</th><th>Cena z dodatkami</th></tr></thead><tbody>';
             foreach ($history as $record) {
                 echo '<tr>';
-                echo '<td>' . UJC_Date_Helper::format_for_user($record['data_zmiany']) . '</td>';
+                echo '<td>' . DateHelper::formatForUser($record['data_zmiany']) . '</td>';
                 echo '<td>' . number_format($record['cena_m2_new'], 2, ',', ' ') . ' zł</td>';
                 echo '<td>' . ($record['cena_calkowita_new'] ? number_format($record['cena_calkowita_new'], 2, ',', ' ') . ' zł' : '-') . '</td>';
                 echo '<td>' . ($record['cena_z_dodatkami_new'] ? number_format($record['cena_z_dodatkami_new'], 2, ',', ' ') . ' zł' : '-') . '</td>';

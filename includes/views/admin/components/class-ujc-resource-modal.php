@@ -573,7 +573,7 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
         
         try {
             $data = $this->sanitize_resource_data();
-            $current_datetime = UJC_Date_Helper::current_datetime();
+            $current_datetime = DateHelper::currentDatetime();
             $data = $this->set_price_dates_for_new_resource($data, $current_datetime);
             
             error_log('UJC: Resource data to save: ' . print_r($data, true));
@@ -645,7 +645,7 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
             // Zaktualizuj daty tylko dla zmienionych cen
             $getUseCase = new GetResourceByIdUseCase();
             $old_data = $getUseCase->execute($resource_id);
-            $current_datetime = UJC_Date_Helper::current_datetime();
+            $current_datetime = DateHelper::currentDatetime();
             $data = $this->update_price_dates_if_changed($data, $old_data, $current_datetime);
             
             $saveUseCase = new SaveResourceUseCase();

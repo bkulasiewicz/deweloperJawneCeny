@@ -155,7 +155,7 @@ class UJC_Publication_Page {
         echo '<p><strong>Dostępność URL:</strong> ' . ($status['urls_accessible'] ? '✅ Dostępne' : '❌ Niedostępne') . '</p>';
         
         if ($status['last_modified']) {
-            echo '<p><strong>Ostatnia aktualizacja:</strong> ' . UJC_Date_Helper::format_timestamp_for_user($status['last_modified']) . '</p>';
+            echo '<p><strong>Ostatnia aktualizacja:</strong> ' . DateHelper::formatTimestampForUser($status['last_modified']) . '</p>';
         }
         echo '</div>';
         
@@ -191,7 +191,8 @@ class UJC_Publication_Page {
     
     private function render_publication_history() {
         // Pobierz historię generowania
-        $history = get_option('ujc_generation_history', []);
+        $settings_repo = new SettingsRepository();
+        $history = $settings_repo->getGenerationHistory();
         
         if (empty($history)) {
             echo '<div style="padding: 20px; background: #f0f0f1; border-radius: 4px; text-align: center; color: #666;">';
@@ -219,7 +220,7 @@ class UJC_Publication_Page {
             $type_label = isset($entry['type']) ? $entry['type'] : 'automatyczne';
             
             echo '<tr>';
-            echo '<td>' . UJC_Date_Helper::format_timestamp_for_user($entry['timestamp']) . '</td>';
+            echo '<td>' . DateHelper::formatTimestampForUser($entry['timestamp']) . '</td>';
             echo '<td>' . esc_html($type_label) . '</td>';
             echo '<td>' . $status_icon . ' ';
             

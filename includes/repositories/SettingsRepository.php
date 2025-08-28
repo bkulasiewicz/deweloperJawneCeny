@@ -6,12 +6,12 @@ if (!defined('ABSPATH')) {
 
 class SettingsRepository {
     
-    const GENERATION_INTERVAL = 'ujc_generation_interval';
-    const AUTOMATION_ENABLED = 'ujc_automation_enabled';
-    const LAST_GENERATION_STATUS = 'ujc_last_generation_status';
-    const LAST_GENERATION_TIME = 'ujc_last_generation_time';
-    const GENERATION_HISTORY = 'ujc_generation_history';
-    const DB_VERSION = 'ujc_db_version';
+    const GENERATION_INTERVAL = 'generation_interval';
+    const AUTOMATION_ENABLED = 'automation_enabled';
+    const LAST_GENERATION_STATUS = 'last_generation_status';
+    const LAST_GENERATION_TIME = 'last_generation_time';
+    const GENERATION_HISTORY = 'generation_history';
+    const DB_VERSION = 'db_version';
     
     /**
      * Zwraca interwał generowania plików (1min, 15min, 1hour, 24hours)

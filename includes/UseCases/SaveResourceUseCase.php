@@ -47,9 +47,9 @@ class SaveResourceUseCase {
     }
     
     private function validate($data, $exclude_id = null) {
-        global $wpdb;
         $errors = [];
-        $table = $wpdb->prefix . 'ujc_resources';
+        $table = TableNames::getResources();
+        global $wpdb;
         
         if (!empty($data['nr_lokalu'])) {
             $sql = "SELECT COUNT(*) FROM $table WHERE nr_lokalu = %s";

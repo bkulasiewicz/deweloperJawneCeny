@@ -20,11 +20,11 @@ class UJC_Resource_Item {
         $powierzchnia = number_format($resource['powierzchnia_uzytkowa'], 2, ',', ' ') . ' m²';
         
         // Formatowanie dat
-        $data_cena_m2 = UJC_Date_Helper::format_for_user($resource['data_cena_m2']);
-        $data_cena_calkowita = UJC_Date_Helper::format_for_user($resource['data_cena_calkowita']);
-        $data_cena_z_dodatkami = UJC_Date_Helper::format_for_user($resource['data_cena_z_dodatkami']);
-        $created_at = UJC_Date_Helper::format_for_user($resource['created_at']);
-        $updated_at = UJC_Date_Helper::format_for_user($resource['updated_at']);
+        $data_cena_m2 = DateHelper::formatForUser($resource['data_cena_m2']);
+        $data_cena_calkowita = DateHelper::formatForUser($resource['data_cena_calkowita']);
+        $data_cena_z_dodatkami = DateHelper::formatForUser($resource['data_cena_z_dodatkami']);
+        $created_at = DateHelper::formatForUser($resource['created_at']);
+        $updated_at = DateHelper::formatForUser($resource['updated_at']);
         
         // Status badge
         $status_class = match($resource['status']) {

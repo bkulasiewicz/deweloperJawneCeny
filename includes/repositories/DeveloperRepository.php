@@ -10,9 +10,8 @@ class DeveloperRepository {
      * Get developer data
      */
     public function read() {
+        $table = TableNames::getDeveloperInfo();        
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_developer_info'; // Will be updated to 'developers' later
-        
         return $wpdb->get_row("SELECT * FROM $table LIMIT 1", ARRAY_A);
     }
     
@@ -20,9 +19,8 @@ class DeveloperRepository {
      * Save developer data (create or update)
      */
     public function save($data) {
+        $table = TableNames::getDeveloperInfo();        
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_developer_info'; // Will be updated to 'developers' later
-        
         // Check if record already exists
         $existing = $this->read();
         

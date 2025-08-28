@@ -2,7 +2,7 @@
 /**
  * Plugin Name: DeweloperJawneCeny
  * Description: Plugin do automatyzacji procesu dostarczania danych zgodnie z wymogami Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego
- * Version: 1.16.0
+ * Version: 1.17.0
  * Author: Deweloper
  */
 
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.1');
-define('VERSION', '1.16.0');
+define('VERSION', '1.17.0');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -38,6 +38,12 @@ class DeweloperJawneCeny {
     }
     
     private function load_dependencies() {
+        // Config
+        require_once PLUGIN_DIR . 'includes/config/TableNames.php';
+        
+        // Models
+        require_once PLUGIN_DIR . 'includes/models/DaneGovXmlDataset.php';
+        
         // Services
         require_once PLUGIN_DIR . 'includes/services/DateHelper.php';
         require_once PLUGIN_DIR . 'includes/services/CSVFormatter.php';
@@ -65,7 +71,7 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/UseCases/SaveDeveloperInfoUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/SaveInvestmentInfoUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/GenerateCSVFileUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/GenerateXMLFileUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/CreateDaneGovSubmissionFilesUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/GenerateFilesUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/ToggleAutomationUseCase.php';
         
@@ -103,8 +109,8 @@ class DeweloperJawneCeny {
     }
     
     public function handle_file_requests() {
-        if (isset($_GET['ujc_file'])) {
-            $file = sanitize_file_name($_GET['ujc_file']);
+        if (isset($_GET['file'])) {
+            $file = sanitize_file_name($_GET['file']);
             $upload_dir = wp_upload_dir();
             $filepath = $upload_dir['basedir'] . '/ujc-data/' . $file;
             
@@ -120,15 +126,16 @@ class DeweloperJawneCeny {
     
     public function activate() {
         try {
+            require_once PLUGIN_DIR . 'includes/config/TableNames.php';
             require_once PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
             require_once PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
             
             UJC_Schema_Manager::create_tables();
             
             $upload_dir = wp_upload_dir();
-            $ujc_dir = $upload_dir['basedir'] . '/ujc-data';
-            if (!file_exists($ujc_dir)) {
-                wp_mkdir_p($ujc_dir);
+            $data_dir = $upload_dir['basedir'] . '/ujc-data';
+            if (!file_exists($data_dir)) {
+                wp_mkdir_p($data_dir);
             }
             
             $settings_repository = new SettingsRepository();

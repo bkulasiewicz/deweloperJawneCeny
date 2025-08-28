@@ -12,7 +12,7 @@ class SaveDeveloperInfoUseCase {
             $sanitized_data = self::sanitize_data($data);
             
             // Zapisz do bazy przez repozytorium
-            $repository = new UJC_Developer_Repository();
+            $repository = new DeveloperRepository();
             $result = $repository->save($sanitized_data);
             
             if ($result !== false) {

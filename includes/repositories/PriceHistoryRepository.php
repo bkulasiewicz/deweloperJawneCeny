@@ -10,8 +10,8 @@ class PriceHistoryRepository {
      * Get price history for resource
      */
     public function readByResourceId($resource_id) {
+        $table = TableNames::getPriceHistory();
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_price_history'; // Will be updated to 'price_history' later
         
         return $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM $table WHERE resource_id = %d ORDER BY data_zmiany DESC", 
@@ -23,8 +23,8 @@ class PriceHistoryRepository {
      * Save price change history (extended logic)
      */
     public function saveHistory($resource_id, $old_data, $new_data) {
+        $table = TableNames::getPriceHistory();
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_price_history'; // Will be updated to 'price_history' later
         
         // Check if price really changed
         $price_changed = false;
@@ -76,8 +76,8 @@ class PriceHistoryRepository {
      * Save new price history entry (simple version)
      */
     public function save($data) {
+        $table = TableNames::getPriceHistory();
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_price_history'; // Will be updated to 'price_history' later
         
         return $wpdb->insert($table, $data);
     }
@@ -86,9 +86,9 @@ class PriceHistoryRepository {
      * Get full price history for CSV export
      */
     public function readForExport() {
+        $history_table = TableNames::getPriceHistory();
+        $resources_table = TableNames::getResources();
         global $wpdb;
-        $history_table = $wpdb->prefix . 'ujc_price_history'; // Will be updated to 'price_history' later
-        $resources_table = $wpdb->prefix . 'ujc_resources'; // Will be updated to 'resources' later
         
         $sql = "
             SELECT DISTINCT

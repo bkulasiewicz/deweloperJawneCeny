@@ -5,13 +5,13 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Legacy Use Case - orchestrates CSV and XML generation
- * Uses new GenerateCSVFileUseCase and GenerateXMLFileUseCase
+ * Orchestrates CSV generation and dane.gov.pl submission files creation
+ * Uses GenerateCSVFileUseCase and CreateDaneGovSubmissionFilesUseCase
  */
 class GenerateFilesUseCase {
     
     private static $csvUseCase;
-    private static $xmlUseCase;
+    private static $submissionUseCase;
     
     /**
      * Main method generating CSV and XML files
@@ -22,8 +22,8 @@ class GenerateFilesUseCase {
             if (!self::$csvUseCase) {
                 self::$csvUseCase = new GenerateCSVFileUseCase();
             }
-            if (!self::$xmlUseCase) {
-                self::$xmlUseCase = new GenerateXMLFileUseCase();
+            if (!self::$submissionUseCase) {
+                self::$submissionUseCase = new CreateDaneGovSubmissionFilesUseCase();
             }
             
             // Generate CSV
@@ -32,17 +32,17 @@ class GenerateFilesUseCase {
                 return $csv_result;
             }
             
-            // Generate XML based on CSV
-            $xml_result = self::$xmlUseCase->execute($csv_result['csv']['url'] ?? null);
-            if (!$xml_result['success']) {
-                return $xml_result;
+            // Create submission files (XML + MD5) based on CSV
+            $submission_result = self::$submissionUseCase->createSubmissionFiles($csv_result['csv']['url'] ?? null);
+            if (!$submission_result['success']) {
+                return $submission_result;
             }
             
             return [
                 'success' => true,
-                'message' => 'Pliki zostały wygenerowane i opublikowane pomyślnie',
+                'message' => 'Pliki zostały wygenerowane i przygotowane do zgłoszenia na dane.gov.pl',
                 'csv' => $csv_result['csv'],
-                'xml' => $xml_result['xml']
+                'xml' => $submission_result['files']
             ];
             
         } catch (Exception $e) {

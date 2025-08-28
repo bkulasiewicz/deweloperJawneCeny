@@ -10,9 +10,8 @@ class InvestmentRepository {
      * Get investment data
      */
     public function read() {
+        $table = TableNames::getInvestmentInfo();        
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_investment_info'; // Will be updated to 'investments' later
-        
         return $wpdb->get_row("SELECT * FROM $table LIMIT 1", ARRAY_A);
     }
     
@@ -20,9 +19,8 @@ class InvestmentRepository {
      * Save investment data (create or update)
      */
     public function save($data) {
+        $table = TableNames::getInvestmentInfo();        
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_investment_info'; // Will be updated to 'investments' later
-        
         // Check if record already exists
         $existing = $this->read();
         

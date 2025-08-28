@@ -151,7 +151,7 @@ class UJC_Supplier_Data_Page extends UJC_Admin_Page {
     }
     
     public function render() {
-        $developer_repo = new UJC_Developer_Repository();
+        $developer_repo = new DeveloperRepository();
         $developer = $developer_repo->read();
         $is_saved = !empty($developer);
         

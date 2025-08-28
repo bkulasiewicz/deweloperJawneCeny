@@ -17,8 +17,8 @@ class UJC_Resources_Page {
     }
     
     public function render() {
-        $developer_repo = new UJC_Developer_Repository();
-        $investment_repo = new UJC_Investment_Repository();
+        $developer_repo = new DeveloperRepository();
+        $investment_repo = new InvestmentRepository();
         $developer = $developer_repo->read();
         $investment = $investment_repo->read();
         
@@ -251,7 +251,7 @@ class UJC_Resources_Page {
      * Renderuje listę zasobów bezpośrednio w PHP
      */
     private function render_resources_list() {
-        $resource_repo = new UJC_Resource_Repository();
+        $resource_repo = new ResourceRepository();
         $resources = $resource_repo->readAll();
         
         if (empty($resources)) {
@@ -285,7 +285,7 @@ class UJC_Resources_Page {
             wp_send_json_error('Brak uprawnień');
         }
         
-        $resource_repo = new UJC_Resource_Repository();
+        $resource_repo = new ResourceRepository();
         $resources = $resource_repo->readAll();
         
         // Przekaż surowe dane - formatowanie w JavaScript

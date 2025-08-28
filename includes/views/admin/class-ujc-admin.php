@@ -9,6 +9,10 @@ if (!defined('ABSPATH')) {
  */
 class UJC_Admin {
     
+    private $dashboard_page_instance;
+    private $supplier_data_page_instance;
+    private $resources_page_instance;
+    
     public function __construct() {
         add_action('admin_menu', [$this, 'add_admin_menu']);
         add_action('admin_init', [$this, 'register_settings']);

@@ -274,7 +274,7 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
         
         try {
             
-            $investment_repo = new UJC_Investment_Repository();
+            $investment_repo = new InvestmentRepository();
             $investment = $investment_repo->read();
             error_log('UJC: Investment data retrieved: ' . print_r($investment, true));
             
@@ -318,7 +318,7 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
             error_log('UJC: Investment data to update: ' . print_r($data, true));
             
             
-            $repository = new UJC_Investment_Repository();
+            $repository = new InvestmentRepository();
             $result = $repository->save($data);
             error_log('UJC: Update result: ' . ($result !== false ? 'success' : 'failed'));
             

@@ -10,8 +10,8 @@ class ResourceRepository {
      * Get all resources
      */
     public function readAll() {
+        $table = TableNames::getResources();
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_resources'; // Will be updated to 'resources' later
         
         $sql = "SELECT r.* FROM $table r ORDER BY r.created_at DESC";
                 
@@ -22,8 +22,8 @@ class ResourceRepository {
      * Get resource by ID
      */
     public function readById($id) {
+        $table = TableNames::getResources();
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_resources'; // Will be updated to 'resources' later
         
         return $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM $table WHERE id = %d", 
@@ -35,8 +35,8 @@ class ResourceRepository {
      * Save resource (create or update)
      */
     public function save($data, $id = null) {
+        $table = TableNames::getResources();
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_resources'; // Will be updated to 'resources' later
         
         if ($id) {
             // Update existing
@@ -53,8 +53,8 @@ class ResourceRepository {
      * Delete resource
      */
     public function delete($id) {
+        $table = TableNames::getResources();
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_resources'; // Will be updated to 'resources' later
         
         return $wpdb->delete($table, ['id' => $id]);
     }

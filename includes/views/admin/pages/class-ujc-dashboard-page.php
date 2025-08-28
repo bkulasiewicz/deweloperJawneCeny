@@ -30,8 +30,8 @@ class UJC_Dashboard_Page {
     
     
     public function render() {
-        $developer_repo = new UJC_Developer_Repository();
-        $investment_repo = new UJC_Investment_Repository();
+        $developer_repo = new DeveloperRepository();
+        $investment_repo = new InvestmentRepository();
         $developer = $developer_repo->read();
         $investment = $investment_repo->read();
         $properties_count = $this->get_properties_count();
@@ -90,14 +90,14 @@ class UJC_Dashboard_Page {
                         <?php if ($next_scheduled): ?>
                         <p><strong>Następne generowanie:</strong> 
                             <span style="color: #0073aa;">
-                                <?php echo UJC_Date_Helper::format_timestamp_for_user($next_scheduled); ?>
+                                <?php echo DateHelper::formatTimestampForUser($next_scheduled); ?>
                             </span>
                         </p>
                         <?php endif; ?>
                         
                         <?php if ($last_generation_time): ?>
                         <p><strong>Ostatnia akcja:</strong> 
-                            <?php echo UJC_Date_Helper::format_timestamp_for_user($last_generation_time); ?>
+                            <?php echo DateHelper::formatTimestampForUser($last_generation_time); ?>
                             <?php if ($last_generation_status): ?>
                                 <?php if ($last_generation_status === 'success'): ?>
                                     <span style="color: #007600;">✅ Sukces</span>
@@ -205,7 +205,8 @@ class UJC_Dashboard_Page {
     
     private function render_sharing_history() {
         // Pobierz historię generowania z opcji WordPress
-        $history = get_option('ujc_generation_history', []);
+        $settings_repo = new SettingsRepository();
+        $history = $settings_repo->getGenerationHistory();
         
         if (empty($history)) {
             echo '<div style="padding: 15px; background: #f0f0f1; border-radius: 4px; text-align: center; color: #666;">';
@@ -232,7 +233,7 @@ class UJC_Dashboard_Page {
             
             echo '<div class="ujc-history-item" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #ddd;">';
             echo '<div>';
-            echo '<span style="font-weight: 500;">' . UJC_Date_Helper::format_timestamp_for_user($entry['timestamp']) . '</span>';
+            echo '<span style="font-weight: 500;">' . DateHelper::formatTimestampForUser($entry['timestamp']) . '</span>';
             echo '<small style="margin-left: 10px; color: #666;">(' . esc_html($type_label) . ')</small>';
             if ($entry['status'] !== 'success') {
                 echo '<br><small style="color: #d63638;">' . esc_html($entry['message'] ?? 'Błąd generowania') . '</small>';
@@ -252,7 +253,7 @@ class UJC_Dashboard_Page {
     }
     
     private function get_properties_count() {
-        $repository = new UJC_Resource_Repository();
+        $repository = new ResourceRepository();
         $resources = $repository->readAll();
         return count($resources);
     }

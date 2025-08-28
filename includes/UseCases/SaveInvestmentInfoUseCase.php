@@ -9,7 +9,7 @@ class SaveInvestmentInfoUseCase {
     public static function execute($data) {
         try {
             $sanitized_data = self::sanitize_data($data);
-            $repository = new UJC_Investment_Repository();
+            $repository = new InvestmentRepository();
             $result = $repository->save($sanitized_data);
             
             if ($result !== false) {

@@ -43,11 +43,11 @@ class UJC_Schema_Manager {
         global $wpdb;
         
         $tables = [
-            $wpdb->prefix . 'ujc_price_history',
-            $wpdb->prefix . 'ujc_resource_extras',
-            $wpdb->prefix . 'ujc_resources', 
-            $wpdb->prefix . 'ujc_investment_info',
-            $wpdb->prefix . 'ujc_developer_info'
+            TableNames::getPriceHistory(),
+            TableNames::getResourceExtras(),
+            TableNames::getResources(), 
+            TableNames::getInvestmentInfo(),
+            TableNames::getDeveloperInfo()
         ];
         
         foreach ($tables as $table) {
@@ -56,7 +56,7 @@ class UJC_Schema_Manager {
     }
     
     private static function create_developer_table($wpdb, $charset_collate) {
-        $table = $wpdb->prefix . 'ujc_developer_info';
+        $table = TableNames::getDeveloperInfo();
         
         if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
             return;
@@ -106,7 +106,7 @@ class UJC_Schema_Manager {
     }
     
     private static function create_investment_table($wpdb, $charset_collate) {
-        $table = $wpdb->prefix . 'ujc_investment_info';
+        $table = TableNames::getInvestmentInfo();
         
         if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
             return;
@@ -132,7 +132,7 @@ class UJC_Schema_Manager {
     }
     
     private static function create_resources_table($wpdb, $charset_collate) {
-        $table = $wpdb->prefix . 'ujc_resources';
+        $table = TableNames::getResources();
         
         if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
             return;
@@ -167,7 +167,7 @@ class UJC_Schema_Manager {
     }
     
     private static function create_extras_table($wpdb, $charset_collate) {
-        $table = $wpdb->prefix . 'ujc_resource_extras';
+        $table = TableNames::getResourceExtras();
         
         if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
             return;
@@ -201,7 +201,7 @@ class UJC_Schema_Manager {
     }
     
     private static function create_price_history_table($wpdb, $charset_collate) {
-        $table = $wpdb->prefix . 'ujc_price_history';
+        $table = TableNames::getPriceHistory();
         
         if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
             return;
@@ -234,9 +234,9 @@ class UJC_Schema_Manager {
     }
     
     private static function create_foreign_keys($wpdb) {
-        $resources_table = $wpdb->prefix . 'ujc_resources';
-        $extras_table = $wpdb->prefix . 'ujc_resource_extras';
-        $price_history_table = $wpdb->prefix . 'ujc_price_history';
+        $resources_table = TableNames::getResources();
+        $extras_table = TableNames::getResourceExtras();
+        $price_history_table = TableNames::getPriceHistory();
         
         // FK dla extras
         if (!self::foreign_key_exists($wpdb, $extras_table, 'resource_id')) {
@@ -279,7 +279,7 @@ class UJC_Schema_Manager {
      */
     public static function reset_developer_table() {
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_developer_info';
+        $table = TableNames::getDeveloperInfo();
         $wpdb->query("DROP TABLE IF EXISTS $table");
         self::create_developer_table($wpdb, $wpdb->get_charset_collate());
     }
@@ -289,7 +289,7 @@ class UJC_Schema_Manager {
      */
     public static function reset_investment_table() {
         global $wpdb;
-        $table = $wpdb->prefix . 'ujc_investment_info';
+        $table = TableNames::getInvestmentInfo();
         $wpdb->query("DROP TABLE IF EXISTS $table");
         self::create_investment_table($wpdb, $wpdb->get_charset_collate());
     }
@@ -302,13 +302,12 @@ class UJC_Schema_Manager {
         $charset_collate = $wpdb->get_charset_collate();
         
         $tables = [
-            'ujc_resources',
-            'ujc_resource_extras', 
-            'ujc_price_history'
+            TableNames::getResources(),
+            TableNames::getResourceExtras(), 
+            TableNames::getPriceHistory()
         ];
         
-        foreach ($tables as $table_suffix) {
-            $table = $wpdb->prefix . $table_suffix;
+        foreach ($tables as $table) {
             $wpdb->query("DROP TABLE IF EXISTS $table");
         }
         
