@@ -32,7 +32,10 @@ class UJC_Schema_Manager {
         // 5. HISTORIA CEN
         self::create_price_history_table($wpdb, $charset_collate);
         
-        // 6. KLUCZE OBCE
+        // 6. HISTORIA PUBLIKACJI
+        self::create_publication_history_table($wpdb, $charset_collate);
+        
+        // 7. KLUCZE OBCE
         self::create_foreign_keys($wpdb);
     }
     
@@ -228,6 +231,29 @@ class UJC_Schema_Manager {
             PRIMARY KEY (id),
             KEY resource_id (resource_id),
             KEY data_zmiany (data_zmiany)
+        ) $charset_collate;";
+        
+        $wpdb->query($sql);
+    }
+    
+    private static function create_publication_history_table($wpdb, $charset_collate) {
+        $table = $wpdb->prefix . 'publication_history';
+        
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
+            return;
+        }
+        
+        $sql = "CREATE TABLE $table (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            timestamp int(11) NOT NULL,
+            status varchar(20) NOT NULL,
+            message text,
+            trigger_type varchar(20) NOT NULL,
+            csv_filename varchar(255),
+            
+            PRIMARY KEY (id),
+            KEY timestamp (timestamp),
+            KEY status (status)
         ) $charset_collate;";
         
         $wpdb->query($sql);

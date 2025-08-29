@@ -41,8 +41,13 @@ class DeweloperJawneCeny {
         // Config
         require_once PLUGIN_DIR . 'includes/config/TableNames.php';
         
+        // Enums
+        require_once PLUGIN_DIR . 'includes/enums/PublicationStatus.php';
+        require_once PLUGIN_DIR . 'includes/enums/TriggerType.php';
+        
         // Models
         require_once PLUGIN_DIR . 'includes/models/DaneGovXmlDataset.php';
+        require_once PLUGIN_DIR . 'includes/models/PublicationHistoryEntry.php';
         
         // Services
         require_once PLUGIN_DIR . 'includes/services/DateHelper.php';
@@ -62,6 +67,7 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/repositories/PriceHistoryRepository.php';
         require_once PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
         require_once PLUGIN_DIR . 'includes/repositories/ExternalCronRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/PublicationHistoryRepository.php';
         
         // UseCases
         require_once PLUGIN_DIR . 'includes/UseCases/SaveResourceUseCase.php';
@@ -73,6 +79,8 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/UseCases/SaveInvestmentInfoUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/GenerateCSVFileUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/CreateDaneGovSubmissionFilesUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/AddPublicationHistoryUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/GetPublicationHistoryUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/GenerateFilesUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/ToggleAutomationUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/ToggleExternalCronUseCase.php';

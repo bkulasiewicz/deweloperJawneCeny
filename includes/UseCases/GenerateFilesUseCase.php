@@ -10,33 +10,51 @@ if (!defined('ABSPATH')) {
  */
 class GenerateFilesUseCase {
     
-    private static $csvUseCase;
-    private static $submissionUseCase;
+    private $csvUseCase;
+    private $submissionUseCase;
+    private $historyUseCase;
+    
+    public function __construct() {
+        $this->csvUseCase = new GenerateCSVFileUseCase();
+        $this->submissionUseCase = new CreateDaneGovSubmissionFilesUseCase();
+        $this->historyUseCase = new AddPublicationHistoryUseCase();
+    }
     
     /**
      * Main method generating CSV and XML files
+     * 
+     * @param TriggerType $trigger_type Type of trigger
      */
-    public static function execute() {
+    public function execute(TriggerType $trigger_type) {
+        $csv_filename = null;
+        $error_message = null;
+        
         try {
-            // Initialize use cases
-            if (!self::$csvUseCase) {
-                self::$csvUseCase = new GenerateCSVFileUseCase();
-            }
-            if (!self::$submissionUseCase) {
-                self::$submissionUseCase = new CreateDaneGovSubmissionFilesUseCase();
-            }
-            
             // Generate CSV
-            $csv_result = self::$csvUseCase->execute();
+            $csv_result = $this->csvUseCase->execute();
             if (!$csv_result['success']) {
+                $error_message = $csv_result['error'] ?? 'Błąd generowania pliku CSV';
+                $this->historyUseCase->execute(PublicationStatus::Error, $error_message, $trigger_type, null);
                 return $csv_result;
             }
             
+            $csv_filename = $csv_result['csv']['filename'] ?? null;
+            
             // Create submission files (XML + MD5) based on CSV
-            $submission_result = self::$submissionUseCase->createSubmissionFiles($csv_result['csv']['url'] ?? null);
+            $submission_result = $this->submissionUseCase->createSubmissionFiles($csv_result['csv']['url'] ?? null);
             if (!$submission_result['success']) {
+                $error_message = $submission_result['error'] ?? 'Błąd generowania plików XML/MD5';
+                $this->historyUseCase->execute(PublicationStatus::Error, $error_message, $trigger_type, $csv_filename);
                 return $submission_result;
             }
+            
+            // Log success to history
+            $this->historyUseCase->execute(
+                PublicationStatus::Success,
+                'Pliki zostały wygenerowane pomyślnie',
+                $trigger_type,
+                $csv_filename
+            );
             
             return [
                 'success' => true,
@@ -46,6 +64,9 @@ class GenerateFilesUseCase {
             ];
             
         } catch (Exception $e) {
+            $error_message = 'Wyjątek: ' . $e->getMessage();
+            $this->historyUseCase->execute(PublicationStatus::Error, $error_message, $trigger_type, $csv_filename);
+            
             return [
                 'success' => false,
                 'error' => $e->getMessage()

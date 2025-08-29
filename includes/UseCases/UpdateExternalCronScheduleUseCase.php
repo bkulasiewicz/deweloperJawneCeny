@@ -10,13 +10,19 @@ if (!defined('ABSPATH')) {
  */
 class UpdateExternalCronScheduleUseCase {
     
+    private $repository;
+    
+    public function __construct() {
+        $this->repository = new ExternalCronRepository();
+    }
+    
     /**
      * Execute schedule update
      * 
      * @param string $schedule The schedule key (e.g., '1min', '15min', '1hour', '24hour')
      * @return array ['success' => bool, 'message' => string, 'data' => array|null]
      */
-    public static function execute($schedule) {
+    public function execute($schedule) {
         try {
             // Validate schedule parameter
             $schedule = sanitize_text_field($schedule);
@@ -29,7 +35,7 @@ class UpdateExternalCronScheduleUseCase {
             }
             
             // Validate prerequisites
-            $validation_result = self::validatePrerequisites($schedule);
+            $validation_result = $this->validatePrerequisites($schedule);
             if (!$validation_result['success']) {
                 return $validation_result;
             }
@@ -38,12 +44,11 @@ class UpdateExternalCronScheduleUseCase {
             $job_id = get_option('ujc_cronjoborg_job_id');
             
             // Get available schedules from repository
-            $repository = new ExternalCronRepository();
-            $available_schedules = $repository->getAvailableSchedules();
+            $available_schedules = $this->repository->getAvailableSchedules();
             
             // Update schedule via repository
             $schedule_config = $available_schedules[$schedule];
-            $result = $repository->updateJobSchedule($job_id, $schedule_config);
+            $result = $this->repository->updateJobSchedule($job_id, $schedule_config);
             
             if ($result['success']) {
                 // Save locally for reference
@@ -80,7 +85,7 @@ class UpdateExternalCronScheduleUseCase {
      * @param string $schedule
      * @return array ['success' => bool, 'message' => string]
      */
-    private static function validatePrerequisites($schedule) {
+    private function validatePrerequisites($schedule) {
         $errors = [];
         
         // Check if external cron is enabled
@@ -95,8 +100,7 @@ class UpdateExternalCronScheduleUseCase {
         }
         
         // Check if schedule is valid
-        $repository = new ExternalCronRepository();
-        $available_schedules = $repository->getAvailableSchedules();
+        $available_schedules = $this->repository->getAvailableSchedules();
         if (!array_key_exists($schedule, $available_schedules)) {
             $errors[] = 'Nieprawidłowy harmonogram: ' . $schedule;
         }

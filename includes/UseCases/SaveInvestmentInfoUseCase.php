@@ -6,11 +6,16 @@ if (!defined('ABSPATH')) {
 
 class SaveInvestmentInfoUseCase {
     
-    public static function execute($data) {
+    private $repository;
+    
+    public function __construct() {
+        $this->repository = new InvestmentRepository();
+    }
+    
+    public function execute($data) {
         try {
-            $sanitized_data = self::sanitize_data($data);
-            $repository = new InvestmentRepository();
-            $result = $repository->save($sanitized_data);
+            $sanitized_data = $this->sanitize_data($data);
+            $result = $this->repository->save($sanitized_data);
             
             if ($result !== false) {
                 return [
@@ -32,7 +37,7 @@ class SaveInvestmentInfoUseCase {
         }
     }
     
-    private static function sanitize_data($data) {
+    private function sanitize_data($data) {
         return [
             'name' => sanitize_text_field($data['investment_name'] ?? ''),
             'proj_wojewodztwo' => sanitize_text_field($data['proj_wojewodztwo'] ?? ''),

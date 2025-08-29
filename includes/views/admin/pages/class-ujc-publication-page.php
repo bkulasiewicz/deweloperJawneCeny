@@ -19,7 +19,8 @@ class UJC_Publication_Page {
         
         require_once PLUGIN_DIR . 'includes/UseCases/GenerateFilesUseCase.php';
         
-        $result = GenerateFilesUseCase::execute();
+        $generateFilesUseCase = new GenerateFilesUseCase();
+        $result = $generateFilesUseCase->execute(TriggerType::Manual);
         
         if ($result['success']) {
             wp_send_json_success($result['message']);
@@ -191,8 +192,8 @@ class UJC_Publication_Page {
     
     private function render_publication_history() {
         // Pobierz historię generowania
-        $settings_repo = new SettingsRepository();
-        $history = $settings_repo->getGenerationHistory();
+        $historyUseCase = new GetPublicationHistoryUseCase();
+        $history = $historyUseCase->execute(50);
         
         if (empty($history)) {
             echo '<div style="padding: 20px; background: #f0f0f1; border-radius: 4px; text-align: center; color: #666;">';
@@ -201,44 +202,40 @@ class UJC_Publication_Page {
             return;
         }
         
-        // Sortuj od najnowszych
-        usort($history, function($a, $b) {
-            return $b['timestamp'] - $a['timestamp'];
-        });
-        
-        // Pokaż ostatnie 20 wpisów
-        $history = array_slice($history, 0, 20);
-        
         echo '<div style="background: #f0f0f1; border-radius: 4px; padding: 20px;">';
         echo '<table class="wp-list-table widefat fixed striped">';
         echo '<thead><tr>';
-        echo '<th>Data</th><th>Typ</th><th>Status</th><th>Pliki</th>';
+        echo '<th>Data</th><th>Typ</th><th>Status</th><th>Komunikat</th><th>Pliki</th>';
         echo '</tr></thead><tbody>';
         
         foreach ($history as $entry) {
-            $status_icon = $entry['status'] === 'success' ? '✅' : '❌';
-            $type_label = isset($entry['type']) ? $entry['type'] : 'automatyczne';
-            
             echo '<tr>';
-            echo '<td>' . DateHelper::formatTimestampForUser($entry['timestamp']) . '</td>';
-            echo '<td>' . esc_html($type_label) . '</td>';
-            echo '<td>' . $status_icon . ' ';
+            echo '<td>' . $entry->getFormattedDate() . '</td>';
+            echo '<td>' . esc_html($entry->getTriggerTypeLabel()) . '</td>';
+            echo '<td>' . $entry->getStatusIcon() . ' ';
+            echo '<span style="color: ' . ($entry->status === 'success' ? '#007600' : '#d63638') . ';">';
+            echo esc_html($entry->getStatusLabel());
+            echo '</span></td>';
             
-            if ($entry['status'] === 'success') {
-                echo '<span style="color: #007600;">Sukces</span>';
+            echo '<td>';
+            if (!empty($entry->message)) {
+                echo '<small>' . esc_html($entry->message) . '</small>';
             } else {
-                echo '<span style="color: #d63638;">Błąd</span>';
-                if (!empty($entry['message'])) {
-                    echo '<br><small>' . esc_html($entry['message']) . '</small>';
-                }
+                echo '-';
             }
             echo '</td>';
             
             echo '<td>';
-            if ($entry['status'] === 'success') {
+            if ($entry->status === 'success') {
                 $upload_dir = wp_upload_dir();
                 $base_url = $upload_dir['baseurl'] . '/ujc-data';
                 
+                // CSV file with variable name
+                if ($entry->hasCsvFile()) {
+                    echo '<a href="' . esc_url($entry->getCsvUrl()) . '" class="button button-small" target="_blank" title="' . esc_attr($entry->csv_filename) . '">CSV</a> ';
+                }
+                
+                // XML and MD5 with fixed names
                 echo '<a href="' . $base_url . '/katalog-danych.xml" class="button button-small" target="_blank">XML</a> ';
                 echo '<a href="' . $base_url . '/katalog-danych.md5" class="button button-small" target="_blank">MD5</a>';
             } else {

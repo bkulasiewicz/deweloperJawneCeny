@@ -6,12 +6,16 @@ if (!defined('ABSPATH')) {
 
 class ToggleAutomationUseCase {
     
-    public static function execute($enabled) {
+    private $settings_repository;
+    
+    public function __construct() {
+        $this->settings_repository = new SettingsRepository();
+    }
+    
+    public function execute($enabled) {
         try {
             $enabled = filter_var($enabled, FILTER_VALIDATE_BOOLEAN);
-            
-            $settings_repository = new SettingsRepository();
-            $settings_repository->setAutomationEnabled($enabled);
+            $this->settings_repository->setAutomationEnabled($enabled);
             
             // External Cron handles automation - this just tracks the preference
             $message = $enabled ? 'Automatyzacja została włączona' : 'Automatyzacja została wyłączona';

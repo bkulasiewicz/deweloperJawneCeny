@@ -6,14 +6,19 @@ if (!defined('ABSPATH')) {
 
 class SaveDeveloperInfoUseCase {
     
-    public static function execute($data) {
+    private $repository;
+    
+    public function __construct() {
+        $this->repository = new DeveloperRepository();
+    }
+    
+    public function execute($data) {
         try {
             // Walidacja danych
-            $sanitized_data = self::sanitize_data($data);
+            $sanitized_data = $this->sanitize_data($data);
             
             // Zapisz do bazy przez repozytorium
-            $repository = new DeveloperRepository();
-            $result = $repository->save($sanitized_data);
+            $result = $this->repository->save($sanitized_data);
             
             if ($result !== false) {
                 return [
@@ -35,7 +40,7 @@ class SaveDeveloperInfoUseCase {
         }
     }
     
-    private static function sanitize_data($data) {
+    private function sanitize_data($data) {
         $sanitization_rules = [
             'nazwa' => 'sanitize_text_field',
             'forma_prawna' => 'sanitize_text_field',

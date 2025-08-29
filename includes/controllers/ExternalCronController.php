@@ -54,7 +54,8 @@ class ExternalCronController {
             }
             
             // Generate files using existing UseCase
-            $result = GenerateFilesUseCase::execute();
+            $generateFilesUseCase = new GenerateFilesUseCase();
+            $result = $generateFilesUseCase->execute(TriggerType::ExternalCron);
             
             $execution_time = round(microtime(true) - $start_time, 2);
             
