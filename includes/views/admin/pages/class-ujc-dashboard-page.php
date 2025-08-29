@@ -31,8 +31,6 @@ class UJC_Dashboard_Page {
         check_ajax_referer('ujc_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
         
-        require_once PLUGIN_DIR . 'includes/UseCases/ToggleExternalCronUseCase.php';
-        
         // Proper boolean conversion - handle JavaScript boolean false correctly
         $enable_raw = $_POST['enable'] ?? '';
         

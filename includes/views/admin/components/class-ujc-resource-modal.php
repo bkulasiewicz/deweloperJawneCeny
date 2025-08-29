@@ -4,9 +4,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
-require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-parts-tooltip.php';
-
 /**
  * Komponent modalu dla zasobów - Single Responsibility Principle
  * Odpowiada tylko za zarządzanie modalem dodawania/edycji zasobów

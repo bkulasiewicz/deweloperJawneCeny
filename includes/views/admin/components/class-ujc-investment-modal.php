@@ -4,8 +4,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
-
 /**
  * Komponent modalu dla inwestycji - Single Responsibility Principle
  * Odpowiada tylko za zarządzanie modalem wyświetlania/edycji danych inwestycji
