@@ -35,35 +35,38 @@ class UJC_Resource_Item {
         };
         
         return "
-            <div class=\"ujc-resource-item-compact\">
-                <!-- Pierwszy rząd: Nazwa i status -->
-                <div class=\"ujc-resource-row-1\">
+            <div class=\"ujc-resource-item-row\">
+                <div class=\"ujc-resource-identity\">
                     <div class=\"ujc-resource-title\">
-                        <strong>{$resource['rodzaj_nieruchomosci']} {$resource['nr_lokalu']}</strong>
-                        <span class=\"ujc-surface\">{$powierzchnia}</span>
+                        <strong>{$resource['rodzaj_nieruchomosci']}</strong>
+                        <span class=\"ujc-resource-number\">#{$resource['nr_lokalu']}</span>
                     </div>
+                    <div class=\"ujc-resource-surface\">{$powierzchnia}</div>
+                </div>
+                
+                <div class=\"ujc-resource-pricing\">
+                    <div class=\"ujc-price-main\">
+                        <span class=\"ujc-price-label\">Cena m²:</span>
+                        <span class=\"ujc-price-value\">{$cena_m2}/m²</span>
+                    </div>
+                    <div class=\"ujc-price-secondary\">
+                        <span class=\"ujc-price-label\">Całkowita:</span>
+                        <span class=\"ujc-price-value\">{$cena_calkowita}</span>
+                    </div>
+                    <div class=\"ujc-price-secondary\">
+                        <span class=\"ujc-price-label\">Z dodatkami:</span>
+                        <span class=\"ujc-price-value\">{$cena_z_dodatkami}</span>
+                    </div>
+                </div>
+                
+                <div class=\"ujc-resource-status\">
                     <span class=\"ujc-status-badge {$status_class}\">{$resource['status']}</span>
+                    <span class=\"ujc-date-info\" title=\"Data ostatniej aktualizacji cen\">Akt: {$updated_at}</span>
                 </div>
                 
-                <!-- Drugi rząd: Główne ceny i akcje -->
-                <div class=\"ujc-resource-row-2\">
-                    <div class=\"ujc-price-main\">{$cena_m2}/m²</div>
-                    <div class=\"ujc-price-total\">{$cena_calkowita}</div>
-                    <div class=\"ujc-price-extra\">{$cena_z_dodatkami}</div>
-                    <div class=\"ujc-resource-actions\">
-                        <button type=\"button\" class=\"button button-small\" onclick=\"showResourceHistory({$resource['id']})\">Historia</button>
-                        <button type=\"button\" class=\"button button-small button-primary\" onclick=\"openResourceModal('edit', {$resource['id']})\">Edytuj</button>
-                    </div>
-                </div>
-                
-                <!-- Tooltip z dodatkowymi informacjami -->
-                <div class=\"ujc-resource-tooltip\">
-                    <div><strong>Ceny obowiązują od:</strong></div>
-                    <div>• Cena m²: {$data_cena_m2}</div>
-                    " . ($data_cena_calkowita != '—' ? "<div>• Cena całkowita: {$data_cena_calkowita}</div>" : '') . "
-                    " . ($data_cena_z_dodatkami != '—' ? "<div>• Cena z dodatkami: {$data_cena_z_dodatkami}</div>" : '') . "
-                    <div><strong>Utworzono:</strong> {$created_at}</div>
-                    <div><strong>Ostatnia zmiana:</strong> {$updated_at}</div>
+                <div class=\"ujc-resource-actions\">
+                    <button type=\"button\" class=\"button button-small\" onclick=\"showResourceHistory({$resource['id']})\">Historia</button>
+                    <button type=\"button\" class=\"button button-small button-primary\" onclick=\"openResourceModal('edit', {$resource['id']})\">Edytuj</button>
                 </div>
             </div>
         ";
@@ -82,186 +85,206 @@ class UJC_Resource_Item {
     public static function render_item_styles() {
         ?>
         <style>
-        /* Kompaktowy grid dla dużej liczby zasobów */
+        /* Lista jednocolumnowa dla wielu zasobów */
         .ujc-resources-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
             margin-top: 20px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            padding-right: 10px;
         }
         
-        .ujc-resource-item-compact {
+        .ujc-resource-item-row {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
             background: #fff;
             border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            position: relative;
+            border-radius: 4px;
+            min-height: 60px;
             transition: all 0.2s ease;
         }
         
-        .ujc-resource-item-compact:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            border-color: #007cba;
+        .ujc-resource-item-row:hover {
+            background: #f7f9fc;
+            border-color: #2271b1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
         
-        /* Pierwszy rząd: Nazwa i status */
-        .ujc-resource-row-1 {
+        /* Sekcja identyfikacji */
+        .ujc-resource-identity {
+            flex: 0 0 250px;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 8px;
+            flex-direction: column;
+            gap: 4px;
         }
         
         .ujc-resource-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .ujc-resource-title strong {
+            font-size: 14px;
+            color: #1d2327;
+        }
+        
+        .ujc-resource-number {
+            color: #646970;
+            font-size: 13px;
+        }
+        
+        .ujc-resource-surface {
+            font-size: 13px;
+            color: #50575e;
+        }
+        
+        /* Sekcja cen */
+        .ujc-resource-pricing {
+            flex: 1;
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .ujc-price-main {
             display: flex;
             flex-direction: column;
             gap: 2px;
         }
         
-        .ujc-resource-title strong {
-            font-size: 14px;
-            color: #2c3e50;
-            font-weight: 600;
-        }
-        
-        .ujc-surface {
-            font-size: 12px;
-            color: #6c757d;
-            font-weight: 500;
-        }
-        
-        /* Drugi rząd: Ceny i akcje */
-        .ujc-resource-row-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr auto;
-            gap: 8px;
-            align-items: center;
-            padding-top: 8px;
-            border-top: 1px solid #e9ecef;
-        }
-        
-        .ujc-price-main {
-            font-size: 13px;
-            font-weight: 600;
-            color: #007cba;
-        }
-        
-        .ujc-price-total {
-            font-size: 13px;
-            font-weight: 500;
-            color: #2c3e50;
-        }
-        
-        .ujc-price-extra {
-            font-size: 13px;
-            font-weight: 500;
-            color: #6c757d;
-        }
-        
-        .ujc-resource-actions {
+        .ujc-price-secondary {
             display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .ujc-price-label {
+            font-size: 11px;
+            color: #8c8f94;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .ujc-price-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #135e96;
+        }
+        
+        /* Sekcja statusu */
+        .ujc-resource-status {
+            flex: 0 0 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             gap: 4px;
         }
         
-        .ujc-resource-actions .button {
-            padding: 4px 8px;
-            font-size: 11px;
-            line-height: 1.2;
-            min-height: auto;
-            white-space: nowrap;
-        }
-        
-        /* Tooltip z dodatkowymi informacjami */
-        .ujc-resource-tooltip {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: #2c3e50;
-            color: #fff;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            line-height: 1.4;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.2s ease;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-        
-        .ujc-resource-item-compact:hover .ujc-resource-tooltip {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-        
-        .ujc-resource-tooltip div {
-            margin-bottom: 4px;
-        }
-        
-        .ujc-resource-tooltip div:last-child {
-            margin-bottom: 0;
-        }
-        
         .ujc-status-badge {
-            padding: 3px 8px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
             text-transform: uppercase;
-            white-space: nowrap;
         }
         
-        .ujc-status-available {
-            background: #d4edda;
-            color: #155724;
+        .ujc-status-badge.ujc-status-available {
+            background: #d6f4d6;
+            color: #0a4f0a;
         }
         
-        .ujc-status-reserved {
+        .ujc-status-badge.ujc-status-reserved {
             background: #fff3cd;
             color: #856404;
         }
         
-        .ujc-status-sold {
+        .ujc-status-badge.ujc-status-sold {
             background: #f8d7da;
             color: #721c24;
         }
         
-        .ujc-status-default {
-            background: #e9ecef;
-            color: #6c757d;
+        .ujc-date-info {
+            font-size: 11px;
+            color: #8c8f94;
+        }
+        
+        /* Sekcja akcji */
+        .ujc-resource-actions {
+            flex: 0 0 180px;
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        
+        .ujc-resource-actions .button-small {
+            padding: 4px 8px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        
+        /* Scrollbar styling */
+        .ujc-resources-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .ujc-resources-grid::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .ujc-resources-grid::-webkit-scrollbar-thumb {
+            background: #c3c4c7;
+            border-radius: 4px;
+        }
+        
+        .ujc-resources-grid::-webkit-scrollbar-thumb:hover {
+            background: #8c8f94;
         }
         
         /* Responsive dla mniejszych ekranów */
         @media (max-width: 1200px) {
-            .ujc-resources-grid {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                gap: 12px;
+            .ujc-resource-identity {
+                flex: 0 0 200px;
+            }
+            
+            .ujc-resource-pricing {
+                gap: 20px;
             }
         }
         
         @media (max-width: 768px) {
-            .ujc-resources-grid {
-                grid-template-columns: 1fr;
-                gap: 8px;
+            .ujc-resource-item-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding: 12px;
             }
             
-            .ujc-resource-row-2 {
-                grid-template-columns: 1fr;
-                gap: 4px;
+            .ujc-resource-identity,
+            .ujc-resource-pricing,
+            .ujc-resource-status,
+            .ujc-resource-actions {
+                flex: none;
+                width: 100%;
+            }
+            
+            .ujc-resource-pricing {
+                flex-direction: column;
+                gap: 8px;
+                padding: 0;
             }
             
             .ujc-resource-actions {
-                justify-self: end;
-                grid-column: 1;
+                justify-content: center;
             }
         }
 
         .ujc-no-resources {
-            grid-column: 1 / -1;
             text-align: center;
             padding: 40px 20px;
             color: #666;
