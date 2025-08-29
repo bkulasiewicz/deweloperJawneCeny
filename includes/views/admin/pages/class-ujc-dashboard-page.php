@@ -9,7 +9,20 @@ if (!defined('ABSPATH')) {
  */
 class UJC_Dashboard_Page {
     
+    private $developerRepository;
+    private $investmentRepository;
+    private $settingsRepository;
+    private $externalCronRepository;
+    private $resourceRepository;
+    private $toggleExternalCronUseCase;
+    
     public function __construct() {
+        $this->developerRepository = new DeveloperRepository();
+        $this->investmentRepository = new InvestmentRepository();
+        $this->settingsRepository = new SettingsRepository();
+        $this->externalCronRepository = new ExternalCronRepository();
+        $this->resourceRepository = new ResourceRepository();
+        $this->toggleExternalCronUseCase = new ToggleExternalCronUseCase();
         add_action('wp_ajax_ujc_toggle_external_cron', [$this, 'ajax_toggle_external_cron']);
     }
     
@@ -33,7 +46,7 @@ class UJC_Dashboard_Page {
         // Get schedule parameter for activation (only used when enabling)
         $schedule = sanitize_text_field($_POST['schedule'] ?? '24hour');
         
-        $result = ToggleExternalCronUseCase::execute($enable, $schedule);
+        $result = $this->toggleExternalCronUseCase->execute($enable, $schedule);
         
         if ($result['success']) {
             wp_send_json_success($result['message']);
@@ -44,10 +57,8 @@ class UJC_Dashboard_Page {
     
     
     public function render() {
-        $developer_repo = new DeveloperRepository();
-        $investment_repo = new InvestmentRepository();
-        $developer = $developer_repo->read();
-        $investment = $investment_repo->read();
+        $developer = $this->developerRepository->read();
+        $investment = $this->investmentRepository->read();
         $resources_count = $this->get_resources_count();
         
         ?>
@@ -174,8 +185,7 @@ class UJC_Dashboard_Page {
     
     private function render_sharing_history() {
         // Pobierz historię generowania z opcji WordPress
-        $settings_repo = new SettingsRepository();
-        $history = $settings_repo->getGenerationHistory();
+        $history = $this->settingsRepository->getGenerationHistory();
         
         if (empty($history)) {
             echo '<div style="padding: 15px; background: #f0f0f1; border-radius: 4px; text-align: center; color: #666;">';
@@ -253,8 +263,7 @@ class UJC_Dashboard_Page {
                         <small style="color: #856404;"><strong>⚠️ DEV MODE:</strong> Częstotliwość dla External Cron</small>
                         <div style="margin-top: 5px;">
                             <?php 
-                            $repository = new ExternalCronRepository();
-                            $available_schedules = $repository->getAvailableSchedules();
+                            $available_schedules = $this->externalCronRepository->getAvailableSchedules();
                             ?>
                             <select id="external-cron-schedule-select" style="margin-right: 10px;">
                                 <?php foreach ($available_schedules as $schedule_key => $schedule_data): ?>
@@ -280,8 +289,7 @@ class UJC_Dashboard_Page {
     }
     
     private function get_resources_count() {
-        $repository = new ResourceRepository();
-        $resources = $repository->readAll();
+        $resources = $this->resourceRepository->readAll();
         return count($resources);
     }
 }

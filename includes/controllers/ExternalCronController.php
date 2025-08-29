@@ -11,9 +11,17 @@ if (!defined('ABSPATH')) {
 class ExternalCronController {
     
     private $repository;
+    private $generateFilesUseCase;
+    private $updateExternalCronScheduleUseCase;
+    private $registerExternalCronUseCase;
+    private $unregisterExternalCronUseCase;
     
     public function __construct() {
         $this->repository = new ExternalCronRepository();
+        $this->generateFilesUseCase = new GenerateFilesUseCase();
+        $this->updateExternalCronScheduleUseCase = new UpdateExternalCronScheduleUseCase();
+        $this->registerExternalCronUseCase = new RegisterExternalCronUseCase();
+        $this->unregisterExternalCronUseCase = new UnregisterExternalCronUseCase();
         add_action('rest_api_init', [$this, 'register_rest_endpoint']);
         add_action('wp_ajax_ujc_update_external_cron_schedule', [$this, 'ajax_update_schedule']);
     }
@@ -54,8 +62,7 @@ class ExternalCronController {
             }
             
             // Generate files using existing UseCase
-            $generateFilesUseCase = new GenerateFilesUseCase();
-            $result = $generateFilesUseCase->execute(TriggerType::ExternalCron);
+            $result = $this->generateFilesUseCase->execute(TriggerType::ExternalCron);
             
             $execution_time = round(microtime(true) - $start_time, 2);
             
@@ -149,7 +156,7 @@ class ExternalCronController {
         $schedule = sanitize_text_field($_POST['schedule'] ?? '24hour');
         
         // Use UpdateExternalCronScheduleUseCase for consistency
-        $result = UpdateExternalCronScheduleUseCase::execute($schedule);
+        $result = $this->updateExternalCronScheduleUseCase->execute($schedule);
         
         if ($result['success']) {
             wp_send_json_success($result['data'] ?? $result['message']);
@@ -180,7 +187,7 @@ class ExternalCronController {
      * @return bool Success status
      */
     public static function register_with_cronjoborg($schedule = '24hour') {
-        $result = RegisterExternalCronUseCase::execute($schedule);
+        $result = $this->registerExternalCronUseCase->execute($schedule);
         return $result['success'];
     }
     
@@ -188,7 +195,7 @@ class ExternalCronController {
      * Auto-unregister on deactivation
      */
     public static function unregister_from_cronjoborg() {
-        $result = UnregisterExternalCronUseCase::execute();
+        $result = $this->unregisterExternalCronUseCase->execute();
         return $result['success'];
     }
     

@@ -10,18 +10,24 @@ if (!defined('ABSPATH')) {
  */
 class UnregisterExternalCronUseCase {
     
+    private $repository;
+    
+    public function __construct() {
+        $this->repository = new ExternalCronRepository();
+    }
+    
     /**
      * Execute external cron unregistration
      * 
      * @return array ['success' => bool, 'message' => string]
      */
-    public static function execute() {
+    public function execute() {
         try {
             $job_id = get_option('ujc_cronjoborg_job_id');
             
             if (!$job_id) {
                 // Clean up local settings even if no job ID
-                self::cleanupLocalSettings();
+                $this->cleanupLocalSettings();
                 return [
                     'success' => true,
                     'message' => '✅ External Cron został dezaktywowany (brak job ID do usunięcia)'
@@ -29,11 +35,10 @@ class UnregisterExternalCronUseCase {
             }
             
             // Unregister from cron-job.org
-            $repository = new ExternalCronRepository();
-            $result = $repository->deleteJob($job_id);
+            $result = $this->repository->deleteJob($job_id);
             
             // Clean up local settings regardless of API result
-            self::cleanupLocalSettings();
+            $this->cleanupLocalSettings();
             
             if ($result['success']) {
                 error_log("UJC: Unregistered from cron-job.org, Job ID: {$job_id}");
@@ -53,7 +58,7 @@ class UnregisterExternalCronUseCase {
         } catch (Exception $e) {
             error_log('UJC UnregisterExternalCronUseCase Error: ' . $e->getMessage());
             // Still try to clean up local settings
-            self::cleanupLocalSettings();
+            $this->cleanupLocalSettings();
             return [
                 'success' => false,
                 'message' => 'Błąd serwera: ' . $e->getMessage()
@@ -64,7 +69,7 @@ class UnregisterExternalCronUseCase {
     /**
      * Clean up local WordPress options
      */
-    private static function cleanupLocalSettings() {
+    private function cleanupLocalSettings() {
         delete_option('ujc_cronjoborg_job_id');
         delete_option('ujc_external_cron_enabled');
         delete_option('ujc_external_cron_schedule');

@@ -12,6 +12,13 @@ require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
  */
 class UJC_Investment_Modal extends UJC_Admin_Page {
     
+    private $investmentRepository;
+    
+    public function __construct() {
+        $this->investmentRepository = new InvestmentRepository();
+        parent::__construct();
+    }
+    
     protected function init_hooks() {
         add_action('wp_ajax_ujc_get_investment', [$this, 'ajax_get_investment']);
         add_action('wp_ajax_ujc_update_investment', [$this, 'ajax_update_investment']);
@@ -274,8 +281,7 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
         
         try {
             
-            $investment_repo = new InvestmentRepository();
-            $investment = $investment_repo->read();
+            $investment = $this->investmentRepository->read();
             error_log('UJC: Investment data retrieved: ' . print_r($investment, true));
             
             if ($investment) {
@@ -318,8 +324,7 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
             error_log('UJC: Investment data to update: ' . print_r($data, true));
             
             
-            $repository = new InvestmentRepository();
-            $result = $repository->save($data);
+            $result = $this->investmentRepository->save($data);
             error_log('UJC: Update result: ' . ($result !== false ? 'success' : 'failed'));
             
             if ($result !== false) {

@@ -13,6 +13,15 @@ require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-pa
  */
 class UJC_Resource_Modal extends UJC_Admin_Page {
     
+    private $saveResourceUseCase;
+    private $getResourceByIdUseCase;
+    
+    public function __construct() {
+        $this->saveResourceUseCase = new SaveResourceUseCase();
+        $this->getResourceByIdUseCase = new GetResourceByIdUseCase();
+        parent::__construct();
+    }
+    
     protected function init_hooks() {
         add_action('wp_ajax_ujc_save_resource', [$this, 'ajax_save_resource']);
         add_action('wp_ajax_ujc_get_resource', [$this, 'ajax_get_resource']);
@@ -578,8 +587,7 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
             
             error_log('UJC: Resource data to save: ' . print_r($data, true));
             
-            $useCase = new SaveResourceUseCase();
-            $result = $useCase->execute($data);
+            $result = $this->saveResourceUseCase->execute($data);
             error_log('UJC: Resource create result: ' . print_r($result, true));
             
             // Sprawdź czy result zawiera błąd walidacji
@@ -612,8 +620,7 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
             $resource_id = intval($_POST['resource_id'] ?? 0);
             error_log('UJC: Loading resource ID: ' . $resource_id);
             
-            $useCase = new GetResourceByIdUseCase();
-            $resource = $useCase->execute($resource_id);
+            $resource = $this->getResourceByIdUseCase->execute($resource_id);
             error_log('UJC: Resource data retrieved: ' . print_r($resource, true));
             
             if ($resource) {
@@ -643,13 +650,11 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
             $data = $this->sanitize_resource_data();
             
             // Zaktualizuj daty tylko dla zmienionych cen
-            $getUseCase = new GetResourceByIdUseCase();
-            $old_data = $getUseCase->execute($resource_id);
+            $old_data = $this->getResourceByIdUseCase->execute($resource_id);
             $current_datetime = DateHelper::currentDatetime();
             $data = $this->update_price_dates_if_changed($data, $old_data, $current_datetime);
             
-            $saveUseCase = new SaveResourceUseCase();
-            $result = $saveUseCase->execute($data, $resource_id);
+            $result = $this->saveResourceUseCase->execute($data, $resource_id);
             
             // Sprawdź czy result zawiera błąd walidacji
             if (is_array($result) && isset($result['error'])) {

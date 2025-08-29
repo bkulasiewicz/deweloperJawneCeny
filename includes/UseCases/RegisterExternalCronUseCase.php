@@ -10,16 +10,28 @@ if (!defined('ABSPATH')) {
  */
 class RegisterExternalCronUseCase {
     
+    private $repository;
+    private $developerRepository;
+    private $investmentRepository;
+    private $resourceRepository;
+    
+    public function __construct() {
+        $this->repository = new ExternalCronRepository();
+        $this->developerRepository = new DeveloperRepository();
+        $this->investmentRepository = new InvestmentRepository();
+        $this->resourceRepository = new ResourceRepository();
+    }
+    
     /**
      * Execute external cron registration
      * 
      * @param string $schedule Schedule key (e.g., '1min', '15min', '1hour', '24hour')
      * @return array ['success' => bool, 'message' => string, 'job_id' => string|null]
      */
-    public static function execute($schedule = '24hour') {
+    public function execute($schedule = '24hour') {
         try {
             // Validate prerequisites
-            $validation_result = self::validatePrerequisites();
+            $validation_result = $this->validatePrerequisites();
             if (!$validation_result['success']) {
                 return $validation_result;
             }
@@ -31,8 +43,7 @@ class RegisterExternalCronUseCase {
             $title = 'UJC-' . $domain;
             
             // Get schedule configuration
-            $repository = new ExternalCronRepository();
-            $available_schedules = $repository->getAvailableSchedules();
+            $available_schedules = $this->repository->getAvailableSchedules();
             
             if (!array_key_exists($schedule, $available_schedules)) {
                 return [
@@ -45,7 +56,7 @@ class RegisterExternalCronUseCase {
             $schedule_config = $available_schedules[$schedule];
             
             // Register with cron-job.org
-            $result = $repository->createJob($endpoint, $schedule_config, $title);
+            $result = $this->repository->createJob($endpoint, $schedule_config, $title);
             
             if ($result['success']) {
                 // Save configuration locally
@@ -86,7 +97,7 @@ class RegisterExternalCronUseCase {
      * 
      * @return array ['success' => bool, 'message' => string]
      */
-    private static function validatePrerequisites() {
+    private function validatePrerequisites() {
         $errors = [];
         
         // Check if external cron is already enabled
@@ -95,22 +106,19 @@ class RegisterExternalCronUseCase {
         }
         
         // Check if developer data exists
-        $developer_repository = new DeveloperRepository();
-        $developer = $developer_repository->read();
+        $developer = $this->developerRepository->read();
         if (!$developer) {
             $errors[] = 'Brak danych dewelopera. Uzupełnij dane w zakładce "Dane Dostawcy"';
         }
         
         // Check if investment data exists
-        $investment_repository = new InvestmentRepository();
-        $investment = $investment_repository->read();
+        $investment = $this->investmentRepository->read();
         if (!$investment) {
             $errors[] = 'Brak danych inwestycji. Uzupełnij dane inwestycji';
         }
         
         // Check if resources exist
-        $resource_repository = new ResourceRepository();
-        $resources = $resource_repository->readAll();
+        $resources = $this->resourceRepository->readAll();
         if (empty($resources)) {
             $errors[] = 'Brak nieruchomości. Dodaj przynajmniej jedną nieruchomość w zakładce "Zasoby"';
         }

@@ -121,10 +121,9 @@ class UpdateExternalCronScheduleUseCase {
      * 
      * @return array Current schedule information
      */
-    public static function getCurrentSchedule() {
-        $repository = new ExternalCronRepository();
+    public function getCurrentSchedule() {
         $current_schedule = get_option('ujc_external_cron_schedule', '24hour');
-        $available_schedules = $repository->getAvailableSchedules();
+        $available_schedules = $this->repository->getAvailableSchedules();
         
         return [
             'current' => $current_schedule,

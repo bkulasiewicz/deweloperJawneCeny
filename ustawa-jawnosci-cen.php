@@ -2,7 +2,7 @@
 /**
  * Plugin Name: DeweloperJawneCeny
  * Description: Plugin do automatyzacji procesu dostarczania danych zgodnie z wymogami Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego
- * Version: 1.21.0
+ * Version: 1.22.1
  * Author: Deweloper
  */
 
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.1');
-define('VERSION', '1.21.0');
+define('VERSION', '1.22.1');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -56,6 +56,7 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/services/FileManager.php';
         
         // Core
+        require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
         require_once PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
         require_once PLUGIN_DIR . 'includes/core/class-ujc-database-versioning.php';
         
@@ -94,6 +95,20 @@ class DeweloperJawneCeny {
         
         // Views - Frontend
         require_once PLUGIN_DIR . 'includes/views/frontend/class-ujc-shortcode.php';
+        
+        // Views - Admin Components
+        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-modal.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-investment-modal.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-item.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-parts-tooltip.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-history-modal.php';
+        
+        // Views - Admin Pages
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-dashboard-page.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-supplier-data-page.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-resources-page.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-publication-page.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-dev-console.php';
         
         // Inicjalizuj klasy po załadowaniu wszystkich zależności
         if (is_admin()) {

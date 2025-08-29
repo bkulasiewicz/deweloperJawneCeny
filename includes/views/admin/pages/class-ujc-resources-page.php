@@ -9,7 +9,26 @@ if (!defined('ABSPATH')) {
  */
 class UJC_Resources_Page {
     
+    private $developerRepository;
+    private $investmentRepository;
+    private $resourceRepository;
+    private $saveInvestmentInfoUseCase;
+    private $importResourcesUseCase;
+    private $historyModal;
+    private $resourceModal;
+    private $investmentModal;
+    
     public function __construct() {
+        // Wszystkie instancje w konstruktorze
+        $this->developerRepository = new DeveloperRepository();
+        $this->investmentRepository = new InvestmentRepository();
+        $this->resourceRepository = new ResourceRepository();
+        $this->saveInvestmentInfoUseCase = new SaveInvestmentInfoUseCase();
+        $this->importResourcesUseCase = new ImportResourcesUseCase();
+        $this->historyModal = new UJC_History_Modal();
+        $this->resourceModal = new UJC_Resource_Modal();
+        $this->investmentModal = new UJC_Investment_Modal();
+        
         // Dodaj AJAX handlers dla zasobów
         add_action('wp_ajax_ujc_get_resources', [$this, 'ajax_get_resources']);
         add_action('wp_ajax_ujc_save_investment', [$this, 'ajax_save_investment']);
@@ -17,10 +36,8 @@ class UJC_Resources_Page {
     }
     
     public function render() {
-        $developer_repo = new DeveloperRepository();
-        $investment_repo = new InvestmentRepository();
-        $developer = $developer_repo->read();
-        $investment = $investment_repo->read();
+        $developer = $this->developerRepository->read();
+        $investment = $this->investmentRepository->read();
         
         // Sprawdź czy dane dostawcy są wypełnione
         if (!$developer) {
@@ -129,12 +146,8 @@ class UJC_Resources_Page {
     }
     
     private function render_resources_form($investment) {
-        // Załaduj komponenty modalowe i itemów
-        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-modal.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-investment-modal.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-item.php';
-        $resourceModal = new UJC_Resource_Modal();
-        $investmentModal = new UJC_Investment_Modal();
+        $resourceModal = $this->resourceModal;
+        $investmentModal = $this->investmentModal;
         
         ?>
         <div class="wrap">
@@ -251,8 +264,7 @@ class UJC_Resources_Page {
      * Renderuje listę zasobów bezpośrednio w PHP
      */
     private function render_resources_list() {
-        $resource_repo = new ResourceRepository();
-        $resources = $resource_repo->readAll();
+        $resources = $this->resourceRepository->readAll();
         
         if (empty($resources)) {
             ?>
@@ -285,8 +297,7 @@ class UJC_Resources_Page {
             wp_send_json_error('Brak uprawnień');
         }
         
-        $resource_repo = new ResourceRepository();
-        $resources = $resource_repo->readAll();
+        $resources = $this->resourceRepository->readAll();
         
         // Przekaż surowe dane - formatowanie w JavaScript
         $formatted_resources = [];
@@ -315,9 +326,7 @@ class UJC_Resources_Page {
         check_ajax_referer('ujc_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
         
-        require_once PLUGIN_DIR . 'includes/UseCases/SaveInvestmentInfoUseCase.php';
-        
-        $result = SaveInvestmentInfoUseCase::execute($_POST);
+        $result = $this->saveInvestmentInfoUseCase->execute($_POST);
         
         if ($result['success']) {
             wp_send_json_success($result['message']);
@@ -334,8 +343,7 @@ class UJC_Resources_Page {
         }
         
         try {
-            $importUseCase = new ImportResourcesUseCase();
-            $result = $importUseCase->execute($_FILES['import_file']);
+            $result = $this->importResourcesUseCase->execute($_FILES['import_file']);
             
             wp_send_json_success($result);
             

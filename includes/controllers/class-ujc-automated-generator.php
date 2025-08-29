@@ -11,9 +11,11 @@ if (!defined('ABSPATH')) {
 class UJC_Automated_Generator {
     
     private $settings_repository;
+    private $generateFilesUseCase;
     
     public function __construct() {
         $this->settings_repository = new SettingsRepository();
+        $this->generateFilesUseCase = new GenerateFilesUseCase();
         
         // WordPress cron removed - using External Cron (cron-job.org) instead
         // Manual generation still available via generate_files_manual()
@@ -39,8 +41,7 @@ class UJC_Automated_Generator {
      */
     public function generate_files_manual() {
         // Wywołaj UseCase do generowania
-        $generateFilesUseCase = new GenerateFilesUseCase();
-        $result = $generateFilesUseCase->execute(TriggerType::Manual);
+        $result = $this->generateFilesUseCase->execute(TriggerType::Manual);
         
         // Zapisz status
         if ($result['success']) {

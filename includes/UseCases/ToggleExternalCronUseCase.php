@@ -10,6 +10,20 @@ if (!defined('ABSPATH')) {
  */
 class ToggleExternalCronUseCase {
     
+    private $registerUseCase;
+    private $unregisterUseCase;
+    private $developerRepository;
+    private $investmentRepository;  
+    private $resourceRepository;
+    
+    public function __construct() {
+        $this->registerUseCase = new RegisterExternalCronUseCase();
+        $this->unregisterUseCase = new UnregisterExternalCronUseCase();
+        $this->developerRepository = new DeveloperRepository();
+        $this->investmentRepository = new InvestmentRepository();
+        $this->resourceRepository = new ResourceRepository();
+    }
+    
     /**
      * Execute external cron toggle
      * 
@@ -17,12 +31,12 @@ class ToggleExternalCronUseCase {
      * @param string $schedule Schedule key for activation (only used when enabling)
      * @return array ['success' => bool, 'message' => string]
      */
-    public static function execute($enable, $schedule = '24hour') {
+    public function execute($enable, $schedule = '24hour') {
         try {
             
             // Validate prerequisites before enabling
             if ($enable) {
-                $validation_result = self::validateBeforeEnable();
+                $validation_result = $this->validateBeforeEnable();
                 if (!$validation_result['success']) {
                     error_log("UJC ToggleExternalCronUseCase: validation failed - " . $validation_result['message']);
                     return $validation_result;
@@ -31,12 +45,12 @@ class ToggleExternalCronUseCase {
             
             if ($enable) {
                 // Enable external cron - register with cron-job.org using provided schedule
-                $result = RegisterExternalCronUseCase::execute($schedule);
+                $result = $this->registerUseCase->execute($schedule);
                 
                 return $result;
             } else {
                 // Disable external cron - unregister from cron-job.org
-                $result = UnregisterExternalCronUseCase::execute();
+                $result = $this->unregisterUseCase->execute();
                 
                 return $result;
             }
@@ -55,26 +69,23 @@ class ToggleExternalCronUseCase {
      * 
      * @return array ['success' => bool, 'message' => string]
      */
-    private static function validateBeforeEnable() {
+    private function validateBeforeEnable() {
         $errors = [];
         
         // Check if developer data exists
-        $developer_repository = new DeveloperRepository();
-        $developer = $developer_repository->read();
+        $developer = $this->developerRepository->read();
         if (!$developer) {
             $errors[] = 'Brak danych dewelopera. Uzupełnij dane w zakładce "Dane Dostawcy"';
         }
         
         // Check if investment data exists
-        $investment_repository = new InvestmentRepository();
-        $investment = $investment_repository->read();
+        $investment = $this->investmentRepository->read();
         if (!$investment) {
             $errors[] = 'Brak danych inwestycji. Uzupełnij dane inwestycji';
         }
         
         // Check if resources exist
-        $resource_repository = new ResourceRepository();
-        $resources = $resource_repository->readAll();
+        $resources = $this->resourceRepository->readAll();
         if (empty($resources)) {
             $errors[] = 'Brak nieruchomości. Dodaj przynajmniej jedną nieruchomość w zakładce "Zasoby"';
         }

@@ -4,12 +4,19 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
-
 /**
  * Strona danych dostawcy - przeprojektowana z lepszym UX
  */
 class UJC_Supplier_Data_Page extends UJC_Admin_Page {
+    
+    private $saveDeveloperInfoUseCase;
+    private $developerRepository;
+    
+    public function __construct() {
+        $this->saveDeveloperInfoUseCase = new SaveDeveloperInfoUseCase();
+        $this->developerRepository = new DeveloperRepository();
+        parent::__construct();
+    }
     
     protected function init_hooks() {
         add_action('wp_ajax_ujc_save_developer', [$this, 'ajax_save_developer']);
@@ -141,7 +148,7 @@ class UJC_Supplier_Data_Page extends UJC_Admin_Page {
         if (!$this->verify_nonce()) return;
         if (!$this->check_permissions()) return;
         
-        $result = SaveDeveloperInfoUseCase::execute($_POST);
+        $result = $this->saveDeveloperInfoUseCase->execute($_POST);
         
         if ($result['success']) {
             wp_send_json_success($result['message']);
@@ -151,8 +158,7 @@ class UJC_Supplier_Data_Page extends UJC_Admin_Page {
     }
     
     public function render() {
-        $developer_repo = new DeveloperRepository();
-        $developer = $developer_repo->read();
+        $developer = $this->developerRepository->read();
         $is_saved = !empty($developer);
         
         ?>

@@ -9,7 +9,12 @@ if (!defined('ABSPATH')) {
  */
 class UJC_Publication_Page {
     
+    private $generateFilesUseCase;
+    private $getPublicationHistoryUseCase;
+    
     public function __construct() {
+        $this->generateFilesUseCase = new GenerateFilesUseCase();
+        $this->getPublicationHistoryUseCase = new GetPublicationHistoryUseCase();
         add_action('wp_ajax_ujc_publication_generate', [$this, 'ajax_generate_files']);
     }
     
@@ -17,10 +22,7 @@ class UJC_Publication_Page {
         check_ajax_referer('ujc_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
         
-        require_once PLUGIN_DIR . 'includes/UseCases/GenerateFilesUseCase.php';
-        
-        $generateFilesUseCase = new GenerateFilesUseCase();
-        $result = $generateFilesUseCase->execute(TriggerType::Manual);
+        $result = $this->generateFilesUseCase->execute(TriggerType::Manual);
         
         if ($result['success']) {
             wp_send_json_success($result['message']);
@@ -192,8 +194,7 @@ class UJC_Publication_Page {
     
     private function render_publication_history() {
         // Pobierz historię generowania
-        $historyUseCase = new GetPublicationHistoryUseCase();
-        $history = $historyUseCase->execute(50);
+        $history = $this->getPublicationHistoryUseCase->execute(50);
         
         if (empty($history)) {
             echo '<div style="padding: 20px; background: #f0f0f1; border-radius: 4px; text-align: center; color: #666;">';

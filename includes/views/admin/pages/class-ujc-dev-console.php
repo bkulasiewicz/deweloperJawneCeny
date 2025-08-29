@@ -10,7 +10,10 @@ if (!defined('ABSPATH')) {
  */
 class UJC_Dev_Console {
     
+    private $resetDatabaseUseCase;
+    
     public function __construct() {
+        $this->resetDatabaseUseCase = new ResetDatabaseUseCase();
         // Inicjalizuj tylko w trybie deweloperskim
         if (defined('WP_DEBUG') && WP_DEBUG) {
             add_action('wp_ajax_ujc_dev_clear_table', [$this, 'ajax_clear_table']);
@@ -44,23 +47,21 @@ class UJC_Dev_Console {
         
         $table_type = sanitize_text_field($_POST['table_type'] ?? '');
         
-        $resetUseCase = new ResetDatabaseUseCase();
-        
         try {
             switch ($table_type) {
                 case 'developer':
-                    $resetUseCase->resetDeveloperData();
+                    $this->resetDatabaseUseCase->resetDeveloperData();
                     wp_send_json_success('Dane dostawcy zostały usunięte');
                     break;
                     
                 case 'investment':
-                    $resetUseCase->resetInvestmentData();
+                    $$this->resetDatabaseUseCase->resetInvestmentData();
                     wp_send_json_success('Dane inwestycji zostały usunięte');
                     break;
                     
                 case 'resources':
                     error_log('UJC DEV: Starting resources cleanup');
-                    $result = $resetUseCase->resetAllData();
+                    $result = $$this->resetDatabaseUseCase->resetAllData();
                     wp_send_json_success($result[0]);
                     break;
                     

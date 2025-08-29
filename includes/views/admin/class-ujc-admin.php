@@ -12,44 +12,28 @@ class UJC_Admin {
     private $dashboard_page_instance;
     private $supplier_data_page_instance;
     private $resources_page_instance;
+    private $publication_page_instance;
+    private $resource_modal_instance;
+    private $investment_modal_instance;
+    private $history_modal_instance;
+    private $dev_console_instance;
     
     public function __construct() {
         add_action('admin_menu', [$this, 'add_admin_menu']);
         add_action('admin_init', [$this, 'register_settings']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
         
-        // Załaduj moduły stron admin
-        $this->load_admin_pages();
-        
-        // AJAX handlers usunięte - są obsługiwane w głównym pliku pluginu
-    }
-    
-    private function load_admin_pages() {
-        // Załaduj abstrakcyjną klasę bazową
-        require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
-        
-        // Załaduj strony admin
-        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-dashboard-page.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-supplier-data-page.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-resources-page.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-publication-page.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-dev-console.php';
-        
-        // Załaduj komponenty UI
-        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-modal.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-investment-modal.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-history-modal.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-item.php';
-        
-        
-        // Inicjalizuj strony zgodnie z Dependency Injection - przechowaj instancje
+        // Wszystkie instancje tworzone w konstruktorze (klasy już załadowane w głównym loaderze)
         $this->dashboard_page_instance = new UJC_Dashboard_Page();
         $this->supplier_data_page_instance = new UJC_Supplier_Data_Page();
         $this->resources_page_instance = new UJC_Resources_Page();
-        new UJC_Resource_Modal();
-        new UJC_Investment_Modal();
-        new UJC_History_Modal();
-        new UJC_Dev_Console();
+        $this->publication_page_instance = new UJC_Publication_Page();
+        $this->resource_modal_instance = new UJC_Resource_Modal();
+        $this->investment_modal_instance = new UJC_Investment_Modal();
+        $this->history_modal_instance = new UJC_History_Modal();
+        $this->dev_console_instance = new UJC_Dev_Console();
+        
+        // AJAX handlers usunięte - są obsługiwane w głównym pliku pluginu
     }
     
     public function add_admin_menu() {
@@ -104,8 +88,7 @@ class UJC_Admin {
     }
     
     public function publication_page() {
-        $page = new UJC_Publication_Page();
-        $page->render();
+        $this->publication_page_instance->render();
     }
     
     public function enqueue_admin_scripts($hook) {
