@@ -16,7 +16,7 @@ class FileManager {
     public function __construct() {
         $upload_dir = wp_upload_dir();
         $this->baseDirectory = $upload_dir['basedir'] . '/ujc-data'; // Will be configurable later
-        $this->baseUrl = $upload_dir['baseurl'] . '/ujc-data';
+        $this->baseUrl = get_site_url() . '/wp-content/uploads/ujc-data';
     }
     
     /**
