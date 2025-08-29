@@ -11,19 +11,20 @@ if (!defined('ABSPATH')) {
 class CSVFormatter {
     
     /**
-     * Generate CSV rows from developer and resources data
+     * Generate CSV rows from developer, investment and resources data
      * 
      * @param array $developer Developer data
+     * @param array $investment Investment data
      * @param array $resources Array of resource data
      * @return Generator CSV rows as generator for memory efficiency
      */
-    public function generate(array $developer, array $resources): Generator {
+    public function generate(array $developer, array $investment, array $resources): Generator {
         // Yield headers first
         yield $this->getCsvHeaders();
         
         // Yield data rows
         foreach ($resources as $resource) {
-            yield $this->resourceToRow($developer, $resource);
+            yield $this->resourceToRow($developer, $investment, $resource);
         }
     }
     
@@ -96,7 +97,7 @@ class CSVFormatter {
     /**
      * Convert resource data to CSV row
      */
-    private function resourceToRow(array $developer, array $resource): array {
+    private function resourceToRow(array $developer, array $investment, array $resource): array {
         // Get first extra for MVP
         $first_extra = $resource['extras'][0] ?? [];
         
@@ -136,13 +137,13 @@ class CSVFormatter {
             $developer['sposob_kontaktu'] ?? '',
             
             // Project location
-            $resource['proj_wojewodztwo'] ?? '',
-            $resource['proj_powiat'] ?? '',
-            $resource['proj_gmina'] ?? '',
-            $resource['proj_miejscowosc'] ?? '',
-            $resource['proj_ulica'] ?? '',
-            $resource['proj_nr'] ?? '',
-            $resource['proj_kod'] ?? '',
+            $investment['proj_wojewodztwo'] ?? '',
+            $investment['proj_powiat'] ?? '',
+            $investment['proj_gmina'] ?? '',
+            $investment['proj_miejscowosc'] ?? '',
+            $investment['proj_ulica'] ?? '',
+            $investment['proj_nr'] ?? '',
+            $investment['proj_kod'] ?? '',
             
             // Property - use current prices from history or basic ones
             $resource['rodzaj_nieruchomosci'] ?? '',

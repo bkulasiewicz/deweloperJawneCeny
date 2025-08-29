@@ -7,12 +7,14 @@ if (!defined('ABSPATH')) {
 class GenerateCSVFileUseCase {
     
     private $developerRepository;
+    private $investmentRepository;
     private $resourceRepository;
     private $csvFormatter;
     private $fileManager;
     
     public function __construct() {
         $this->developerRepository = new DeveloperRepository();
+        $this->investmentRepository = new InvestmentRepository();
         $this->resourceRepository = new ResourceRepository();
         $this->csvFormatter = new CSVFormatter();
         $this->fileManager = new FileManager();
@@ -34,10 +36,11 @@ class GenerateCSVFileUseCase {
             
             // Get data
             $developer = $this->developerRepository->read();
+            $investment = $this->investmentRepository->read();
             $resources = $this->resourceRepository->readAll();
             
             // Generate CSV content
-            $csvRows = $this->csvFormatter->generate($developer, $resources);
+            $csvRows = $this->csvFormatter->generate($developer, $investment, $resources);
             
             // Generate filename
             $filename = $this->fileManager->generateCSVFilename($developer);
@@ -67,6 +70,10 @@ class GenerateCSVFileUseCase {
         
         if (!$this->developerRepository->read()) {
             $errors[] = "Brak danych dewelopera. Uzupełnij dane w zakładce 'Dane Dostawcy'";
+        }
+        
+        if (!$this->investmentRepository->read()) {
+            $errors[] = "Brak danych inwestycji. Uzupełnij dane inwestycji w zakładce 'Zasoby'";
         }
         
         $resources = $this->resourceRepository->readAll();
