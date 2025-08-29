@@ -77,7 +77,7 @@ class UJC_Admin {
             'Zasoby',
             'Zasoby',
             'manage_options',
-            'ujc-properties',
+            'ujc-resources',
             [$this, 'resources_page']
         );
         

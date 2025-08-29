@@ -5,7 +5,7 @@ if (!defined('ABSPATH')) {
 }
 
 require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
-require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-property-parts-tooltip.php';
+require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-parts-tooltip.php';
 
 /**
  * Komponent modalu dla zasobów - Single Responsibility Principle
@@ -52,7 +52,7 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                                         <option value="Garaż">Garaż</option>
                                     </select>
                                     <p class="description" style="margin-top: 5px;">
-                                        <?php echo UJC_Property_Parts_Tooltip::render_icon(); ?>
+                                        <?php echo UJC_Resource_Parts_Tooltip::render_icon(); ?>
                                     </p>
                                 </td>
                             </tr>

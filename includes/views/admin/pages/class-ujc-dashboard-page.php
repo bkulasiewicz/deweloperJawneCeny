@@ -48,7 +48,7 @@ class UJC_Dashboard_Page {
         $investment_repo = new InvestmentRepository();
         $developer = $developer_repo->read();
         $investment = $investment_repo->read();
-        $properties_count = $this->get_properties_count();
+        $resources_count = $this->get_resources_count();
         
         ?>
         <div class="wrap">
@@ -60,9 +60,9 @@ class UJC_Dashboard_Page {
                     <?php if (!$developer): ?>
                         <p><a href="<?php echo admin_url('admin.php?page=ujc-developer'); ?>" class="button button-primary">Dodaj dane dostawcy</a></p>
                     <?php elseif (!$investment): ?>
-                        <p><a href="<?php echo admin_url('admin.php?page=ujc-properties'); ?>" class="button button-primary">Dodaj inwestycję</a></p>
-                    <?php elseif ($properties_count === 0): ?>
-                        <p><a href="<?php echo admin_url('admin.php?page=ujc-properties'); ?>" class="button button-primary">Dodaj zasoby</a></p>
+                        <p><a href="<?php echo admin_url('admin.php?page=ujc-resources'); ?>" class="button button-primary">Dodaj inwestycję</a></p>
+                    <?php elseif ($resources_count === 0): ?>
+                        <p><a href="<?php echo admin_url('admin.php?page=ujc-resources'); ?>" class="button button-primary">Dodaj zasoby</a></p>
                     <?php else: ?>
                         <p>
                             <button type="button" class="button button-primary" onclick="manualGeneration()" id="quick-generation-btn">
@@ -279,7 +279,7 @@ class UJC_Dashboard_Page {
         <?php
     }
     
-    private function get_properties_count() {
+    private function get_resources_count() {
         $repository = new ResourceRepository();
         $resources = $repository->readAll();
         return count($resources);

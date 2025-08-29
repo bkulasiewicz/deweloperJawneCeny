@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
  * Helper do wyświetlania tooltip z informacjami o częściach nieruchomości
  * Używany w komponencie resource-modal
  */
-class UJC_Property_Parts_Tooltip {
+class UJC_Resource_Parts_Tooltip {
     
     /**
      * Zwraca treść tooltip jako string
