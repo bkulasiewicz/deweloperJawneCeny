@@ -15,8 +15,7 @@ class UJC_Dev_Console {
         if (defined('WP_DEBUG') && WP_DEBUG) {
             add_action('wp_ajax_ujc_dev_clear_table', [$this, 'ajax_clear_table']);
             add_action('wp_ajax_ujc_dev_download_logs', [$this, 'ajax_download_logs']);
-            add_action('wp_ajax_ujc_dev_set_interval', [$this, 'ajax_dev_set_interval']);
-        }
+            }
     }
     
     /**
@@ -163,43 +162,6 @@ class UJC_Dev_Console {
         return implode("\n", $logs);
     }
     
-    /**
-     * AJAX handler do ustawiania interwału generowania (tylko DEV)
-     */
-    public function ajax_dev_set_interval() {
-        if (!self::is_available()) {
-            wp_send_json_error('Funkcja dostępna tylko w trybie deweloperskim');
-            return;
-        }
-        
-        check_ajax_referer('ujc_admin_nonce', 'ujc_nonce');
-        
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error('Brak uprawnień administratora');
-            return;
-        }
-        
-        $interval = sanitize_text_field($_POST['interval'] ?? '24hours');
-        
-        $allowed_intervals = ['1min', '15min', '1hour', '24hours'];
-        if (!in_array($interval, $allowed_intervals)) {
-            wp_send_json_error('Nieprawidłowy interwał');
-            return;
-        }
-        
-        update_option('ujc_generation_interval', $interval);
-        
-        wp_clear_scheduled_hook('ujc_generate_files_cycle');
-        
-        $automated_generator = new UJC_Automated_Generator();
-        $next_run = ($interval === '24hours') ? 
-            $automated_generator->calculate_next_utc_midnight() : 
-            time();
-            
-        wp_schedule_event($next_run, $automated_generator->get_cron_schedule($interval), 'ujc_generate_files_cycle');
-        
-        wp_send_json_success('Interwał ustawiony: ' . $interval);
-    }
     
     /**
      * Renderuje kafelek DEV Console
@@ -209,8 +171,6 @@ class UJC_Dev_Console {
             return '';
         }
         
-        $current_interval = get_option('ujc_generation_interval', '24hours');
-        $automation_enabled = get_option('ujc_automation_enabled', true);
         
         ob_start();
         ?>
@@ -221,33 +181,6 @@ class UJC_Dev_Console {
             </p>
             
             <div class="ujc-dev-actions" style="flex-grow: 1;">
-                <h3>Automatyzacja:</h3>
-                <div style="margin: 10px 0; padding: 10px; background: #f0f0f1; border-left: 3px solid #0073aa;">
-                    <p><strong>Status:</strong> <?php echo $automation_enabled ? '✅ Włączona' : '❌ Wyłączona'; ?></p>
-                    <p><strong>Aktualny interwał:</strong> 
-                        <?php 
-                        $interval_labels = [
-                            '1min' => '1 minuta',
-                            '15min' => '15 minut', 
-                            '1hour' => '1 godzina',
-                            '24hours' => '24 godziny (północ UTC)'
-                        ];
-                        echo $interval_labels[$current_interval] ?? $current_interval;
-                        ?>
-                    </p>
-                    
-                    <label for="ujc-interval-select">Ustaw częstotliwość generowania:</label>
-                    <select id="ujc-interval-select" style="margin-left: 10px;">
-                        <option value="1min" <?php selected($current_interval, '1min'); ?>>Co 1 minutę</option>
-                        <option value="15min" <?php selected($current_interval, '15min'); ?>>Co 15 minut</option>
-                        <option value="1hour" <?php selected($current_interval, '1hour'); ?>>Co 1 godzinę</option>
-                        <option value="24hours" <?php selected($current_interval, '24hours'); ?>>Co 24 godziny (północ UTC)</option>
-                    </select>
-                    <button type="button" class="button button-primary" onclick="setGenerationInterval()" style="margin-left: 10px;">
-                        ⚙️ Ustaw interwał
-                    </button>
-                </div>
-                
                 <h3>Debugowanie:</h3>
                 <button type="button" class="button button-primary" onclick="downloadLogs()" style="margin: 5px; background-color: #2271b1;">
                     📋 Pobierz logi debugowania
@@ -273,35 +206,6 @@ class UJC_Dev_Console {
         </div>
         
         <script>
-        function setGenerationInterval() {
-            const select = document.getElementById('ujc-interval-select');
-            const interval = select.value;
-            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
-            
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = '⏳ Ustawianie...';
-            button.disabled = true;
-            
-            jQuery.post(ajaxurl, {
-                action: 'ujc_dev_set_interval',
-                interval: interval,
-                ujc_nonce: nonce
-            }, function(response) {
-                if (response.success) {
-                    alert('✅ ' + response.data);
-                    location.reload();
-                } else {
-                    alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
-                }
-            }).fail(function(xhr, status, error) {
-                console.error('Set interval AJAX Error:', xhr, status, error);
-                alert('❌ Błąd połączenia: ' + error);
-            }).always(function() {
-                button.textContent = originalText;
-                button.disabled = false;
-            });
-        }
         
         function downloadLogs() {
             const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';

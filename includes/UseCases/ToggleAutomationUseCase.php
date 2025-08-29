@@ -13,10 +13,7 @@ class ToggleAutomationUseCase {
             $settings_repository = new SettingsRepository();
             $settings_repository->setAutomationEnabled($enabled);
             
-            // Zarządzaj cron job
-            $generator = new UJC_Automated_Generator();
-            $generator->toggle_cron_job($enabled);
-            
+            // External Cron handles automation - this just tracks the preference
             $message = $enabled ? 'Automatyzacja została włączona' : 'Automatyzacja została wyłączona';
             
             return [

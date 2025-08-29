@@ -10,16 +10,30 @@ if (!defined('ABSPATH')) {
 class UJC_Dashboard_Page {
     
     public function __construct() {
-        add_action('wp_ajax_ujc_toggle_automation', [$this, 'ajax_toggle_automation']);
+        add_action('wp_ajax_ujc_toggle_external_cron', [$this, 'ajax_toggle_external_cron']);
     }
     
-    public function ajax_toggle_automation() {
+    
+    public function ajax_toggle_external_cron() {
         check_ajax_referer('ujc_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
         
-        require_once UJC_PLUGIN_DIR . 'includes/UseCases/ToggleAutomationUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/ToggleExternalCronUseCase.php';
         
-        $result = ToggleAutomationUseCase::execute($_POST['enabled']);
+        // Proper boolean conversion - handle JavaScript boolean false correctly
+        $enable_raw = $_POST['enable'] ?? '';
+        
+        // JavaScript boolean false can be sent as string "false" or actual boolean false
+        if ($enable_raw === false || $enable_raw === 'false' || $enable_raw === '0' || $enable_raw === 0) {
+            $enable = false;
+        } else {
+            $enable = (bool)$enable_raw;
+        }
+        
+        // Get schedule parameter for activation (only used when enabling)
+        $schedule = sanitize_text_field($_POST['schedule'] ?? '24hour');
+        
+        $result = ToggleExternalCronUseCase::execute($enable, $schedule);
         
         if ($result['success']) {
             wp_send_json_success($result['message']);
@@ -61,65 +75,10 @@ class UJC_Dashboard_Page {
                     <?php endif; ?>
                 </div>
                 
-                <div class="ujc-automation-control">
-                    <h2>Automatyzacja</h2>
-                    <?php
-                    $automation_enabled = get_option('ujc_automation_enabled', true);
-                    $current_interval = get_option('ujc_generation_interval', '24hours');
-                    $last_generation_status = get_option('ujc_last_generation_status', null);
-                    $last_generation_time = get_option('ujc_last_generation_time', null);
-                    $next_scheduled = wp_next_scheduled('ujc_generate_files_cycle');
-                    
-                    $interval_labels = [
-                        '1min' => 'co minutę',
-                        '15min' => 'co 15 minut', 
-                        '1hour' => 'co godzinę',
-                        '24hours' => 'codziennie o północy UTC'
-                    ];
-                    ?>
-                    <div style="margin: 15px 0; padding: 15px; background: #f0f0f1; border-radius: 4px;">
-                        <p><strong>Status automatycznego zgłaszania cen:</strong> 
-                            <span style="color: <?php echo $automation_enabled ? '#007600' : '#d63638'; ?>;">
-                                <?php echo $automation_enabled ? '✅ Włączone' : '❌ Wyłączone'; ?>
-                            </span>
-                        </p>
-                        
-                        <?php if ($automation_enabled): ?>
-                        <p><strong>Częstotliwość generowania:</strong> <?php echo $interval_labels[$current_interval] ?? $current_interval; ?></p>
-                        
-                        <?php if ($next_scheduled): ?>
-                        <p><strong>Następne generowanie:</strong> 
-                            <span style="color: #0073aa;">
-                                <?php echo DateHelper::formatTimestampForUser($next_scheduled); ?>
-                            </span>
-                        </p>
-                        <?php endif; ?>
-                        
-                        <?php if ($last_generation_time): ?>
-                        <p><strong>Ostatnia akcja:</strong> 
-                            <?php echo DateHelper::formatTimestampForUser($last_generation_time); ?>
-                            <?php if ($last_generation_status): ?>
-                                <?php if ($last_generation_status === 'success'): ?>
-                                    <span style="color: #007600;">✅ Sukces</span>
-                                <?php else: ?>
-                                    <span style="color: #d63638;">❌ Błąd</span>
-                                    <br><small style="color: #666;"><?php echo esc_html($last_generation_status); ?></small>
-                                <?php endif; ?>
-                            <?php endif; ?>
-                        </p>
-                        <?php endif; ?>
-                        <?php endif; ?>
-                        
-                        <div style="margin-top: 15px;">
-                            <button type="button" 
-                                    class="button <?php echo $automation_enabled ? 'button-secondary' : 'button-primary'; ?>" 
-                                    onclick="toggleAutomation(<?php echo $automation_enabled ? 'false' : 'true'; ?>)"
-                                    id="automation-toggle-btn">
-                                <?php echo $automation_enabled ? '⏸️ Wyłącz automatyzację' : '▶️ Włącz automatyzację'; ?>
-                            </button>
-                            
-                        </div>
-                    </div>
+                
+                <div class="ujc-external-cron-control">
+                    <h2>External Cron (Zaawansowane)</h2>
+                    <?php $this->render_external_cron_control(); ?>
                 </div>
                 
                 <div class="ujc-sharing-history">
@@ -136,34 +95,6 @@ class UJC_Dashboard_Page {
             </div>
             
             <script>
-            function toggleAutomation(enable) {
-                const button = document.getElementById('automation-toggle-btn');
-                const originalText = button.textContent;
-                button.textContent = '⏳ Zmienianie...';
-                button.disabled = true;
-                
-                const ajaxUrl = typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl;
-                const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
-                
-                jQuery.post(ajaxUrl, {
-                    action: 'ujc_toggle_automation',
-                    enabled: enable,
-                    nonce: nonce
-                }, function(response) {
-                    if (response.success) {
-                        location.reload();
-                    } else {
-                        alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
-                        button.textContent = originalText;
-                        button.disabled = false;
-                    }
-                }).fail(function(xhr, status, error) {
-                    console.error('Toggle automation AJAX Error:', xhr, status, error);
-                    alert('❌ Błąd połączenia: ' + error);
-                    button.textContent = originalText;
-                    button.disabled = false;
-                });
-            }
             
             function manualGeneration() {
                 const button = document.getElementById('quick-generation-btn');
@@ -187,6 +118,44 @@ class UJC_Dashboard_Page {
                     }
                 }).fail(function(xhr, status, error) {
                     console.error('Manual generation AJAX Error:', xhr, status, error);
+                    alert('❌ Błąd połączenia: ' + error);
+                    button.textContent = originalText;
+                    button.disabled = false;
+                });
+            }
+            
+            function toggleExternalCron(enable) {
+                const button = document.getElementById('external-cron-toggle-btn');
+                const originalText = button.textContent;
+                button.textContent = '⏳ Przetwarzanie...';
+                button.disabled = true;
+                
+                // Get selected schedule from debug mode select (if available)
+                let schedule = '24hour'; // default
+                const scheduleSelect = document.getElementById('external-cron-schedule-select');
+                if (scheduleSelect && enable) {
+                    schedule = scheduleSelect.value;
+                }
+                
+                const ajaxUrl = typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl;
+                const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
+                
+                jQuery.post(ajaxUrl, {
+                    action: 'ujc_toggle_external_cron',
+                    enable: enable,
+                    schedule: schedule,
+                    nonce: nonce
+                }, function(response) {
+                    if (response.success) {
+                        alert(response.data);
+                        location.reload();
+                    } else {
+                        alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    }
+                }).fail(function(xhr, status, error) {
+                    console.error('Toggle external cron AJAX Error:', xhr, status, error);
                     alert('❌ Błąd połączenia: ' + error);
                     button.textContent = originalText;
                     button.disabled = false;
@@ -250,6 +219,64 @@ class UJC_Dashboard_Page {
         echo '<small style="color: #666;">Wyświetlane ostatnie 10 wpisów</small>';
         echo '</div>';
         echo '</div>';
+    }
+    
+    private function render_external_cron_control() {
+        $external_cron_enabled = ExternalCronController::is_external_cron_enabled();
+        $job_id = get_option('ujc_cronjoborg_job_id');
+        
+        
+        ?>
+        <div style="margin: 15px 0; padding: 15px; background: #f0f0f1; border-radius: 4px;">
+            <p><strong>Status External Cron (cron-job.org):</strong> 
+                <span style="color: <?php echo $external_cron_enabled ? '#007600' : '#d63638'; ?>;">
+                    <?php echo $external_cron_enabled ? '✅ Aktywny' : '❌ Nieaktywny'; ?>
+                </span>
+            </p>
+            
+            <?php if ($external_cron_enabled && $job_id): ?>
+                <p><strong>Job ID:</strong> <code><?php echo esc_html($job_id); ?></code></p>
+                <p><strong>Endpoint:</strong> <code><?php echo get_site_url(); ?>/wp-json/ujc/v1/external-cron</code></p>
+                <p><strong>Częstotliwość:</strong> Codziennie o 6:00 UTC</p>
+            <?php endif; ?>
+            
+            <div style="margin-top: 15px;">
+                <button type="button" 
+                        class="button <?php echo $external_cron_enabled ? 'button-secondary' : 'button-primary'; ?>" 
+                        onclick="toggleExternalCron(<?php echo $external_cron_enabled ? 'false' : 'true'; ?>)"
+                        id="external-cron-toggle-btn">
+                    <?php echo $external_cron_enabled ? '⏸️ Wyłącz External Cron' : '▶️ Włącz External Cron'; ?>
+                </button>
+                
+                <?php if (defined('WP_DEBUG') && WP_DEBUG): ?>
+                    <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px;">
+                        <small style="color: #856404;"><strong>⚠️ DEV MODE:</strong> Częstotliwość dla External Cron</small>
+                        <div style="margin-top: 5px;">
+                            <?php 
+                            $repository = new ExternalCronRepository();
+                            $available_schedules = $repository->getAvailableSchedules();
+                            ?>
+                            <select id="external-cron-schedule-select" style="margin-right: 10px;">
+                                <?php foreach ($available_schedules as $schedule_key => $schedule_data): ?>
+                                    <option value="<?php echo $schedule_key; ?>" <?php echo ($schedule_key === '24hour') ? 'selected' : ''; ?>>
+                                        <?php echo esc_html($schedule_data['interval_text']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <small style="color: #666;">Zostanie zastosowana przy aktywacji</small>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+            
+            <div style="margin-top: 10px;">
+                <small style="color: #666;">
+                    External Cron zapewnia 99.9% niezawodność vs 70-90% WordPress cron.<br>
+                    Generowanie odbywa się przez zewnętrzny serwis cron-job.org.
+                </small>
+            </div>
+        </div>
+        <?php
     }
     
     private function get_properties_count() {
