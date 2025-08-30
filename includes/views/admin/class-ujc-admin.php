@@ -38,13 +38,22 @@ class UJC_Admin {
     
     public function add_admin_menu() {
         add_menu_page(
-            'DeweloperJawneCeny',
-            'DeweloperJawneCeny',
+            'Jawne Ceny',
+            'Jawne Ceny',
             'manage_options',
             'ujc-dashboard',
             [$this, 'dashboard_page'],
             'dashicons-building',
             30
+        );
+        
+        add_submenu_page(
+            'ujc-dashboard',
+            'Pulpit',
+            'Pulpit',
+            'manage_options',
+            'ujc-dashboard',
+            [$this, 'dashboard_page']
         );
         
         add_submenu_page(

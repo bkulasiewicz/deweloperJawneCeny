@@ -55,13 +55,13 @@ class UJC_Dev_Console {
                     break;
                     
                 case 'investment':
-                    $$this->resetDatabaseUseCase->resetInvestmentData();
+                    $this->resetDatabaseUseCase->resetInvestmentData();
                     wp_send_json_success('Dane inwestycji zostały usunięte');
                     break;
                     
                 case 'resources':
                     error_log('UJC DEV: Starting resources cleanup');
-                    $result = $$this->resetDatabaseUseCase->resetAllData();
+                    $result = $this->resetDatabaseUseCase->resetAllData();
                     wp_send_json_success($result[0]);
                     break;
                     
