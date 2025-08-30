@@ -68,7 +68,7 @@ class FileManager {
         // Generate and save MD5
         $md5_filename = str_replace('.xml', '.md5', $filename);
         $md5_filepath = $this->getFilePath($md5_filename);
-        $md5_content = md5_file($filepath) . '  ' . $filename;
+        $md5_content = md5_file($filepath);
         
         if (file_put_contents($md5_filepath, $md5_content) === false) {
             throw new Exception("Cannot write MD5 file: {$md5_filepath}");

@@ -177,7 +177,14 @@ class DeweloperJawneCeny {
     }
     
     public function deactivate() {
-        // Cleanup if needed
+        try {
+            $unregisterUseCase = new UnregisterExternalCronUseCase();
+            $result = $unregisterUseCase->execute();
+            
+            error_log("UJC: External cron cleanup on deactivation - " . $result['message']);
+        } catch (Exception $e) {
+            error_log("UJC: Error during external cron cleanup: " . $e->getMessage());
+        }
     }
 }
 
