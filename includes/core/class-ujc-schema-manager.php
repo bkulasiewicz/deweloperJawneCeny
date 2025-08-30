@@ -249,7 +249,6 @@ class UJC_Schema_Manager {
             status varchar(20) NOT NULL,
             message text,
             trigger_type varchar(20) NOT NULL,
-            csv_filename varchar(255),
             
             PRIMARY KEY (id),
             KEY timestamp (timestamp),

@@ -14,8 +14,7 @@ readonly class PublicationHistoryEntry {
         public int $timestamp,
         public string $status,
         public string $message,
-        public string $trigger_type,
-        public ?string $csv_filename = null
+        public string $trigger_type
     ) {}
     
     /**
@@ -27,8 +26,7 @@ readonly class PublicationHistoryEntry {
             (int) $data['timestamp'],
             $data['status'],
             $data['message'] ?? '',
-            $data['trigger_type'],
-            $data['csv_filename']
+            $data['trigger_type']
         );
     }
     
@@ -64,22 +62,4 @@ readonly class PublicationHistoryEntry {
         };
     }
     
-    /**
-     * Check if entry has CSV file
-     */
-    public function hasCsvFile(): bool {
-        return !empty($this->csv_filename);
-    }
-    
-    /**
-     * Get CSV file URL
-     */
-    public function getCsvUrl(): ?string {
-        if (!$this->hasCsvFile()) {
-            return null;
-        }
-        
-        $upload_dir = wp_upload_dir();
-        return $upload_dir['baseurl'] . '/ujc-data/' . $this->csv_filename;
-    }
 }

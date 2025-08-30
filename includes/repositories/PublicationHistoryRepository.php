@@ -22,10 +22,9 @@ class PublicationHistoryRepository {
      * @param string $status 'success' or 'error'
      * @param string $message Detailed message or error description
      * @param string $trigger_type 'manual' or 'external_cron'
-     * @param string|null $csv_filename Name of generated CSV file (with date)
      * @return bool Success status
      */
-    public function addEntry($status, $message, $trigger_type, $csv_filename = null) {
+    public function addEntry($status, $message, $trigger_type) {
         global $wpdb;
         
         $result = $wpdb->insert(
@@ -34,10 +33,9 @@ class PublicationHistoryRepository {
                 'timestamp' => time(),
                 'status' => $status,
                 'message' => $message,
-                'trigger_type' => $trigger_type,
-                'csv_filename' => $csv_filename
+                'trigger_type' => $trigger_type
             ],
-            ['%d', '%s', '%s', '%s', '%s']
+            ['%d', '%s', '%s', '%s']
         );
         
         return $result !== false;

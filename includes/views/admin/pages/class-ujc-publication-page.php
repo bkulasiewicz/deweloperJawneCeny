@@ -206,7 +206,7 @@ class UJC_Publication_Page {
         echo '<div style="background: #f0f0f1; border-radius: 4px; padding: 20px;">';
         echo '<table class="wp-list-table widefat fixed striped">';
         echo '<thead><tr>';
-        echo '<th>Data</th><th>Typ</th><th>Status</th><th>Komunikat</th><th>Pliki</th>';
+        echo '<th>Data</th><th>Typ</th><th>Status</th><th>Komunikat</th>';
         echo '</tr></thead><tbody>';
         
         foreach ($history as $entry) {
@@ -221,24 +221,6 @@ class UJC_Publication_Page {
             echo '<td>';
             if (!empty($entry->message)) {
                 echo '<small>' . esc_html($entry->message) . '</small>';
-            } else {
-                echo '-';
-            }
-            echo '</td>';
-            
-            echo '<td>';
-            if ($entry->status === 'success') {
-                $upload_dir = wp_upload_dir();
-                $base_url = $upload_dir['baseurl'] . '/ujc-data';
-                
-                // CSV file with variable name
-                if ($entry->hasCsvFile()) {
-                    echo '<a href="' . esc_url($entry->getCsvUrl()) . '" class="button button-small" target="_blank" title="' . esc_attr($entry->csv_filename) . '">CSV</a> ';
-                }
-                
-                // XML and MD5 with fixed names
-                echo '<a href="' . $base_url . '/katalog-danych.xml" class="button button-small" target="_blank">XML</a> ';
-                echo '<a href="' . $base_url . '/katalog-danych.md5" class="button button-small" target="_blank">MD5</a>';
             } else {
                 echo '-';
             }
