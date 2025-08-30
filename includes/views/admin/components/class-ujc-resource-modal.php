@@ -16,14 +16,14 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
     public function __construct() {
         $this->saveResourceUseCase = new SaveResourceUseCase();
         $this->getResourceByIdUseCase = new GetResourceByIdUseCase();
-        parent::__construct();
-    }
-    
-    protected function init_hooks() {
+        
         add_action('wp_ajax_ujc_save_resource', [$this, 'ajax_save_resource']);
         add_action('wp_ajax_ujc_get_resource', [$this, 'ajax_get_resource']);
         add_action('wp_ajax_ujc_update_resource', [$this, 'ajax_update_resource']);
+        
+        parent::__construct();
     }
+    
     
     /**
      * Renderuje modal HTML

@@ -14,13 +14,13 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
     
     public function __construct() {
         $this->investmentRepository = new InvestmentRepository();
+        
+        add_action('wp_ajax_ujc_get_investment', [$this, 'ajax_get_investment']);
+        add_action('wp_ajax_ujc_update_investment', [$this, 'ajax_update_investment']);
+        
         parent::__construct();
     }
     
-    protected function init_hooks() {
-        add_action('wp_ajax_ujc_get_investment', [$this, 'ajax_get_investment']);
-        add_action('wp_ajax_ujc_update_investment', [$this, 'ajax_update_investment']);
-    }
     
     /**
      * Renderuje modal HTML

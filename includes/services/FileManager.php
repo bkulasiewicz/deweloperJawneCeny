@@ -126,6 +126,14 @@ class FileManager {
      * Get public URL for file
      */
     public function getPublicUrl(string $filename): string {
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+        
+        // CSV files use WordPress handler for proper download headers
+        if ($extension === 'csv') {
+            return get_site_url() . '/?file=' . $filename;
+        }
+        
+        // XML and MD5 files use direct paths for dane.gov.pl compliance
         return $this->baseUrl . '/' . $filename;
     }
     

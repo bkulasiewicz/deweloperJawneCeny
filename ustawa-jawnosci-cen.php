@@ -2,7 +2,7 @@
 /**
  * Plugin Name: DeweloperJawneCeny
  * Description: Plugin do automatyzacji procesu dostarczania danych zgodnie z wymogami Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego
- * Version: 1.22.2
+ * Version: 1.22.8
  * Author: Deweloper
  */
 
@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.1');
-define('VERSION', '1.22.2');
+define('VERSION', '1.22.8');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -30,11 +30,13 @@ class DeweloperJawneCeny {
         register_deactivation_hook(__FILE__, [$this, 'deactivate']);
         
         add_action('plugins_loaded', [$this, 'init']);
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
+        add_action('init', [$this, 'handle_file_requests']);
     }
     
     public function init() {
         $this->load_dependencies();
-        $this->init_hooks();
     }
     
     private function load_dependencies() {
@@ -58,7 +60,6 @@ class DeweloperJawneCeny {
         // Core
         require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
         require_once PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
-        require_once PLUGIN_DIR . 'includes/core/class-ujc-database-versioning.php';
         
         
         // Repositories
@@ -119,16 +120,8 @@ class DeweloperJawneCeny {
         new UJC_Shortcode();
         new UJC_Automated_Generator();
         new ExternalCronController();
-        
-        // Inicjalizuj wersjonowanie bazy danych
-        UJC_Database_Versioning::init();
     }
     
-    private function init_hooks() {
-        add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
-        add_action('init', [$this, 'handle_file_requests']);
-    }
     
     public function enqueue_admin_scripts($hook) {
         // Skrypty są zarządzane przez UJC_Admin
@@ -147,6 +140,7 @@ class DeweloperJawneCeny {
             if (file_exists($filepath) && in_array(pathinfo($file, PATHINFO_EXTENSION), ['csv', 'xml'])) {
                 $mime_type = pathinfo($file, PATHINFO_EXTENSION) === 'csv' ? 'text/csv' : 'application/xml';
                 header('Content-Type: ' . $mime_type . '; charset=UTF-8');
+                header('Content-Disposition: attachment; filename="' . $file . '"');
                 readfile($filepath);
                 exit;
             }

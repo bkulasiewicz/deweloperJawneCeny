@@ -67,7 +67,7 @@ class UJC_Dev_Console {
                     
                 case 'all':
                     UJC_Schema_Manager::drop_tables();
-                    UJC_Database_Versioning::force_recreate_tables();
+                    UJC_Schema_Manager::create_tables();
                     wp_send_json_success('CAŁA BAZA ZOSTAŁA ZRESETOWANA!');
                     break;
                     

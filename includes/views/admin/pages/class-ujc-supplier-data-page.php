@@ -15,13 +15,13 @@ class UJC_Supplier_Data_Page extends UJC_Admin_Page {
     public function __construct() {
         $this->saveDeveloperInfoUseCase = new SaveDeveloperInfoUseCase();
         $this->developerRepository = new DeveloperRepository();
+        
+        add_action('wp_ajax_ujc_save_developer', [$this, 'ajax_save_developer']);
+        add_action('admin_head', [$this, 'add_custom_styles']);
+        
         parent::__construct();
     }
     
-    protected function init_hooks() {
-        add_action('wp_ajax_ujc_save_developer', [$this, 'ajax_save_developer']);
-        add_action('admin_head', [$this, 'add_custom_styles']);
-    }
     
     public function add_custom_styles() {
         ?>
