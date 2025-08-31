@@ -283,6 +283,14 @@ class UJC_Schema_Manager {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
         
+        // Usuń klucze obce przed DROP TABLE
+        $price_history_table = TableNames::getPriceHistory();
+        
+        // Sprawdź czy FK istnieje i usuń go
+        if (self::foreign_key_exists($wpdb, $price_history_table, 'resource_id')) {
+            $wpdb->query("ALTER TABLE $price_history_table DROP FOREIGN KEY fk_history_ujc_resources");
+        }
+        
         $tables = [
             TableNames::getPriceHistory(),
             TableNames::getResources()
