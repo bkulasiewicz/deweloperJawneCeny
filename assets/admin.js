@@ -36,31 +36,6 @@ jQuery(document).ready(function($) {
         }
     });
     
-    
-    // Dynamiczne dodawanie dodatków
-    var extraIndex = 1;
-    $('#add-extra').on('click', function() {
-        var newExtra = $('.extra-item:first').clone();
-        newExtra.find('select, input').each(function() {
-            var name = $(this).attr('name');
-            if (name) {
-                $(this).attr('name', name.replace('[0]', '[' + extraIndex + ']'));
-                $(this).val('');
-            }
-        });
-        $('#extras-container').append(newExtra);
-        extraIndex++;
-    });
-    
-    // Usuwanie dodatków
-    $(document).on('click', '.remove-extra', function() {
-        if ($('.extra-item').length > 1) {
-            $(this).closest('.extra-item').remove();
-        }
-    });
-    
-    
-    
     // Helper functions
     function showNotice(type, message) {
         var $notice = $('<div class="notice ujc-notice notice-' + type + ' is-dismissible"><p>' + message + '</p></div>');

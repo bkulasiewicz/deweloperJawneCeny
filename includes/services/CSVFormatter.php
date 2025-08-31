@@ -80,16 +80,6 @@ class CSVFormatter {
             'Oznaczenie części nieruchomości nadane przez dewelopera',
             'Cena części nieruchomości, będących przedmiotem umowy [zł]',
             'Data od której obowiązuje cena części nieruchomości, będących przedmiotem umowy',
-            'Rodzaj pomieszczeń przynależnych, o których mowa w art. 2 ust. 4 ustawy z dnia 24 czerwca 1994 r. o własności lokali',
-            'Oznaczenie pomieszczeń przynależnych, o których mowa w art. 2 ust. 4 ustawy z dnia 24 czerwca 1994 r. o własności lokali',
-            'Wyszczególnienie cen pomieszczeń przynależnych, o których mowa w art. 2 ust. 4 ustawy z dnia 24 czerwca 1994 r. o własności lokali [zł]',
-            'Data od której obowiązuje cena wyszczególnionych pomieszczeń przynależnych, o których mowa w art. 2 ust. 4 ustawy z dnia 24 czerwca 1994 r. o własności lokali',
-            'Wyszczególnienie praw niezbędnych do korzystania z lokalu mieszkalnego lub domu jednorodzinnego',
-            'Wartość praw niezbędnych do korzystania z lokalu mieszkalnego lub domu jednorodzinnego [zł]',
-            'Data od której obowiązuje cena wartości praw niezbędnych do korzystania z lokalu mieszkalnego lub domu jednorodzinnego',
-            'Wyszczególnienie rodzajów innych świadczeń pieniężnych, które nabywca zobowiązany jest spełnić na rzecz dewelopera w wykonaniu umowy przenoszącej własność',
-            'Wartość innych świadczeń pieniężnych, które nabywca zobowiązany jest spełnić na rzecz dewelopera w wykonaniu umowy przenoszącej własność [zł]',
-            'Data od której obowiązuje cena wartości innych świadczeń pieniężnych, które nabywca zobowiązany jest spełnić na rzecz dewelopera w wykonaniu umowy przenoszącej własność',
             'Adres strony internetowej, pod którym dostępny jest prospekt informacyjny'
         ];
     }
@@ -98,9 +88,6 @@ class CSVFormatter {
      * Convert resource data to CSV row
      */
     private function resourceToRow(array $developer, array $investment, array $resource): array {
-        // Get first extra for MVP
-        $first_extra = $resource['extras'][0] ?? [];
-        
         $row = [
             $developer['nazwa'] ?? '',
             $developer['forma_prawna'] ?? '',
@@ -157,27 +144,11 @@ class CSVFormatter {
             $resource['current_cena_z_dodatkami'] ?? $resource['cena_z_dodatkami'] ?? '',
             DateHelper::formatForCsv($resource['current_data_zmiany'] ?? $resource['data_cena_z_dodatkami']),
             
-            // Property parts (get from parts table)
-            $resource['first_part']['rodzaj_czesci'] ?? '',
-            $resource['first_part']['oznaczenie_czesci'] ?? '', 
-            $resource['first_part']['cena_czesci'] ?? '',
-            DateHelper::formatForCsv($resource['first_part']['data_cena_czesci'] ?? null),
-            
-            // Associated rooms
-            $first_extra['typ_dodatku'] ?? '',
-            $first_extra['oznaczenie_dodatku'] ?? '',
-            $first_extra['cena_dodatku'] ?? '',
-            DateHelper::formatForCsv($first_extra['data_cena_dodatku'] ?? null),
-            
-            // Rights
-            $first_extra['typ_prawa'] ?? '',
-            $first_extra['wartosc_prawa'] ?? '',
-            DateHelper::formatForCsv($first_extra['data_wartosc_prawa'] ?? null),
-            
-            // Other services
-            $first_extra['typ_swiadczenia'] ?? '',
-            $first_extra['wartosc_swiadczenia'] ?? '',
-            DateHelper::formatForCsv($first_extra['data_wartosc_swiadczenia'] ?? null),
+            // Property parts (direct from resources table)
+            $resource['extra_rodzaj_czesci'] ?? '',
+            $resource['extra_oznaczenie_czesci'] ?? '', 
+            $resource['extra_cena_czesci'] ?? '',
+            DateHelper::formatForCsv($resource['extra_data_cena_czesci'] ?? null),
             
             $developer['prospekt_url'] ?? ''
         ];

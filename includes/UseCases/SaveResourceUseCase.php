@@ -20,6 +20,23 @@ class SaveResourceUseCase {
             return ['error' => implode(' ', $validation_errors)];
         }
         
+        // Transform extra data to database column names (always set, even if empty to clear old data)
+        if (!empty($data['extra_type'])) {
+            $data['extra_rodzaj_czesci'] = sanitize_text_field($data['extra_type']);
+            $data['extra_oznaczenie_czesci'] = sanitize_text_field($data['extra_oznaczenie'] ?? '');
+            $data['extra_cena_czesci'] = !empty($data['extra_cena']) ? floatval($data['extra_cena']) : null;
+            $data['extra_data_cena_czesci'] = !empty($data['extra_cena']) ? current_time('mysql') : null;
+        } else {
+            // Clear extra data when checkbox is unchecked
+            $data['extra_rodzaj_czesci'] = null;
+            $data['extra_oznaczenie_czesci'] = null;
+            $data['extra_cena_czesci'] = null;
+            $data['extra_data_cena_czesci'] = null;
+        }
+        
+        // Remove form field names
+        unset($data['extra_type'], $data['extra_oznaczenie'], $data['extra_cena']);
+        
         if ($resource_id) {
             $old_data = $this->repository->readById($resource_id);
             if (!$old_data) {

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: DeweloperJawneCeny
  * Description: Plugin do automatyzacji procesu dostarczania danych zgodnie z wymogami Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego
- * Version: 1.22.14
+ * Version: 1.22.20
  * Author: Deweloper
  */
 
@@ -10,10 +10,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.1');
-define('VERSION', '1.22.14');
+define('VERSION', '1.22.20');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -31,7 +32,6 @@ class DeweloperJawneCeny {
         
         add_action('plugins_loaded', [$this, 'init']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
-        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
         add_action('init', [$this, 'handle_file_requests']);
     }
     
@@ -117,10 +117,6 @@ class DeweloperJawneCeny {
         new ExternalCronController();
     }
     
-    
-    public function enqueue_admin_scripts($hook) {
-        // Skrypty są zarządzane przez UJC_Admin
-    }
     
     public function enqueue_frontend_scripts() {
         wp_enqueue_style('ujc-frontend', PLUGIN_URL . 'assets/admin.css', [], '1.0');

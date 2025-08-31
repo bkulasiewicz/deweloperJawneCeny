@@ -26,8 +26,6 @@ class UJC_Schema_Manager {
         // 3. ZASOBY/NIERUCHOMOŚCI
         self::create_resources_table($wpdb, $charset_collate);
         
-        // 4. DODATKI DO ZASOBÓW
-        self::create_extras_table($wpdb, $charset_collate);
         
         // 5. HISTORIA CEN
         self::create_price_history_table($wpdb, $charset_collate);
@@ -47,7 +45,6 @@ class UJC_Schema_Manager {
         
         $tables = [
             TableNames::getPriceHistory(),
-            TableNames::getResourceExtras(),
             TableNames::getResources(), 
             TableNames::getInvestmentInfo(),
             TableNames::getDeveloperInfo()
@@ -159,6 +156,11 @@ class UJC_Schema_Manager {
             
             status enum('dostepny', 'sprzedany', 'rezerwacja') DEFAULT 'dostepny',
             
+            extra_rodzaj_czesci varchar(100),
+            extra_oznaczenie_czesci varchar(50),
+            extra_cena_czesci decimal(10,2),
+            extra_data_cena_czesci datetime,
+            
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             
@@ -169,39 +171,6 @@ class UJC_Schema_Manager {
         $wpdb->query($sql);
     }
     
-    private static function create_extras_table($wpdb, $charset_collate) {
-        $table = TableNames::getResourceExtras();
-        
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
-            return;
-        }
-        
-        $sql = "CREATE TABLE $table (
-            id int(11) NOT NULL AUTO_INCREMENT,
-            resource_id int(11) NOT NULL,
-            
-            rodzaj_czesci varchar(100) NOT NULL,
-            oznaczenie_czesci varchar(50),
-            cena_czesci decimal(10,2),
-            data_cena_czesci datetime,
-            
-            typ_prawa varchar(100),
-            wartosc_prawa decimal(10,2),
-            data_wartosc_prawa datetime,
-            
-            typ_swiadczenia varchar(100),
-            wartosc_swiadczenia decimal(10,2),
-            data_wartosc_swiadczenia datetime,
-            
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            
-            PRIMARY KEY (id),
-            KEY resource_id (resource_id)
-        ) $charset_collate;";
-        
-        $wpdb->query($sql);
-    }
     
     private static function create_price_history_table($wpdb, $charset_collate) {
         $table = TableNames::getPriceHistory();
@@ -260,19 +229,7 @@ class UJC_Schema_Manager {
     
     private static function create_foreign_keys($wpdb) {
         $resources_table = TableNames::getResources();
-        $extras_table = TableNames::getResourceExtras();
         $price_history_table = TableNames::getPriceHistory();
-        
-        // FK dla extras
-        if (!self::foreign_key_exists($wpdb, $extras_table, 'resource_id')) {
-            $wpdb->query("
-                ALTER TABLE $extras_table 
-                ADD CONSTRAINT fk_resource_ujc_resources 
-                FOREIGN KEY (resource_id) 
-                REFERENCES $resources_table(id) 
-                ON DELETE CASCADE
-            ");
-        }
         
         // FK dla price history
         if (!self::foreign_key_exists($wpdb, $price_history_table, 'resource_id')) {
@@ -327,9 +284,8 @@ class UJC_Schema_Manager {
         $charset_collate = $wpdb->get_charset_collate();
         
         $tables = [
-            TableNames::getResources(),
-            TableNames::getResourceExtras(), 
-            TableNames::getPriceHistory()
+            TableNames::getPriceHistory(),
+            TableNames::getResources()
         ];
         
         foreach ($tables as $table) {
@@ -337,7 +293,6 @@ class UJC_Schema_Manager {
         }
         
         self::create_resources_table($wpdb, $charset_collate);
-        self::create_extras_table($wpdb, $charset_collate);
         self::create_price_history_table($wpdb, $charset_collate);
     }
 }

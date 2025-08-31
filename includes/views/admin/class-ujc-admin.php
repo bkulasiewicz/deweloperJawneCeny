@@ -20,7 +20,6 @@ class UJC_Admin {
     
     public function __construct() {
         add_action('admin_menu', [$this, 'add_admin_menu']);
-        add_action('admin_init', [$this, 'register_settings']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
         
         // Wszystkie instancje tworzone w konstruktorze (klasy już załadowane w głównym loaderze)
@@ -119,13 +118,5 @@ class UJC_Admin {
             ]
         ]);
     }
-    
-    public function register_settings() {
-        // Rejestracja ustawień jeśli potrzebne
-    }
-    
-    // AJAX handlers
-    
-    
     
 }

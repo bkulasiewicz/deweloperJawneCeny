@@ -26,8 +26,4 @@ class TableNames {
         return $wpdb->prefix . 'price_history';
     }
     
-    public static function getResourceExtras(): string {
-        global $wpdb;
-        return $wpdb->prefix . 'resource_extras';
-    }
 }
