@@ -25,7 +25,7 @@ class SaveResourceUseCase {
             $data['extra_rodzaj_czesci'] = sanitize_text_field($data['extra_type']);
             $data['extra_oznaczenie_czesci'] = sanitize_text_field($data['extra_oznaczenie'] ?? '');
             $data['extra_cena_czesci'] = !empty($data['extra_cena']) ? floatval($data['extra_cena']) : null;
-            $data['extra_data_cena_czesci'] = !empty($data['extra_cena']) ? current_time('mysql') : null;
+            $data['extra_data_cena_czesci'] = !empty($data['extra_cena']) ? DateHelper::currentDatetime() : null;
         } else {
             // Clear extra data when checkbox is unchecked
             $data['extra_rodzaj_czesci'] = null;

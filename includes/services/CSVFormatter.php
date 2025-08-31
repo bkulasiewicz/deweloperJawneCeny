@@ -79,8 +79,7 @@ class CSVFormatter {
             'Rodzaj części nieruchomości będących przedmiotem umowy',
             'Oznaczenie części nieruchomości nadane przez dewelopera',
             'Cena części nieruchomości, będących przedmiotem umowy [zł]',
-            'Data od której obowiązuje cena części nieruchomości, będących przedmiotem umowy',
-            'Adres strony internetowej, pod którym dostępny jest prospekt informacyjny'
+            'Data od której obowiązuje cena części nieruchomości, będących przedmiotem umowy'
         ];
     }
     
@@ -148,9 +147,7 @@ class CSVFormatter {
             $resource['extra_rodzaj_czesci'] ?? '',
             $resource['extra_oznaczenie_czesci'] ?? '', 
             $resource['extra_cena_czesci'] ?? '',
-            DateHelper::formatForCsv($resource['extra_data_cena_czesci'] ?? null),
-            
-            $developer['prospekt_url'] ?? ''
+            DateHelper::formatForCsv($resource['extra_data_cena_czesci'] ?? null)
         ];
         
         // Replace all empty values with 'X' according to law template
