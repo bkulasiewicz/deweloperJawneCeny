@@ -57,9 +57,6 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                                         <option value="Część nieruchomości">Część nieruchomości</option>
                                         <option value="Garaż">Garaż</option>
                                     </select>
-                                    <p class="description" style="margin-top: 5px;">
-                                        <?php echo UJC_Resource_Parts_Tooltip::render_icon(); ?>
-                                    </p>
                                 </td>
                             </tr>
                             <tr>
@@ -103,56 +100,6 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                             <button type="button" id="add-extra-btn" class="button">Dodaj</button>
                         </div>
                         <div id="extras-container">
-                            <div class="extra-item" style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; position: relative;">
-                                <button type="button" class="remove-extra button" style="position: absolute; top: 5px; right: 5px;">Usuń</button>
-                                <table class="form-table">
-                                    <tr>
-                                        <th style="width: 150px;">
-                                            <label>Rodzaj części</label>
-                                        </th>
-                                        <td>
-                                            <select class="extra-type-select" name="extras[0][typ]" style="width: 200px;">
-                                                <option value="">-- wybierz typ --</option>
-                                                <optgroup label="Pomieszczenia">
-                                                    <option value="Miejsce postojowe">Miejsce postojowe</option>
-                                                    <option value="Komórka lokatorska">Komórka lokatorska</option>
-                                                    <option value="Garaż">Garaż</option>
-                                                    <option value="Piwnica">Piwnica</option>
-                                                    <option value="Strych">Strych</option>
-                                                </optgroup>
-                                                <optgroup label="Części nieruchomości">
-                                                    <option value="Balkon">Balkon</option>
-                                                    <option value="Taras">Taras</option>
-                                                    <option value="Ogródek">Ogródek</option>
-                                                    <option value="Udział w gruncie">Udział w gruncie</option>
-                                                </optgroup>
-                                                <optgroup label="Prawa">
-                                                    <option value="Prawo do tarasu">Prawo do tarasu</option>
-                                                    <option value="Prawo do ogródka">Prawo do ogródka</option>
-                                                </optgroup>
-                                                <optgroup label="Świadczenia">
-                                                    <option value="Opłata rezerwacyjna">Opłata rezerwacyjna</option>
-                                                    <option value="Opłata administracyjna">Opłata administracyjna</option>
-                                                </optgroup>
-                                                <option value="custom">Inny (wpisz własny)</option>
-                                            </select>
-                                            <input type="text" class="extra-custom-type" name="extras[0][custom_typ]" placeholder="Wpisz własny typ" style="display: none; margin-left: 10px; width: 200px;">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th><label>Oznaczenie</label></th>
-                                        <td>
-                                            <input type="text" name="extras[0][oznaczenie]" class="regular-text" placeholder="np. MP-15, KL-2, 1/100">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th><label>Cena [zł]</label></th>
-                                        <td>
-                                            <input type="number" name="extras[0][cena]" step="0.01" min="0" class="regular-text">
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
                         </div>
                         
                         <!-- Cena uwzględniająca inne składowe - pokazuje się tylko gdy są części -->
@@ -304,7 +251,8 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                         }
                         
                         // Zaktualizuj widoczność sekcji ceny finalnej
-                        toggleFinalPriceSection();
+                        updateFinalPriceSectionVisibility();
+                        calculateFinalPrice();
                     } else {
                         console.error('Error loading resource data:', response.data);
                         alert('❌ Błąd ładowania danych zasobu: ' + (response.data || 'Nieznany błąd'));
@@ -398,10 +346,13 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                 if (data && data.typ_dodatku) {
                     $(`[name="extras[${currentIndex}][typ]"]`).val(data.typ_dodatku);
                 }
+                
+                updateFinalPriceSectionVisibility();
+                calculateFinalPrice();
             };
             
             // Funkcja sprawdzająca czy pokazać sekcję ceny finalnej
-            function toggleFinalPriceSection() {
+            function updateFinalPriceSectionVisibility() {
                 const extrasCount = $('#extras-container .extra-item').length;
                 if (extrasCount > 0) {
                     $('#final-price-section').show();
@@ -411,16 +362,40 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                 }
             }
             
+            // Funkcja przeliczająca cenę finalną z dodatkami
+            function calculateFinalPrice() {
+                const cenaCalkowita = parseFloat($('#modal-cena_calkowita').val()) || 0;
+                const extraItems = $('#extras-container .extra-item');
+                let sumaAdatkow = 0;
+                
+                // Sumuj ceny wszystkich dodatków
+                extraItems.each(function() {
+                    const cenaAdditku = parseFloat($(this).find('input[name*="[cena]"]').val()) || 0;
+                    sumaAdatkow += cenaAdditku;
+                });
+                
+                // Przelicz tylko jeśli są dodatki I cena całkowita > 0
+                if (extraItems.length > 0 && cenaCalkowita > 0) {
+                    const cenaFinalna = cenaCalkowita + sumaAdatkow;
+                    $('#modal-cena_z_dodatkami').val(cenaFinalna.toFixed(2));
+                } else if (extraItems.length === 0) {
+                    // Jeśli brak dodatków, wyczyść pole
+                    $('#modal-cena_z_dodatkami').val('');
+                }
+                // Jeśli są dodatki ale brak ceny całkowitej, nie rób nic (pozostaw manualną wartość)
+            }
+            
             // Dodaj nową część nieruchomości
             $('#add-extra-btn').on('click', function() {
                 addExtraItem();
-                toggleFinalPriceSection();
+                // Wywołania są już w addExtraItem(), nie duplikować
             });
             
             // Usuń część nieruchomości
             $(document).on('click', '.remove-extra', function() {
                 $(this).closest('.extra-item').remove();
-                toggleFinalPriceSection();
+                updateFinalPriceSectionVisibility();
+                calculateFinalPrice();
             });
             
             // Obsługa wyboru "Inny"
@@ -480,6 +455,7 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                         const calculated = (powierzchnia * cenaM2).toFixed(2);
                         $cenaCalkowita.val(calculated);
                     }
+                    calculateFinalPrice();
                 }
                 
                 // Przelicz cenę m² na podstawie ceny całkowitej
@@ -491,6 +467,7 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                         const calculated = (cenaCalkowita / powierzchnia).toFixed(2);
                         $cenaM2.val(calculated);
                     }
+                    calculateFinalPrice();
                 }
                 
                 // Event handlery
@@ -511,6 +488,12 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                     } else {
                         calculateFromM2();
                     }
+                });
+                
+                // Event listener dla cen dodatków (delegacja dla dynamicznych elementów)
+                $(document).off('input change', 'input[name*="extras"][name*="[cena]"]')
+                  .on('input change', 'input[name*="extras"][name*="[cena]"]', function() {
+                    calculateFinalPrice();
                 });
             }
         });
