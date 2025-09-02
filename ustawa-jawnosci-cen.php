@@ -2,7 +2,7 @@
 /**
  * Plugin Name: DeweloperJawneCeny
  * Description: Plugin do automatyzacji procesu dostarczania danych zgodnie z wymogami Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego
- * Version: 1.22.22
+ * Version: 1.24.2
  * Author: Deweloper
  */
 
@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.1');
-define('VERSION', '1.22.22');
+define('VERSION', '1.24.2');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -107,6 +107,10 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-publication-page.php';
         require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-dev-console.php';
         
+        // Blocks
+        require_once PLUGIN_DIR . 'includes/blocks/ResourcesListBlock.php';
+        require_once PLUGIN_DIR . 'includes/blocks/BlocksManager.php';
+        
         // Inicjalizuj klasy po załadowaniu wszystkich zależności
         if (is_admin()) {
             require_once PLUGIN_DIR . 'includes/views/admin/class-ujc-admin.php';
@@ -115,6 +119,7 @@ class DeweloperJawneCeny {
         
         new UJC_Automated_Generator();
         new ExternalCronController();
+        new BlocksManager();
     }
     
     

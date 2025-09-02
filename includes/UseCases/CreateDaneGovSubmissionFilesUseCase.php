@@ -27,20 +27,28 @@ class CreateDaneGovSubmissionFilesUseCase {
      * @return array ['success' => bool, 'message' => string, 'files' => array|null, 'error' => string|null]
      */
     public function createSubmissionFiles($csv_url = null) {
+        error_log('CreateDaneGov: Starting XML/MD5 files creation with CSV URL: ' . ($csv_url ?? 'null'));
+        
         try {
             // KRYTYCZNA WALIDACJA - wszystko w jednym miejscu
+            error_log('CreateDaneGov: Starting validation...');
             $validation_result = $this->validateDataForSubmission($csv_url);
             if (!$validation_result['valid']) {
+                $error_msg = implode('. ', $validation_result['errors']);
+                error_log('CreateDaneGov: Validation FAILED: ' . $error_msg);
                 return [
                     'success' => false,
-                    'error' => implode('. ', $validation_result['errors'])
+                    'error' => $error_msg
                 ];
             }
+            error_log('CreateDaneGov: Validation SUCCESS');
             
             // Pobierz zwalidowane dane
             $developer_data = $validation_result['data'];
+            error_log('CreateDaneGov: Developer data validated - Name: ' . ($developer_data['developer_name'] ?? 'unknown') . ', NIP: ' . ($developer_data['nip'] ?? 'unknown'));
             
             // Utwórz model danych z zwalidowanymi danymi
+            error_log('CreateDaneGov: Creating dataset model...');
             $dataset = new DaneGovXmlDataset(
                 $developer_data['developer_name'],
                 $developer_data['nip']
@@ -52,13 +60,20 @@ class CreateDaneGovSubmissionFilesUseCase {
             );
             
             // Generuj XML - XMLFormatter TYLKO formatuje, NIE waliduje
+            error_log('CreateDaneGov: Generating XML content...');
             $xmlContent = $this->xmlFormatter->formatDatasetToXML($dataset);
             
             // Generate filename
             $filename = $this->fileManager->generateXMLFilename();
+            error_log('CreateDaneGov: Generated XML filename: ' . $filename);
             
             // Save XML to file (with MD5)
+            error_log('CreateDaneGov: Saving XML and MD5 files...');
             $xml_result = $this->fileManager->saveXML($xmlContent, $filename);
+            
+            error_log('CreateDaneGov: Files saved successfully');
+            
+            error_log('CreateDaneGov: Returning SUCCESS response');
             
             return [
                 'success' => true,
@@ -67,9 +82,12 @@ class CreateDaneGovSubmissionFilesUseCase {
             ];
             
         } catch (Exception $e) {
+            $error_msg = $this->getDetailedErrorMessage($e);
+            error_log('CreateDaneGov: EXCEPTION caught: ' . $error_msg);
+            
             return [
                 'success' => false,
-                'error' => $this->getDetailedErrorMessage($e)
+                'error' => $error_msg
             ];
         }
     }

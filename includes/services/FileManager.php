@@ -27,19 +27,28 @@ class FileManager {
      * @return array Result with filepath and url
      */
     public function saveCSV(Generator $csvRows, string $filename): array {
+        error_log('FileManager: Starting CSV save - filename: ' . $filename);
+        
         $this->ensureDirectoryExists();
         
         $filepath = $this->getFilePath($filename);
+        error_log('FileManager: CSV filepath: ' . $filepath);
         
         $file = fopen($filepath, 'w');
         if (!$file) {
+            error_log('FileManager: FAILED to create CSV file: ' . $filepath);
             throw new Exception("Cannot create file: {$filepath}");
         }
         
+        $row_count = 0;
         foreach ($csvRows as $row) {
             fputcsv($file, $row, ';');
+            $row_count++;
         }
         fclose($file);
+        
+        $file_size = filesize($filepath);
+        error_log('FileManager: CSV saved successfully - rows: ' . $row_count . ', size: ' . $file_size . ' bytes');
         
         return [
             'filepath' => $filepath,
@@ -56,23 +65,34 @@ class FileManager {
      * @return array Result with filepath and url
      */
     public function saveXML(string $xmlContent, string $filename): array {
+        error_log('FileManager: Starting XML save - filename: ' . $filename . ', content size: ' . strlen($xmlContent) . ' bytes');
+        
         $this->ensureDirectoryExists();
         
         $filepath = $this->getFilePath($filename);
+        error_log('FileManager: XML filepath: ' . $filepath);
         
         // Save XML file
         if (file_put_contents($filepath, $xmlContent) === false) {
+            error_log('FileManager: FAILED to write XML file: ' . $filepath);
             throw new Exception("Cannot write XML file: {$filepath}");
         }
+        
+        error_log('FileManager: XML file saved successfully');
         
         // Generate and save MD5
         $md5_filename = str_replace('.xml', '.md5', $filename);
         $md5_filepath = $this->getFilePath($md5_filename);
         $md5_content = md5_file($filepath);
         
+        error_log('FileManager: Generated MD5: ' . $md5_content);
+        
         if (file_put_contents($md5_filepath, $md5_content) === false) {
+            error_log('FileManager: FAILED to write MD5 file: ' . $md5_filepath);
             throw new Exception("Cannot write MD5 file: {$md5_filepath}");
         }
+        
+        error_log('FileManager: MD5 file saved successfully: ' . $md5_filename);
         
         return [
             'filepath' => $filepath,

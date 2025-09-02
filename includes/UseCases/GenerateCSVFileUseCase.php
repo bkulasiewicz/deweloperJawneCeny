@@ -24,29 +24,45 @@ class GenerateCSVFileUseCase {
      * Execute CSV file generation
      */
     public function execute() {
+        error_log('GenerateCSV: Starting CSV generation process...');
+        
         try {
             // Validation
+            error_log('GenerateCSV: Starting validation...');
             $validation_errors = $this->validateBeforeGeneration();
             if (!empty($validation_errors)) {
+                $error_msg = implode('. ', $validation_errors);
+                error_log('GenerateCSV: Validation FAILED: ' . $error_msg);
                 return [
                     'success' => false,
-                    'error' => implode('. ', $validation_errors)
+                    'error' => $error_msg
                 ];
             }
+            error_log('GenerateCSV: Validation SUCCESS');
             
             // Get data
+            error_log('GenerateCSV: Fetching data from repositories...');
             $developer = $this->developerRepository->read();
             $investment = $this->investmentRepository->read();
             $resources = $this->resourceRepository->readAll();
             
+            error_log('GenerateCSV: Data fetched - Resources count: ' . count($resources));
+            
             // Generate CSV content
+            error_log('GenerateCSV: Generating CSV content...');
             $csvRows = $this->csvFormatter->generate($developer, $investment, $resources);
             
             // Generate filename
             $filename = $this->fileManager->generateCSVFilename($developer);
+            error_log('GenerateCSV: Generated filename: ' . $filename);
             
             // Save CSV to file
+            error_log('GenerateCSV: Saving CSV to file...');
             $csv_result = $this->fileManager->saveCSV($csvRows, $filename);
+            
+            error_log('GenerateCSV: File saved successfully: ' . ($csv_result['filepath'] ?? 'unknown path'));
+            
+            error_log('GenerateCSV: Returning SUCCESS response');
             
             return [
                 'success' => true,
@@ -55,9 +71,12 @@ class GenerateCSVFileUseCase {
             ];
             
         } catch (Exception $e) {
+            $error_msg = $this->getDetailedErrorMessage($e);
+            error_log('GenerateCSV: EXCEPTION caught: ' . $error_msg);
+            
             return [
                 'success' => false,
-                'error' => $this->getDetailedErrorMessage($e)
+                'error' => $error_msg
             ];
         }
     }

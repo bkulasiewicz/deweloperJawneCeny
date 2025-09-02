@@ -35,13 +35,6 @@ class ExternalCronController {
             'callback' => [$this, 'handle_external_request'],
             'permission_callback' => '__return_true'
         ]);
-        
-        // Simple ping endpoint for testing
-        register_rest_route('ujc/v1', '/ping', [
-            'methods' => 'GET',
-            'callback' => [$this, 'handle_ping'],
-            'permission_callback' => '__return_true'
-        ]);
     }
     
     /**
@@ -49,25 +42,39 @@ class ExternalCronController {
      */
     public function handle_external_request($request) {
         $start_time = microtime(true);
+        $client_ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        
+        error_log('External cron request started from IP: ' . $client_ip);
         
         try {
             // Simple security check
             if (!$this->is_valid_cronjoborg_request()) {
+                error_log('External cron access denied for IP: ' . $client_ip);
                 return new WP_Error('access_denied', 'Access denied', ['status' => 401]);
             }
             
             // Rate limiting - max 3 calls per 5 minutes
             if (!$this->check_rate_limit()) {
+                error_log('External cron rate limited for IP: ' . $client_ip);
                 return new WP_Error('rate_limit', 'Too many requests', ['status' => 429]);
             }
+            
+            error_log('External cron starting file generation...');
             
             // Generate files using existing UseCase
             $result = $this->generateFilesUseCase->execute(TriggerType::ExternalCron);
             
             $execution_time = round(microtime(true) - $start_time, 2);
             
+            error_log('External cron file generation completed in ' . $execution_time . 's: ' . ($result['success'] ? 'SUCCESS' : 'FAILED'));
+            
             // Return simple response
             if ($result['success']) {
+                $csv_file = isset($result['csv']['filename']) ? $result['csv']['filename'] : null;
+                $xml_file = isset($result['xml']['filename']) ? $result['xml']['filename'] : null;
+                
+                error_log('External cron returning SUCCESS response - CSV: ' . ($csv_file ?? 'none') . ', XML: ' . ($xml_file ?? 'none'));
+                
                 return new WP_REST_Response([
                     'success' => true,
                     'message' => 'Files generated successfully',
@@ -75,11 +82,13 @@ class ExternalCronController {
                     'execution_time' => $execution_time,
                     'domain' => parse_url(get_site_url(), PHP_URL_HOST),
                     'files' => [
-                        'csv' => isset($result['csv']['filename']) ? $result['csv']['filename'] : null,
-                        'xml' => isset($result['xml']['filename']) ? $result['xml']['filename'] : null
+                        'csv' => $csv_file,
+                        'xml' => $xml_file
                     ]
                 ], 200);
             } else {
+                error_log('External cron returning ERROR response: ' . ($result['error'] ?? 'unknown error'));
+                
                 return new WP_Error('generation_failed', $result['error'], [
                     'status' => 500,
                     'execution_time' => $execution_time
@@ -87,6 +96,8 @@ class ExternalCronController {
             }
             
         } catch (Exception $e) {
+            error_log('External cron EXCEPTION: ' . $e->getMessage());
+            
             return new WP_Error('error', 'Error: ' . $e->getMessage(), [
                 'status' => 500,
                 'execution_time' => round(microtime(true) - $start_time, 2)
@@ -132,16 +143,6 @@ class ExternalCronController {
         return true;
     }
     
-    /**
-     * Handle ping request - simple test endpoint
-     */
-    public function handle_ping($request) {
-        return new WP_REST_Response([
-            'status' => 'ok',
-            'timestamp' => current_time('c'),
-            'message' => 'Ping successful'
-        ], 200);
-    }
     
     /**
      * AJAX handler for updating cron schedule from dev console
