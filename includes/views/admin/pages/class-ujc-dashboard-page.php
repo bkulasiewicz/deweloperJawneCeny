@@ -14,6 +14,7 @@ class UJC_Dashboard_Page {
     private $settingsRepository;
     private $resourceRepository;
     private $automationTile;
+    private $historyTile;
     
     public function __construct() {
         $this->developerRepository = new DeveloperRepository();
@@ -21,8 +22,9 @@ class UJC_Dashboard_Page {
         $this->settingsRepository = new SettingsRepository();
         $this->resourceRepository = new ResourceRepository();
         
-        // Initialize automation tile
+        // Initialize dashboard tiles
         $this->automationTile = new AutomationTile();
+        $this->historyTile = new HistoryTile();
     }
     
     
@@ -61,10 +63,7 @@ class UJC_Dashboard_Page {
                 
                 <?php $this->automationTile->render(); ?>
                 
-                <div class="ujc-sharing-history">
-                    <h2>Historia Udostępniania</h2>
-                    <?php $this->render_sharing_history(); ?>
-                </div>
+                <?php $this->historyTile->render(); ?>
                 
                 <?php
                 // Renderuj DEV Console jeśli dostępna
@@ -152,53 +151,6 @@ class UJC_Dashboard_Page {
         <?php
     }
     
-    private function render_sharing_history() {
-        // Pobierz historię generowania z opcji WordPress
-        $history = $this->settingsRepository->getGenerationHistory();
-        
-        if (empty($history)) {
-            echo '<div style="padding: 15px; background: #f0f0f1; border-radius: 4px; text-align: center; color: #666;">';
-            echo '<p>Brak historii udostępniania danych.<br><small>Historia będzie widoczna po pierwszym generowaniu plików.</small></p>';
-            echo '</div>';
-            return;
-        }
-        
-        // Sortuj od najnowszych
-        usort($history, function($a, $b) {
-            return $b['timestamp'] - $a['timestamp'];
-        });
-        
-        // Pokaż ostatnie 10 wpisów
-        $history = array_slice($history, 0, 10);
-        
-        echo '<div style="background: #f0f0f1; border-radius: 4px; padding: 15px;">';
-        echo '<div class="ujc-history-list">';
-        
-        foreach ($history as $entry) {
-            $status_class = $entry['status'] === 'success' ? 'success' : 'error';
-            $status_icon = $entry['status'] === 'success' ? '✅' : '❌';
-            $type_label = isset($entry['type']) ? $entry['type'] : 'automatyczne';
-            
-            echo '<div class="ujc-history-item" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #ddd;">';
-            echo '<div>';
-            echo '<span style="font-weight: 500;">' . DateHelper::formatTimestampForUser($entry['timestamp']) . '</span>';
-            echo '<small style="margin-left: 10px; color: #666;">(' . esc_html($type_label) . ')</small>';
-            if ($entry['status'] !== 'success') {
-                echo '<br><small style="color: #d63638;">' . esc_html($entry['message'] ?? 'Błąd generowania') . '</small>';
-            }
-            echo '</div>';
-            echo '<div>';
-            echo '<span style="font-size: 16px;">' . $status_icon . '</span>';
-            echo '</div>';
-            echo '</div>';
-        }
-        
-        echo '</div>';
-        echo '<div style="text-align: center; margin-top: 10px;">';
-        echo '<small style="color: #666;">Wyświetlane ostatnie 10 wpisów</small>';
-        echo '</div>';
-        echo '</div>';
-    }
     
     
     private function get_resources_count() {
