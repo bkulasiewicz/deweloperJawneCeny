@@ -39,10 +39,6 @@ class DeweloperJawneCeny {
         $this->load_dependencies();
     }
     
-    public function is_premium() {
-        return file_exists(PLUGIN_DIR . 'includes/premium/');
-    }
-    
     private function load_dependencies() {
         // Helpers
         require_once PLUGIN_DIR . 'includes/helpers/PremiumHelper.php';

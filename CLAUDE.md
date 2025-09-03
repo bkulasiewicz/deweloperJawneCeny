@@ -8,6 +8,20 @@ This is a WordPress plugin called "DeweloperJawneCeny" that automates the proces
 
 ## Architecture
 
+### Freemium/Premium Model
+The plugin uses a freemium model with premium features separated:
+- **Freemium**: Core functionality (manual file generation, data management)
+- **Premium**: Automation features (external cron, automated publishing)
+- **Structure**: `includes/premium/` folder contains all premium features
+- **Detection**: `PremiumHelper::is_premium()` checks for premium folder existence
+- **Loading**: `includes/premium/loader.php` conditionally loads premium features
+
+### Premium Features (includes/premium/)
+- **Controllers**: `ExternalCronController`, `UJC_Automated_Generator`
+- **Repositories**: `ExternalCronRepository`
+- **Use Cases**: All External Cron and Automation Use Cases
+- **Conditional Loading**: Only loaded when `includes/premium/` folder exists
+
 ### Naming Conventions
 The codebase follows consistent, clean naming without prefixes:
 - **Use Cases**: `{Action}{Entity}UseCase` (e.g., `GenerateCSVFileUseCase`, `SaveResourceUseCase`)
@@ -124,6 +138,30 @@ Key actions:
 - `ujc_generate_files` - Cron hook for automated generation
 - Admin menu added at priority 10
 
+## Deployment
+
+### Building Releases
+Use the deployment script to build both premium and freemium versions:
+
+```bash
+./deploy.sh
+```
+
+**Outputs:**
+- `build/DeweloperJawneCeny-premium-{version}.zip` - Full version with automation
+- `build/DeweloperJawneCeny-Free-{version}.zip` - Freemium version without premium folder
+
+**Installation folder name:** `Deweloper Jawne Ceny`
+
+### Branch Strategy
+- **develop**: Active development branch
+- **production**: Stable releases for customers
+
+### Version Management
+- Version automatically extracted from `ustawa-jawnosci-cen.php` header
+- Premium version: `1.24.2`
+- Freemium version: `1.24.2-free`
+
 ## Notes
 
 - Plugin follows WordPress coding standards with `UJC_` prefix for classes
@@ -131,3 +169,4 @@ Key actions:
 - File operations use WordPress filesystem functions
 - Admin pages check capabilities before rendering
 - Uninstall cleanup handled in `uninstall.php`
+- Premium features cleanly separated for easy maintenance
