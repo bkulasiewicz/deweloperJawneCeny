@@ -20,14 +20,26 @@ class UJC_Dashboard_Page {
         $this->developerRepository = new DeveloperRepository();
         $this->investmentRepository = new InvestmentRepository();
         $this->settingsRepository = new SettingsRepository();
-        $this->externalCronRepository = new ExternalCronRepository();
         $this->resourceRepository = new ResourceRepository();
-        $this->toggleExternalCronUseCase = new ToggleExternalCronUseCase();
-        add_action('wp_ajax_ujc_toggle_external_cron', [$this, 'ajax_toggle_external_cron']);
+        
+        // Initialize premium features if classes exist
+        if (class_exists('ExternalCronRepository')) {
+            $this->externalCronRepository = new ExternalCronRepository();
+        }
+        
+        if (class_exists('ToggleExternalCronUseCase')) {
+            $this->toggleExternalCronUseCase = new ToggleExternalCronUseCase();
+            add_action('wp_ajax_ujc_toggle_external_cron', [$this, 'ajax_toggle_external_cron']);
+        }
     }
     
     
     public function ajax_toggle_external_cron() {
+        if (!$this->toggleExternalCronUseCase) {
+            wp_send_json_error('Funkcja dostępna tylko w wersji premium');
+            return;
+        }
+        
         check_ajax_referer('ujc_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
         
@@ -85,10 +97,20 @@ class UJC_Dashboard_Page {
                 </div>
                 
                 
-                <div class="ujc-external-cron-control">
-                    <h2>External Cron (Zaawansowane)</h2>
-                    <?php $this->render_external_cron_control(); ?>
-                </div>
+                <?php if (PremiumHelper::is_premium()): ?>
+                    <div class="ujc-external-cron-control">
+                        <h2>External Cron (Zaawansowane)</h2>
+                        <?php $this->render_external_cron_control(); ?>
+                    </div>
+                <?php else: ?>
+                    <div class="ujc-automation-info">
+                        <h2>Automatyzacja</h2>
+                        <div style="margin: 15px 0; padding: 15px; background: #f0f0f1; border-radius: 4px;">
+                            <p><?php echo PremiumHelper::get_upgrade_message(); ?></p>
+                            <p><small style="color: #666;">Automatyzuj proces zgodności z ustawą o jawności cen mieszkań.</small></p>
+                        </div>
+                    </div>
+                <?php endif; ?>
                 
                 <div class="ujc-sharing-history">
                     <h2>Historia Udostępniania</h2>

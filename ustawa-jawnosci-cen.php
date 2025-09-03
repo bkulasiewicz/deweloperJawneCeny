@@ -39,7 +39,14 @@ class DeweloperJawneCeny {
         $this->load_dependencies();
     }
     
+    public function is_premium() {
+        return file_exists(PLUGIN_DIR . 'includes/premium/');
+    }
+    
     private function load_dependencies() {
+        // Helpers
+        require_once PLUGIN_DIR . 'includes/helpers/PremiumHelper.php';
+        
         // Config
         require_once PLUGIN_DIR . 'includes/config/TableNames.php';
         
@@ -68,7 +75,6 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/repositories/ResourceRepository.php';
         require_once PLUGIN_DIR . 'includes/repositories/PriceHistoryRepository.php';
         require_once PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
-        require_once PLUGIN_DIR . 'includes/repositories/ExternalCronRepository.php';
         require_once PLUGIN_DIR . 'includes/repositories/PublicationHistoryRepository.php';
         
         // UseCases
@@ -84,15 +90,6 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/UseCases/AddPublicationHistoryUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/GetPublicationHistoryUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/GenerateFilesUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/ToggleAutomationUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/ToggleExternalCronUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/RegisterExternalCronUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/UnregisterExternalCronUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/UpdateExternalCronScheduleUseCase.php';
-        
-        // Controllers
-        require_once PLUGIN_DIR . 'includes/controllers/class-ujc-automated-generator.php';
-        require_once PLUGIN_DIR . 'includes/controllers/ExternalCronController.php';
         
         // Views - Admin Components
         require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-modal.php';
@@ -111,14 +108,18 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/blocks/ResourcesListBlock.php';
         require_once PLUGIN_DIR . 'includes/blocks/BlocksManager.php';
         
+        // Load premium features if available
+        $premium_loader = PLUGIN_DIR . 'includes/premium/loader.php';
+        if (file_exists($premium_loader)) {
+            require_once $premium_loader;
+        }
+        
         // Inicjalizuj klasy po załadowaniu wszystkich zależności
         if (is_admin()) {
             require_once PLUGIN_DIR . 'includes/views/admin/class-ujc-admin.php';
             new UJC_Admin();
         }
         
-        new UJC_Automated_Generator();
-        new ExternalCronController();
         new BlocksManager();
     }
     
@@ -167,14 +168,8 @@ class DeweloperJawneCeny {
     }
     
     public function deactivate() {
-        try {
-            $unregisterUseCase = new UnregisterExternalCronUseCase();
-            $result = $unregisterUseCase->execute();
-            
-            error_log("UJC: External cron cleanup on deactivation - " . $result['message']);
-        } catch (Exception $e) {
-            error_log("UJC: Error during external cron cleanup: " . $e->getMessage());
-        }
+        // External cron cleanup handled by premium features if available
+        // No cleanup needed for freemium version
     }
 }
 
