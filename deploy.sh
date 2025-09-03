@@ -5,8 +5,12 @@
 
 set -e  # Exit on any error
 
+# Get absolute paths
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BUILD_DIR="${SCRIPT_DIR}/build"
+
 # Extract version from main plugin file
-VERSION=$(grep "Version:" ustawa-jawnosci-cen.php | head -1 | sed 's/.*Version: //' | sed 's/[[:space:]]*$//')
+VERSION=$(grep "Version:" "${SCRIPT_DIR}/ustawa-jawnosci-cen.php" | head -1 | sed 's/.*Version: //' | sed 's/[[:space:]]*$//')
 
 if [ -z "$VERSION" ]; then
     echo "❌ Error: Could not extract version from ustawa-jawnosci-cen.php"
@@ -16,48 +20,44 @@ fi
 echo "🚀 Building Deweloper Jawne Ceny Plugin v${VERSION}"
 
 # Create build directory
-BUILD_DIR="build"
-mkdir -p ${BUILD_DIR}
+mkdir -p "${BUILD_DIR}"
 
 echo "📦 Building Premium version..."
 # Build Premium version (full codebase)
-mkdir -p ${BUILD_DIR}/"Deweloper Jawne Ceny"
-cp -r . ${BUILD_DIR}/"Deweloper Jawne Ceny"/
+PREMIUM_DIR="${BUILD_DIR}/Deweloper Jawne Ceny"
+mkdir -p "${PREMIUM_DIR}"
+
+# Copy all files except build directory
+rsync -av --exclude='build' --exclude='.git' "${SCRIPT_DIR}/" "${PREMIUM_DIR}/"
 
 # Cleanup premium temp
-cd ${BUILD_DIR}/"Deweloper Jawne Ceny"
-rm -rf .git build
-rm -f deploy.sh test.sh
+rm -f "${PREMIUM_DIR}/deploy.sh" "${PREMIUM_DIR}/test.sh"
 
 # Create premium ZIP with proper folder structure
-cd ${BUILD_DIR}
+cd "${BUILD_DIR}"
 zip -r "DeweloperJawneCeny-premium-${VERSION}.zip" "Deweloper Jawne Ceny" -x "*.DS_Store"
 rm -rf "Deweloper Jawne Ceny"
-cd ..
 
 echo "📦 Building Freemium version..."
 # Build Freemium version (no premium folder)
-mkdir -p ${BUILD_DIR}/"Deweloper Jawne Ceny"
-cp -r . ${BUILD_DIR}/"Deweloper Jawne Ceny"/
+FREEMIUM_DIR="${BUILD_DIR}/Deweloper Jawne Ceny"
+mkdir -p "${FREEMIUM_DIR}"
 
-# Remove premium folder from freemium
-rm -rf ${BUILD_DIR}/"Deweloper Jawne Ceny"/includes/premium/
+# Copy all files except build directory and premium folder
+rsync -av --exclude='build' --exclude='.git' --exclude='includes/premium' "${SCRIPT_DIR}/" "${FREEMIUM_DIR}/"
 
 # Update plugin header for freemium
-cd ${BUILD_DIR}/"Deweloper Jawne Ceny"
-sed -i.bak 's/Plugin Name: DeweloperJawneCeny/Plugin Name: Deweloper Jawne Ceny - Free/' ustawa-jawnosci-cen.php
-sed -i.bak "s/Version: ${VERSION}/Version: ${VERSION}-free/" ustawa-jawnosci-cen.php
-sed -i.bak 's/Description: Plugin do automatyzacji/Description: Darmowa wersja - ręczne generowanie plików zgodnie z ustawą/' ustawa-jawnosci-cen.php
+sed -i.bak 's/Plugin Name: DeweloperJawneCeny/Plugin Name: Deweloper Jawne Ceny - Free/' "${FREEMIUM_DIR}/ustawa-jawnosci-cen.php"
+sed -i.bak "s/Version: ${VERSION}/Version: ${VERSION}-free/" "${FREEMIUM_DIR}/ustawa-jawnosci-cen.php"
+sed -i.bak 's/Description: Plugin do automatyzacji/Description: Darmowa wersja - ręczne generowanie plików zgodnie z ustawą/' "${FREEMIUM_DIR}/ustawa-jawnosci-cen.php"
 
 # Cleanup
-rm -rf .git build
-rm -f deploy.sh test.sh *.bak
+rm -f "${FREEMIUM_DIR}/deploy.sh" "${FREEMIUM_DIR}/test.sh" "${FREEMIUM_DIR}/"*.bak
 
 # Create freemium ZIP with proper folder structure
-cd ${BUILD_DIR}
+cd "${BUILD_DIR}"
 zip -r "DeweloperJawneCeny-Free-${VERSION}.zip" "Deweloper Jawne Ceny" -x "*.DS_Store"
 rm -rf "Deweloper Jawne Ceny"
-cd ..
 
 echo "✅ Build completed successfully!"
 echo "📁 Premium version: ${BUILD_DIR}/DeweloperJawneCeny-premium-${VERSION}.zip"
