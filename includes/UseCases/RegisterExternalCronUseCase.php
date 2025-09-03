@@ -40,7 +40,7 @@ class RegisterExternalCronUseCase {
             $site_url = get_site_url();
             $endpoint = $site_url . '/wp-json/ujc/v1/external-cron';
             $domain = parse_url($site_url, PHP_URL_HOST);
-            $title = 'UJC-' . $domain;
+            $title = $domain;
             
             // Get schedule configuration
             $available_schedules = $this->repository->getAvailableSchedules();
