@@ -170,15 +170,12 @@ class UJC_Publication_Page {
         $base_url = $upload_dir['baseurl'] . '/ujc-data';
         
         $xml_url = $base_url . '/katalog-danych.xml';
-        $md5_url = $base_url . '/katalog-danych.md5';
         
         echo '<div style="border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: #fafafa; min-width: 400px;">';
         echo '<h4 style="margin: 0 0 10px 0; font-size: 14px; color: #333;">Publiczne adresy plików:</h4>';
         echo '<div style="font-size: 13px; line-height: 1.6;">';
-        echo '<div style="margin-bottom: 8px;"><strong>Plik XML:</strong><br>';
+        echo '<div><strong>Plik XML:</strong><br>';
         echo '<a href="' . esc_url($xml_url) . '" target="_blank" style="color: #0073aa; text-decoration: none;">' . esc_html($xml_url) . '</a></div>';
-        echo '<div><strong>Plik MD5:</strong><br>';
-        echo '<a href="' . esc_url($md5_url) . '" target="_blank" style="color: #0073aa; text-decoration: none;">' . esc_html($md5_url) . '</a></div>';
         echo '</div>';
         echo '</div>';
     }
@@ -187,7 +184,7 @@ class UJC_Publication_Page {
         echo '<div style="background: #f0f0f1; border-radius: 4px; padding: 20px;">';
         echo '<p>Wygeneruj i opublikuj najnowsze pliki danych:</p>';
         echo '<button type="button" class="button button-primary" onclick="generateFiles()" id="generate-files-btn" style="margin-top: 10px;">';
-        echo '🔄 Generuj i Publikuj Pliki';
+        echo '🔄 Generuj manualnie';
         echo '</button>';
         echo '</div>';
     }

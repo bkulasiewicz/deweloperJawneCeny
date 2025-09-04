@@ -13,6 +13,7 @@ class UJC_Dashboard_Page {
     private $investmentRepository;
     private $settingsRepository;
     private $resourceRepository;
+    private $generateFilesUseCase;
     private $automationTile;
     private $historyTile;
     
@@ -21,14 +22,27 @@ class UJC_Dashboard_Page {
         $this->investmentRepository = new InvestmentRepository();
         $this->settingsRepository = new SettingsRepository();
         $this->resourceRepository = new ResourceRepository();
+        $this->generateFilesUseCase = new GenerateFilesUseCase();
         
         // Initialize dashboard tiles
         $this->automationTile = new AutomationTile();
         $this->historyTile = new HistoryTile();
+        
+        add_action('wp_ajax_ujc_manual_generation', [$this, 'ajax_manual_generation']);
     }
     
-    
-    
+    public function ajax_manual_generation() {
+        check_ajax_referer('ujc_admin_nonce', 'nonce');
+        if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
+        
+        $result = $this->generateFilesUseCase->execute(TriggerType::Manual);
+        
+        if ($result['success']) {
+            wp_send_json_success($result['message']);
+        } else {
+            wp_send_json_error($result['message']);
+        }
+    }
     
     public function render() {
         $developer = $this->developerRepository->read();
@@ -51,7 +65,7 @@ class UJC_Dashboard_Page {
                     <?php else: ?>
                         <p>
                             <button type="button" class="button button-primary" onclick="manualGeneration()" id="quick-generation-btn">
-                                🔄 Generuj pliki XML/CSV
+                                🔄 Generuj manualnie
                             </button>
                             <a href="<?php echo admin_url('admin.php?page=ujc-publication'); ?>" class="button button-secondary" style="margin-left: 10px;">
                                 📁 Publikacja danych
@@ -102,51 +116,7 @@ class UJC_Dashboard_Page {
                     button.disabled = false;
                 });
             }
-            
-            function toggleExternalCron(enable) {
-                const button = document.getElementById('external-cron-toggle-btn');
-                const originalText = button.textContent;
-                button.textContent = '⏳ Przetwarzanie...';
-                button.disabled = true;
-                
-                // Get selected schedule from debug mode select (if available)
-                let schedule = '24hour'; // default
-                const scheduleSelect = document.getElementById('external-cron-schedule-select');
-                if (scheduleSelect && enable) {
-                    schedule = scheduleSelect.value;
-                }
-                
-                const ajaxUrl = typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl;
-                const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
-                
-                jQuery.post(ajaxUrl, {
-                    action: 'ujc_toggle_external_cron',
-                    enable: enable,
-                    schedule: schedule,
-                    nonce: nonce
-                }, function(response) {
-                    if (response.success) {
-                        alert(response.data);
-                        location.reload();
-                    } else {
-                        alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
-                        button.textContent = originalText;
-                        button.disabled = false;
-                    }
-                }).fail(function(xhr, status, error) {
-                    console.error('Toggle external cron AJAX Error:', xhr, status, error);
-                    alert('❌ Błąd połączenia: ' + error);
-                    button.textContent = originalText;
-                    button.disabled = false;
-                });
-            }
             </script>
-            
-            <!-- Wersja wtyczki w lewym dolnym rogu -->
-            <div style="position: fixed; bottom: 20px; left: 20px; background: #fff; padding: 10px 15px; border: 1px solid #ccd0d4; border-radius: 4px; font-size: 12px; color: #666; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <strong>DeweloperJawneCeny</strong><br>
-                Wersja: <?php echo esc_html(defined('UJC_VERSION') ? UJC_VERSION : '1.0.0'); ?>
-            </div>
         </div>
         <?php
     }

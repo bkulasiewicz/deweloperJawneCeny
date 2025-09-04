@@ -9,11 +9,11 @@ set -e  # Exit on any error
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="${SCRIPT_DIR}/build"
 
-# Extract version from main plugin file
-VERSION=$(grep "define('VERSION'" "${SCRIPT_DIR}/ustawa-jawnosci-cen.php" | sed "s/.*define('VERSION', '//" | sed "s/').*$//")
+# Extract version from main plugin file header
+VERSION=$(grep "Version:" "${SCRIPT_DIR}/ustawa-jawnosci-cen.php" | sed "s/.*Version: //" | tr -d '\r\n ')
 
 if [ -z "$VERSION" ]; then
-    echo "❌ Error: Could not extract version from ustawa-jawnosci-cen.php"
+    echo "❌ Error: Could not extract version from ustawa-jawnosci-cen.php header"
     exit 1
 fi
 

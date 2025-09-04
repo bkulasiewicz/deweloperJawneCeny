@@ -107,6 +107,40 @@ class AutomationTile {
                 </div>
             <?php endif; ?>
         </div>
+        
+        <script>
+        function toggleExternalCron(enable) {
+            const button = document.getElementById('external-cron-toggle-btn');
+            const originalText = button.textContent;
+            button.textContent = enable ? '⏳ Włączanie...' : '⏳ Wyłączanie...';
+            button.disabled = true;
+            
+            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
+            const schedule = document.getElementById('external-cron-schedule-select') ? 
+                document.getElementById('external-cron-schedule-select').value : '24hour';
+            
+            jQuery.post(ajaxurl, {
+                action: 'ujc_toggle_external_cron',
+                enable: enable,
+                schedule: schedule,
+                nonce: nonce
+            }, function(response) {
+                if (response.success) {
+                    alert('✅ ' + response.data);
+                    location.reload();
+                } else {
+                    alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }
+            }).fail(function(xhr, status, error) {
+                console.error('Toggle External Cron AJAX Error:', xhr, status, error);
+                alert('❌ Błąd połączenia: ' + error);
+                button.textContent = originalText;
+                button.disabled = false;
+            });
+        }
+        </script>
         <?php
     }
     
