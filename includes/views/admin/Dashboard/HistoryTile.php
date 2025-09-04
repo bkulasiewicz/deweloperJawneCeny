@@ -32,7 +32,7 @@ class HistoryTile {
      * Render simplified history entries list (date + status only)
      */
     private function render_history_list() {
-        $history = $this->getPublicationHistoryUseCase->execute(7);
+        $history = $this->getPublicationHistoryUseCase->execute(5);
         
         if (empty($history)) {
             ?>
@@ -62,11 +62,6 @@ class HistoryTile {
             <?php endforeach; ?>
         </div>
         
-        <div style="text-align: center; margin-top: 15px;">
-            <small style="color: #666;">
-                Wyświetlane ostatnie 7 wpisów
-            </small>
-        </div>
         <?php
     }
 }
