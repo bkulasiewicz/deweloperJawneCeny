@@ -37,10 +37,10 @@ class DateHelper {
     }
     
     /**
-     * Format date for XML (YYYY-MM-DD)
+     * Get current or specific date in YYYY-MM-DD format
      * Converts from UTC to WordPress local timezone. If $date not provided, uses current date
      */
-    public static function formatForXml($date = null): string {
+    public static function getCurrentDateYmd($date = null): string {
         if ($date === null) {
             // For current date use local time
             return wp_date('Y-m-d');

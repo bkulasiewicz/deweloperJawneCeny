@@ -55,7 +55,7 @@ class HistoryTile {
                     </div>
                     <div>
                         <span style="font-size: 16px;">
-                            <?php echo $entry->getStatusIcon(); ?>
+                            <?php echo wp_kses_post($entry->getStatusIcon()); ?>
                         </span>
                     </div>
                 </div>

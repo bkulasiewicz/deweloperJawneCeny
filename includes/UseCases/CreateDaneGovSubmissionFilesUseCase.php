@@ -158,7 +158,8 @@ class CreateDaneGovSubmissionFilesUseCase {
         $upload_dir = wp_upload_dir();
         $data_dir = $upload_dir['basedir'] . '/ujc-data';
         
-        if (file_exists($data_dir) && !is_writable($data_dir)) {
+        global $wp_filesystem;
+        if ($wp_filesystem->exists($data_dir) && !$wp_filesystem->is_writable($data_dir)) {
             $errors[] = 'Brak uprawnień do zapisu w katalogu: ' . $data_dir;
         }
         

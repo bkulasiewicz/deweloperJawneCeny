@@ -3,7 +3,8 @@
     "allow": [
       "Bash(zip:*)",
       "Bash(cp:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Read(//var/folders/vj/8_15b20n5qxdrd2797c4g0b80000gn/T/TemporaryItems/NSIRD_screencaptureui_phHrte/**)"
     ],
     "additionalDirectories": [
       "/Users/bartoszkulasiewicz/Desktop"

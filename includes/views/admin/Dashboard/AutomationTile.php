@@ -54,7 +54,7 @@ class AutomationTile {
         ?>
         <div class="automation-control">
             <h2>Automatyzacja</h2>
-            <p><?php echo PremiumHelper::get_upgrade_message(); ?></p>
+            <p><?php echo wp_kses_post(PremiumHelper::get_upgrade_message()); ?></p>
             <p><small style="color: #666;">Automatyzuj proces zgodności z ustawą o jawności cen mieszkań.</small></p>
         </div>
         <?php
@@ -97,7 +97,7 @@ class AutomationTile {
                         ?>
                         <select id="external-cron-schedule-select" style="margin-right: 10px;">
                             <?php foreach ($available_schedules as $schedule_key => $schedule_data): ?>
-                                <option value="<?php echo $schedule_key; ?>" <?php echo ($schedule_key === '24hour') ? 'selected' : ''; ?>>
+                                <option value="<?php echo esc_attr($schedule_key); ?>" <?php echo ($schedule_key === '24hour') ? 'selected' : ''; ?>>
                                     <?php echo esc_html($schedule_data['interval_text']); ?>
                                 </option>
                             <?php endforeach; ?>
@@ -115,7 +115,7 @@ class AutomationTile {
             button.textContent = enable ? '⏳ Włączanie...' : '⏳ Wyłączanie...';
             button.disabled = true;
             
-            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
+            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
             const schedule = document.getElementById('external-cron-schedule-select') ? 
                 document.getElementById('external-cron-schedule-select').value : '24hour';
             

@@ -3,9 +3,9 @@ Contributors: deweloperjawneceny
 Donate link: https://www.deweloperjawneceny.pl/
 Tags: real-estate, pricing, compliance, data-export, xml, csv, dane-gov-pl, nieruchomosci
 Requires at least: 5.0
-Tested up to: 6.4
+Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.24.7
+Stable tag: 1.25.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 

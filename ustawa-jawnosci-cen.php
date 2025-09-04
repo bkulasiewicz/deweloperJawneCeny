@@ -3,9 +3,9 @@
  * Plugin Name: Deweloper Jawne Ceny
  * Plugin URI: https://www.deweloperjawneceny.pl/
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
- * Version: 1.25.0
+ * Version: 1.25.3
  * Requires at least: 5.0
- * Tested up to: 6.4
+ * Tested up to: 6.8
  * Requires PHP: 7.4
  * Author: DeweloperJawneCeny Team
  * Author URI: https://www.deweloperjawneceny.pl/
@@ -13,7 +13,6 @@
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: deweloper-jawne-ceny
  * Domain Path: /languages
- * Network: false
  * 
  * @package DeweloperJawneCeny
  * @author DeweloperJawneCeny Team
@@ -28,7 +27,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.1');
-define('VERSION', '1.24.7');
+define('VERSION', '1.25.1');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -54,6 +53,9 @@ class DeweloperJawneCeny {
     }
     
     private function load_dependencies() {
+        // WordPress filesystem functions
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        
         // Helpers
         require_once PLUGIN_DIR . 'includes/helpers/PremiumHelper.php';
         

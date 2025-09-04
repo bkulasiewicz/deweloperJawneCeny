@@ -12,6 +12,7 @@ class FileManager {
     
     private $baseDirectory;
     private $baseUrl;
+    private $wp_filesystem;
     
     public function __construct() {
         $upload_dir = wp_upload_dir();
@@ -34,20 +35,37 @@ class FileManager {
         $filepath = $this->getFilePath($filename);
         error_log('FileManager: CSV filepath: ' . $filepath);
         
-        $file = fopen($filepath, 'w');
-        if (!$file) {
-            error_log('FileManager: FAILED to create CSV file: ' . $filepath);
-            throw new Exception("Cannot create file: {$filepath}");
-        }
-        
+        $csv_content = '';
         $row_count = 0;
-        foreach ($csvRows as $row) {
-            fputcsv($file, $row, ';');
-            $row_count++;
-        }
-        fclose($file);
         
-        $file_size = filesize($filepath);
+        // Przechodzimy przez każdy wiersz z generatora (identycznie jak oryginał)
+        foreach ($csvRows as $row) {
+            $csv_line = '';
+            
+            // Formatujemy każde pole w wierszu (zastępuje fputcsv logic)
+            foreach ($row as $i => $field) {
+                // Dodaj separator średnik między polami (nie przed pierwszym)
+                if ($i > 0) $csv_line .= ';';
+                
+                // Escape cudzysłowy przez podwojenie i otocz pole cudzysłowami
+                // (identyczna logika jak fputcsv dla bezpieczeństwa)
+                $csv_line .= '"' . str_replace('"', '""', $field) . '"';
+            }
+            
+            // Dodaj wiersz do buffera (separator nowej linii między wierszami)
+            if ($row_count > 0) $csv_content .= "\n";
+            $csv_content .= $csv_line;
+            $row_count++;  // Zachowujemy counting dla logowania
+        }
+        
+        // Zapisz cały CSV jednorazowo przez WordPress (zastępuje fopen/fwrite/fclose)
+        if (!$this->wp_filesystem->put_contents($filepath, $csv_content, FS_CHMOD_FILE)) {
+            error_log('FileManager: FAILED to create CSV file: ' . $filepath);
+            throw new Exception(sprintf('Cannot create file: %s', $filepath));
+        }
+        
+        // Rozmiar z zawartości string (zastępuje filesize)
+        $file_size = strlen($csv_content);
         error_log('FileManager: CSV saved successfully - rows: ' . $row_count . ', size: ' . $file_size . ' bytes');
         
         return [
@@ -73,9 +91,9 @@ class FileManager {
         error_log('FileManager: XML filepath: ' . $filepath);
         
         // Save XML file
-        if (file_put_contents($filepath, $xmlContent) === false) {
+        if (!$this->wp_filesystem->put_contents($filepath, $xmlContent, FS_CHMOD_FILE)) {
             error_log('FileManager: FAILED to write XML file: ' . $filepath);
-            throw new Exception("Cannot write XML file: {$filepath}");
+            throw new Exception(sprintf('Cannot write XML file: %s', $filepath));
         }
         
         error_log('FileManager: XML file saved successfully');
@@ -87,9 +105,9 @@ class FileManager {
         
         error_log('FileManager: Generated MD5: ' . $md5_content);
         
-        if (file_put_contents($md5_filepath, $md5_content) === false) {
+        if (!$this->wp_filesystem->put_contents($md5_filepath, $md5_content, FS_CHMOD_FILE)) {
             error_log('FileManager: FAILED to write MD5 file: ' . $md5_filepath);
-            throw new Exception("Cannot write MD5 file: {$md5_filepath}");
+            throw new Exception(sprintf('Cannot write MD5 file: %s', $md5_filepath));
         }
         
         error_log('FileManager: MD5 file saved successfully: ' . $md5_filename);
@@ -109,7 +127,7 @@ class FileManager {
      */
     public function generateCSVFilename(array $developer): string {
         $developer_name_clean = $this->sanitizeFilename($developer['nazwa'] ?? 'developer');
-        $date_string = date('Y-m-d');
+        $date_string = DateHelper::getCurrentDateYmd();
         return "Ceny-ofertowe-mieszkan-dewelopera-{$developer_name_clean}-{$date_string}.csv";
     }
     
@@ -128,8 +146,8 @@ class FileManager {
             return wp_mkdir_p($this->baseDirectory);
         }
         
-        if (!is_writable($this->baseDirectory)) {
-            throw new Exception("Directory not writable: {$this->baseDirectory}");
+        if (!$this->wp_filesystem->is_writable($this->baseDirectory)) {
+            throw new Exception(sprintf('Directory not writable: %s', $this->baseDirectory));
         }
         
         return true;
@@ -161,7 +179,7 @@ class FileManager {
      * Check if file exists
      */
     public function fileExists(string $filename): bool {
-        return file_exists($this->getFilePath($filename));
+        return $this->wp_filesystem->exists($this->getFilePath($filename));
     }
     
     /**
@@ -169,7 +187,7 @@ class FileManager {
      */
     public function getFileModTime(string $filename): int|false {
         $filepath = $this->getFilePath($filename);
-        return file_exists($filepath) ? filemtime($filepath) : false;
+        return $this->wp_filesystem->exists($filepath) ? $this->wp_filesystem->mtime($filepath) : false;
     }
     
     /**

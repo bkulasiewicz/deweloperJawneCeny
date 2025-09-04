@@ -45,7 +45,7 @@ class UJC_Resources_Page {
             <div class="wrap">
                 <h1>Zasoby</h1>
                 <div class="notice notice-warning">
-                    <p>Najpierw musisz <a href="<?php echo admin_url('admin.php?page=ujc-developer'); ?>">uzupełnić dane dostawcy</a>.</p>
+                    <p>Najpierw musisz <a href="<?php echo esc_url(admin_url('admin.php?page=ujc-developer')); ?>">uzupełnić dane dostawcy</a>.</p>
                 </div>
             </div>
             <?php
@@ -223,7 +223,7 @@ class UJC_Resources_Page {
                     // Przygotuj FormData
                     const formData = new FormData();
                     formData.append('action', 'ujc_import_resources');
-                    formData.append('ujc_nonce', '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>');
+                    formData.append('ujc_nonce', '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>');
                     formData.append('import_file', file);
                     
                     // Wyślij plik
@@ -283,7 +283,7 @@ class UJC_Resources_Page {
         }
         
         foreach ($resources as $resource) {
-            echo UJC_Resource_Item::render_item_html($resource);
+            echo wp_kses_post(UJC_Resource_Item::render_item_html($resource));
         }
     }
     

@@ -57,17 +57,17 @@ class UJC_Dashboard_Page {
                 <div class="ujc-quick-actions">
                     <h2>Szybkie Akcje</h2>
                     <?php if (!$developer): ?>
-                        <p><a href="<?php echo admin_url('admin.php?page=ujc-developer'); ?>" class="button button-primary">Dodaj dane dostawcy</a></p>
+                        <p><a href="<?php echo esc_url(admin_url('admin.php?page=ujc-developer')); ?>" class="button button-primary">Dodaj dane dostawcy</a></p>
                     <?php elseif (!$investment): ?>
-                        <p><a href="<?php echo admin_url('admin.php?page=ujc-resources'); ?>" class="button button-primary">Dodaj inwestycję</a></p>
+                        <p><a href="<?php echo esc_url(admin_url('admin.php?page=ujc-resources')); ?>" class="button button-primary">Dodaj inwestycję</a></p>
                     <?php elseif ($resources_count === 0): ?>
-                        <p><a href="<?php echo admin_url('admin.php?page=ujc-resources'); ?>" class="button button-primary">Dodaj zasoby</a></p>
+                        <p><a href="<?php echo esc_url(admin_url('admin.php?page=ujc-resources')); ?>" class="button button-primary">Dodaj zasoby</a></p>
                     <?php else: ?>
                         <p>
                             <button type="button" class="button button-primary" onclick="manualGeneration()" id="quick-generation-btn">
                                 🔄 Generuj manualnie
                             </button>
-                            <a href="<?php echo admin_url('admin.php?page=ujc-publication'); ?>" class="button button-secondary" style="margin-left: 10px;">
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=ujc-publication')); ?>" class="button button-secondary" style="margin-left: 10px;">
                                 📁 Publikacja danych
                             </a>
                         </p>
@@ -82,7 +82,7 @@ class UJC_Dashboard_Page {
                 <?php
                 // Renderuj DEV Console jeśli dostępna
                 if (class_exists('UJC_Dev_Console')) {
-                    echo UJC_Dev_Console::render_console_tile();
+                    echo wp_kses_post(UJC_Dev_Console::render_console_tile());
                 }
                 ?>
             </div>
@@ -95,7 +95,7 @@ class UJC_Dashboard_Page {
                 button.textContent = '⏳ Generowanie...';
                 button.disabled = true;
                 
-                const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
+                const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
                 
                 jQuery.post(ajaxurl, {
                     action: 'ujc_manual_generation',

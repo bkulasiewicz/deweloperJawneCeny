@@ -79,7 +79,7 @@ class DaneGovTitle {
     public string $english;
     
     public function __construct(string $developerName) {
-        $year = date('Y');
+        $year = gmdate('Y');
         
         $this->polish = "Ceny ofertowe mieszkań dewelopera {$developerName} w {$year} r.";
         $this->english = "Offer prices of apartments of developer {$developerName} in {$year}.";
@@ -151,7 +151,7 @@ class DaneGovResource {
      * URL do CSV jest WYMAGANE - nie może być null
      */
     public function __construct(string $developerName, string $nip, string $csv_url, ?string $date = null) {
-        $this->dataDate = $date ?? date('Y-m-d');
+        $this->dataDate = $date ?? gmdate('Y-m-d');
         
         $this->extIdent = $this->generateDailyExtIdent($nip, $this->dataDate);
         $this->url = $csv_url;
@@ -163,7 +163,7 @@ class DaneGovResource {
      * Generuje ZMIENNY identyfikator dla publikacji (36 znaków)
      */
     private function generateDailyExtIdent(string $nip, string $date): string {
-        $formatted_date = date('Ymd', strtotime($date));
+        $formatted_date = gmdate('Ymd', strtotime($date));
         $base = "deweloper_{$nip}_{$formatted_date}_00000";
         return str_pad($base, 36, '_', STR_PAD_RIGHT);
     }

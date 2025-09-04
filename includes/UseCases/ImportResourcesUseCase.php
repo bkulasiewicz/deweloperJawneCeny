@@ -35,35 +35,55 @@ class ImportResourcesUseCase {
         $imported = 0;
         $updated = 0;
         
-        if (($handle = fopen($file_path, 'r')) !== FALSE) {
-            $first_line = fgets($handle);
-            rewind($handle);
-            $separator = $this->detect_csv_separator($first_line);
+        global $wp_filesystem;
+        
+        // Read entire file content using WordPress filesystem
+        if (!$wp_filesystem->exists($file_path)) {
+            throw new Exception('Plik CSV nie istnieje');
+        }
+        
+        $file_content = $wp_filesystem->get_contents($file_path);
+        if ($file_content === false) {
+            throw new Exception('Nie można odczytać pliku CSV');
+        }
+        
+        // Split into lines
+        $lines = explode("\n", $file_content);
+        if (empty($lines)) {
+            throw new Exception('Plik CSV jest pusty');
+        }
+        
+        // Get first line to detect separator
+        $first_line = $lines[0];
+        $separator = $this->detect_csv_separator($first_line);
+        
+        // Parse header line
+        $headers = str_getcsv($first_line, $separator);
+        
+        // Process data lines (skip header)
+        for ($i = 1; $i < count($lines); $i++) {
+            $line = trim($lines[$i]);
+            if (empty($line)) continue;
             
-            $headers = fgetcsv($handle, 1000, $separator);
+            $data = str_getcsv($line, $separator);
+            if (count($data) < 4) continue;
             
-            while (($data = fgetcsv($handle, 1000, $separator)) !== FALSE) {
-                if (count($data) < 4) continue;
-                
-                $resource_data = $this->clean_csv_row($data);
-                
-                if (!$resource_data) {
-                    continue;
-                }
-                
-                $resource_id = $resource_data['nr_lokalu']; // nr_lokalu to faktycznie ID
-                $existing_resource = $this->getByIdUseCase->execute($resource_id);
-                
-                if ($existing_resource) {
-                    $result = $this->saveUseCase->execute($resource_data, $resource_id);
-                    if ($result !== false) $updated++;
-                } else {
-                    $result = $this->saveUseCase->execute($resource_data);
-                    if ($result !== false) $imported++;
-                }
+            $resource_data = $this->clean_csv_row($data);
+            
+            if (!$resource_data) {
+                continue;
             }
             
-            fclose($handle);
+            $resource_id = $resource_data['nr_lokalu']; // nr_lokalu to faktycznie ID
+            $existing_resource = $this->getByIdUseCase->execute($resource_id);
+            
+            if ($existing_resource) {
+                $result = $this->saveUseCase->execute($resource_data, $resource_id);
+                if ($result !== false) $updated++;
+            } else {
+                $result = $this->saveUseCase->execute($resource_data);
+                if ($result !== false) $imported++;
+            }
         }
         
         $result = [

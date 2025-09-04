@@ -66,7 +66,7 @@ class UJC_Publication_Page {
             button.textContent = '⏳ Generowanie...';
             button.disabled = true;
             
-            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
+            const nonce = ujc_ajax.nonce;
             
             jQuery.post(ajaxurl, {
                 action: 'ujc_publication_generate',
@@ -158,7 +158,7 @@ class UJC_Publication_Page {
         echo '<p><strong>Dostępność URL:</strong> ' . ($status['urls_accessible'] ? '✅ Dostępne' : '❌ Niedostępne') . '</p>';
         
         if ($status['last_modified']) {
-            echo '<p><strong>Ostatnia aktualizacja:</strong> ' . DateHelper::formatTimestampForUser($status['last_modified']) . '</p>';
+            echo '<p><strong>Ostatnia aktualizacja:</strong> ' . esc_html(DateHelper::formatTimestampForUser($status['last_modified'])) . '</p>';
         }
         echo '</div>';
         
@@ -208,9 +208,9 @@ class UJC_Publication_Page {
         
         foreach ($history as $entry) {
             echo '<tr>';
-            echo '<td>' . $entry->getFormattedDate() . '</td>';
+            echo '<td>' . esc_html($entry->getFormattedDate()) . '</td>';
             echo '<td>' . esc_html($entry->getTriggerTypeLabel()) . '</td>';
-            echo '<td>' . $entry->getStatusIcon() . ' ';
+            echo '<td>' . wp_kses_post($entry->getStatusIcon()) . ' ';
             echo '<span style="color: ' . ($entry->status === 'success' ? '#007600' : '#d63638') . ';">';
             echo esc_html($entry->getStatusLabel());
             echo '</span></td>';

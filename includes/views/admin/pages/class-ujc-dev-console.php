@@ -107,7 +107,7 @@ class UJC_Dev_Console {
         // Zwróć logi jako tekst do pobrania przez frontend
         wp_send_json_success([
             'logs' => $log_content,
-            'filename' => 'ujc-debug-logs-' . date('Y-m-d-H-i-s') . '.txt'
+            'filename' => 'ujc-debug-logs-' . gmdate('Y-m-d-H-i-s') . '.txt'
         ]);
     }
     
@@ -157,7 +157,7 @@ class UJC_Dev_Console {
                 }
             }
         } else {
-            array_unshift($logs, "=== LOGI UJC z " . date('Y-m-d H:i:s') . " ===");
+            array_unshift($logs, "=== LOGI UJC z " . gmdate('Y-m-d H:i:s') . " ===");
         }
         
         return implode("\n", $logs);
@@ -209,7 +209,7 @@ class UJC_Dev_Console {
         <script>
         
         function downloadLogs() {
-            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
+            const nonce = ujc_ajax.nonce;
             
             // Pokaż loading
             const button = event.target;
@@ -259,7 +259,7 @@ class UJC_Dev_Console {
         }
 
         function clearTableData(type) {
-            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>';
+            const nonce = ujc_ajax.nonce;
             
             jQuery.post(ajaxurl, {
                 action: 'ujc_dev_clear_table',

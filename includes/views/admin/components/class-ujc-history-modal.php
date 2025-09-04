@@ -37,7 +37,7 @@ class UJC_History_Modal {
             echo '<thead><tr><th>Data zmiany</th><th>Cena m²</th><th>Cena całkowita</th><th>Cena z dodatkami</th></tr></thead><tbody>';
             foreach ($history as $record) {
                 echo '<tr>';
-                echo '<td>' . DateHelper::formatForUser($record['data_zmiany']) . '</td>';
+                echo '<td>' . esc_html(DateHelper::formatForUser($record['data_zmiany'])) . '</td>';
                 echo '<td>' . number_format($record['cena_m2_new'], 2, ',', ' ') . ' zł</td>';
                 echo '<td>' . ($record['cena_calkowita_new'] ? number_format($record['cena_calkowita_new'], 2, ',', ' ') . ' zł' : '-') . '</td>';
                 echo '<td>' . ($record['cena_z_dodatkami_new'] ? number_format($record['cena_z_dodatkami_new'], 2, ',', ' ') . ' zł' : '-') . '</td>';
@@ -82,7 +82,7 @@ class UJC_History_Modal {
                 $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, {
                     action: 'ujc_get_resource_history',
                     resource_id: resourceId,
-                    ujc_nonce: '<?php echo wp_create_nonce('ujc_admin_nonce'); ?>'
+                    ujc_nonce: '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>'
                 }, function(response) {
                     if (response.success) {
                         $('#history-modal .ujc-modal-body').html(response.data);

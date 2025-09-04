@@ -69,15 +69,18 @@ class SaveResourceUseCase {
         global $wpdb;
         
         if (!empty($data['nr_lokalu'])) {
-            $sql = "SELECT COUNT(*) FROM $table WHERE nr_lokalu = %s";
-            $params = [$data['nr_lokalu']];
-            
             if ($exclude_id) {
-                $sql .= " AND id != %d";
-                $params[] = $exclude_id;
+                $existing = $wpdb->get_var($wpdb->prepare(
+                    "SELECT COUNT(*) FROM $table WHERE nr_lokalu = %s AND id != %d",
+                    $data['nr_lokalu'],
+                    $exclude_id
+                ));
+            } else {
+                $existing = $wpdb->get_var($wpdb->prepare(
+                    "SELECT COUNT(*) FROM $table WHERE nr_lokalu = %s",
+                    $data['nr_lokalu']
+                ));
             }
-            
-            $existing = $wpdb->get_var($wpdb->prepare($sql, $params));
             
             if ($existing > 0) {
                 $errors[] = 'Numer lokalu "' . $data['nr_lokalu'] . '" już istnieje. Każdy zasób musi mieć unikalną nazwę.';
