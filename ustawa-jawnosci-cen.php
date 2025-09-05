@@ -3,7 +3,7 @@
  * Plugin Name: Deweloper Jawne Ceny
  * Plugin URI: https://www.deweloperjawneceny.pl/
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
- * Version: 1.25.3
+ * Version: 1.25.41
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.1');
-define('VERSION', '1.25.1');
+define('VERSION', '1.25.41');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -137,11 +137,14 @@ class DeweloperJawneCeny {
         }
         
         new BlocksManager();
+        
+        // Initialize WordPress Filesystem
+        WP_Filesystem();
     }
     
     
     public function enqueue_frontend_scripts() {
-        wp_enqueue_style('ujc-frontend', PLUGIN_URL . 'assets/admin.css', [], '1.0');
+        wp_enqueue_style('ujc-frontend', PLUGIN_URL . 'assets/admin.css', [], VERSION);
     }
     
     public function handle_file_requests() {
@@ -151,10 +154,18 @@ class DeweloperJawneCeny {
             $filepath = $upload_dir['basedir'] . '/ujc-data/' . $file;
             
             if (file_exists($filepath) && in_array(pathinfo($file, PATHINFO_EXTENSION), ['csv', 'xml'])) {
+                global $wp_filesystem;
+                
                 $mime_type = pathinfo($file, PATHINFO_EXTENSION) === 'csv' ? 'text/csv' : 'application/xml';
                 header('Content-Type: ' . $mime_type . '; charset=UTF-8');
-                header('Content-Disposition: attachment; filename="' . $file . '"');
-                readfile($filepath);
+                header('Content-Disposition: attachment; filename="' . esc_attr($file) . '"');
+                
+                // Use WordPress Filesystem instead of readfile()
+                $file_contents = $wp_filesystem->get_contents($filepath);
+                if ($file_contents !== false) {
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- File download content should not be escaped
+                    echo $file_contents;
+                }
                 exit;
             }
         }

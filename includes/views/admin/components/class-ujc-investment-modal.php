@@ -76,7 +76,7 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
                 <!-- Formularz edycji (ukryty) -->
                 <div id="investment-edit" class="ujc-modal-body" style="display: none;">
                     <form id="investment-edit-form" method="post">
-                        <?php wp_nonce_field('ujc_admin_nonce', 'ujc_nonce'); ?>
+                        <?php wp_nonce_field('ujc_admin_nonce', 'nonce'); ?>
                         
                         <table class="form-table">
                             <tr>
@@ -147,7 +147,7 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
                 
                 $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, {
                     action: 'ujc_get_investment',
-                    ujc_nonce: nonce
+                    nonce: nonce
                 }, function(response) {
                     console.log('Investment data response:', response);
                     if (response.success) {
@@ -218,7 +218,7 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
                 console.log('Save investment button clicked');
                 
                 const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : ($('#ujc-nonce').length ? $('#ujc-nonce').val() : '');
-                const formData = $('#investment-edit-form').serialize() + '&action=ujc_update_investment&ujc_nonce=' + nonce;
+                const formData = $('#investment-edit-form').serialize() + '&action=ujc_update_investment&nonce=' + nonce;
                 
                 console.log('Saving with data:', formData);
                 
@@ -267,7 +267,7 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
     public function ajax_get_investment() {
         error_log('UJC: ajax_get_investment started');
         
-        if (!$this->verify_nonce()) {
+        if (!$this->verify_nonce('nonce')) {
             error_log('UJC: nonce verification failed');
             return;
         }
@@ -297,7 +297,7 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
     public function ajax_update_investment() {
         error_log('UJC: ajax_update_investment started');
         
-        if (!$this->verify_nonce()) {
+        if (!$this->verify_nonce('nonce')) {
             error_log('UJC: nonce verification failed in update');
             return;
         }

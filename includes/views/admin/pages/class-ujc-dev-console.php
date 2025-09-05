@@ -38,7 +38,7 @@ class UJC_Dev_Console {
             return;
         }
         
-        check_ajax_referer('ujc_admin_nonce', 'ujc_nonce');
+        check_ajax_referer('ujc_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Brak uprawnień administratora');
@@ -84,26 +84,35 @@ class UJC_Dev_Console {
      * AJAX handler do pobierania logów
      */
     public function ajax_download_logs() {
+        error_log('UJC DEV: ajax_download_logs called');
+        
         // Podwójne sprawdzenie bezpieczeństwa
         if (!self::is_available()) {
+            error_log('UJC DEV: Not available - WP_DEBUG: ' . (defined('WP_DEBUG') ? (WP_DEBUG ? 'true' : 'false') : 'undefined'));
             wp_send_json_error('Funkcja dostępna tylko w trybie deweloperskim');
             return;
         }
         
-        check_ajax_referer('ujc_admin_nonce', 'ujc_nonce');
+        error_log('UJC DEV: Checking nonce: ' . ($_POST['nonce'] ?? 'missing'));
+        check_ajax_referer('ujc_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
+            error_log('UJC DEV: User cannot manage options');
             wp_send_json_error('Brak uprawnień administratora');
             return;
         }
         
+        error_log('UJC DEV: Getting log content...');
         $log_content = $this->get_debug_logs();
+        error_log('UJC DEV: Log content length: ' . strlen($log_content));
         
         if (empty($log_content)) {
+            error_log('UJC DEV: No log content available');
             wp_send_json_error('Brak logów do pobrania lub nie można odczytać pliku logów');
             return;
         }
         
+        error_log('UJC DEV: Sending success response');
         // Zwróć logi jako tekst do pobrania przez frontend
         wp_send_json_success([
             'logs' => $log_content,
@@ -115,6 +124,7 @@ class UJC_Dev_Console {
      * Pobiera logi debugowania
      */
     private function get_debug_logs() {
+        global $wp_filesystem;
         $logs = [];
         
         // Możliwe lokalizacje logów WordPress
@@ -128,8 +138,8 @@ class UJC_Dev_Console {
         
         // Przeszukaj logi w poszukiwaniu wpisów UJC
         foreach ($possible_log_files as $log_file) {
-            if ($log_file && file_exists($log_file) && is_readable($log_file)) {
-                $content = file_get_contents($log_file);
+            if ($log_file && $wp_filesystem->exists($log_file) && $wp_filesystem->is_readable($log_file)) {
+                $content = $wp_filesystem->get_contents($log_file);
                 if ($content !== false) {
                     // Znajdź linie zawierające UJC
                     $lines = explode("\n", $content);
@@ -146,8 +156,8 @@ class UJC_Dev_Console {
         // Jeśli nie ma logów UJC, pokaż ostatnie 100 linii z głównego logu
         if (empty($logs)) {
             foreach ($possible_log_files as $log_file) {
-                if ($log_file && file_exists($log_file) && is_readable($log_file)) {
-                    $content = file_get_contents($log_file);
+                if ($log_file && $wp_filesystem->exists($log_file) && $wp_filesystem->is_readable($log_file)) {
+                    $content = $wp_filesystem->get_contents($log_file);
                     if ($content !== false) {
                         $lines = explode("\n", $content);
                         $logs = array_slice($lines, -100); // Ostatnie 100 linii
@@ -186,6 +196,7 @@ class UJC_Dev_Console {
                 <button type="button" class="button button-primary" onclick="downloadLogs()" style="margin: 5px; background-color: #2271b1;">
                     📋 Pobierz logi debugowania
                 </button>
+                <p><small>WP_DEBUG: <?php echo defined('WP_DEBUG') && WP_DEBUG ? 'ON' : 'OFF'; ?></small></p>
                 
                 <h3 style="margin-top: 20px;">Czyszczenie tabel:</h3>
                 <button type="button" class="button button-secondary" onclick="confirmClearTable('developer', 'dane dostawcy')" style="margin: 5px;">
@@ -207,9 +218,14 @@ class UJC_Dev_Console {
         </div>
         
         <script>
+        console.log('DEV Console script loaded');
+        console.log('WP_DEBUG status:', '<?php echo defined('WP_DEBUG') && WP_DEBUG ? 'ON' : 'OFF'; ?>');
         
         function downloadLogs() {
-            const nonce = ujc_ajax.nonce;
+            console.log('downloadLogs called');
+            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
+            console.log('Using nonce:', nonce);
+            console.log('ujc_ajax available:', typeof ujc_ajax !== 'undefined');
             
             // Pokaż loading
             const button = event.target;
@@ -217,11 +233,14 @@ class UJC_Dev_Console {
             button.textContent = '⏳ Pobieranie logów...';
             button.disabled = true;
             
+            console.log('Sending AJAX request to:', ajaxurl);
             jQuery.post(ajaxurl, {
                 action: 'ujc_dev_download_logs',
-                ujc_nonce: nonce
+                nonce: nonce
             }, function(response) {
+                console.log('AJAX response:', response);
                 if (response.success) {
+                    console.log('Success - creating blob with logs length:', response.data.logs.length);
                     // Utwórz plik do pobrania
                     const blob = new Blob([response.data.logs], { type: 'text/plain' });
                     const url = window.URL.createObjectURL(blob);
@@ -236,10 +255,12 @@ class UJC_Dev_Console {
                     
                     alert('✅ Logi zostały pobrane');
                 } else {
+                    console.error('AJAX error response:', response.data);
                     alert('❌ Błąd: ' + (response.data || 'Nie można pobrać logów'));
                 }
             }).fail(function(xhr, status, error) {
                 console.error('Download logs AJAX Error:', xhr, status, error);
+                console.error('XHR response:', xhr.responseText);
                 alert('❌ Błąd połączenia: ' + error);
             }).always(function() {
                 button.textContent = originalText;
@@ -259,12 +280,12 @@ class UJC_Dev_Console {
         }
 
         function clearTableData(type) {
-            const nonce = ujc_ajax.nonce;
+            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
             
             jQuery.post(ajaxurl, {
                 action: 'ujc_dev_clear_table',
                 table_type: type,
-                ujc_nonce: nonce
+                nonce: nonce
             }, function(response) {
                 if (response.success) {
                     alert('✅ ' + response.data);

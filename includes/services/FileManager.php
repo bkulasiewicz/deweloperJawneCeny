@@ -12,11 +12,10 @@ class FileManager {
     
     private $baseDirectory;
     private $baseUrl;
-    private $wp_filesystem;
     
     public function __construct() {
         $upload_dir = wp_upload_dir();
-        $this->baseDirectory = $upload_dir['basedir'] . '/ujc-data'; // Will be configurable later
+        $this->baseDirectory = $upload_dir['basedir'] . '/ujc-data';
         $this->baseUrl = get_site_url() . '/wp-content/uploads/ujc-data';
     }
     
@@ -59,9 +58,10 @@ class FileManager {
         }
         
         // Zapisz cały CSV jednorazowo przez WordPress (zastępuje fopen/fwrite/fclose)
-        if (!$this->wp_filesystem->put_contents($filepath, $csv_content, FS_CHMOD_FILE)) {
+        global $wp_filesystem;
+        if (!$wp_filesystem->put_contents($filepath, $csv_content, FS_CHMOD_FILE)) {
             error_log('FileManager: FAILED to create CSV file: ' . $filepath);
-            throw new Exception(sprintf('Cannot create file: %s', $filepath));
+            throw new Exception(sprintf('Cannot create file: %s', esc_html($filepath)));
         }
         
         // Rozmiar z zawartości string (zastępuje filesize)
@@ -91,9 +91,10 @@ class FileManager {
         error_log('FileManager: XML filepath: ' . $filepath);
         
         // Save XML file
-        if (!$this->wp_filesystem->put_contents($filepath, $xmlContent, FS_CHMOD_FILE)) {
+        global $wp_filesystem;
+        if (!$wp_filesystem->put_contents($filepath, $xmlContent, FS_CHMOD_FILE)) {
             error_log('FileManager: FAILED to write XML file: ' . $filepath);
-            throw new Exception(sprintf('Cannot write XML file: %s', $filepath));
+            throw new Exception(sprintf('Cannot write XML file: %s', esc_html($filepath)));
         }
         
         error_log('FileManager: XML file saved successfully');
@@ -105,9 +106,9 @@ class FileManager {
         
         error_log('FileManager: Generated MD5: ' . $md5_content);
         
-        if (!$this->wp_filesystem->put_contents($md5_filepath, $md5_content, FS_CHMOD_FILE)) {
+        if (!$wp_filesystem->put_contents($md5_filepath, $md5_content, FS_CHMOD_FILE)) {
             error_log('FileManager: FAILED to write MD5 file: ' . $md5_filepath);
-            throw new Exception(sprintf('Cannot write MD5 file: %s', $md5_filepath));
+            throw new Exception(sprintf('Cannot write MD5 file: %s', esc_html($md5_filepath)));
         }
         
         error_log('FileManager: MD5 file saved successfully: ' . $md5_filename);
@@ -146,8 +147,9 @@ class FileManager {
             return wp_mkdir_p($this->baseDirectory);
         }
         
-        if (!$this->wp_filesystem->is_writable($this->baseDirectory)) {
-            throw new Exception(sprintf('Directory not writable: %s', $this->baseDirectory));
+        global $wp_filesystem;
+        if (!$wp_filesystem->is_writable($this->baseDirectory)) {
+            throw new Exception(sprintf('Directory not writable: %s', esc_html($this->baseDirectory)));
         }
         
         return true;
@@ -179,7 +181,8 @@ class FileManager {
      * Check if file exists
      */
     public function fileExists(string $filename): bool {
-        return $this->wp_filesystem->exists($this->getFilePath($filename));
+        global $wp_filesystem;
+        return $wp_filesystem->exists($this->getFilePath($filename));
     }
     
     /**
@@ -187,7 +190,8 @@ class FileManager {
      */
     public function getFileModTime(string $filename): int|false {
         $filepath = $this->getFilePath($filename);
-        return $this->wp_filesystem->exists($filepath) ? $this->wp_filesystem->mtime($filepath) : false;
+        global $wp_filesystem;
+        return $wp_filesystem->exists($filepath) ? $wp_filesystem->mtime($filepath) : false;
     }
     
     /**

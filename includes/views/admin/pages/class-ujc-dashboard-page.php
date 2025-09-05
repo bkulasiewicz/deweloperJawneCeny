@@ -32,15 +32,19 @@ class UJC_Dashboard_Page {
     }
     
     public function ajax_manual_generation() {
-        check_ajax_referer('ujc_admin_nonce', 'nonce');
-        if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
-        
-        $result = $this->generateFilesUseCase->execute(TriggerType::Manual);
-        
-        if ($result['success']) {
-            wp_send_json_success($result['message']);
-        } else {
-            wp_send_json_error($result['message']);
+        try {
+            check_ajax_referer('ujc_admin_nonce', 'nonce');
+            if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
+            
+            $result = $this->generateFilesUseCase->execute(TriggerType::Manual);
+            
+            if ($result['success']) {
+                wp_send_json_success($result['message']);
+            } else {
+                wp_send_json_error($result['message']);
+            }
+        } catch (Exception $e) {
+            wp_send_json_error('Błąd generowania: ' . $e->getMessage());
         }
     }
     
@@ -82,7 +86,8 @@ class UJC_Dashboard_Page {
                 <?php
                 // Renderuj DEV Console jeśli dostępna
                 if (class_exists('UJC_Dev_Console')) {
-                    echo wp_kses_post(UJC_Dev_Console::render_console_tile());
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Dev Console output contains safe inline JavaScript
+                    echo UJC_Dev_Console::render_console_tile();
                 }
                 ?>
             </div>

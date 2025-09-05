@@ -9,12 +9,29 @@ set -e  # Exit on any error
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="${SCRIPT_DIR}/build"
 
-# Extract version from main plugin file header
-VERSION=$(grep "Version:" "${SCRIPT_DIR}/ustawa-jawnosci-cen.php" | sed "s/.*Version: //" | tr -d '\r\n ')
-
-if [ -z "$VERSION" ]; then
-    echo "❌ Error: Could not extract version from ustawa-jawnosci-cen.php header"
-    exit 1
+# Check if version argument provided
+if [ -n "$1" ]; then
+    VERSION="$1"
+    echo "🔧 Setting version to ${VERSION} in all files..."
+    
+    # Update main plugin header
+    sed -i.bak "s/ \* Version: .*/ * Version: ${VERSION}/" "${SCRIPT_DIR}/ustawa-jawnosci-cen.php"
+    
+    # Update VERSION constant
+    sed -i.bak "s/define('VERSION', '[^']*')/define('VERSION', '${VERSION}')/" "${SCRIPT_DIR}/ustawa-jawnosci-cen.php"
+    
+    # Update readme.txt
+    sed -i.bak "s/Stable tag: .*/Stable tag: ${VERSION}/" "${SCRIPT_DIR}/readme.txt"
+    
+    echo "✅ Version updated to ${VERSION} in all files"
+else
+    # Extract version from main plugin file header (existing logic)
+    VERSION=$(grep "Version:" "${SCRIPT_DIR}/ustawa-jawnosci-cen.php" | sed "s/.*Version: //" | tr -d '\r\n ')
+    
+    if [ -z "$VERSION" ]; then
+        echo "❌ Error: Could not extract version from ustawa-jawnosci-cen.php header"
+        exit 1
+    fi
 fi
 
 echo "🚀 Building Deweloper Jawne Ceny Plugin v${VERSION}"

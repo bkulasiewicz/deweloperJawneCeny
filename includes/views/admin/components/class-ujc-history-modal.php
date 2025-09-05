@@ -20,7 +20,7 @@ class UJC_History_Modal {
      * AJAX: Pobiera historię cen dla zasobu
      */
     public function ajax_get_resource_history() {
-        check_ajax_referer('ujc_admin_nonce', 'ujc_nonce');
+        check_ajax_referer('ujc_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Brak uprawnień');
@@ -82,7 +82,7 @@ class UJC_History_Modal {
                 $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, {
                     action: 'ujc_get_resource_history',
                     resource_id: resourceId,
-                    ujc_nonce: '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>'
+                    nonce: '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>'
                 }, function(response) {
                     if (response.success) {
                         $('#history-modal .ujc-modal-body').html(response.data);

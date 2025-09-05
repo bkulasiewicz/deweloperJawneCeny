@@ -47,7 +47,7 @@ class UJC_Automated_Generator {
         if ($result['success']) {
             $this->settings_repository->setLastGenerationStatus('success');
             $this->settings_repository->setLastGenerationTime();
-            error_log('UJC: Pliki wygenerowane ręcznie o ' . date('Y-m-d H:i:s'));
+            error_log('UJC: Pliki wygenerowane ręcznie o ' . gmdate('Y-m-d H:i:s'));
         } else {
             $this->settings_repository->setLastGenerationStatus($result['error']);
             $this->settings_repository->setLastGenerationTime();

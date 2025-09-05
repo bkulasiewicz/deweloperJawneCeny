@@ -33,6 +33,7 @@ class ToggleExternalCronUseCase {
      */
     public function execute($enable, $schedule = '24hour') {
         try {
+            error_log("UJC ToggleExternalCronUseCase: Starting execute() with enable=" . ($enable ? 'true' : 'false') . ", schedule=" . $schedule);
             
             // Validate prerequisites before enabling
             if ($enable) {
@@ -41,16 +42,21 @@ class ToggleExternalCronUseCase {
                     error_log("UJC ToggleExternalCronUseCase: validation failed - " . $validation_result['message']);
                     return $validation_result;
                 }
+                error_log("UJC ToggleExternalCronUseCase: validation passed");
             }
             
             if ($enable) {
                 // Enable external cron - register with cron-job.org using provided schedule
+                error_log("UJC ToggleExternalCronUseCase: calling registerUseCase->execute()");
                 $result = $this->registerUseCase->execute($schedule);
+                error_log("UJC ToggleExternalCronUseCase: registerUseCase returned - success: " . ($result['success'] ? 'true' : 'false') . ", message: " . $result['message']);
                 
                 return $result;
             } else {
                 // Disable external cron - unregister from cron-job.org
+                error_log("UJC ToggleExternalCronUseCase: calling unregisterUseCase->execute()");
                 $result = $this->unregisterUseCase->execute();
+                error_log("UJC ToggleExternalCronUseCase: unregisterUseCase returned - success: " . ($result['success'] ? 'true' : 'false') . ", message: " . $result['message']);
                 
                 return $result;
             }
@@ -90,10 +96,11 @@ class ToggleExternalCronUseCase {
             $errors[] = 'Brak nieruchomości. Dodaj przynajmniej jedną nieruchomość w zakładce "Zasoby"';
         }
         
-        // Check file directory permissions
+        
         $upload_dir = wp_upload_dir();
         $ujc_dir = $upload_dir['basedir'] . '/ujc-data';
-        if (!is_dir($ujc_dir) || !is_writable($ujc_dir)) {
+        global $wp_filesystem;
+        if (!$wp_filesystem->is_dir($ujc_dir) || !$wp_filesystem->is_writable($ujc_dir)) {
             $errors[] = 'Katalog plików nie istnieje lub nie ma uprawnień do zapisu';
         }
         

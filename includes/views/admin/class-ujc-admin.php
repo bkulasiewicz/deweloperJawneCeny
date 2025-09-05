@@ -100,10 +100,6 @@ class UJC_Admin {
     }
     
     public function enqueue_admin_scripts($hook) {
-        if (strpos($hook, 'ujc-') === false) {
-            return;
-        }
-        
         wp_enqueue_script('ujc-admin-js', PLUGIN_URL . 'assets/admin.js', ['jquery'], VERSION, true);
         wp_enqueue_style('ujc-admin-css', PLUGIN_URL . 'assets/admin.css', [], VERSION);
         

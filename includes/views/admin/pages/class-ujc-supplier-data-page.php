@@ -285,7 +285,7 @@ class UJC_Supplier_Data_Page extends UJC_Admin_Page {
             <?php endif; ?>
                 
                 <form id="developer-form" method="post">
-                    <?php wp_nonce_field('ujc_admin_nonce', 'ujc_nonce'); ?>
+                    <?php wp_nonce_field('ujc_admin_nonce', 'nonce'); ?>
                     
                     <!-- Dane podstawowe -->
                     <div class="ujc-form-section">

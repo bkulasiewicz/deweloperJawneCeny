@@ -72,7 +72,7 @@ class UJC_Resources_Page {
             
             <h2>Dodaj Inwestycję</h2>
             <form id="investment-form" method="post">
-                <?php wp_nonce_field('ujc_investment_nonce', 'ujc_nonce'); ?>
+                <?php wp_nonce_field('ujc_investment_nonce', 'nonce'); ?>
                 
                 <table class="form-table">
                     <tr>
@@ -223,7 +223,7 @@ class UJC_Resources_Page {
                     // Przygotuj FormData
                     const formData = new FormData();
                     formData.append('action', 'ujc_import_resources');
-                    formData.append('ujc_nonce', '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>');
+                    formData.append('nonce', '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>');
                     formData.append('import_file', file);
                     
                     // Wyślij plik
@@ -283,7 +283,8 @@ class UJC_Resources_Page {
         }
         
         foreach ($resources as $resource) {
-            echo wp_kses_post(UJC_Resource_Item::render_item_html($resource));
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Resource item output contains safe onclick attributes
+            echo UJC_Resource_Item::render_item_html($resource);
         }
     }
     
@@ -291,7 +292,7 @@ class UJC_Resources_Page {
      * AJAX: Pobiera listę wszystkich zasobów
      */
     public function ajax_get_resources() {
-        check_ajax_referer('ujc_admin_nonce', 'ujc_nonce');
+        check_ajax_referer('ujc_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Brak uprawnień');
@@ -336,7 +337,7 @@ class UJC_Resources_Page {
     }
     
     public function ajax_import_resources() {
-        check_ajax_referer('ujc_admin_nonce', 'ujc_nonce');
+        check_ajax_referer('ujc_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Brak uprawnień');

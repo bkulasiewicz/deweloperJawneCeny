@@ -80,7 +80,7 @@ class ExternalCronController {
                     'message' => 'Files generated successfully',
                     'timestamp' => current_time('c'),
                     'execution_time' => $execution_time,
-                    'domain' => parse_url(get_site_url(), PHP_URL_HOST),
+                    'domain' => wp_parse_url(get_site_url(), PHP_URL_HOST),
                     'files' => [
                         'csv' => $csv_file,
                         'xml' => $xml_file

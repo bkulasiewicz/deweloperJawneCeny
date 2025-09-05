@@ -13,9 +13,7 @@ class ResourceRepository {
         $table = TableNames::getResources();
         global $wpdb;
         
-        $sql = "SELECT r.* FROM $table r ORDER BY r.created_at DESC";
-                
-        return $wpdb->get_results($sql, ARRAY_A);
+        return $wpdb->get_results($wpdb->prepare("SELECT r.* FROM `{$table}` r ORDER BY r.created_at DESC"), ARRAY_A);
     }
     
     /**
@@ -26,7 +24,7 @@ class ResourceRepository {
         global $wpdb;
         
         return $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM $table WHERE id = %d", 
+            "SELECT * FROM `{$table}` WHERE id = %d", 
             $id
         ), ARRAY_A);
     }

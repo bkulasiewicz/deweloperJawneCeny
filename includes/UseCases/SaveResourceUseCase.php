@@ -71,13 +71,13 @@ class SaveResourceUseCase {
         if (!empty($data['nr_lokalu'])) {
             if ($exclude_id) {
                 $existing = $wpdb->get_var($wpdb->prepare(
-                    "SELECT COUNT(*) FROM $table WHERE nr_lokalu = %s AND id != %d",
+                    "SELECT COUNT(*) FROM `{$table}` WHERE nr_lokalu = %s AND id != %d",
                     $data['nr_lokalu'],
                     $exclude_id
                 ));
             } else {
                 $existing = $wpdb->get_var($wpdb->prepare(
-                    "SELECT COUNT(*) FROM $table WHERE nr_lokalu = %s",
+                    "SELECT COUNT(*) FROM `{$table}` WHERE nr_lokalu = %s",
                     $data['nr_lokalu']
                 ));
             }

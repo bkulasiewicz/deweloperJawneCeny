@@ -39,7 +39,7 @@ class RegisterExternalCronUseCase {
             // Prepare job data
             $site_url = get_site_url();
             $endpoint = $site_url . '/wp-json/ujc/v1/external-cron';
-            $domain = parse_url($site_url, PHP_URL_HOST);
+            $domain = wp_parse_url($site_url, PHP_URL_HOST);
             $title = $domain;
             
             // Get schedule configuration
@@ -98,6 +98,7 @@ class RegisterExternalCronUseCase {
      * @return array ['success' => bool, 'message' => string]
      */
     private function validatePrerequisites() {
+        global $wp_filesystem;
         $errors = [];
         
         // Check if external cron is already enabled
@@ -126,7 +127,7 @@ class RegisterExternalCronUseCase {
         // Check file directory permissions
         $upload_dir = wp_upload_dir();
         $ujc_dir = $upload_dir['basedir'] . '/ujc-data';
-        if (!is_dir($ujc_dir) || !is_writable($ujc_dir)) {
+        if (!$wp_filesystem->is_dir($ujc_dir) || !$wp_filesystem->is_writable($ujc_dir)) {
             $errors[] = 'Katalog plików nie istnieje lub nie ma uprawnień do zapisu';
         }
         

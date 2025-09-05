@@ -12,7 +12,7 @@ class DeveloperRepository {
     public function read() {
         $table = TableNames::getDeveloperInfo();        
         global $wpdb;
-        return $wpdb->get_row("SELECT * FROM $table LIMIT 1", ARRAY_A);
+        return $wpdb->get_row("SELECT * FROM `{$table}` LIMIT 1", ARRAY_A);
     }
     
     /**

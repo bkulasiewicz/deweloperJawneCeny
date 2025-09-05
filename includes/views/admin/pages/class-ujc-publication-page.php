@@ -210,7 +210,7 @@ class UJC_Publication_Page {
             echo '<tr>';
             echo '<td>' . esc_html($entry->getFormattedDate()) . '</td>';
             echo '<td>' . esc_html($entry->getTriggerTypeLabel()) . '</td>';
-            echo '<td>' . wp_kses_post($entry->getStatusIcon()) . ' ';
+            echo '<td>' . esc_html($entry->getStatusIcon()) . ' ';
             echo '<span style="color: ' . ($entry->status === 'success' ? '#007600' : '#d63638') . ';">';
             echo esc_html($entry->getStatusLabel());
             echo '</span></td>';

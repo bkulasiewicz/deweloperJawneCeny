@@ -50,14 +50,12 @@ class PublicationHistoryRepository {
     public function getHistory($limit = 50) {
         global $wpdb;
         
-        $query = $wpdb->prepare(
-            "SELECT * FROM {$this->table_name} 
+        return $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM `{$this->table_name}` 
              ORDER BY timestamp DESC 
              LIMIT %d",
             $limit
-        );
-        
-        return $wpdb->get_results($query, ARRAY_A);
+        ), ARRAY_A);
     }
     
     /**
@@ -81,11 +79,9 @@ class PublicationHistoryRepository {
     public function getLastEntry() {
         global $wpdb;
         
-        $query = "SELECT * FROM {$this->table_name} 
+        return $wpdb->get_row($wpdb->prepare("SELECT * FROM `{$this->table_name}` 
                   ORDER BY timestamp DESC 
-                  LIMIT 1";
-        
-        return $wpdb->get_row($query, ARRAY_A);
+                  LIMIT %d", 1), ARRAY_A);
     }
     
     /**
@@ -98,14 +94,12 @@ class PublicationHistoryRepository {
         global $wpdb;
         
         if ($status) {
-            $query = $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$this->table_name} WHERE status = %s",
+            return (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM `{$this->table_name}` WHERE status = %s",
                 $status
-            );
+            ));
         } else {
-            $query = "SELECT COUNT(*) FROM {$this->table_name}";
+            return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `{$this->table_name}`"));
         }
-        
-        return (int) $wpdb->get_var($query);
     }
 }

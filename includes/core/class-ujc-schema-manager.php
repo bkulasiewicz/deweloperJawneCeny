@@ -62,7 +62,7 @@ class UJC_Schema_Manager {
             return;
         }
         
-        $sql = "CREATE TABLE %s (
+        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
             id int(11) NOT NULL AUTO_INCREMENT,
             nazwa varchar(255) NOT NULL,
             forma_prawna varchar(100),
@@ -100,9 +100,7 @@ class UJC_Schema_Manager {
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id)
-        ) %s;";
-        
-        $wpdb->query($wpdb->prepare($sql, $table, $charset_collate));
+        ) %s", $charset_collate));
     }
     
     private static function create_investment_table($wpdb, $charset_collate) {
@@ -112,7 +110,7 @@ class UJC_Schema_Manager {
             return;
         }
         
-        $sql = "CREATE TABLE %s (
+        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
             id int(11) NOT NULL AUTO_INCREMENT,
             name varchar(255) NOT NULL,
             proj_wojewodztwo varchar(50) NOT NULL,
@@ -126,9 +124,7 @@ class UJC_Schema_Manager {
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id)
-        ) %s;";
-        
-        $wpdb->query($wpdb->prepare($sql, $table, $charset_collate));
+        ) %s", $charset_collate));
     }
     
     private static function create_resources_table($wpdb, $charset_collate) {
@@ -138,7 +134,7 @@ class UJC_Schema_Manager {
             return;
         }
         
-        $sql = "CREATE TABLE %s (
+        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
             id int(11) NOT NULL AUTO_INCREMENT,
             
             rodzaj_nieruchomosci enum('Lokal mieszkalny', 'Dom jednorodzinny', 'Miejsce postojowe', 'Komórka lokatorska', 'Część nieruchomości', 'Garaż') NOT NULL,
@@ -166,9 +162,7 @@ class UJC_Schema_Manager {
             
             PRIMARY KEY (id),
             KEY status (status)
-        ) %s;";
-        
-        $wpdb->query($wpdb->prepare($sql, $table, $charset_collate));
+        ) %s", $charset_collate));
     }
     
     
@@ -179,7 +173,7 @@ class UJC_Schema_Manager {
             return;
         }
         
-        $sql = "CREATE TABLE %s (
+        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
             id int(11) NOT NULL AUTO_INCREMENT,
             resource_id int(11) NOT NULL,
             
@@ -200,9 +194,7 @@ class UJC_Schema_Manager {
             PRIMARY KEY (id),
             KEY resource_id (resource_id),
             KEY data_zmiany (data_zmiany)
-        ) %s;";
-        
-        $wpdb->query($wpdb->prepare($sql, $table, $charset_collate));
+        ) %s", $charset_collate));
     }
     
     private static function create_publication_history_table($wpdb, $charset_collate) {
@@ -212,7 +204,7 @@ class UJC_Schema_Manager {
             return;
         }
         
-        $sql = "CREATE TABLE %s (
+        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
             id int(11) NOT NULL AUTO_INCREMENT,
             timestamp int(11) NOT NULL,
             status varchar(20) NOT NULL,
@@ -222,9 +214,7 @@ class UJC_Schema_Manager {
             PRIMARY KEY (id),
             KEY timestamp (timestamp),
             KEY status (status)
-        ) %s;";
-        
-        $wpdb->query($wpdb->prepare($sql, $table, $charset_collate));
+        ) %s", $charset_collate));
     }
     
     private static function create_foreign_keys($wpdb) {
