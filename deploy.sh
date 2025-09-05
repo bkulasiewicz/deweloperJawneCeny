@@ -65,7 +65,6 @@ rsync -av --exclude='build' --exclude='.git' --exclude='includes/premium' "${SCR
 
 # Update plugin header for freemium
 sed -i.bak 's/Plugin Name: DeweloperJawneCeny/Plugin Name: Deweloper Jawne Ceny - Free/' "${FREEMIUM_DIR}/ustawa-jawnosci-cen.php"
-sed -i.bak "s/Version: ${VERSION}/Version: ${VERSION}-free/" "${FREEMIUM_DIR}/ustawa-jawnosci-cen.php"
 sed -i.bak 's/Description: Plugin do automatyzacji/Description: Darmowa wersja - ręczne generowanie plików zgodnie z ustawą/' "${FREEMIUM_DIR}/ustawa-jawnosci-cen.php"
 
 # Cleanup

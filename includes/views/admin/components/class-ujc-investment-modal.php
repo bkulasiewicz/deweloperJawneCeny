@@ -267,7 +267,7 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
     public function ajax_get_investment() {
         error_log('UJC: ajax_get_investment started');
         
-        if (!$this->verify_nonce('nonce')) {
+        if (!$this->verify_nonce()) {
             error_log('UJC: nonce verification failed');
             return;
         }
@@ -297,7 +297,7 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
     public function ajax_update_investment() {
         error_log('UJC: ajax_update_investment started');
         
-        if (!$this->verify_nonce('nonce')) {
+        if (!$this->verify_nonce()) {
             error_log('UJC: nonce verification failed in update');
             return;
         }

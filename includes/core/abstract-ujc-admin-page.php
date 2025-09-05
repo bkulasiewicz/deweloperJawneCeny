@@ -38,7 +38,7 @@ abstract class UJC_Admin_Page {
     /**
      * Weryfikacja nonce
      */
-    protected function verify_nonce($nonce_field = 'ujc_nonce', $nonce_action = 'ujc_admin_nonce') {
+    protected function verify_nonce($nonce_field = 'nonce', $nonce_action = 'ujc_admin_nonce') {
         $nonce = $_POST[$nonce_field] ?? '';
         
         if (empty($nonce)) {

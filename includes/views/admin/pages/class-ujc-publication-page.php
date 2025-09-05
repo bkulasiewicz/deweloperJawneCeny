@@ -19,10 +19,13 @@ class UJC_Publication_Page {
     }
     
     public function ajax_generate_files() {
+        error_log('PUBLICATION PAGE: ajax_generate_files started');
         check_ajax_referer('ujc_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
         
+        error_log('PUBLICATION PAGE: Starting GenerateFilesUseCase execution');
         $result = $this->generateFilesUseCase->execute(TriggerType::Manual);
+        error_log('PUBLICATION PAGE: GenerateFilesUseCase result: ' . ($result['success'] ? 'SUCCESS' : 'FAILED'));
         
         if ($result['success']) {
             wp_send_json_success($result['message']);

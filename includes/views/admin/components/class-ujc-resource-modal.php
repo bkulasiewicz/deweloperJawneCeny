@@ -501,7 +501,7 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
         error_log('UJC: ajax_save_resource started');
         error_log('UJC: POST data: ' . print_r($_POST, true));
         
-        if (!$this->verify_nonce('nonce')) {
+        if (!$this->verify_nonce()) {
             error_log('UJC: save resource - nonce verification failed');
             wp_send_json_error('Błąd weryfikacji bezpieczeństwa.');
             return;
@@ -539,7 +539,7 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
     public function ajax_get_resource() {
         error_log('UJC: ajax_get_resource started');
         
-        if (!$this->verify_nonce('nonce')) {
+        if (!$this->verify_nonce()) {
             error_log('UJC: nonce verification failed');
             return;
         }
@@ -569,7 +569,7 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
     }
     
     public function ajax_update_resource() {
-        if (!$this->verify_nonce('nonce')) return;
+        if (!$this->verify_nonce()) return;
         if (!$this->check_permissions()) return;
         
         try {

@@ -49,6 +49,7 @@ class CreateDaneGovSubmissionFilesUseCase {
             
             // Utwórz model danych z zwalidowanymi danymi
             error_log('CreateDaneGov: Creating dataset model...');
+            error_log('CreateDaneGov: CSV URL being passed to dataset: ' . $developer_data['csv_url']);
             $dataset = new DaneGovXmlDataset(
                 $developer_data['developer_name'],
                 $developer_data['nip']
@@ -58,6 +59,10 @@ class CreateDaneGovSubmissionFilesUseCase {
                 $developer_data['nip'],
                 $developer_data['csv_url']
             );
+            error_log('CreateDaneGov: Dataset resources count after addResource: ' . count($dataset->resources));
+            if (!empty($dataset->resources)) {
+                error_log('CreateDaneGov: First resource URL in dataset: ' . $dataset->resources[0]->url);
+            }
             
             // Generuj XML - XMLFormatter TYLKO formatuje, NIE waliduje
             error_log('CreateDaneGov: Generating XML content...');

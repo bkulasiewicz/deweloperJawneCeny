@@ -140,11 +140,11 @@ class FileManager {
     }
     
     /**
-     * Ensure base directory exists
+     * Ensure base directory exists and has proper .htaccess for no-cache XML
      */
     public function ensureDirectoryExists(): bool {
         if (!is_dir($this->baseDirectory)) {
-            return wp_mkdir_p($this->baseDirectory);
+            wp_mkdir_p($this->baseDirectory);
         }
         
         global $wp_filesystem;
@@ -152,7 +152,32 @@ class FileManager {
             throw new Exception(sprintf('Directory not writable: %s', esc_html($this->baseDirectory)));
         }
         
+        // Create .htaccess to prevent XML caching
+        $this->ensureHtaccessExists();
+        
         return true;
+    }
+    
+    /**
+     * Create .htaccess file to prevent caching of XML files
+     */
+    private function ensureHtaccessExists(): void {
+        $htaccess_path = $this->baseDirectory . '/.htaccess';
+        
+        global $wp_filesystem;
+        if (!$wp_filesystem->exists($htaccess_path)) {
+            $htaccess_content = "# Prevent caching of XML files for data freshness\n";
+            $htaccess_content .= "<Files \"*.xml\">\n";
+            $htaccess_content .= "    Header set Cache-Control \"no-cache, no-store, must-revalidate\"\n";
+            $htaccess_content .= "    Header set Pragma \"no-cache\"\n";
+            $htaccess_content .= "    Header set Expires 0\n";
+            $htaccess_content .= "</Files>\n\n";
+            $htaccess_content .= "# Allow direct access to CSV and XML files\n";
+            $htaccess_content .= "Order Allow,Deny\n";
+            $htaccess_content .= "Allow from all\n";
+            
+            $wp_filesystem->put_contents($htaccess_path, $htaccess_content, FS_CHMOD_FILE);
+        }
     }
     
     /**

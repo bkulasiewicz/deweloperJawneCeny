@@ -145,8 +145,15 @@ class UJC_Supplier_Data_Page extends UJC_Admin_Page {
     }
     
     public function ajax_save_developer() {
-        if (!$this->verify_nonce()) return;
-        if (!$this->check_permissions()) return;
+        if (!$this->verify_nonce()) {
+            wp_send_json_error('Weryfikacja bezpieczeństwa nie powiodła się.');
+            return;
+        }
+        
+        if (!$this->check_permissions()) {
+            wp_send_json_error('Brak uprawnień do wykonania tej operacji.');
+            return;
+        }
         
         $result = $this->saveDeveloperInfoUseCase->execute($_POST);
         
