@@ -41,14 +41,14 @@ class UnregisterExternalCronUseCase {
             $this->cleanupLocalSettings();
             
             if ($result['success']) {
-                error_log("UJC: Unregistered from cron-job.org, Job ID: {$job_id}");
+                Logger::success("UJC: Unregistered from cron-job.org, Job ID: {$job_id}");
                 return [
                     'success' => true,
                     'message' => '✅ External Cron został pomyślnie dezaktywowany'
                 ];
             } else {
                 // Log error but still return success since local cleanup was done
-                error_log('UJC: Failed to unregister from cron-job.org: ' . $result['message']);
+                Logger::error('UJC: Failed to unregister from cron-job.org: ' . $result['message']);
                 return [
                     'success' => true,
                     'message' => '✅ External Cron został dezaktywowany lokalnie (błąd usuwania z cron-job.org)'
@@ -56,7 +56,7 @@ class UnregisterExternalCronUseCase {
             }
             
         } catch (Exception $e) {
-            error_log('UJC UnregisterExternalCronUseCase Error: ' . $e->getMessage());
+            Logger::error('UJC UnregisterExternalCronUseCase Error: ' . $e->getMessage());
             // Still try to clean up local settings
             $this->cleanupLocalSettings();
             return [

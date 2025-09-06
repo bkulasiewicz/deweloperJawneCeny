@@ -27,29 +27,29 @@ class CreateDaneGovSubmissionFilesUseCase {
      * @return array ['success' => bool, 'message' => string, 'files' => array|null, 'error' => string|null]
      */
     public function createSubmissionFiles($csv_url = null) {
-        error_log('CreateDaneGov: Starting XML/MD5 files creation with CSV URL: ' . ($csv_url ?? 'null'));
+        Logger::info('CreateDaneGov: Starting XML/MD5 files creation with CSV URL: ' . ($csv_url ?? 'null'));
         
         try {
             // KRYTYCZNA WALIDACJA - wszystko w jednym miejscu
-            error_log('CreateDaneGov: Starting validation...');
+            Logger::info('CreateDaneGov: Starting validation...');
             $validation_result = $this->validateDataForSubmission($csv_url);
             if (!$validation_result['valid']) {
                 $error_msg = implode('. ', $validation_result['errors']);
-                error_log('CreateDaneGov: Validation FAILED: ' . $error_msg);
+                Logger::error('CreateDaneGov: Validation FAILED: ' . $error_msg);
                 return [
                     'success' => false,
                     'error' => $error_msg
                 ];
             }
-            error_log('CreateDaneGov: Validation SUCCESS');
+            Logger::success('CreateDaneGov: Validation SUCCESS');
             
             // Pobierz zwalidowane dane
             $developer_data = $validation_result['data'];
-            error_log('CreateDaneGov: Developer data validated - Name: ' . ($developer_data['developer_name'] ?? 'unknown') . ', NIP: ' . ($developer_data['nip'] ?? 'unknown'));
+            Logger::info('CreateDaneGov: Developer data validated - Name: ' . ($developer_data['developer_name'] ?? 'unknown') . ', NIP: ' . ($developer_data['nip'] ?? 'unknown'));
             
             // Utwórz model danych z zwalidowanymi danymi
-            error_log('CreateDaneGov: Creating dataset model...');
-            error_log('CreateDaneGov: CSV URL being passed to dataset: ' . $developer_data['csv_url']);
+            Logger::info('CreateDaneGov: Creating dataset model...');
+            Logger::info('CreateDaneGov: CSV URL being passed to dataset: ' . $developer_data['csv_url']);
             $dataset = new DaneGovXmlDataset(
                 $developer_data['developer_name'],
                 $developer_data['nip']
@@ -59,26 +59,26 @@ class CreateDaneGovSubmissionFilesUseCase {
                 $developer_data['nip'],
                 $developer_data['csv_url']
             );
-            error_log('CreateDaneGov: Dataset resources count after addResource: ' . count($dataset->resources));
+            Logger::info('CreateDaneGov: Dataset resources count after addResource: ' . count($dataset->resources));
             if (!empty($dataset->resources)) {
-                error_log('CreateDaneGov: First resource URL in dataset: ' . $dataset->resources[0]->url);
+                Logger::info('CreateDaneGov: First resource URL in dataset: ' . $dataset->resources[0]->url);
             }
             
             // Generuj XML - XMLFormatter TYLKO formatuje, NIE waliduje
-            error_log('CreateDaneGov: Generating XML content...');
+            Logger::info('CreateDaneGov: Generating XML content...');
             $xmlContent = $this->xmlFormatter->formatDatasetToXML($dataset);
             
             // Generate filename
             $filename = $this->fileManager->generateXMLFilename();
-            error_log('CreateDaneGov: Generated XML filename: ' . $filename);
+            Logger::info('CreateDaneGov: Generated XML filename: ' . $filename);
             
             // Save XML to file (with MD5)
-            error_log('CreateDaneGov: Saving XML and MD5 files...');
+            Logger::info('CreateDaneGov: Saving XML and MD5 files...');
             $xml_result = $this->fileManager->saveXML($xmlContent, $filename);
             
-            error_log('CreateDaneGov: Files saved successfully');
+            Logger::success('CreateDaneGov: Files saved successfully');
             
-            error_log('CreateDaneGov: Returning SUCCESS response');
+            Logger::success('CreateDaneGov: Returning SUCCESS response');
             
             return [
                 'success' => true,
@@ -88,7 +88,7 @@ class CreateDaneGovSubmissionFilesUseCase {
             
         } catch (Exception $e) {
             $error_msg = $this->getDetailedErrorMessage($e);
-            error_log('CreateDaneGov: EXCEPTION caught: ' . $error_msg);
+            Logger::error('CreateDaneGov: EXCEPTION caught: ' . $error_msg);
             
             return [
                 'success' => false,

@@ -67,7 +67,7 @@ class RegisterExternalCronUseCase {
                 // Disable WordPress cron
                 wp_clear_scheduled_hook('ujc_generate_files_cycle');
                 
-                error_log("UJC: Registered with cron-job.org, Job ID: {$result['job_id']}, Schedule: {$schedule}");
+                Logger::success("UJC: Registered with cron-job.org, Job ID: {$result['job_id']}, Schedule: {$schedule}");
                 
                 return [
                     'success' => true,
@@ -83,7 +83,7 @@ class RegisterExternalCronUseCase {
             }
             
         } catch (Exception $e) {
-            error_log('UJC RegisterExternalCronUseCase Error: ' . $e->getMessage());
+            Logger::error('UJC RegisterExternalCronUseCase Error: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => 'Błąd serwera: ' . $e->getMessage(),

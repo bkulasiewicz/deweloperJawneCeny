@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 /**
  * Komponent pojedynczego itemu zasobu na liście
  */
-class UJC_Resource_Item {
+class ResourceItem {
     
     /**
      * Renderuje HTML dla pojedynczego zasobu

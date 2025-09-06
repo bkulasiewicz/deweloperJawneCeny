@@ -3,7 +3,7 @@
  * Plugin Name: Deweloper Jawne Ceny
  * Plugin URI: https://www.deweloperjawneceny.pl/
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
- * Version: 1.29.0
+ * Version: 1.31.5
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -26,7 +26,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.1');
-define('VERSION', '1.29.0');
+define('VERSION', '1.31.5');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -69,6 +69,9 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/models/DaneGovXmlDataset.php';
         require_once PLUGIN_DIR . 'includes/models/PublicationHistoryEntry.php';
         
+        // Helpers
+        require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
+        
         // Services
         require_once PLUGIN_DIR . 'includes/services/DateHelper.php';
         require_once PLUGIN_DIR . 'includes/services/CSVFormatter.php';
@@ -104,20 +107,20 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/UseCases/GenerateFilesUseCase.php';
         
         // Views - Admin Components
-        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-modal.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-investment-modal.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-resource-item.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/components/class-ujc-history-modal.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/ResourceModal.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/InvestmentModal.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/ResourceItem.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/HistoryModal.php';
         
         // Dashboard Components
         require_once PLUGIN_DIR . 'includes/views/admin/Dashboard/AutomationTile.php';
         require_once PLUGIN_DIR . 'includes/views/admin/Dashboard/HistoryTile.php';
         
         // Views - Admin Pages
-        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-dashboard-page.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-supplier-data-page.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-resources-page.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-publication-page.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/DashboardPage.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/SupplierDataPage.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/ResourcesPage.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/PublicationPage.php';
         require_once PLUGIN_DIR . 'includes/views/admin/pages/DevConsoleTile.php';
         
         // Blocks
@@ -140,6 +143,9 @@ class DeweloperJawneCeny {
         
         // Initialize WordPress Filesystem
         WP_Filesystem();
+        
+        // Initialize Logger
+        Logger::init();
     }
     
     
@@ -175,8 +181,12 @@ class DeweloperJawneCeny {
     public function activate() {
         try {
             require_once PLUGIN_DIR . 'includes/config/TableNames.php';
+            require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
             require_once PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
             require_once PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
+            
+            // Initialize Logger before using it
+            Logger::init();
             
             UJC_Schema_Manager::create_tables();
             
@@ -190,7 +200,7 @@ class DeweloperJawneCeny {
             $settings_repository->setDbVersion(DB_VERSION);
             
         } catch (Exception $e) {
-            error_log('UJC Activation Error: ' . $e->getMessage());
+            Logger::error('UJC Activation Error: ' . $e->getMessage());
         }
     }
     

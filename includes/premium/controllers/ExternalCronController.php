@@ -44,36 +44,36 @@ class ExternalCronController {
         $start_time = microtime(true);
         $client_ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         
-        error_log('External cron request started from IP: ' . $client_ip);
+        Logger::info('External cron request started from IP: ' . $client_ip);
         
         try {
             // Simple security check
             if (!$this->is_valid_cronjoborg_request()) {
-                error_log('External cron access denied for IP: ' . $client_ip);
+                Logger::error('External cron access denied for IP: ' . $client_ip);
                 return new WP_Error('access_denied', 'Access denied', ['status' => 401]);
             }
             
             // Rate limiting - max 3 calls per 5 minutes
             if (!$this->check_rate_limit()) {
-                error_log('External cron rate limited for IP: ' . $client_ip);
+                Logger::error('External cron rate limited for IP: ' . $client_ip);
                 return new WP_Error('rate_limit', 'Too many requests', ['status' => 429]);
             }
             
-            error_log('External cron starting file generation...');
+            Logger::info('External cron starting file generation...');
             
             // Generate files using existing UseCase
             $result = $this->generateFilesUseCase->execute(TriggerType::ExternalCron);
             
             $execution_time = round(microtime(true) - $start_time, 2);
             
-            error_log('External cron file generation completed in ' . $execution_time . 's: ' . ($result['success'] ? 'SUCCESS' : 'FAILED'));
+            Logger::info('External cron file generation completed in ' . $execution_time . 's: ' . ($result['success'] ? 'SUCCESS' : 'FAILED'));
             
             // Return simple response
             if ($result['success']) {
                 $csv_file = isset($result['csv']['filename']) ? $result['csv']['filename'] : null;
                 $xml_file = isset($result['xml']['filename']) ? $result['xml']['filename'] : null;
                 
-                error_log('External cron returning SUCCESS response - CSV: ' . ($csv_file ?? 'none') . ', XML: ' . ($xml_file ?? 'none'));
+                Logger::success('External cron returning SUCCESS response - CSV: ' . ($csv_file ?? 'none') . ', XML: ' . ($xml_file ?? 'none'));
                 
                 return new WP_REST_Response([
                     'success' => true,
@@ -87,7 +87,7 @@ class ExternalCronController {
                     ]
                 ], 200);
             } else {
-                error_log('External cron returning ERROR response: ' . ($result['error'] ?? 'unknown error'));
+                Logger::error('External cron returning ERROR response: ' . ($result['error'] ?? 'unknown error'));
                 
                 return new WP_Error('generation_failed', $result['error'], [
                     'status' => 500,
@@ -96,7 +96,7 @@ class ExternalCronController {
             }
             
         } catch (Exception $e) {
-            error_log('External cron EXCEPTION: ' . $e->getMessage());
+            Logger::error('External cron EXCEPTION: ' . $e->getMessage());
             
             return new WP_Error('error', 'Error: ' . $e->getMessage(), [
                 'status' => 500,

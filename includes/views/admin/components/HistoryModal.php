@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 /**
  * Modal historii cen zasobów
  */
-class UJC_History_Modal {
+class HistoryModal {
     
     private $priceHistoryRepository;
     

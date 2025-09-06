@@ -45,6 +45,7 @@ class UJC_Schema_Manager {
         
         $tables = [
             TableNames::getPriceHistory(),
+            TableNames::getPublicationHistory(),
             TableNames::getResources(), 
             TableNames::getInvestmentInfo(),
             TableNames::getDeveloperInfo()
@@ -100,7 +101,7 @@ class UJC_Schema_Manager {
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id)
-        ) %s", $charset_collate));
+        ) " . $charset_collate));
     }
     
     private static function create_investment_table($wpdb, $charset_collate) {
@@ -124,7 +125,7 @@ class UJC_Schema_Manager {
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id)
-        ) %s", $charset_collate));
+        ) " . $charset_collate));
     }
     
     private static function create_resources_table($wpdb, $charset_collate) {
@@ -162,7 +163,7 @@ class UJC_Schema_Manager {
             
             PRIMARY KEY (id),
             KEY status (status)
-        ) %s", $charset_collate));
+        ) " . $charset_collate));
     }
     
     
@@ -194,11 +195,11 @@ class UJC_Schema_Manager {
             PRIMARY KEY (id),
             KEY resource_id (resource_id),
             KEY data_zmiany (data_zmiany)
-        ) %s", $charset_collate));
+        ) " . $charset_collate));
     }
     
     private static function create_publication_history_table($wpdb, $charset_collate) {
-        $table = $wpdb->prefix . 'publication_history';
+        $table = TableNames::getPublicationHistory();
         
         if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
             return;
@@ -214,7 +215,9 @@ class UJC_Schema_Manager {
             PRIMARY KEY (id),
             KEY timestamp (timestamp),
             KEY status (status)
-        ) %s", $charset_collate));
+        ) " . $charset_collate));
+        
+        Logger::success("Publication History: CREATE TABLE executed for table: {$table}");
     }
     
     private static function create_foreign_keys($wpdb) {
@@ -291,5 +294,34 @@ class UJC_Schema_Manager {
         
         // Włącz z powrotem sprawdzanie kluczy obcych
         $wpdb->query("SET FOREIGN_KEY_CHECKS=1");
+    }
+    
+    /**
+     * Usuwa tabelę publication_history i odtwarza ją
+     */
+    public static function reset_publication_history_table() {
+        global $wpdb;
+        $table = TableNames::getPublicationHistory();
+        
+        // Sprawdź czy tabela istnieje przed usunięciem
+        $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table)) == $table;
+        
+        if ($table_exists) {
+            // Użyj TRUNCATE do wyczyszczenia danych zamiast DROP+CREATE
+            $result = $wpdb->query("TRUNCATE TABLE `$table`");
+            if ($result !== false) {
+                Logger::success("Publication History Reset: TRUNCATE SUCCESS");
+            } else {
+                Logger::error("Publication History Reset: TRUNCATE FAILED - Error: " . $wpdb->last_error);
+                // Fallback: try to recreate table
+                Logger::info("Publication History Reset: Attempting table recreation as fallback");
+                $wpdb->query("DROP TABLE IF EXISTS `$table`");
+                self::create_publication_history_table($wpdb, $wpdb->get_charset_collate());
+            }
+        } else {
+            // Tabela nie istnieje, utwórz ją
+            Logger::info("Publication History Reset: Table doesn't exist, creating new one");
+            self::create_publication_history_table($wpdb, $wpdb->get_charset_collate());
+        }
     }
 }

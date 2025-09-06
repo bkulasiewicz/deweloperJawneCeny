@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 /**
  * Strona danych dostawcy - przeprojektowana z lepszym UX
  */
-class UJC_Supplier_Data_Page extends UJC_Admin_Page {
+class SupplierDataPage extends UJC_Admin_Page {
     
     private $saveDeveloperInfoUseCase;
     private $developerRepository;

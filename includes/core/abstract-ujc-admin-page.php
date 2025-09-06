@@ -29,7 +29,7 @@ abstract class UJC_Admin_Page {
      */
     protected function check_permissions() {
         if (!current_user_can($this->capabilities)) {
-            error_log('UJC: User lacks capabilities: ' . $this->capabilities);
+            Logger::error('UJC: User lacks capabilities: ' . $this->capabilities);
             return false;
         }
         return true;
@@ -42,12 +42,12 @@ abstract class UJC_Admin_Page {
         $nonce = $_POST[$nonce_field] ?? '';
         
         if (empty($nonce)) {
-            error_log('UJC: Empty nonce field: ' . $nonce_field);
+            Logger::error('UJC: Empty nonce field: ' . $nonce_field);
             return false;
         }
         
         if (!wp_verify_nonce($nonce, $nonce_action)) {
-            error_log('UJC: Nonce verification failed. Nonce: ' . $nonce . ', Action: ' . $nonce_action);
+            Logger::error('UJC: Nonce verification failed. Nonce: ' . $nonce . ', Action: ' . $nonce_action);
             return false;
         }
         

@@ -33,36 +33,36 @@ class ToggleExternalCronUseCase {
      */
     public function execute($enable, $schedule = '24hour') {
         try {
-            error_log("UJC ToggleExternalCronUseCase: Starting execute() with enable=" . ($enable ? 'true' : 'false') . ", schedule=" . $schedule);
+            Logger::info("UJC ToggleExternalCronUseCase: Starting execute() with enable=" . ($enable ? 'true' : 'false') . ", schedule=" . $schedule);
             
             // Validate prerequisites before enabling
             if ($enable) {
                 $validation_result = $this->validateBeforeEnable();
                 if (!$validation_result['success']) {
-                    error_log("UJC ToggleExternalCronUseCase: validation failed - " . $validation_result['message']);
+                    Logger::error("UJC ToggleExternalCronUseCase: validation failed - " . $validation_result['message']);
                     return $validation_result;
                 }
-                error_log("UJC ToggleExternalCronUseCase: validation passed");
+                Logger::info("UJC ToggleExternalCronUseCase: validation passed");
             }
             
             if ($enable) {
                 // Enable external cron - register with cron-job.org using provided schedule
-                error_log("UJC ToggleExternalCronUseCase: calling registerUseCase->execute()");
+                Logger::info("UJC ToggleExternalCronUseCase: calling registerUseCase->execute()");
                 $result = $this->registerUseCase->execute($schedule);
-                error_log("UJC ToggleExternalCronUseCase: registerUseCase returned - success: " . ($result['success'] ? 'true' : 'false') . ", message: " . $result['message']);
+                Logger::info("UJC ToggleExternalCronUseCase: registerUseCase returned - success: " . ($result['success'] ? 'true' : 'false') . ", message: " . $result['message']);
                 
                 return $result;
             } else {
                 // Disable external cron - unregister from cron-job.org
-                error_log("UJC ToggleExternalCronUseCase: calling unregisterUseCase->execute()");
+                Logger::info("UJC ToggleExternalCronUseCase: calling unregisterUseCase->execute()");
                 $result = $this->unregisterUseCase->execute();
-                error_log("UJC ToggleExternalCronUseCase: unregisterUseCase returned - success: " . ($result['success'] ? 'true' : 'false') . ", message: " . $result['message']);
+                Logger::info("UJC ToggleExternalCronUseCase: unregisterUseCase returned - success: " . ($result['success'] ? 'true' : 'false') . ", message: " . $result['message']);
                 
                 return $result;
             }
             
         } catch (Exception $e) {
-            error_log('UJC ToggleExternalCronUseCase Error: ' . $e->getMessage());
+            Logger::error('UJC ToggleExternalCronUseCase Error: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => 'Błąd serwera: ' . $e->getMessage()

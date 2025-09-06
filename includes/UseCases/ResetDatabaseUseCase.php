@@ -23,6 +23,14 @@ class ResetDatabaseUseCase {
     }
     
     /**
+     * Resetuje dane historii publikacji
+     */
+    public function resetPublicationHistoryData() {
+        UJC_Schema_Manager::reset_publication_history_table();
+        return 'Historia publikacji została zresetowana';
+    }
+    
+    /**
      * Resetuje wszystkie tabele z danymi
      */
     public function resetAllData() {

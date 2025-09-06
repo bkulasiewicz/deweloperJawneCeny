@@ -23,13 +23,13 @@ class UJC_Admin {
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
         
         // Wszystkie instancje tworzone w konstruktorze (klasy już załadowane w głównym loaderze)
-        $this->dashboard_page_instance = new UJC_Dashboard_Page();
-        $this->supplier_data_page_instance = new UJC_Supplier_Data_Page();
-        $this->resources_page_instance = new UJC_Resources_Page();
-        $this->publication_page_instance = new UJC_Publication_Page();
-        $this->resource_modal_instance = new UJC_Resource_Modal();
-        $this->investment_modal_instance = new UJC_Investment_Modal();
-        $this->history_modal_instance = new UJC_History_Modal();
+        $this->dashboard_page_instance = new DashboardPage();
+        $this->supplier_data_page_instance = new SupplierDataPage();
+        $this->resources_page_instance = new ResourcesPage();
+        $this->publication_page_instance = new PublicationPage();
+        $this->resource_modal_instance = new ResourceModal();
+        $this->investment_modal_instance = new InvestmentModal();
+        $this->history_modal_instance = new HistoryModal();
         $this->dev_console_instance = new DevConsoleTile();
         
         // AJAX handlers usunięte - są obsługiwane w głównym pliku pluginu

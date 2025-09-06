@@ -55,7 +55,7 @@ class SaveResourceUseCase {
                 try {
                     $this->price_history_repo->saveHistory($result, [], $data);
                 } catch (Exception $e) {
-                    error_log('UJC Resource: Price history error: ' . $e->getMessage());
+                    Logger::error('UJC Resource: Price history error: ' . $e->getMessage());
                 }
             }
         }

@@ -26,4 +26,9 @@ class TableNames {
         return $wpdb->prefix . 'price_history';
     }
     
+    public static function getPublicationHistory(): string {
+        global $wpdb;
+        return $wpdb->prefix . 'publication_history';
+    }
+    
 }

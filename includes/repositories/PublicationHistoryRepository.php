@@ -12,8 +12,18 @@ class PublicationHistoryRepository {
     private $table_name;
     
     public function __construct() {
+        $this->table_name = TableNames::getPublicationHistory();
+    }
+    
+    /**
+     * Check if publication history table exists
+     * 
+     * @return bool True if table exists
+     */
+    private function tableExists() {
         global $wpdb;
-        $this->table_name = $wpdb->prefix . 'publication_history';
+        $result = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $this->table_name));
+        return $result == $this->table_name;
     }
     
     /**
@@ -27,6 +37,14 @@ class PublicationHistoryRepository {
     public function addEntry($status, $message, $trigger_type) {
         global $wpdb;
         
+        // Check if table exists first
+        if (!$this->tableExists()) {
+            Logger::error("PublicationHistory: Table '{$this->table_name}' does not exist!");
+            return false;
+        }
+        
+        Logger::info("PublicationHistory: Inserting entry - Status: {$status}, Trigger: {$trigger_type}, Table: {$this->table_name}");
+        
         $result = $wpdb->insert(
             $this->table_name,
             [
@@ -38,7 +56,14 @@ class PublicationHistoryRepository {
             ['%d', '%s', '%s', '%s']
         );
         
-        return $result !== false;
+        if ($result === false) {
+            Logger::error("PublicationHistory: INSERT FAILED - Error: " . $wpdb->last_error);
+            Logger::error("PublicationHistory: Last query: " . $wpdb->last_query);
+            return false;
+        }
+        
+        Logger::success("PublicationHistory: INSERT SUCCESS - Inserted ID: " . $wpdb->insert_id);
+        return true;
     }
     
     /**
@@ -50,12 +75,31 @@ class PublicationHistoryRepository {
     public function getHistory($limit = 50) {
         global $wpdb;
         
-        return $wpdb->get_results($wpdb->prepare(
+        // Check if table exists first
+        if (!$this->tableExists()) {
+            Logger::error("PublicationHistory: Table '{$this->table_name}' does not exist for getHistory()!");
+            return [];
+        }
+        
+        Logger::info("PublicationHistory: Getting history from table: {$this->table_name}, limit: {$limit}");
+        
+        $results = $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM `{$this->table_name}` 
              ORDER BY timestamp DESC 
              LIMIT %d",
             $limit
         ), ARRAY_A);
+        
+        if ($results === null) {
+            Logger::error("PublicationHistory: SELECT FAILED - Error: " . $wpdb->last_error);
+            Logger::error("PublicationHistory: Last query: " . $wpdb->last_query);
+            return [];
+        }
+        
+        $count = is_array($results) ? count($results) : 0;
+        Logger::success("PublicationHistory: SELECT SUCCESS - Found {$count} entries");
+        
+        return $results ?: [];
     }
     
     /**

@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 /**
  * Strona główna (dashboard)
  */
-class UJC_Dashboard_Page {
+class DashboardPage {
     
     private $developerRepository;
     private $investmentRepository;
@@ -27,6 +27,7 @@ class UJC_Dashboard_Page {
         $this->historyTile = new HistoryTile();
         
         add_action('wp_ajax_ujc_manual_generation', [$this, 'ajax_manual_generation']);
+        add_action('wp_ajax_download_logs', [$this, 'ajax_download_logs']);
     }
     
     public function ajax_manual_generation() {
@@ -43,6 +44,32 @@ class UJC_Dashboard_Page {
             }
         } catch (Exception $e) {
             wp_send_json_error('Błąd generowania: ' . $e->getMessage());
+        }
+    }
+    
+    public function ajax_download_logs() {
+        check_ajax_referer('ujc_admin_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Brak uprawnień administratora');
+            return;
+        }
+        
+        try {
+            $log_content = Logger::getLogs();
+            
+            if (empty($log_content)) {
+                wp_send_json_error('Brak logów do pobrania');
+                return;
+            }
+            
+            wp_send_json_success([
+                'logs' => $log_content,
+                'filename' => 'ujc-logs-' . gmdate('Y-m-d-H-i-s') . '.txt'
+            ]);
+            
+        } catch (Exception $e) {
+            wp_send_json_error('Błąd pobierania logów: ' . $e->getMessage());
         }
     }
     
@@ -90,6 +117,23 @@ class UJC_Dashboard_Page {
                 ?>
             </div>
             
+            <!-- Minimalistyczny przycisk logów w prawym dolnym rogu -->
+            <div id="ujc-logs-btn" style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+                <button type="button" onclick="downloadLogs()" style="
+                    background: #f6f7f7; 
+                    border: 1px solid #dcdcde; 
+                    color: #646970; 
+                    font-size: 11px; 
+                    padding: 4px 8px; 
+                    border-radius: 3px; 
+                    cursor: pointer;
+                    opacity: 0.6;
+                    transition: opacity 0.2s;
+                " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'">
+                    Pobierz logi
+                </button>
+            </div>
+            
             <script>
             
             function manualGeneration() {
@@ -117,6 +161,28 @@ class UJC_Dashboard_Page {
                     alert('❌ Błąd połączenia: ' + error);
                     button.textContent = originalText;
                     button.disabled = false;
+                });
+            }
+            
+            function downloadLogs() {
+                const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
+                
+                jQuery.post(ajaxurl, {
+                    action: 'download_logs',
+                    nonce: nonce
+                }, function(response) {
+                    if (response.success) {
+                        // Utwórz i pobierz plik
+                        const blob = new Blob([response.data.logs], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = response.data.filename;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    }
+                }).fail(function(xhr, status, error) {
+                    console.error('Log download error:', error);
                 });
             }
             </script>

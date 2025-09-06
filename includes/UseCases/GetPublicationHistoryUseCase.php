@@ -23,16 +23,30 @@ class GetPublicationHistoryUseCase {
      */
     public function execute(int $limit = 50): array {
         try {
+            Logger::info("GetPublicationHistoryUseCase: Requesting {$limit} entries");
             $history = $this->repository->getHistory($limit);
             
+            $raw_count = count($history);
+            Logger::info("GetPublicationHistoryUseCase: Repository returned {$raw_count} raw entries");
+            
+            if (empty($history)) {
+                Logger::info("GetPublicationHistoryUseCase: No history entries found, returning empty array");
+                return [];
+            }
+            
             // Convert database rows to model objects
-            return array_map(
+            $models = array_map(
                 fn($entry) => PublicationHistoryEntry::fromArray($entry),
                 $history
             );
             
+            $model_count = count($models);
+            Logger::success("GetPublicationHistoryUseCase: Successfully converted {$model_count} entries to models");
+            
+            return $models;
+            
         } catch (Exception $e) {
-            error_log('GetPublicationHistoryUseCase Error: ' . $e->getMessage());
+            Logger::error('GetPublicationHistoryUseCase Error: ' . $e->getMessage());
             return [];
         }
     }

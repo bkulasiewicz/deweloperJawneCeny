@@ -71,7 +71,7 @@ class UpdateExternalCronScheduleUseCase {
             }
             
         } catch (Exception $e) {
-            error_log('UJC UpdateExternalCronScheduleUseCase Error: ' . $e->getMessage());
+            Logger::error('UJC UpdateExternalCronScheduleUseCase Error: ' . $e->getMessage());
             return [
                 'success' => false,
                 'message' => 'Błąd serwera: ' . $e->getMessage()

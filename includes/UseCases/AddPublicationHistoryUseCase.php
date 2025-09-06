@@ -24,11 +24,11 @@ class AddPublicationHistoryUseCase {
      * @return array Result with success status and message
      */
     public function execute(PublicationStatus $status, string $message, TriggerType $trigger_type) {
-        error_log('AddHistory: Attempting to add history entry - Status: ' . $status->value . ', Trigger: ' . $trigger_type->value . ', Message: ' . substr($message, 0, 100) . '...');
+        Logger::info('AddHistory: Attempting to add history entry - Status: ' . $status->value . ', Trigger: ' . $trigger_type->value . ', Message: ' . substr($message, 0, 100) . '...');
         
         try {
             // Add entry to history
-            error_log('AddHistory: Calling repository->addEntry...');
+            Logger::info('AddHistory: Calling repository->addEntry...');
             $result = $this->repository->addEntry(
                 $status->value,
                 $message,
@@ -36,13 +36,13 @@ class AddPublicationHistoryUseCase {
             );
             
             if ($result) {
-                error_log('AddHistory: Database insert SUCCESS');
+                Logger::success('AddHistory: Database insert SUCCESS');
                 return [
                     'success' => true,
                     'message' => 'Wpis dodany do historii publikacji'
                 ];
             } else {
-                error_log('AddHistory: Database insert FAILED - repository returned false');
+                Logger::error('AddHistory: Database insert FAILED - repository returned false');
                 return [
                     'success' => false,
                     'message' => 'Błąd podczas zapisywania do historii'
@@ -50,8 +50,8 @@ class AddPublicationHistoryUseCase {
             }
             
         } catch (Exception $e) {
-            error_log('AddHistory: EXCEPTION caught: ' . $e->getMessage());
-            error_log('AddPublicationHistoryUseCase Error: ' . $e->getMessage());
+            Logger::error('AddHistory: EXCEPTION caught: ' . $e->getMessage());
+            Logger::error('AddPublicationHistoryUseCase Error: ' . $e->getMessage());
             
             return [
                 'success' => false,

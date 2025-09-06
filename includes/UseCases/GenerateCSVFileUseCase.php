@@ -24,45 +24,45 @@ class GenerateCSVFileUseCase {
      * Execute CSV file generation
      */
     public function execute() {
-        error_log('GenerateCSV: Starting CSV generation process...');
+        Logger::info('GenerateCSV: Starting CSV generation process...');
         
         try {
             // Validation
-            error_log('GenerateCSV: Starting validation...');
+            Logger::info('GenerateCSV: Starting validation...');
             $validation_errors = $this->validateBeforeGeneration();
             if (!empty($validation_errors)) {
                 $error_msg = implode('. ', $validation_errors);
-                error_log('GenerateCSV: Validation FAILED: ' . $error_msg);
+                Logger::error('GenerateCSV: Validation FAILED: ' . $error_msg);
                 return [
                     'success' => false,
                     'error' => $error_msg
                 ];
             }
-            error_log('GenerateCSV: Validation SUCCESS');
+            Logger::success('GenerateCSV: Validation SUCCESS');
             
             // Get data
-            error_log('GenerateCSV: Fetching data from repositories...');
+            Logger::info('GenerateCSV: Fetching data from repositories...');
             $developer = $this->developerRepository->read();
             $investment = $this->investmentRepository->read();
             $resources = $this->resourceRepository->readAll();
             
-            error_log('GenerateCSV: Data fetched - Resources count: ' . count($resources));
+            Logger::info('GenerateCSV: Data fetched - Resources count: ' . count($resources));
             
             // Generate CSV content
-            error_log('GenerateCSV: Generating CSV content...');
+            Logger::info('GenerateCSV: Generating CSV content...');
             $csvRows = $this->csvFormatter->generate($developer, $investment, $resources);
             
             // Generate filename
             $filename = $this->fileManager->generateCSVFilename($developer);
-            error_log('GenerateCSV: Generated filename: ' . $filename);
+            Logger::info('GenerateCSV: Generated filename: ' . $filename);
             
             // Save CSV to file
-            error_log('GenerateCSV: Saving CSV to file...');
+            Logger::info('GenerateCSV: Saving CSV to file...');
             $csv_result = $this->fileManager->saveCSV($csvRows, $filename);
             
-            error_log('GenerateCSV: File saved successfully: ' . ($csv_result['filepath'] ?? 'unknown path'));
+            Logger::success('GenerateCSV: File saved successfully: ' . ($csv_result['filepath'] ?? 'unknown path'));
             
-            error_log('GenerateCSV: Returning SUCCESS response');
+            Logger::success('GenerateCSV: Returning SUCCESS response');
             
             return [
                 'success' => true,
@@ -72,7 +72,7 @@ class GenerateCSVFileUseCase {
             
         } catch (Exception $e) {
             $error_msg = $this->getDetailedErrorMessage($e);
-            error_log('GenerateCSV: EXCEPTION caught: ' . $error_msg);
+            Logger::error('GenerateCSV: EXCEPTION caught: ' . $error_msg);
             
             return [
                 'success' => false,

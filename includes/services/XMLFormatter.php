@@ -134,7 +134,7 @@ class XMLFormatter {
      * Add single resource element - używa TYLKO wartości z modelu
      */
     private function addSingleResourceFromModel(DOMDocument $xml, DOMElement $parent, DaneGovResource $resource): void {
-        error_log('XMLFormatter: Adding resource with URL: ' . $resource->url);
+        Logger::info('XMLFormatter: Adding resource with URL: ' . $resource->url);
         
         // Resource element
         $resourceEl = $xml->createElement('resource');
@@ -144,7 +144,7 @@ class XMLFormatter {
         // Podstawowe pola resource
         $this->addTextElement($xml, $resourceEl, 'extIdent', $resource->extIdent);
         $this->addTextElement($xml, $resourceEl, 'url', $resource->url);
-        error_log('XMLFormatter: Added URL to XML: ' . $resource->url);
+        Logger::success('XMLFormatter: Added URL to XML: ' . $resource->url);
         
         // Title i Description (dwujęzyczne) - z modelu
         $this->addResourceTitleFromModel($xml, $resourceEl, $resource->title);

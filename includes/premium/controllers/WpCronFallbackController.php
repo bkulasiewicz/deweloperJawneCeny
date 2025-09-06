@@ -47,7 +47,7 @@ class WpCronFallbackController {
             // Calculate next 13:00 UTC
             $next_run = $this->get_next_13_utc();
             wp_schedule_event($next_run, self::CRON_SCHEDULE, self::CRON_HOOK);
-            error_log('WP Cron Fallback: Scheduled daily fallback check at ' . gmdate('Y-m-d H:i:s', $next_run) . ' UTC');
+            Logger::info('WP Cron Fallback: Scheduled daily fallback check at ' . gmdate('Y-m-d H:i:s', $next_run) . ' UTC');
         }
     }
     
@@ -55,19 +55,19 @@ class WpCronFallbackController {
      * Handle fallback cron execution
      */
     public function handle_fallback_cron() {
-        error_log('WP Cron Fallback: Cron job triggered at ' . gmdate('Y-m-d H:i:s') . ' UTC');
+        Logger::info('WP Cron Fallback: Cron job triggered at ' . gmdate('Y-m-d H:i:s') . ' UTC');
         
         try {
             $result = $this->wpCronFallbackUseCase->execute();
             
             if ($result['success']) {
-                error_log("WP Cron Fallback: {$result['message']} (action: {$result['action_taken']})");
+                Logger::info("WP Cron Fallback: {$result['message']} (action: {$result['action_taken']})");
             } else {
-                error_log("WP Cron Fallback Error: {$result['message']}");
+                Logger::info("WP Cron Fallback Error: {$result['message']}");
             }
             
         } catch (Exception $e) {
-            error_log('WP Cron Fallback Controller Error: ' . $e->getMessage());
+            Logger::error('WP Cron Fallback Controller Error: ' . $e->getMessage());
         }
     }
     
@@ -93,7 +93,7 @@ class WpCronFallbackController {
         if (!wp_next_scheduled(self::CRON_HOOK)) {
             $controller = new self();
             $controller->initialize_cron();
-            error_log('WP Cron Fallback: Enabled fallback cron');
+            Logger::info('WP Cron Fallback: Enabled fallback cron');
         }
     }
     
@@ -104,7 +104,7 @@ class WpCronFallbackController {
         $timestamp = wp_next_scheduled(self::CRON_HOOK);
         if ($timestamp) {
             wp_unschedule_event($timestamp, self::CRON_HOOK);
-            error_log('WP Cron Fallback: Disabled fallback cron');
+            Logger::info('WP Cron Fallback: Disabled fallback cron');
         }
     }
     

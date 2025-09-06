@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 /**
  * Strona zasobów
  */
-class UJC_Resources_Page {
+class ResourcesPage {
     
     private $developerRepository;
     private $investmentRepository;
@@ -25,9 +25,9 @@ class UJC_Resources_Page {
         $this->resourceRepository = new ResourceRepository();
         $this->saveInvestmentInfoUseCase = new SaveInvestmentInfoUseCase();
         $this->importResourcesUseCase = new ImportResourcesUseCase();
-        $this->historyModal = new UJC_History_Modal();
-        $this->resourceModal = new UJC_Resource_Modal();
-        $this->investmentModal = new UJC_Investment_Modal();
+        $this->historyModal = new HistoryModal();
+        $this->resourceModal = new ResourceModal();
+        $this->investmentModal = new InvestmentModal();
         
         // Dodaj AJAX handlers dla zasobów
         add_action('wp_ajax_ujc_get_resources', [$this, 'ajax_get_resources']);
@@ -188,9 +188,9 @@ class UJC_Resources_Page {
             <?php 
             $resourceModal->render_modal(); 
             $investmentModal->render_modal();
-            UJC_Resource_Item::render_item_styles();
-            UJC_Resource_Item::render_item_script();
-            UJC_History_Modal::render_history_script();
+            ResourceItem::render_item_styles();
+            ResourceItem::render_item_script();
+            HistoryModal::render_history_script();
             ?>
             
             
@@ -284,7 +284,7 @@ class UJC_Resources_Page {
         
         foreach ($resources as $resource) {
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Resource item output contains safe onclick attributes
-            echo UJC_Resource_Item::render_item_html($resource);
+            echo ResourceItem::render_item_html($resource);
         }
     }
     
@@ -349,7 +349,7 @@ class UJC_Resources_Page {
             wp_send_json_success($result);
             
         } catch (Exception $e) {
-            error_log('UJC Import Error: ' . $e->getMessage());
+            Logger::error('UJC Import Error: ' . $e->getMessage());
             wp_send_json_error($e->getMessage());
         }
     }

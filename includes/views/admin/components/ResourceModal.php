@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
  * Komponent modalu dla zasobów - Single Responsibility Principle
  * Odpowiada tylko za zarządzanie modalem dodawania/edycji zasobów
  */
-class UJC_Resource_Modal extends UJC_Admin_Page {
+class ResourceModal extends UJC_Admin_Page {
     
     private $saveResourceUseCase;
     private $getResourceByIdUseCase;
@@ -564,17 +564,17 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
     }
     
     public function ajax_save_resource() {
-        error_log('UJC: ajax_save_resource started');
-        error_log('UJC: POST data: ' . print_r($_POST, true));
+        Logger::info('UJC: ajax_save_resource started');
+        Logger::info('UJC: POST data: ' . print_r($_POST, true));
         
         if (!$this->verify_nonce()) {
-            error_log('UJC: save resource - nonce verification failed');
+            Logger::error('UJC: save resource - nonce verification failed');
             wp_send_json_error('Błąd weryfikacji bezpieczeństwa.');
             return;
         }
         
         if (!$this->check_permissions()) {
-            error_log('UJC: save resource - permission check failed'); 
+            Logger::error('UJC: save resource - permission check failed'); 
             wp_send_json_error('Brak uprawnień.');
             return;
         }
@@ -584,10 +584,10 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
             $current_datetime = DateHelper::currentDatetime();
             $data = $this->set_price_dates_for_new_resource($data, $current_datetime);
             
-            error_log('UJC: Resource data to save: ' . print_r($data, true));
+            Logger::info('UJC: Resource data to save: ' . print_r($data, true));
             
             $result = $this->saveResourceUseCase->execute($data);
-            error_log('UJC: Resource create result: ' . print_r($result, true));
+            Logger::info('UJC: Resource create result: ' . print_r($result, true));
             
             // Sprawdź czy result zawiera błąd walidacji
             if (is_array($result) && isset($result['error'])) {
@@ -603,33 +603,33 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
     }
     
     public function ajax_get_resource() {
-        error_log('UJC: ajax_get_resource started');
+        Logger::info('UJC: ajax_get_resource started');
         
         if (!$this->verify_nonce()) {
-            error_log('UJC: nonce verification failed');
+            Logger::error('UJC: nonce verification failed');
             return;
         }
         
         if (!$this->check_permissions()) {
-            error_log('UJC: permission check failed');
+            Logger::error('UJC: permission check failed');
             return;
         }
         
         try {
             $resource_id = intval($_POST['resource_id'] ?? 0);
-            error_log('UJC: Loading resource ID: ' . $resource_id);
+            Logger::info('UJC: Loading resource ID: ' . $resource_id);
             
             $resource = $this->getResourceByIdUseCase->execute($resource_id);
-            error_log('UJC: Resource data retrieved: ' . print_r($resource, true));
+            Logger::info('UJC: Resource data retrieved: ' . print_r($resource, true));
             
             if ($resource) {
                 wp_send_json_success($resource);
             } else {
-                error_log('UJC: No resource found for ID: ' . $resource_id);
+                Logger::error('UJC: No resource found for ID: ' . $resource_id);
                 wp_send_json_error('Nie znaleziono zasobu');
             }
         } catch (Exception $e) {
-            error_log('UJC: Exception in ajax_get_resource: ' . $e->getMessage());
+            Logger::error('UJC: Exception in ajax_get_resource: ' . $e->getMessage());
             wp_send_json_error('Błąd serwera: ' . $e->getMessage());
         }
     }

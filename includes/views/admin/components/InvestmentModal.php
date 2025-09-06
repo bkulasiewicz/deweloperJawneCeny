@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
  * Komponent modalu dla inwestycji - Single Responsibility Principle
  * Odpowiada tylko za zarządzanie modalem wyświetlania/edycji danych inwestycji
  */
-class UJC_Investment_Modal extends UJC_Admin_Page {
+class InvestmentModal extends UJC_Admin_Page {
     
     private $investmentRepository;
     
@@ -265,45 +265,45 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
     }
     
     public function ajax_get_investment() {
-        error_log('UJC: ajax_get_investment started');
+        Logger::info('UJC: ajax_get_investment started');
         
         if (!$this->verify_nonce()) {
-            error_log('UJC: nonce verification failed');
+            Logger::error('UJC: nonce verification failed');
             return;
         }
         
         if (!$this->check_permissions()) {
-            error_log('UJC: permission check failed');
+            Logger::error('UJC: permission check failed');
             return;
         }
         
         try {
             
             $investment = $this->investmentRepository->read();
-            error_log('UJC: Investment data retrieved: ' . print_r($investment, true));
+            Logger::info('UJC: Investment data retrieved: ' . print_r($investment, true));
             
             if ($investment) {
                 wp_send_json_success($investment);
             } else {
-                error_log('UJC: No investment data found');
+                Logger::error('UJC: No investment data found');
                 wp_send_json_error('Brak danych inwestycji');
             }
         } catch (Exception $e) {
-            error_log('UJC: Exception in ajax_get_investment: ' . $e->getMessage());
+            Logger::error('UJC: Exception in ajax_get_investment: ' . $e->getMessage());
             wp_send_json_error('Błąd serwera: ' . $e->getMessage());
         }
     }
     
     public function ajax_update_investment() {
-        error_log('UJC: ajax_update_investment started');
+        Logger::info('UJC: ajax_update_investment started');
         
         if (!$this->verify_nonce()) {
-            error_log('UJC: nonce verification failed in update');
+            Logger::error('UJC: nonce verification failed in update');
             return;
         }
         
         if (!$this->check_permissions()) {
-            error_log('UJC: permission check failed in update');
+            Logger::error('UJC: permission check failed in update');
             return;
         }
         
@@ -319,11 +319,11 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
                 'proj_kod' => 'sanitize_text_field'
             ]);
             
-            error_log('UJC: Investment data to update: ' . print_r($data, true));
+            Logger::info('UJC: Investment data to update: ' . print_r($data, true));
             
             
             $result = $this->investmentRepository->save($data);
-            error_log('UJC: Update result: ' . ($result !== false ? 'success' : 'failed'));
+            Logger::info('UJC: Update result: ' . ($result !== false ? 'success' : 'failed'));
             
             if ($result !== false) {
                 wp_send_json_success('Dane inwestycji zostały zaktualizowane!');
@@ -331,7 +331,7 @@ class UJC_Investment_Modal extends UJC_Admin_Page {
                 wp_send_json_error('Błąd podczas aktualizacji danych inwestycji.');
             }
         } catch (Exception $e) {
-            error_log('UJC: Exception in ajax_update_investment: ' . $e->getMessage());
+            Logger::error('UJC: Exception in ajax_update_investment: ' . $e->getMessage());
             wp_send_json_error('Błąd serwera: ' . $e->getMessage());
         }
     }

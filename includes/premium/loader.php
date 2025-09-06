@@ -34,13 +34,13 @@ register_deactivation_hook(PLUGIN_DIR . 'ustawa-jawnosci-cen.php', function() {
         // Clean up External Cron
         $unregisterUseCase = new UnregisterExternalCronUseCase();
         $result = $unregisterUseCase->execute();
-        error_log("UJC: External cron cleanup on deactivation - " . $result['message']);
+        Logger::info("UJC: External cron cleanup on deactivation - " . $result['message']);
         
         // Clean up WP Cron Fallback
         WpCronFallbackController::disable_fallback_cron();
-        error_log("UJC: WP Cron fallback cleanup on deactivation completed");
+        Logger::info("UJC: WP Cron fallback cleanup on deactivation completed");
         
     } catch (Exception $e) {
-        error_log("UJC: Error during premium cleanup: " . $e->getMessage());
+        Logger::error("UJC: Error during premium cleanup: " . $e->getMessage());
     }
 });

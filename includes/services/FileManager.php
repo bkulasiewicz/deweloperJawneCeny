@@ -27,12 +27,12 @@ class FileManager {
      * @return array Result with filepath and url
      */
     public function saveCSV(Generator $csvRows, string $filename): array {
-        error_log('FileManager: Starting CSV save - filename: ' . $filename);
+        Logger::info('FileManager: Starting CSV save - filename: ' . $filename);
         
         $this->ensureDirectoryExists();
         
         $filepath = $this->getFilePath($filename);
-        error_log('FileManager: CSV filepath: ' . $filepath);
+        Logger::info('FileManager: CSV filepath: ' . $filepath);
         
         $csv_content = '';
         $row_count = 0;
@@ -60,13 +60,13 @@ class FileManager {
         // Zapisz cały CSV jednorazowo przez WordPress (zastępuje fopen/fwrite/fclose)
         global $wp_filesystem;
         if (!$wp_filesystem->put_contents($filepath, $csv_content, FS_CHMOD_FILE)) {
-            error_log('FileManager: FAILED to create CSV file: ' . $filepath);
+            Logger::error('FileManager: FAILED to create CSV file: ' . $filepath);
             throw new Exception(sprintf('Cannot create file: %s', esc_html($filepath)));
         }
         
         // Rozmiar z zawartości string (zastępuje filesize)
         $file_size = strlen($csv_content);
-        error_log('FileManager: CSV saved successfully - rows: ' . $row_count . ', size: ' . $file_size . ' bytes');
+        Logger::success('FileManager: CSV saved successfully - rows: ' . $row_count . ', size: ' . $file_size . ' bytes');
         
         return [
             'filepath' => $filepath,
@@ -83,35 +83,35 @@ class FileManager {
      * @return array Result with filepath and url
      */
     public function saveXML(string $xmlContent, string $filename): array {
-        error_log('FileManager: Starting XML save - filename: ' . $filename . ', content size: ' . strlen($xmlContent) . ' bytes');
+        Logger::info('FileManager: Starting XML save - filename: ' . $filename . ', content size: ' . strlen($xmlContent) . ' bytes');
         
         $this->ensureDirectoryExists();
         
         $filepath = $this->getFilePath($filename);
-        error_log('FileManager: XML filepath: ' . $filepath);
+        Logger::info('FileManager: XML filepath: ' . $filepath);
         
         // Save XML file
         global $wp_filesystem;
         if (!$wp_filesystem->put_contents($filepath, $xmlContent, FS_CHMOD_FILE)) {
-            error_log('FileManager: FAILED to write XML file: ' . $filepath);
+            Logger::error('FileManager: FAILED to write XML file: ' . $filepath);
             throw new Exception(sprintf('Cannot write XML file: %s', esc_html($filepath)));
         }
         
-        error_log('FileManager: XML file saved successfully');
+        Logger::success('FileManager: XML file saved successfully');
         
         // Generate and save MD5
         $md5_filename = str_replace('.xml', '.md5', $filename);
         $md5_filepath = $this->getFilePath($md5_filename);
         $md5_content = md5_file($filepath);
         
-        error_log('FileManager: Generated MD5: ' . $md5_content);
+        Logger::info('FileManager: Generated MD5: ' . $md5_content);
         
         if (!$wp_filesystem->put_contents($md5_filepath, $md5_content, FS_CHMOD_FILE)) {
-            error_log('FileManager: FAILED to write MD5 file: ' . $md5_filepath);
+            Logger::error('FileManager: FAILED to write MD5 file: ' . $md5_filepath);
             throw new Exception(sprintf('Cannot write MD5 file: %s', esc_html($md5_filepath)));
         }
         
-        error_log('FileManager: MD5 file saved successfully: ' . $md5_filename);
+        Logger::success('FileManager: MD5 file saved successfully: ' . $md5_filename);
         
         return [
             'filepath' => $filepath,
