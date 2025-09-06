@@ -11,7 +11,6 @@ class UJC_Dashboard_Page {
     
     private $developerRepository;
     private $investmentRepository;
-    private $settingsRepository;
     private $resourceRepository;
     private $generateFilesUseCase;
     private $automationTile;
@@ -20,7 +19,6 @@ class UJC_Dashboard_Page {
     public function __construct() {
         $this->developerRepository = new DeveloperRepository();
         $this->investmentRepository = new InvestmentRepository();
-        $this->settingsRepository = new SettingsRepository();
         $this->resourceRepository = new ResourceRepository();
         $this->generateFilesUseCase = new GenerateFilesUseCase();
         
@@ -85,9 +83,9 @@ class UJC_Dashboard_Page {
                 
                 <?php
                 // Renderuj DEV Console jeśli dostępna
-                if (class_exists('UJC_Dev_Console')) {
+                if (class_exists('DevConsoleTile')) {
                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Dev Console output contains safe inline JavaScript
-                    echo UJC_Dev_Console::render_console_tile();
+                    echo DevConsoleTile::render_console_tile();
                 }
                 ?>
             </div>

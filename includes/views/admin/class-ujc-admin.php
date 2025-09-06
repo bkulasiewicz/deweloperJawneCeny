@@ -30,7 +30,7 @@ class UJC_Admin {
         $this->resource_modal_instance = new UJC_Resource_Modal();
         $this->investment_modal_instance = new UJC_Investment_Modal();
         $this->history_modal_instance = new UJC_History_Modal();
-        $this->dev_console_instance = new UJC_Dev_Console();
+        $this->dev_console_instance = new DevConsoleTile();
         
         // AJAX handlers usunięte - są obsługiwane w głównym pliku pluginu
     }

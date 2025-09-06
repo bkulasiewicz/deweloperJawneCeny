@@ -58,6 +58,7 @@ readonly class PublicationHistoryEntry {
         return match($this->trigger_type) {
             'manual' => 'Ręczne',
             'external_cron' => 'External Cron',
+            'wp_cron_fallback' => 'WP Cron Fallback',
             default => $this->trigger_type
         };
     }

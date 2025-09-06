@@ -13,7 +13,7 @@ class ResourceRepository {
         $table = TableNames::getResources();
         global $wpdb;
         
-        return $wpdb->get_results($wpdb->prepare("SELECT r.* FROM `{$table}` r ORDER BY r.created_at DESC"), ARRAY_A);
+        return $wpdb->get_results($wpdb->prepare("SELECT r.* FROM `{$table}` r ORDER BY r.created_at ASC"), ARRAY_A);
     }
     
     /**

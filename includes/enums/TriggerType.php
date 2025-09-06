@@ -10,4 +10,5 @@ if (!defined('ABSPATH')) {
 enum TriggerType: string {
     case Manual = 'manual';
     case ExternalCron = 'external_cron';
+    case WpCronFallback = 'wp_cron_fallback';
 }

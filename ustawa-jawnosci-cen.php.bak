@@ -3,7 +3,7 @@
  * Plugin Name: Deweloper Jawne Ceny
  * Plugin URI: https://www.deweloperjawneceny.pl/
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
- * Version: 1.28.0
+ * Version: 1.29.0
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -26,7 +26,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.1');
-define('VERSION', '1.27.7');
+define('VERSION', '1.28.1');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -93,6 +93,7 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/UseCases/GetResourceByIdUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/GetAllResourcesUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/ImportResourcesUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/DeleteResourceUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/ResetDatabaseUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/SaveDeveloperInfoUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/SaveInvestmentInfoUseCase.php';
@@ -117,7 +118,7 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-supplier-data-page.php';
         require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-resources-page.php';
         require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-publication-page.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/pages/class-ujc-dev-console.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/DevConsoleTile.php';
         
         // Blocks
         require_once PLUGIN_DIR . 'includes/blocks/ResourcesListBlock.php';

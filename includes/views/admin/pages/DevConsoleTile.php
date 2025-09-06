@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
  * DEV Console - narzędzia deweloperskie
  * Dostępne tylko gdy WP_DEBUG=true
  */
-class UJC_Dev_Console {
+class DevConsoleTile {
     
     private $resetDatabaseUseCase;
     
@@ -18,6 +18,7 @@ class UJC_Dev_Console {
         if (defined('WP_DEBUG') && WP_DEBUG) {
             add_action('wp_ajax_ujc_dev_clear_table', [$this, 'ajax_clear_table']);
             add_action('wp_ajax_ujc_dev_download_logs', [$this, 'ajax_download_logs']);
+            add_action('wp_ajax_dev_trigger_fallback', [$this, 'ajax_trigger_fallback']);
             }
     }
     
@@ -173,6 +174,48 @@ class UJC_Dev_Console {
         return implode("\n", $logs);
     }
     
+    /**
+     * AJAX handler do ręcznego uruchomienia fallback cron
+     */
+    public function ajax_trigger_fallback() {
+        // Podwójne sprawdzenie bezpieczeństwa
+        if (!self::is_available()) {
+            wp_send_json_error('Funkcja dostępna tylko w trybie deweloperskim');
+            return;
+        }
+        
+        check_ajax_referer('ujc_admin_nonce', 'nonce');
+        
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Brak uprawnień administratora');
+            return;
+        }
+        
+        try {
+            // Sprawdź czy premium fallback controller jest dostępny
+            if (!class_exists('WpCronFallbackController')) {
+                wp_send_json_error('WpCronFallbackController nie jest dostępny (premium feature)');
+                return;
+            }
+            
+            error_log('DEV Console: Manual fallback trigger started');
+            $result = WpCronFallbackController::trigger_fallback_manually();
+            
+            if ($result['success']) {
+                $message = "Fallback wykonany pomyślnie: {$result['message']} (akcja: {$result['action_taken']})";
+                error_log('DEV Console: ' . $message);
+                wp_send_json_success($message);
+            } else {
+                $error = "Błąd fallback: {$result['message']}";
+                error_log('DEV Console: ' . $error);
+                wp_send_json_error($error);
+            }
+            
+        } catch (Exception $e) {
+            error_log('DEV Console Fallback Error: ' . $e->getMessage());
+            wp_send_json_error('Błąd serwera: ' . $e->getMessage());
+        }
+    }
     
     /**
      * Renderuje kafelek DEV Console
@@ -196,6 +239,11 @@ class UJC_Dev_Console {
                 <button type="button" class="button button-primary" onclick="downloadLogs()" style="margin: 5px; background-color: #2271b1;">
                     📋 Pobierz logi debugowania
                 </button>
+                <?php if (class_exists('WpCronFallbackController')): ?>
+                <button type="button" class="button button-primary" onclick="triggerFallback()" style="margin: 5px; background-color: #d63638;">
+                    🚨 Uruchom Fallback Cron
+                </button>
+                <?php endif; ?>
                 <p><small>WP_DEBUG: <?php echo defined('WP_DEBUG') && WP_DEBUG ? 'ON' : 'OFF'; ?></small></p>
                 
                 <h3 style="margin-top: 20px;">Czyszczenie tabel:</h3>
@@ -268,6 +316,32 @@ class UJC_Dev_Console {
             });
         }
         
+        function triggerFallback() {
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '⏳ Uruchamianie fallback...';
+            button.disabled = true;
+            
+            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
+            
+            jQuery.post(ajaxurl, {
+                action: 'dev_trigger_fallback',
+                nonce: nonce
+            }, function(response) {
+                if (response.success) {
+                    alert('✅ ' + response.data);
+                } else {
+                    alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
+                }
+            }).fail(function(xhr, status, error) {
+                console.error('Trigger Fallback AJAX Error:', xhr, status, error);
+                alert('❌ Błąd połączenia: ' + error);
+            }).always(function() {
+                button.textContent = originalText;
+                button.disabled = false;
+            });
+        }
+
         function confirmClearTable(type, description) {
             const message = `Czy na pewno chcesz usunąć ${description}?\n\nTa operacja jest nieodwracalna!`;
             

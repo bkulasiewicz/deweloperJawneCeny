@@ -12,14 +12,17 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
     
     private $saveResourceUseCase;
     private $getResourceByIdUseCase;
+    private $deleteResourceUseCase;
     
     public function __construct() {
         $this->saveResourceUseCase = new SaveResourceUseCase();
         $this->getResourceByIdUseCase = new GetResourceByIdUseCase();
+        $this->deleteResourceUseCase = new DeleteResourceUseCase();
         
         add_action('wp_ajax_ujc_save_resource', [$this, 'ajax_save_resource']);
         add_action('wp_ajax_ujc_get_resource', [$this, 'ajax_get_resource']);
         add_action('wp_ajax_ujc_update_resource', [$this, 'ajax_update_resource']);
+        add_action('wp_ajax_ujc_delete_resource', [$this, 'ajax_delete_resource']);
         
         parent::__construct();
     }
@@ -166,8 +169,13 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                     </div>
                     
                     <div class="ujc-modal-footer">
-                        <button type="button" class="button ujc-modal-cancel">Anuluj</button>
-                        <button type="submit" class="button-primary" id="modal-submit-btn">Zapisz</button>
+                        <div class="ujc-modal-footer-left">
+                            <button type="button" class="button button-secondary ujc-delete-btn" id="modal-delete-btn" style="display: none; color: #d63638; border-color: #d63638;">Usuń</button>
+                        </div>
+                        <div class="ujc-modal-footer-right">
+                            <button type="button" class="button ujc-modal-cancel">Anuluj</button>
+                            <button type="submit" class="button-primary" id="modal-submit-btn">Zapisz</button>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -234,11 +242,25 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
             padding: 20px;
             border-top: 1px solid #ccd0d4;
             background: #f9f9f9;
-            text-align: right;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
-        .ujc-modal-footer .button {
-            margin-left: 10px;
+        .ujc-modal-footer-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .ujc-modal-footer-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ujc-delete-btn:hover {
+            background-color: #d63638 !important;
+            color: #fff !important;
         }
         </style>
         
@@ -253,11 +275,13 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                     $('#modal-action').val('add');
                     $('#resource-id').val('');
                     $('#resource-modal-form')[0].reset();
+                    $('#modal-delete-btn').hide(); // Ukryj przycisk usuń w trybie dodawania
                 } else if (mode === 'edit' && resourceId) {
                     $('#modal-title').text('Edytuj Zasób');
                     $('#modal-submit-btn').text('Zapisz Zmiany');
                     $('#modal-action').val('edit');
                     $('#resource-id').val(resourceId);
+                    $('#modal-delete-btn').show(); // Pokaż przycisk usuń w trybie edycji
                     
                     // Załaduj dane zasobu
                     loadResourceData(resourceId);
@@ -330,6 +354,48 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                 if (e.target === this) {
                     closeModal();
                 }
+            });
+            
+            // Obsługa przycisku usuń
+            $('#modal-delete-btn').on('click', function() {
+                const resourceId = $('#resource-id').val();
+                
+                if (!resourceId) {
+                    alert('❌ Brak ID zasobu do usunięcia');
+                    return;
+                }
+                
+                // Potwierdzenie usunięcia
+                const confirmation = confirm('Czy na pewno chcesz usunąć ten zasób? Ta operacja jest nieodwracalna.');
+                if (!confirmation) {
+                    return;
+                }
+                
+                const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : ($('#ujc-nonce').length ? $('#ujc-nonce').val() : '');
+                const $deleteBtn = $(this);
+                const originalText = $deleteBtn.text();
+                
+                $deleteBtn.text('Usuwanie...').prop('disabled', true);
+                
+                $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, {
+                    action: 'ujc_delete_resource',
+                    resource_id: resourceId,
+                    nonce: nonce
+                }, function(response) {
+                    if (response.success) {
+                        alert('✅ ' + response.data);
+                        closeModal();
+                        if (typeof loadResourcesList === 'function') {
+                            loadResourcesList();
+                        }
+                    } else {
+                        alert('❌ ' + (response.data || 'Błąd podczas usuwania'));
+                    }
+                }).fail(function() {
+                    alert('❌ Błąd połączenia');
+                }).always(function() {
+                    $deleteBtn.text(originalText).prop('disabled', false);
+                });
             });
             
             // Obsługa pojedynczej części nieruchomości
@@ -596,6 +662,39 @@ class UJC_Resource_Modal extends UJC_Admin_Page {
                 wp_send_json_success('Zasób został zaktualizowany!');
             } else {
                 wp_send_json_error('Błąd podczas aktualizacji zasobu.');
+            }
+        } catch (Exception $e) {
+            wp_send_json_error('Błąd serwera: ' . $e->getMessage());
+        }
+    }
+    
+    public function ajax_delete_resource() {
+        if (!$this->verify_nonce()) {
+            wp_send_json_error('Błąd weryfikacji bezpieczeństwa.');
+            return;
+        }
+        
+        if (!$this->check_permissions()) {
+            wp_send_json_error('Brak uprawnień.');
+            return;
+        }
+        
+        try {
+            $resource_id = intval($_POST['resource_id'] ?? 0);
+            
+            if (!$resource_id) {
+                wp_send_json_error('Nieprawidłowy ID zasobu');
+                return;
+            }
+            
+            $result = $this->deleteResourceUseCase->execute($resource_id);
+            
+            if (isset($result['error'])) {
+                wp_send_json_error($result['error']);
+            } elseif (isset($result['success']) && $result['success']) {
+                wp_send_json_success($result['message']);
+            } else {
+                wp_send_json_error('Błąd podczas usuwania zasobu.');
             }
         } catch (Exception $e) {
             wp_send_json_error('Błąd serwera: ' . $e->getMessage());
