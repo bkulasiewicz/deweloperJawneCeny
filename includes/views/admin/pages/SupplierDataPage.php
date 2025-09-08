@@ -16,10 +16,14 @@ class SupplierDataPage extends UJC_Admin_Page {
         $this->saveDeveloperInfoUseCase = new SaveDeveloperInfoUseCase();
         $this->developerRepository = new DeveloperRepository();
         
+        // Critical logging for AJAX registration
+        Logger::log('SupplierDataPage: Registering AJAX action wp_ajax_ujc_save_developer', Logger::LEVEL_INFO);
         add_action('wp_ajax_ujc_save_developer', [$this, 'ajax_save_developer']);
         add_action('admin_head', [$this, 'add_custom_styles']);
         
         parent::__construct();
+        
+        Logger::log('SupplierDataPage: Constructor completed', Logger::LEVEL_INFO);
     }
     
     
@@ -83,7 +87,7 @@ class SupplierDataPage extends UJC_Admin_Page {
             outline: none;
         }
         
-        .ujc-required {
+        .required {
             color: #d63638;
         }
         
@@ -145,22 +149,89 @@ class SupplierDataPage extends UJC_Admin_Page {
     }
     
     public function ajax_save_developer() {
+        // Critical early logging - this should appear in logs if AJAX is working
+        Logger::log('=== AJAX DEVELOPER SAVE START ===', Logger::LEVEL_INFO);
+        Logger::log('Request received at: ' . date('Y-m-d H:i:s'), Logger::LEVEL_INFO);
+        
         if (!$this->verify_nonce()) {
+            Logger::log('Nonce verification FAILED', Logger::LEVEL_ERROR);
             wp_send_json_error('Weryfikacja bezpieczeństwa nie powiodła się.');
             return;
         }
+        Logger::log('Nonce verification OK', Logger::LEVEL_INFO);
         
         if (!$this->check_permissions()) {
+            Logger::log('Permissions check FAILED', Logger::LEVEL_ERROR);
             wp_send_json_error('Brak uprawnień do wykonania tej operacji.');
             return;
         }
+        Logger::log('Permissions check OK', Logger::LEVEL_INFO);
         
-        $result = $this->saveDeveloperInfoUseCase->execute($_POST);
+        // Check if all required classes are loaded
+        if (!class_exists('SupplierDto')) {
+            Logger::log('SupplierDto class not found', Logger::LEVEL_ERROR);
+            wp_send_json_error('Błąd konfiguracji systemu - brak klasy SupplierDto');
+            return;
+        }
         
-        if ($result['success']) {
-            wp_send_json_success($result['message']);
-        } else {
-            wp_send_json_error($result['message']);
+        if (!class_exists('SaveDeveloperInfoUseCase')) {
+            Logger::log('SaveDeveloperInfoUseCase class not found', Logger::LEVEL_ERROR);
+            wp_send_json_error('Błąd konfiguracji systemu - brak klasy SaveDeveloperInfoUseCase');
+            return;
+        }
+        Logger::log('Required classes loaded OK', Logger::LEVEL_INFO);
+        
+        try {
+            Logger::log('ajax_save_developer started', Logger::LEVEL_INFO);
+            Logger::log('POST data: ' . print_r($_POST, true), Logger::LEVEL_DEBUG);
+            
+            // View tworzy DTO z sanityzacją
+            $supplierDto = new SupplierDto(
+                0, // ID will be set by repository
+                sanitize_text_field($_POST['nazwa'] ?? ''),
+                !empty($_POST['forma_prawna']) ? sanitize_text_field($_POST['forma_prawna']) : null,
+                sanitize_text_field($_POST['nr_krs'] ?? ''),
+                !empty($_POST['nr_ceidg']) ? sanitize_text_field($_POST['nr_ceidg']) : null,
+                sanitize_text_field($_POST['nr_nip'] ?? ''),
+                !empty($_POST['nr_regon']) ? sanitize_text_field($_POST['nr_regon']) : null,
+                !empty($_POST['telefon']) ? sanitize_text_field($_POST['telefon']) : null,
+                sanitize_email($_POST['email'] ?? ''),
+                !empty($_POST['fax']) ? sanitize_text_field($_POST['fax']) : null,
+                esc_url_raw($_POST['strona_www'] ?? ''),
+                sanitize_text_field($_POST['siedz_wojewodztwo'] ?? ''),
+                !empty($_POST['siedz_powiat']) ? sanitize_text_field($_POST['siedz_powiat']) : null,
+                !empty($_POST['siedz_gmina']) ? sanitize_text_field($_POST['siedz_gmina']) : null,
+                sanitize_text_field($_POST['siedz_miejscowosc'] ?? ''),
+                sanitize_text_field($_POST['siedz_ulica'] ?? ''),
+                sanitize_text_field($_POST['siedz_nr'] ?? ''),
+                !empty($_POST['siedz_lokal']) ? sanitize_text_field($_POST['siedz_lokal']) : null,
+                sanitize_text_field($_POST['siedz_kod'] ?? ''),
+                sanitize_text_field($_POST['sprzed_wojewodztwo'] ?? ''),
+                !empty($_POST['sprzed_powiat']) ? sanitize_text_field($_POST['sprzed_powiat']) : null,
+                !empty($_POST['sprzed_gmina']) ? sanitize_text_field($_POST['sprzed_gmina']) : null,
+                sanitize_text_field($_POST['sprzed_miejscowosc'] ?? ''),
+                sanitize_text_field($_POST['sprzed_ulica'] ?? ''),
+                sanitize_text_field($_POST['sprzed_nr'] ?? ''),
+                !empty($_POST['sprzed_lokal']) ? sanitize_text_field($_POST['sprzed_lokal']) : null,
+                sanitize_text_field($_POST['sprzed_kod'] ?? ''),
+                !empty($_POST['dodatkowe_lokalizacje']) ? sanitize_textarea_field($_POST['dodatkowe_lokalizacje']) : null,
+                !empty($_POST['sposob_kontaktu']) ? sanitize_textarea_field($_POST['sposob_kontaktu']) : null
+            );
+            
+            Logger::log('SupplierDto created successfully, calling UseCase', Logger::LEVEL_INFO);
+            $result = $this->saveDeveloperInfoUseCase->execute($supplierDto);
+            Logger::log('UseCase executed, result: ' . ($result->isSuccess ? 'SUCCESS' : 'FAILURE'), Logger::LEVEL_INFO);
+            
+            if ($result->isSuccess) {
+                Logger::log('Sending success response: ' . $result->message, Logger::LEVEL_INFO);
+                wp_send_json_success($result->message);
+            } else {
+                Logger::log('Sending error response: ' . $result->message, Logger::LEVEL_ERROR);
+                wp_send_json_error($result->message);
+            }
+        } catch (Exception $e) {
+            Logger::log('Error creating SupplierDto: ' . $e->getMessage(), Logger::LEVEL_ERROR);
+            wp_send_json_error('Błąd podczas przetwarzania danych');
         }
     }
     
@@ -181,27 +252,27 @@ class SupplierDataPage extends UJC_Admin_Page {
                         <div class="ujc-readonly-grid">
                             <div class="ujc-readonly-item">
                                 <strong>Nazwa</strong>
-                                <span><?php echo esc_html($developer['nazwa'] ?? ''); ?></span>
+                                <span><?php echo esc_html($developer->nazwa ?? ''); ?></span>
                             </div>
                             <div class="ujc-readonly-item">
                                 <strong>Forma prawna</strong>
-                                <span><?php echo esc_html($developer['forma_prawna'] ?? ''); ?></span>
+                                <span><?php echo esc_html($developer->forma_prawna ?? ''); ?></span>
                             </div>
                             <div class="ujc-readonly-item">
                                 <strong>NIP</strong>
-                                <span><?php echo esc_html($developer['nr_nip'] ?? ''); ?></span>
+                                <span><?php echo esc_html($developer->nr_nip ?? ''); ?></span>
                             </div>
                             <div class="ujc-readonly-item">
                                 <strong>REGON</strong>
-                                <span><?php echo esc_html($developer['nr_regon'] ?? ''); ?></span>
+                                <span><?php echo esc_html($developer->nr_regon ?? ''); ?></span>
                             </div>
                             <div class="ujc-readonly-item">
                                 <strong>KRS</strong>
-                                <span><?php echo esc_html($developer['nr_krs'] ?? ''); ?></span>
+                                <span><?php echo esc_html($developer->nr_krs ?? ''); ?></span>
                             </div>
                             <div class="ujc-readonly-item">
                                 <strong>CEiDG</strong>
-                                <span><?php echo esc_html($developer['nr_ceidg'] ?? ''); ?></span>
+                                <span><?php echo esc_html($developer->nr_ceidg ?? ''); ?></span>
                             </div>
                         </div>
                     </div>
@@ -211,20 +282,20 @@ class SupplierDataPage extends UJC_Admin_Page {
                         <div class="ujc-readonly-grid">
                             <div class="ujc-readonly-item">
                                 <strong>Telefon</strong>
-                                <span><?php echo esc_html($developer['telefon'] ?? ''); ?></span>
+                                <span><?php echo esc_html($developer->telefon ?? ''); ?></span>
                             </div>
                             <div class="ujc-readonly-item">
                                 <strong>Email</strong>
-                                <span><?php echo esc_html($developer['email'] ?? ''); ?></span>
+                                <span><?php echo esc_html($developer->email ?? ''); ?></span>
                             </div>
                             <div class="ujc-readonly-item">
                                 <strong>Strona WWW</strong>
-                                <span><a href="<?php echo esc_url($developer['strona_www'] ?? ''); ?>" target="_blank"><?php echo esc_html($developer['strona_www'] ?? ''); ?></a></span>
+                                <span><a href="<?php echo esc_url($developer->strona_www ?? ''); ?>" target="_blank"><?php echo esc_html($developer->strona_www ?? ''); ?></a></span>
                             </div>
-                            <?php if (!empty($developer['fax'])): ?>
+                            <?php if (!empty($developer->fax)): ?>
                             <div class="ujc-readonly-item">
                                 <strong>Fax</strong>
-                                <span><?php echo esc_html($developer['fax']); ?></span>
+                                <span><?php echo esc_html($developer->fax); ?></span>
                             </div>
                             <?php endif; ?>
                         </div>
@@ -236,20 +307,20 @@ class SupplierDataPage extends UJC_Admin_Page {
                             <div class="ujc-readonly-grid">
                                 <div class="ujc-readonly-item">
                                     <strong>Województwo</strong>
-                                    <span><?php echo esc_html($developer['siedz_wojewodztwo'] ?? ''); ?></span>
+                                    <span><?php echo esc_html($developer->siedz_wojewodztwo ?? ''); ?></span>
                                 </div>
                                 <div class="ujc-readonly-item">
                                     <strong>Miejscowość</strong>
-                                    <span><?php echo esc_html($developer['siedz_miejscowosc'] ?? ''); ?></span>
+                                    <span><?php echo esc_html($developer->siedz_miejscowosc ?? ''); ?></span>
                                 </div>
                                 <div class="ujc-readonly-item">
                                     <strong>Kod pocztowy</strong>
-                                    <span><?php echo esc_html($developer['siedz_kod'] ?? ''); ?></span>
+                                    <span><?php echo esc_html($developer->siedz_kod ?? ''); ?></span>
                                 </div>
-                                <?php if (!empty($developer['siedz_ulica'])): ?>
+                                <?php if (!empty($developer->siedz_ulica)): ?>
                                 <div class="ujc-readonly-item">
                                     <strong>Ulica</strong>
-                                    <span><?php echo esc_html($developer['siedz_ulica']); ?> <?php echo esc_html($developer['siedz_nr'] ?? ''); ?></span>
+                                    <span><?php echo esc_html($developer->siedz_ulica); ?> <?php echo esc_html($developer->siedz_nr ?? ''); ?></span>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -260,20 +331,20 @@ class SupplierDataPage extends UJC_Admin_Page {
                             <div class="ujc-readonly-grid">
                                 <div class="ujc-readonly-item">
                                     <strong>Województwo</strong>
-                                    <span><?php echo esc_html($developer['sprzed_wojewodztwo'] ?? ''); ?></span>
+                                    <span><?php echo esc_html($developer->sprzed_wojewodztwo ?? ''); ?></span>
                                 </div>
                                 <div class="ujc-readonly-item">
                                     <strong>Miejscowość</strong>
-                                    <span><?php echo esc_html($developer['sprzed_miejscowosc'] ?? ''); ?></span>
+                                    <span><?php echo esc_html($developer->sprzed_miejscowosc ?? ''); ?></span>
                                 </div>
                                 <div class="ujc-readonly-item">
                                     <strong>Kod pocztowy</strong>
-                                    <span><?php echo esc_html($developer['sprzed_kod'] ?? ''); ?></span>
+                                    <span><?php echo esc_html($developer->sprzed_kod ?? ''); ?></span>
                                 </div>
-                                <?php if (!empty($developer['sprzed_ulica'])): ?>
+                                <?php if (!empty($developer->sprzed_ulica)): ?>
                                 <div class="ujc-readonly-item">
                                     <strong>Ulica</strong>
-                                    <span><?php echo esc_html($developer['sprzed_ulica']); ?> <?php echo esc_html($developer['sprzed_nr'] ?? ''); ?></span>
+                                    <span><?php echo esc_html($developer->sprzed_ulica); ?> <?php echo esc_html($developer->sprzed_nr ?? ''); ?></span>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -299,39 +370,38 @@ class SupplierDataPage extends UJC_Admin_Page {
                         <h3>🏢 Dane podstawowe</h3>
                         <div class="ujc-form-grid">
                             <div class="ujc-form-field">
-                                <label for="nazwa">Nazwa dostawcy <span class="ujc-required">*</span></label>
-                                <input type="text" id="nazwa" name="nazwa" value="<?php echo esc_attr($developer['nazwa'] ?? ''); ?>" required>
+                                <label for="nazwa">Nazwa dostawcy <span class="required">*</span></label>
+                                <input type="text" id="nazwa" name="nazwa" value="<?php echo esc_attr($developer->nazwa ?? ''); ?>" required>
                             </div>
                             <div class="ujc-form-field">
-                                <label for="forma_prawna">Forma prawna <span class="ujc-required">*</span></label>
-                                <select id="forma_prawna" name="forma_prawna" required>
-                                    <option value="">Wybierz formę prawną</option>
-                                    <option value="spółka z o.o." <?php selected($developer['forma_prawna'] ?? '', 'spółka z o.o.'); ?>>Spółka z o.o.</option>
-                                    <option value="spółka akcyjna" <?php selected($developer['forma_prawna'] ?? '', 'spółka akcyjna'); ?>>Spółka akcyjna</option>
-                                    <option value="działalność gospodarcza" <?php selected($developer['forma_prawna'] ?? '', 'działalność gospodarcza'); ?>>Działalność gospodarcza</option>
-                                    <option value="inne" <?php selected($developer['forma_prawna'] ?? '', 'inne'); ?>>Inne</option>
+                                <label for="forma_prawna">Forma prawna</label>
+                                <select id="forma_prawna" name="forma_prawna">
+                                    <option value="spółka z o.o." <?php selected($developer->forma_prawna ?? '', 'spółka z o.o.'); ?>>Spółka z o.o.</option>
+                                    <option value="spółka akcyjna" <?php selected($developer->forma_prawna ?? '', 'spółka akcyjna'); ?>>Spółka akcyjna</option>
+                                    <option value="działalność gospodarcza" <?php selected($developer->forma_prawna ?? '', 'działalność gospodarcza'); ?>>Działalność gospodarcza</option>
+                                    <option value="inne" <?php selected($developer->forma_prawna ?? '', 'inne'); ?>>Inne</option>
                                 </select>
                             </div>
                         </div>
                         
                         <div class="ujc-form-grid-3">
                             <div class="ujc-form-field">
-                                <label for="nr_nip">NIP <span class="ujc-required">*</span></label>
-                                <input type="text" id="nr_nip" name="nr_nip" value="<?php echo esc_attr($developer['nr_nip'] ?? ''); ?>" required pattern="[0-9]{10}" placeholder="0000000000">
+                                <label for="nr_nip">NIP <span class="required">*</span></label>
+                                <input type="text" id="nr_nip" name="nr_nip" value="<?php echo esc_attr($developer->nr_nip ?? ''); ?>" required pattern="[0-9]{10}" placeholder="0000000000">
                             </div>
                             <div class="ujc-form-field">
-                                <label for="nr_regon">REGON <span class="ujc-required">*</span></label>
-                                <input type="text" id="nr_regon" name="nr_regon" value="<?php echo esc_attr($developer['nr_regon'] ?? ''); ?>" required>
+                                <label for="nr_regon">REGON</label>
+                                <input type="text" id="nr_regon" name="nr_regon" value="<?php echo esc_attr($developer->nr_regon ?? ''); ?>">
                             </div>
                             <div class="ujc-form-field">
-                                <label for="nr_krs">KRS</label>
-                                <input type="text" id="nr_krs" name="nr_krs" value="<?php echo esc_attr($developer['nr_krs'] ?? ''); ?>">
+                                <label for="nr_krs">KRS <span class="required">*</span></label>
+                                <input type="text" id="nr_krs" name="nr_krs" value="<?php echo esc_attr($developer->nr_krs ?? ''); ?>" required>
                             </div>
                         </div>
                         
                         <div class="ujc-form-field">
                             <label for="nr_ceidg">Nr CEiDG</label>
-                            <input type="text" id="nr_ceidg" name="nr_ceidg" value="<?php echo esc_attr($developer['nr_ceidg'] ?? ''); ?>">
+                            <input type="text" id="nr_ceidg" name="nr_ceidg" value="<?php echo esc_attr($developer->nr_ceidg ?? ''); ?>">
                         </div>
                     </div>
                     
@@ -340,23 +410,23 @@ class SupplierDataPage extends UJC_Admin_Page {
                         <h3>📞 Dane kontaktowe</h3>
                         <div class="ujc-form-grid">
                             <div class="ujc-form-field">
-                                <label for="telefon">Telefon <span class="ujc-required">*</span></label>
-                                <input type="tel" id="telefon" name="telefon" value="<?php echo esc_attr($developer['telefon'] ?? ''); ?>" required>
+                                <label for="telefon">Telefon</label>
+                                <input type="tel" id="telefon" name="telefon" value="<?php echo esc_attr($developer->telefon ?? ''); ?>">
                             </div>
                             <div class="ujc-form-field">
-                                <label for="email">Email <span class="ujc-required">*</span></label>
-                                <input type="email" id="email" name="email" value="<?php echo esc_attr($developer['email'] ?? ''); ?>" required>
+                                <label for="email">Email <span class="required">*</span></label>
+                                <input type="email" id="email" name="email" value="<?php echo esc_attr($developer->email ?? ''); ?>" required>
                             </div>
                         </div>
                         
                         <div class="ujc-form-grid">
                             <div class="ujc-form-field">
-                                <label for="strona_www">Strona WWW <span class="ujc-required">*</span></label>
-                                <input type="url" id="strona_www" name="strona_www" value="<?php echo esc_attr($developer['strona_www'] ?? ''); ?>" required>
+                                <label for="strona_www">Strona WWW <span class="required">*</span></label>
+                                <input type="url" id="strona_www" name="strona_www" value="<?php echo esc_attr($developer->strona_www ?? ''); ?>" required>
                             </div>
                             <div class="ujc-form-field">
                                 <label for="fax">Fax</label>
-                                <input type="tel" id="fax" name="fax" value="<?php echo esc_attr($developer['fax'] ?? ''); ?>">
+                                <input type="tel" id="fax" name="fax" value="<?php echo esc_attr($developer->fax ?? ''); ?>">
                             </div>
                         </div>
                     </div>
@@ -367,41 +437,41 @@ class SupplierDataPage extends UJC_Admin_Page {
                         <div class="ujc-form-section">
                             <h3>🏠 Adres siedziby</h3>
                             <div class="ujc-form-field">
-                                <label for="siedz_wojewodztwo">Województwo <span class="ujc-required">*</span></label>
-                                <input type="text" id="siedz_wojewodztwo" name="siedz_wojewodztwo" value="<?php echo esc_attr($developer['siedz_wojewodztwo'] ?? ''); ?>" required>
+                                <label for="siedz_wojewodztwo">Województwo <span class="required">*</span></label>
+                                <input type="text" id="siedz_wojewodztwo" name="siedz_wojewodztwo" value="<?php echo esc_attr($developer->siedz_wojewodztwo ?? ''); ?>" required>
                             </div>
                             <div class="ujc-form-grid">
                                 <div class="ujc-form-field">
                                     <label for="siedz_powiat">Powiat</label>
-                                    <input type="text" id="siedz_powiat" name="siedz_powiat" value="<?php echo esc_attr($developer['siedz_powiat'] ?? ''); ?>">
+                                    <input type="text" id="siedz_powiat" name="siedz_powiat" value="<?php echo esc_attr($developer->siedz_powiat ?? ''); ?>">
                                 </div>
                                 <div class="ujc-form-field">
                                     <label for="siedz_gmina">Gmina</label>
-                                    <input type="text" id="siedz_gmina" name="siedz_gmina" value="<?php echo esc_attr($developer['siedz_gmina'] ?? ''); ?>">
+                                    <input type="text" id="siedz_gmina" name="siedz_gmina" value="<?php echo esc_attr($developer->siedz_gmina ?? ''); ?>">
                                 </div>
                             </div>
                             <div class="ujc-form-field">
-                                <label for="siedz_miejscowosc">Miejscowość <span class="ujc-required">*</span></label>
-                                <input type="text" id="siedz_miejscowosc" name="siedz_miejscowosc" value="<?php echo esc_attr($developer['siedz_miejscowosc'] ?? ''); ?>" required>
+                                <label for="siedz_miejscowosc">Miejscowość <span class="required">*</span></label>
+                                <input type="text" id="siedz_miejscowosc" name="siedz_miejscowosc" value="<?php echo esc_attr($developer->siedz_miejscowosc ?? ''); ?>" required>
                             </div>
                             <div class="ujc-form-grid">
                                 <div class="ujc-form-field">
-                                    <label for="siedz_ulica">Ulica</label>
-                                    <input type="text" id="siedz_ulica" name="siedz_ulica" value="<?php echo esc_attr($developer['siedz_ulica'] ?? ''); ?>">
+                                    <label for="siedz_ulica">Ulica <span class="required">*</span></label>
+                                    <input type="text" id="siedz_ulica" name="siedz_ulica" value="<?php echo esc_attr($developer->siedz_ulica ?? ''); ?>" required>
                                 </div>
                                 <div class="ujc-form-field">
-                                    <label for="siedz_nr">Nr</label>
-                                    <input type="text" id="siedz_nr" name="siedz_nr" value="<?php echo esc_attr($developer['siedz_nr'] ?? ''); ?>">
+                                    <label for="siedz_nr">Nr <span class="required">*</span></label>
+                                    <input type="text" id="siedz_nr" name="siedz_nr" value="<?php echo esc_attr($developer->siedz_nr ?? ''); ?>" required>
                                 </div>
                             </div>
                             <div class="ujc-form-grid">
                                 <div class="ujc-form-field">
                                     <label for="siedz_lokal">Nr lokalu</label>
-                                    <input type="text" id="siedz_lokal" name="siedz_lokal" value="<?php echo esc_attr($developer['siedz_lokal'] ?? ''); ?>">
+                                    <input type="text" id="siedz_lokal" name="siedz_lokal" value="<?php echo esc_attr($developer->siedz_lokal ?? ''); ?>">
                                 </div>
                                 <div class="ujc-form-field">
-                                    <label for="siedz_kod">Kod pocztowy</label>
-                                    <input type="text" id="siedz_kod" name="siedz_kod" value="<?php echo esc_attr($developer['siedz_kod'] ?? ''); ?>" pattern="[0-9]{2}-[0-9]{3}" placeholder="00-000">
+                                    <label for="siedz_kod">Kod pocztowy <span class="required">*</span></label>
+                                    <input type="text" id="siedz_kod" name="siedz_kod" value="<?php echo esc_attr($developer->siedz_kod ?? ''); ?>" pattern="[0-9]{2}-[0-9]{3}" placeholder="00-000" required>
                                 </div>
                             </div>
                         </div>
@@ -413,41 +483,41 @@ class SupplierDataPage extends UJC_Admin_Page {
                                 <button type="button" id="copy-address-btn" class="button">📋 Kopiuj adres siedziby</button>
                             </div>
                             <div class="ujc-form-field">
-                                <label for="sprzed_wojewodztwo">Województwo <span class="ujc-required">*</span></label>
-                                <input type="text" id="sprzed_wojewodztwo" name="sprzed_wojewodztwo" value="<?php echo esc_attr($developer['sprzed_wojewodztwo'] ?? ''); ?>" required>
+                                <label for="sprzed_wojewodztwo">Województwo <span class="required">*</span></label>
+                                <input type="text" id="sprzed_wojewodztwo" name="sprzed_wojewodztwo" value="<?php echo esc_attr($developer->sprzed_wojewodztwo ?? ''); ?>" required>
                             </div>
                             <div class="ujc-form-grid">
                                 <div class="ujc-form-field">
                                     <label for="sprzed_powiat">Powiat</label>
-                                    <input type="text" id="sprzed_powiat" name="sprzed_powiat" value="<?php echo esc_attr($developer['sprzed_powiat'] ?? ''); ?>">
+                                    <input type="text" id="sprzed_powiat" name="sprzed_powiat" value="<?php echo esc_attr($developer->sprzed_powiat ?? ''); ?>">
                                 </div>
                                 <div class="ujc-form-field">
                                     <label for="sprzed_gmina">Gmina</label>
-                                    <input type="text" id="sprzed_gmina" name="sprzed_gmina" value="<?php echo esc_attr($developer['sprzed_gmina'] ?? ''); ?>">
+                                    <input type="text" id="sprzed_gmina" name="sprzed_gmina" value="<?php echo esc_attr($developer->sprzed_gmina ?? ''); ?>">
                                 </div>
                             </div>
                             <div class="ujc-form-field">
-                                <label for="sprzed_miejscowosc">Miejscowość <span class="ujc-required">*</span></label>
-                                <input type="text" id="sprzed_miejscowosc" name="sprzed_miejscowosc" value="<?php echo esc_attr($developer['sprzed_miejscowosc'] ?? ''); ?>" required>
+                                <label for="sprzed_miejscowosc">Miejscowość <span class="required">*</span></label>
+                                <input type="text" id="sprzed_miejscowosc" name="sprzed_miejscowosc" value="<?php echo esc_attr($developer->sprzed_miejscowosc ?? ''); ?>" required>
                             </div>
                             <div class="ujc-form-grid">
                                 <div class="ujc-form-field">
-                                    <label for="sprzed_ulica">Ulica</label>
-                                    <input type="text" id="sprzed_ulica" name="sprzed_ulica" value="<?php echo esc_attr($developer['sprzed_ulica'] ?? ''); ?>">
+                                    <label for="sprzed_ulica">Ulica <span class="required">*</span></label>
+                                    <input type="text" id="sprzed_ulica" name="sprzed_ulica" value="<?php echo esc_attr($developer->sprzed_ulica ?? ''); ?>" required>
                                 </div>
                                 <div class="ujc-form-field">
-                                    <label for="sprzed_nr">Nr</label>
-                                    <input type="text" id="sprzed_nr" name="sprzed_nr" value="<?php echo esc_attr($developer['sprzed_nr'] ?? ''); ?>">
+                                    <label for="sprzed_nr">Nr <span class="required">*</span></label>
+                                    <input type="text" id="sprzed_nr" name="sprzed_nr" value="<?php echo esc_attr($developer->sprzed_nr ?? ''); ?>" required>
                                 </div>
                             </div>
                             <div class="ujc-form-grid">
                                 <div class="ujc-form-field">
                                     <label for="sprzed_lokal">Nr lokalu</label>
-                                    <input type="text" id="sprzed_lokal" name="sprzed_lokal" value="<?php echo esc_attr($developer['sprzed_lokal'] ?? ''); ?>">
+                                    <input type="text" id="sprzed_lokal" name="sprzed_lokal" value="<?php echo esc_attr($developer->sprzed_lokal ?? ''); ?>">
                                 </div>
                                 <div class="ujc-form-field">
-                                    <label for="sprzed_kod">Kod pocztowy</label>
-                                    <input type="text" id="sprzed_kod" name="sprzed_kod" value="<?php echo esc_attr($developer['sprzed_kod'] ?? ''); ?>" pattern="[0-9]{2}-[0-9]{3}" placeholder="00-000">
+                                    <label for="sprzed_kod">Kod pocztowy <span class="required">*</span></label>
+                                    <input type="text" id="sprzed_kod" name="sprzed_kod" value="<?php echo esc_attr($developer->sprzed_kod ?? ''); ?>" pattern="[0-9]{2}-[0-9]{3}" placeholder="00-000" required>
                                 </div>
                             </div>
                         </div>
@@ -458,15 +528,11 @@ class SupplierDataPage extends UJC_Admin_Page {
                         <h3>📋 Dodatkowe informacje</h3>
                         <div class="ujc-form-field">
                             <label for="dodatkowe_lokalizacje">Dodatkowe lokalizacje sprzedaży</label>
-                            <textarea id="dodatkowe_lokalizacje" name="dodatkowe_lokalizacje" rows="3"><?php echo esc_textarea($developer['dodatkowe_lokalizacje'] ?? ''); ?></textarea>
+                            <textarea id="dodatkowe_lokalizacje" name="dodatkowe_lokalizacje" rows="3"><?php echo esc_textarea($developer->dodatkowe_lokalizacje ?? ''); ?></textarea>
                         </div>
                         <div class="ujc-form-field">
                             <label for="sposob_kontaktu">Sposób kontaktu z nabywcą</label>
-                            <textarea id="sposob_kontaktu" name="sposob_kontaktu" rows="3"><?php echo esc_textarea($developer['sposob_kontaktu'] ?? ''); ?></textarea>
-                        </div>
-                        <div class="ujc-form-field">
-                            <label for="prospekt_url">URL prospektu informacyjnego</label>
-                            <input type="url" id="prospekt_url" name="prospekt_url" value="<?php echo esc_attr($developer['prospekt_url'] ?? ''); ?>">
+                            <textarea id="sposob_kontaktu" name="sposob_kontaktu" rows="3"><?php echo esc_textarea($developer->sposob_kontaktu ?? ''); ?></textarea>
                         </div>
                     </div>
                     
@@ -510,24 +576,19 @@ class SupplierDataPage extends UJC_Admin_Page {
                     var originalValue = $button.val();
                     $button.val('⏳ Zapisywanie...').prop('disabled', true);
                     
-                    $.ajax({
-                        url: ajaxurl,
-                        type: 'POST',
-                        data: $(this).serialize() + '&action=ujc_save_developer',
-                        success: function(response) {
-                            if (response.success) {
-                                alert('✅ ' + response.data);
-                                location.reload();
-                            } else {
-                                alert('❌ ' + response.data);
-                            }
-                        },
-                        error: function() {
-                            alert('❌ Błąd połączenia');
-                        },
-                        complete: function() {
-                            $button.val(originalValue).prop('disabled', false);
+                    const formData = $('#developer-form').serialize() + '&action=ujc_save_developer&nonce=' + $('input[name="nonce"]').val();
+                    
+                    $.post(ajaxurl, formData, function(response) {
+                        if (response.success) {
+                            alert('✅ ' + response.data);
+                            location.reload();
+                        } else {
+                            alert('❌ ' + response.data);
                         }
+                        $button.val(originalValue).prop('disabled', false);
+                    }).fail(function(xhr, status, error) {
+                        alert('❌ Błąd połączenia: ' + error);
+                        $button.val(originalValue).prop('disabled', false);
                     });
                 });
             });

@@ -9,24 +9,29 @@ class DeveloperRepository {
     /**
      * Get developer data
      */
-    public function read() {
+    public function read(): ?SupplierDto {
         $table = TableNames::getDeveloperInfo();        
         global $wpdb;
-        return $wpdb->get_row("SELECT * FROM `{$table}` LIMIT 1", ARRAY_A);
+        $data = $wpdb->get_row($wpdb->prepare("SELECT * FROM `{$table}` LIMIT 1"), ARRAY_A);
+        
+        return $data ? SupplierDto::databaseToModel($data) : null;
     }
     
     /**
      * Save developer data (create or update)
      */
-    public function save($data) {
+    public function save(SupplierDto $dto) {
         $table = TableNames::getDeveloperInfo();        
         global $wpdb;
+        
+        $data = $dto->modelToDatabase();
+        
         // Check if record already exists
         $existing = $this->read();
         
         if ($existing) {
             // Update existing
-            return $wpdb->update($table, $data, ['id' => $existing['id']]);
+            return $wpdb->update($table, $data, ['id' => $existing->id]);
         } else {
             // Create new
             return $wpdb->insert($table, $data);

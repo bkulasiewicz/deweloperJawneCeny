@@ -12,80 +12,50 @@ class SaveDeveloperInfoUseCase {
         $this->repository = new DeveloperRepository();
     }
     
-    public function execute($data) {
+    public function execute(SupplierDto $supplier): Result {
+        // Business validation
+        if (empty($supplier->nazwa)) {
+            return Result::failure('Nazwa firmy jest wymagana');
+        }
+        
+        if (empty($supplier->nr_krs)) {
+            return Result::failure('Numer KRS jest wymagany');
+        }
+        
+        if (empty($supplier->nr_nip)) {
+            return Result::failure('NIP jest wymagany');
+        }
+        
+        if (strlen($supplier->nr_nip) !== 10 || !is_numeric($supplier->nr_nip)) {
+            return Result::failure('NIP musi mieć dokładnie 10 cyfr');
+        }
+        
+        if (empty($supplier->email) || !filter_var($supplier->email, FILTER_VALIDATE_EMAIL)) {
+            return Result::failure('Prawidłowy email jest wymagany');
+        }
+        
+        if (empty($supplier->siedz_wojewodztwo)) {
+            return Result::failure('Województwo siedziby jest wymagane');
+        }
+        
+        if (empty($supplier->siedz_miejscowosc)) {
+            return Result::failure('Miejscowość siedziby jest wymagana');
+        }
+        
+        if (empty($supplier->sprzed_wojewodztwo)) {
+            return Result::failure('Województwo sprzedaży jest wymagane');
+        }
+        
+        if (empty($supplier->sprzed_miejscowosc)) {
+            return Result::failure('Miejscowość sprzedaży jest wymagana');
+        }
+        
         try {
-            // Walidacja danych
-            $sanitized_data = $this->sanitize_data($data);
-            
-            // Zapisz do bazy przez repozytorium
-            $result = $this->repository->save($sanitized_data);
-            
-            if ($result !== false) {
-                return [
-                    'success' => true,
-                    'message' => 'Dane dostawcy zostały zapisane!'
-                ];
-            } else {
-                return [
-                    'success' => false,
-                    'message' => 'Błąd podczas zapisywania.'
-                ];
-            }
-            
+            $this->repository->save($supplier);
+            return Result::success('Dane dostawcy zostały zapisane!');
         } catch (Exception $e) {
-            return [
-                'success' => false,
-                'message' => 'Błąd serwera: ' . $e->getMessage()
-            ];
+            Logger::log('Repository error in SaveDeveloperInfoUseCase: ' . $e->getMessage(), Logger::LEVEL_ERROR);
+            return Result::failure('Błąd podczas zapisywania danych');
         }
-    }
-    
-    private function sanitize_data($data) {
-        $sanitization_rules = [
-            'nazwa' => 'sanitize_text_field',
-            'forma_prawna' => 'sanitize_text_field',
-            'nr_krs' => 'sanitize_text_field',
-            'nr_ceidg' => 'sanitize_text_field',
-            'nr_nip' => 'sanitize_text_field',
-            'nr_regon' => 'sanitize_text_field',
-            'telefon' => 'sanitize_text_field',
-            'email' => 'sanitize_email',
-            'fax' => 'sanitize_text_field',
-            'strona_www' => 'esc_url_raw',
-            
-            'siedz_wojewodztwo' => 'sanitize_text_field',
-            'siedz_powiat' => 'sanitize_text_field',
-            'siedz_gmina' => 'sanitize_text_field',
-            'siedz_miejscowosc' => 'sanitize_text_field',
-            'siedz_ulica' => 'sanitize_text_field',
-            'siedz_nr' => 'sanitize_text_field',
-            'siedz_lokal' => 'sanitize_text_field',
-            'siedz_kod' => 'sanitize_text_field',
-            
-            'sprzed_wojewodztwo' => 'sanitize_text_field',
-            'sprzed_powiat' => 'sanitize_text_field',
-            'sprzed_gmina' => 'sanitize_text_field',
-            'sprzed_miejscowosc' => 'sanitize_text_field',
-            'sprzed_ulica' => 'sanitize_text_field',
-            'sprzed_nr' => 'sanitize_text_field',
-            'sprzed_lokal' => 'sanitize_text_field',
-            'sprzed_kod' => 'sanitize_text_field',
-            
-            'dodatkowe_lokalizacje' => 'sanitize_textarea_field',
-            'sposob_kontaktu' => 'sanitize_textarea_field',
-            'prospekt_url' => 'esc_url_raw'
-        ];
-        
-        $sanitized = [];
-        foreach ($sanitization_rules as $field => $sanitize_callback) {
-            $value = $data[$field] ?? '';
-            if (is_callable($sanitize_callback)) {
-                $sanitized[$field] = call_user_func($sanitize_callback, $value);
-            } else {
-                $sanitized[$field] = sanitize_text_field($value);
-            }
-        }
-        
-        return $sanitized;
     }
 }

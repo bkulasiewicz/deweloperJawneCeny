@@ -13,26 +13,29 @@ class CSVFormatter {
     /**
      * Generate CSV rows from developer, investment and resources data
      * 
-     * @param array $developer Developer data
-     * @param array $investment Investment data
-     * @param array $resources Array of resource data
+     * @param SupplierDto $developer Developer data
+     * @param InvestmentDto $investment Investment data
+     * @param ResourceDto[] $resources Array of ResourceDto objects
      * @return Generator CSV rows as generator for memory efficiency
      */
-    public function generate(array $developer, array $investment, array $resources): Generator {
+    public function generate(SupplierDto $developer, InvestmentDto $investment, array $resources, array $priceHistory = []): Generator {
         // Yield headers first
-        yield $this->getCsvHeaders();
+        yield $this->getCsvHeaders($investment);
         
         // Yield data rows
         foreach ($resources as $resource) {
-            yield $this->resourceToRow($developer, $investment, $resource);
+            $resourcePrices = $priceHistory[$resource->id];
+            yield $this->resourceToRow($developer, $investment, $resource, $resourcePrices);
         }
     }
     
     /**
      * Get CSV headers according to Polish law requirements
+     * Dynamic headers based on investment configuration
      */
-    private function getCsvHeaders(): array {
-        return [
+    private function getCsvHeaders(InvestmentDto $investment): array {
+        // Basic headers - always included
+        $headers = [
             'Nazwa dewelopera',
             'Forma prawna dewelopera',
             'Nr KRS',
@@ -75,80 +78,144 @@ class CSVFormatter {
             'Cena lokalu mieszkalnego lub domu jednorodzinnego będących przedmiotem umowy stanowiąca iloczyn ceny m2 oraz powierzchni [zł]',
             'Data od której obowiązuje cena lokalu mieszkalnego lub domu jednorodzinnego będących przedmiotem umowy stanowiąca iloczyn ceny m2 oraz powierzchni',
             'Cena lokalu mieszkalnego lub domu jednorodzinnego uwzględniająca cenę lokalu stanowiącą iloczyn powierzchni oraz metrażu i innych składowych ceny, o których mowa w art. 19a ust. 1 pkt 1), 2) lub 3) [zł]',
-            'Data od której obowiązuje cena lokalu mieszkalnego lub domu jednorodzinnego uwzględniająca cenę lokalu stanowiącą iloczyn powierzchni oraz metrażu i innych składowych ceny, o których mowa w art. 19a ust. 1 pkt 1), 2) lub 3)',
-            'Rodzaj części nieruchomości będących przedmiotem umowy',
-            'Oznaczenie części nieruchomości nadane przez dewelopera',
-            'Cena części nieruchomości, będących przedmiotem umowy [zł]',
-            'Data od której obowiązuje cena części nieruchomości, będących przedmiotem umowy'
+            'Data od której obowiązuje cena lokalu mieszkalnego lub domu jednorodzinnego uwzględniająca cenę lokalu stanowiącą iloczyn powierzchni oraz metrażu i innych składowych ceny, o których mowa w art. 19a ust. 1 pkt 1), 2) lub 3)'
         ];
+        
+        // Dynamic component headers based on investment configuration
+        if ($investment->has_property_parts) {
+            $headers = array_merge($headers, [
+                'Rodzaj części nieruchomości będących przedmiotem umowy',
+                'Oznaczenie części nieruchomości nadane przez dewelopera',
+                'Cena części nieruchomości, będących przedmiotem umowy [zł]',
+                'Data od której obowiązuje cena części nieruchomości, będących przedmiotem umowy'
+            ]);
+        }
+        
+        if ($investment->has_belonging_rooms) {
+            $headers = array_merge($headers, [
+                'Rodzaj pomieszczeń przynależnych, o których mowa w art. 2 ust. 4 ustawy z dnia 24 czerwca 1994 r. o własności lokali',
+                'Oznaczenie pomieszczeń przynależnych, o których mowa w art. 2 ust. 4 ustawy z dnia 24 czerwca 1994 r. o własności lokali',
+                'Wyszczególnienie cen pomieszczeń przynależnych, o których mowa w art. 2 ust. 4 ustawy z dnia 24 czerwca 1994 r. o własności lokali [zł]',
+                'Data od której obowiązuje cena wyszczególnionych pomieszczeń przynależnych, o których mowa w art. 2 ust. 4 ustawy z dnia 24 czerwca 1994 r. o własności lokali'
+            ]);
+        }
+        
+        if ($investment->has_usage_rights) {
+            $headers = array_merge($headers, [
+                'Wyszczególnienie praw niezbędnych do korzystania z lokalu mieszkalnego lub domu jednorodzinnego',
+                'Wartość praw niezbędnych do korzystania z lokalu mieszkalnego lub domu jednorodzinnego [zł]',
+                'Data od której obowiązuje cena wartości praw niezbędnych do korzystania z lokalu mieszkalnego lub domu jednorodzinnego'
+            ]);
+        }
+        
+        if ($investment->has_other_services) {
+            $headers = array_merge($headers, [
+                'Wyszczególnienie rodzajów innych świadczeń pieniężnych, które nabywca zobowiązany jest spełnić na rzecz dewelopera w wykonaniu umowy przenoszącej własność',
+                'Wartość innych świadczeń pieniężnych, które nabywca zobowiązany jest spełnić na rzecz dewelopera w wykonaniu umowy przenoszącej własność [zł]',
+                'Data od której obowiązuje cena wartości innych świadczeń pieniężnych, które nabywca zobowiązany jest spełnić na rzecz dewelopera w wykonaniu umowy przenoszącej własność'
+            ]);
+        }
+        
+        return $headers;
     }
     
     /**
      * Convert resource data to CSV row
+     * Dynamic row generation based on investment configuration
      */
-    private function resourceToRow(array $developer, array $investment, array $resource): array {
+    private function resourceToRow(SupplierDto $developer, InvestmentDto $investment, ResourceDto $resource, PriceHistoryDto $prices): array {
+        // Basic row data - always included
         $row = [
-            $developer['nazwa'] ?? '',
-            $developer['forma_prawna'] ?? '',
-            $developer['nr_krs'] ?? '',
-            $developer['nr_ceidg'] ?? '',
-            $developer['nr_nip'] ?? '',
-            $developer['nr_regon'] ?? '',
-            $developer['telefon'] ?? '',
-            $developer['email'] ?? '',
-            $developer['fax'] ?? '',
-            $developer['strona_www'] ?? '',
+            $developer->nazwa,
+            $developer->forma_prawna ?? '',
+            $developer->nr_krs,
+            $developer->nr_ceidg ?? '',
+            $developer->nr_nip,
+            $developer->nr_regon ?? '',
+            $developer->telefon ?? '',
+            $developer->email,
+            $developer->fax ?? '',
+            $developer->strona_www,
             
             // Headquarters address
-            $developer['siedz_wojewodztwo'] ?? '',
-            $developer['siedz_powiat'] ?? '',
-            $developer['siedz_gmina'] ?? '',
-            $developer['siedz_miejscowosc'] ?? '',
-            $developer['siedz_ulica'] ?? '',
-            $developer['siedz_nr'] ?? '',
-            $developer['siedz_lokal'] ?? '',
-            $developer['siedz_kod'] ?? '',
+            $developer->siedz_wojewodztwo,
+            $developer->siedz_powiat ?? '',
+            $developer->siedz_gmina ?? '',
+            $developer->siedz_miejscowosc,
+            $developer->siedz_ulica,
+            $developer->siedz_nr,
+            $developer->siedz_lokal ?? '',
+            $developer->siedz_kod,
             
             // Sales address
-            $developer['sprzed_wojewodztwo'] ?? $developer['siedz_wojewodztwo'] ?? '',
-            $developer['sprzed_powiat'] ?? $developer['siedz_powiat'] ?? '',
-            $developer['sprzed_gmina'] ?? $developer['siedz_gmina'] ?? '',
-            $developer['sprzed_miejscowosc'] ?? $developer['siedz_miejscowosc'] ?? '',
-            $developer['sprzed_ulica'] ?? $developer['siedz_ulica'] ?? '',
-            $developer['sprzed_nr'] ?? $developer['siedz_nr'] ?? '',
-            $developer['sprzed_lokal'] ?? $developer['siedz_lokal'] ?? '',
-            $developer['sprzed_kod'] ?? $developer['siedz_kod'] ?? '',
+            $developer->sprzed_wojewodztwo,
+            $developer->sprzed_powiat ?? '',
+            $developer->sprzed_gmina ?? '',
+            $developer->sprzed_miejscowosc,
+            $developer->sprzed_ulica,
+            $developer->sprzed_nr,
+            $developer->sprzed_lokal ?? '',
+            $developer->sprzed_kod,
             
-            $developer['dodatkowe_lokalizacje'] ?? '',
-            $developer['sposob_kontaktu'] ?? '',
+            $developer->dodatkowe_lokalizacje ?? '',
+            $developer->sposob_kontaktu ?? '',
             
             // Project location
-            $investment['proj_wojewodztwo'] ?? '',
-            $investment['proj_powiat'] ?? '',
-            $investment['proj_gmina'] ?? '',
-            $investment['proj_miejscowosc'] ?? '',
-            $investment['proj_ulica'] ?? '',
-            $investment['proj_nr'] ?? '',
-            $investment['proj_kod'] ?? '',
+            $investment->proj_wojewodztwo,
+            $investment->proj_powiat,
+            $investment->proj_gmina,
+            $investment->proj_miejscowosc,
+            $investment->proj_ulica,
+            $investment->proj_nr,
+            $investment->proj_kod,
             
-            // Property - use current prices from history or basic ones
-            $resource['rodzaj_nieruchomosci'] ?? '',
-            $resource['nr_lokalu'] ?? '',
-            $resource['current_cena_m2'] ?? $resource['cena_m2'] ?? '',
-            DateHelper::formatForCsv($resource['current_data_zmiany'] ?? $resource['data_cena_m2']),
+            // Property - use current prices from history
+            $resource->rodzaj_nieruchomosci,
+            $resource->nr_lokalu,
+            $prices->cena_m2 ?? '',
+            DateHelper::formatForCsv($prices->data_zmiany),
             
             // Total price
-            $resource['current_cena_calkowita'] ?? $resource['cena_calkowita'] ?? '',
-            DateHelper::formatForCsv($resource['current_data_zmiany'] ?? $resource['data_cena_calkowita']),
-            $resource['current_cena_z_dodatkami'] ?? $resource['cena_z_dodatkami'] ?? '',
-            DateHelper::formatForCsv($resource['current_data_zmiany'] ?? $resource['data_cena_z_dodatkami']),
-            
-            // Property parts (direct from resources table)
-            $resource['extra_rodzaj_czesci'] ?? '',
-            $resource['extra_oznaczenie_czesci'] ?? '', 
-            $resource['extra_cena_czesci'] ?? '',
-            DateHelper::formatForCsv($resource['extra_data_cena_czesci'] ?? null)
+            $prices->cena_calkowita ?? '',
+            DateHelper::formatForCsv($prices->data_zmiany),
+            $prices->cena_z_dodatkami ?? '',
+            DateHelper::formatForCsv($prices->data_cena_z_dodatkami)
         ];
+        
+        // Dynamic component data based on investment configuration
+        if ($investment->has_property_parts) {
+            $row = array_merge($row, [
+                $this->getFirstComponentField($resource, 'property_parts', 'type'),
+                $this->getFirstComponentField($resource, 'property_parts', 'designation'),
+                $this->getFirstComponentField($resource, 'property_parts', 'price'),
+                $this->getFirstComponentFieldDate($resource, 'property_parts', 'price_date')
+            ]);
+        }
+        
+        if ($investment->has_belonging_rooms) {
+            $row = array_merge($row, [
+                $this->getFirstComponentField($resource, 'belonging_rooms', 'type'),
+                $this->getFirstComponentField($resource, 'belonging_rooms', 'designation'),
+                $this->getFirstComponentField($resource, 'belonging_rooms', 'price'),
+                $this->getFirstComponentFieldDate($resource, 'belonging_rooms', 'price_date')
+            ]);
+        }
+        
+        if ($investment->has_usage_rights) {
+            $row = array_merge($row, [
+                $this->getFirstComponentField($resource, 'usage_rights', 'description'),
+                $this->getFirstComponentField($resource, 'usage_rights', 'price'),
+                $this->getFirstComponentFieldDate($resource, 'usage_rights', 'price_date')
+            ]);
+        }
+        
+        if ($investment->has_other_services) {
+            $row = array_merge($row, [
+                $this->getFirstComponentField($resource, 'other_services', 'description'),
+                $this->getFirstComponentField($resource, 'other_services', 'price'),
+                $this->getFirstComponentFieldDate($resource, 'other_services', 'price_date')
+            ]);
+        }
         
         // Replace all empty values with 'X' according to law template
         return $this->applyCsvEmptyRules($row);
@@ -159,6 +226,64 @@ class CSVFormatter {
      */
     private function applyCsvEmptyRules(array $row): array {
         return array_map(fn($value) => empty($value) ? 'X' : $value, $row);
+    }
+    
+    /**
+     * Get first component field value from ResourceDto
+     */
+    private function getFirstComponentField(ResourceDto $resource, $componentType, $field) {
+        // Check if resource has the component property
+        if (!property_exists($resource, $componentType) || empty($resource->$componentType)) {
+            return '';
+        }
+        
+        $components = $resource->$componentType;
+        if (!is_array($components) || empty($components)) {
+            return '';
+        }
+        
+        $firstComponent = $components[0] ?? null;
+        if (!$firstComponent) {
+            return '';
+        }
+        
+        // Handle both model objects and arrays
+        if (is_object($firstComponent)) {
+            return $firstComponent->$field ?? '';
+        } else {
+            return $firstComponent[$field] ?? '';
+        }
+    }
+    
+    /**
+     * Get first component date field value from ResourceDto
+     */
+    private function getFirstComponentFieldDate(ResourceDto $resource, $componentType, $field) {
+        // Check if resource has the component property
+        if (!property_exists($resource, $componentType) || empty($resource->$componentType)) {
+            return '';
+        }
+        
+        $components = $resource->$componentType;
+        if (!is_array($components) || empty($components)) {
+            return '';
+        }
+        
+        $firstComponent = $components[0] ?? null;
+        if (!$firstComponent) {
+            return '';
+        }
+        
+        // Handle both model objects and arrays
+        if (is_object($firstComponent)) {
+            $date = $firstComponent->$field ?? null;
+            if ($date instanceof DateTime) {
+                return DateHelper::formatForCsv($date->format('Y-m-d'));
+            }
+            return DateHelper::formatForCsv($date);
+        } else {
+            return DateHelper::formatForCsv($firstComponent[$field] ?? null);
+        }
     }
     
     /**

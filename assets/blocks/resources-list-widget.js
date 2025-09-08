@@ -93,46 +93,22 @@ document.addEventListener('DOMContentLoaded', function() {
             historyHtml += '<div class="history-date">' + formatDate(entry.data_zmiany) + '</div>';
             
             // Price per m2
-            if (entry.cena_m2_new) {
-                historyHtml += '<div class="history-change">';
-                historyHtml += '<span class="history-change-type">Cena za m²:</span>';
-                historyHtml += '<span class="price-change">';
-                
-                if (entry.cena_m2_old) {
-                    historyHtml += '<span class="price-old">' + formatPrice(entry.cena_m2_old) + ' zł</span> → ';
-                }
-                historyHtml += '<span class="price-new">' + formatPrice(entry.cena_m2_new) + ' zł</span>';
-                historyHtml += '</span>';
-                historyHtml += '</div>';
-            }
+            historyHtml += '<div class="history-change">';
+            historyHtml += '<span class="history-change-type">Cena za m²:</span>';
+            historyHtml += '<span class="price-current">' + formatPrice(entry.cena_m2) + ' zł</span>';
+            historyHtml += '</div>';
             
             // Total price
-            if (entry.cena_calkowita_new) {
-                historyHtml += '<div class="history-change">';
-                historyHtml += '<span class="history-change-type">Cena całkowita:</span>';
-                historyHtml += '<span class="price-change">';
-                
-                if (entry.cena_calkowita_old) {
-                    historyHtml += '<span class="price-old">' + formatPrice(entry.cena_calkowita_old) + ' zł</span> → ';
-                }
-                historyHtml += '<span class="price-new">' + formatPrice(entry.cena_calkowita_new) + ' zł</span>';
-                historyHtml += '</span>';
-                historyHtml += '</div>';
-            }
+            historyHtml += '<div class="history-change">';
+            historyHtml += '<span class="history-change-type">Cena całkowita:</span>';
+            historyHtml += '<span class="price-current">' + formatPrice(entry.cena_calkowita) + ' zł</span>';
+            historyHtml += '</div>';
             
             // Price with extras
-            if (entry.cena_z_dodatkami_new) {
-                historyHtml += '<div class="history-change">';
-                historyHtml += '<span class="history-change-type">Cena z dodatkami:</span>';
-                historyHtml += '<span class="price-change">';
-                
-                if (entry.cena_z_dodatkami_old) {
-                    historyHtml += '<span class="price-old">' + formatPrice(entry.cena_z_dodatkami_old) + ' zł</span> → ';
-                }
-                historyHtml += '<span class="price-new">' + formatPrice(entry.cena_z_dodatkami_new) + ' zł</span>';
-                historyHtml += '</span>';
-                historyHtml += '</div>';
-            }
+            historyHtml += '<div class="history-change">';
+            historyHtml += '<span class="history-change-type">Cena z dodatkami:</span>';
+            historyHtml += '<span class="price-current">' + formatPrice(entry.cena_z_dodatkami) + ' zł</span>';
+            historyHtml += '</div>';
             
             historyHtml += '</div>';
         });

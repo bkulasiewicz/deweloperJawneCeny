@@ -1,0 +1,53 @@
+<?php
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class UsageRightDto extends ModelDto {
+    
+    public const FIELD_ID = 'id';
+    public const FIELD_RESOURCE_ID = 'resource_id';
+    public const FIELD_DESCRIPTION = 'description';
+    public const FIELD_PRICE = 'price';
+    public const FIELD_PRICE_DATE = 'price_date';
+    
+    public readonly int $id;
+    public readonly int $resource_id;
+    public readonly string $description;
+    public readonly float $price;
+    public readonly DateTime $price_date;
+    
+    public function __construct(
+        int $id,
+        int $resource_id,
+        string $description,
+        float $price,
+        DateTime $price_date
+    ) {
+        $this->id = $id;
+        $this->resource_id = $resource_id;
+        $this->description = $description;
+        $this->price = $price;
+        $this->price_date = $price_date;
+    }
+    
+    public static function databaseToModel(array $data): static {
+        return new static(
+            (int)$data[self::FIELD_ID],
+            (int)$data[self::FIELD_RESOURCE_ID],
+            $data[self::FIELD_DESCRIPTION],
+            (float)$data[self::FIELD_PRICE],
+            new DateTime($data[self::FIELD_PRICE_DATE])
+        );
+    }
+    
+    public function modelToDatabase(): array {
+        return [
+            self::FIELD_RESOURCE_ID => $this->resource_id,
+            self::FIELD_DESCRIPTION => $this->description,
+            self::FIELD_PRICE => $this->price,
+            self::FIELD_PRICE_DATE => $this->price_date
+        ];
+    }
+}

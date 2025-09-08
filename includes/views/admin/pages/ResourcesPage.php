@@ -273,7 +273,7 @@ class ResourcesPage {
                 <p style="margin-top: 15px; font-size: 14px; color: #666;">
                     Możesz również zaimportować zasoby z pliku CSV. Import pozwoli Ci szybko dodać wiele nieruchomości jednocześnie.
                 </p>
-                <button type="button" class="button button-secondary" onclick="openImportDialog()" style="margin-top: 10px; display: flex; align-items: center; gap: 5px;">
+                <button type="button" class="button button-secondary" onclick="openImportDialog()" style="margin-top: 10px; display: none; align-items: center; gap: 5px;">
                     <span class="dashicons dashicons-upload" style="font-size: 16px; line-height: 1;"></span>
                     <span>Importuj z CSV</span>
                 </button>

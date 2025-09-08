@@ -33,6 +33,17 @@ class UJC_Admin {
         $this->dev_console_instance = new DevConsoleTile();
         
         // AJAX handlers usunięte - są obsługiwane w głównym pliku pluginu
+        
+        // Debug: Check if AJAX action is registered
+        add_action('admin_init', function() {
+            global $wp_filter;
+            $ajax_action = 'wp_ajax_ujc_save_developer';
+            if (isset($wp_filter[$ajax_action])) {
+                Logger::log('AJAX action registered: ' . $ajax_action, Logger::LEVEL_INFO);
+            } else {
+                Logger::log('AJAX action NOT registered: ' . $ajax_action, Logger::LEVEL_ERROR);
+            }
+        });
     }
     
     public function add_admin_menu() {

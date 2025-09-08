@@ -26,6 +26,11 @@ class UJC_Schema_Manager {
         // 3. ZASOBY/NIERUCHOMOŚCI
         self::create_resources_table($wpdb, $charset_collate);
         
+        // 4. KOMPONENTY ZASOBÓW
+        self::create_resource_property_parts_table($wpdb, $charset_collate);
+        self::create_resource_belonging_rooms_table($wpdb, $charset_collate);
+        self::create_resource_usage_rights_table($wpdb, $charset_collate);
+        self::create_resource_other_services_table($wpdb, $charset_collate);
         
         // 5. HISTORIA CEN
         self::create_price_history_table($wpdb, $charset_collate);
@@ -46,6 +51,10 @@ class UJC_Schema_Manager {
         $tables = [
             TableNames::getPriceHistory(),
             TableNames::getPublicationHistory(),
+            TableNames::getResourcePropertyParts(),
+            TableNames::getResourceBelongingRooms(),
+            TableNames::getResourceUsageRights(),
+            TableNames::getResourceOtherServices(),
             TableNames::getResources(), 
             TableNames::getInvestmentInfo(),
             TableNames::getDeveloperInfo()
@@ -122,6 +131,11 @@ class UJC_Schema_Manager {
             proj_nr varchar(20),
             proj_kod varchar(10),
             
+            has_property_parts tinyint(1) DEFAULT 0,
+            has_belonging_rooms tinyint(1) DEFAULT 0,
+            has_usage_rights tinyint(1) DEFAULT 0,
+            has_other_services tinyint(1) DEFAULT 0,
+            
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id)
@@ -142,21 +156,7 @@ class UJC_Schema_Manager {
             nr_lokalu varchar(50) NOT NULL,
             powierzchnia_uzytkowa decimal(8,2) NOT NULL,
             
-            cena_m2 decimal(10,2) NOT NULL,
-            data_cena_m2 datetime NOT NULL,
-            
-            cena_calkowita decimal(12,2),
-            data_cena_calkowita datetime,
-            
-            cena_z_dodatkami decimal(12,2),
-            data_cena_z_dodatkami datetime,
-            
             status enum('dostepny', 'sprzedany', 'rezerwacja') DEFAULT 'dostepny',
-            
-            extra_rodzaj_czesci varchar(100),
-            extra_oznaczenie_czesci varchar(50),
-            extra_cena_czesci decimal(10,2),
-            extra_data_cena_czesci datetime,
             
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -166,6 +166,95 @@ class UJC_Schema_Manager {
         ) " . $charset_collate));
     }
     
+    private static function create_resource_property_parts_table($wpdb, $charset_collate) {
+        $table = TableNames::getResourcePropertyParts();
+        
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
+            return;
+        }
+        
+        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            resource_id int(11) NOT NULL,
+            type varchar(100) NOT NULL,
+            designation varchar(50),
+            price decimal(10,2),
+            price_date datetime,
+            
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            
+            PRIMARY KEY (id),
+            KEY resource_id (resource_id)
+        ) " . $charset_collate));
+    }
+    
+    private static function create_resource_belonging_rooms_table($wpdb, $charset_collate) {
+        $table = TableNames::getResourceBelongingRooms();
+        
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
+            return;
+        }
+        
+        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            resource_id int(11) NOT NULL,
+            type varchar(100) NOT NULL,
+            designation varchar(50),
+            price decimal(10,2),
+            price_date datetime,
+            
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            
+            PRIMARY KEY (id),
+            KEY resource_id (resource_id)
+        ) " . $charset_collate));
+    }
+    
+    private static function create_resource_usage_rights_table($wpdb, $charset_collate) {
+        $table = TableNames::getResourceUsageRights();
+        
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
+            return;
+        }
+        
+        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            resource_id int(11) NOT NULL,
+            description text NOT NULL,
+            price decimal(10,2),
+            price_date datetime,
+            
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            
+            PRIMARY KEY (id),
+            KEY resource_id (resource_id)
+        ) " . $charset_collate));
+    }
+    
+    private static function create_resource_other_services_table($wpdb, $charset_collate) {
+        $table = TableNames::getResourceOtherServices();
+        
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
+            return;
+        }
+        
+        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            resource_id int(11) NOT NULL,
+            description text NOT NULL,
+            price decimal(10,2),
+            price_date datetime,
+            
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            
+            PRIMARY KEY (id),
+            KEY resource_id (resource_id)
+        ) " . $charset_collate));
+    }
     
     private static function create_price_history_table($wpdb, $charset_collate) {
         $table = TableNames::getPriceHistory();
@@ -178,17 +267,12 @@ class UJC_Schema_Manager {
             id int(11) NOT NULL AUTO_INCREMENT,
             resource_id int(11) NOT NULL,
             
-            cena_m2_old decimal(10,2),
-            cena_m2_new decimal(10,2) NOT NULL,
+            cena_m2 decimal(10,2) NOT NULL,
+            cena_calkowita decimal(12,2) NOT NULL,
             data_zmiany datetime NOT NULL,
             
-            cena_calkowita_old decimal(12,2),
-            cena_calkowita_new decimal(12,2),
-            
-            cena_z_dodatkami_old decimal(12,2),
-            cena_z_dodatkami_new decimal(12,2),
-            
-            user_id int(11),
+            cena_z_dodatkami decimal(12,2) NOT NULL,
+            data_cena_z_dodatkami datetime NOT NULL,
             
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             
@@ -223,12 +307,60 @@ class UJC_Schema_Manager {
     private static function create_foreign_keys($wpdb) {
         $resources_table = TableNames::getResources();
         $price_history_table = TableNames::getPriceHistory();
+        $property_parts_table = TableNames::getResourcePropertyParts();
+        $belonging_rooms_table = TableNames::getResourceBelongingRooms();
+        $usage_rights_table = TableNames::getResourceUsageRights();
+        $other_services_table = TableNames::getResourceOtherServices();
         
         // FK dla price history
         if (!self::foreign_key_exists($wpdb, $price_history_table, 'resource_id')) {
             $wpdb->query("
                 ALTER TABLE $price_history_table 
                 ADD CONSTRAINT fk_history_ujc_resources 
+                FOREIGN KEY (resource_id) 
+                REFERENCES $resources_table(id) 
+                ON DELETE CASCADE
+            ");
+        }
+        
+        // FK dla property parts
+        if (!self::foreign_key_exists($wpdb, $property_parts_table, 'resource_id')) {
+            $wpdb->query("
+                ALTER TABLE $property_parts_table 
+                ADD CONSTRAINT fk_property_parts_ujc_resources 
+                FOREIGN KEY (resource_id) 
+                REFERENCES $resources_table(id) 
+                ON DELETE CASCADE
+            ");
+        }
+        
+        // FK dla belonging rooms
+        if (!self::foreign_key_exists($wpdb, $belonging_rooms_table, 'resource_id')) {
+            $wpdb->query("
+                ALTER TABLE $belonging_rooms_table 
+                ADD CONSTRAINT fk_belonging_rooms_ujc_resources 
+                FOREIGN KEY (resource_id) 
+                REFERENCES $resources_table(id) 
+                ON DELETE CASCADE
+            ");
+        }
+        
+        // FK dla usage rights
+        if (!self::foreign_key_exists($wpdb, $usage_rights_table, 'resource_id')) {
+            $wpdb->query("
+                ALTER TABLE $usage_rights_table 
+                ADD CONSTRAINT fk_usage_rights_ujc_resources 
+                FOREIGN KEY (resource_id) 
+                REFERENCES $resources_table(id) 
+                ON DELETE CASCADE
+            ");
+        }
+        
+        // FK dla other services
+        if (!self::foreign_key_exists($wpdb, $other_services_table, 'resource_id')) {
+            $wpdb->query("
+                ALTER TABLE $other_services_table 
+                ADD CONSTRAINT fk_other_services_ujc_resources 
                 FOREIGN KEY (resource_id) 
                 REFERENCES $resources_table(id) 
                 ON DELETE CASCADE

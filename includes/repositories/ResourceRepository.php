@@ -13,7 +13,14 @@ class ResourceRepository {
         $table = TableNames::getResources();
         global $wpdb;
         
-        return $wpdb->get_results($wpdb->prepare("SELECT r.* FROM `{$table}` r ORDER BY r.created_at ASC"), ARRAY_A);
+        $results = $wpdb->get_results($wpdb->prepare("SELECT r.* FROM `{$table}` r ORDER BY r.created_at ASC"), ARRAY_A);
+        
+        $dtos = [];
+        foreach($results as $row) {
+            $dtos[] = ResourceDto::databaseToModel($row);
+        }
+        
+        return $dtos;
     }
     
     /**
@@ -23,27 +30,47 @@ class ResourceRepository {
         $table = TableNames::getResources();
         global $wpdb;
         
-        return $wpdb->get_row($wpdb->prepare(
+        $data = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM `{$table}` WHERE id = %d", 
             $id
         ), ARRAY_A);
+        
+        if (!$data) {
+            return null;
+        }
+        
+        return ResourceDto::databaseToModel($data);
     }
     
     /**
-     * Save resource (create or update)
+     * Create new resource
      */
-    public function save($data, $id = null) {
+    public function create(ResourceDto $dto): int {
         $table = TableNames::getResources();
         global $wpdb;
         
-        if ($id) {
-            // Update existing
-            $result = $wpdb->update($table, $data, ['id' => $id]);
-            return $result !== false ? $id : false;
-        } else {
-            // Create new
-            $result = $wpdb->insert($table, $data);
-            return $result !== false ? $wpdb->insert_id : false;
+        $data = $dto->modelToDatabase();
+        $result = $wpdb->insert($table, $data);
+        
+        if ($result === false) {
+            throw new Exception('Failed to create resource: ' . $wpdb->last_error);
+        }
+        
+        return $wpdb->insert_id;
+    }
+    
+    /**
+     * Update existing resource
+     */
+    public function update(ResourceDto $dto, int $id): void {
+        $table = TableNames::getResources();
+        global $wpdb;
+        
+        $data = $dto->modelToDatabase();
+        $result = $wpdb->update($table, $data, ['id' => $id]);
+        
+        if ($result === false) {
+            throw new Exception('Failed to update resource: ' . $wpdb->last_error);
         }
     }
     

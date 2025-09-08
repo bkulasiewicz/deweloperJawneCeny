@@ -9,6 +9,7 @@ class GenerateCSVFileUseCase {
     private $developerRepository;
     private $investmentRepository;
     private $resourceRepository;
+    private $priceHistoryRepository;
     private $csvFormatter;
     private $fileManager;
     
@@ -16,6 +17,7 @@ class GenerateCSVFileUseCase {
         $this->developerRepository = new DeveloperRepository();
         $this->investmentRepository = new InvestmentRepository();
         $this->resourceRepository = new ResourceRepository();
+        $this->priceHistoryRepository = new PriceHistoryRepository();
         $this->csvFormatter = new CSVFormatter();
         $this->fileManager = new FileManager();
     }
@@ -45,12 +47,13 @@ class GenerateCSVFileUseCase {
             $developer = $this->developerRepository->read();
             $investment = $this->investmentRepository->read();
             $resources = $this->resourceRepository->readAll();
+            $priceHistory = $this->getPriceHistoryForResources($resources);
             
             Logger::info('GenerateCSV: Data fetched - Resources count: ' . count($resources));
             
             // Generate CSV content
             Logger::info('GenerateCSV: Generating CSV content...');
-            $csvRows = $this->csvFormatter->generate($developer, $investment, $resources);
+            $csvRows = $this->csvFormatter->generate($developer, $investment, $resources, $priceHistory);
             
             // Generate filename
             $filename = $this->fileManager->generateCSVFilename($developer);
@@ -108,6 +111,17 @@ class GenerateCSVFileUseCase {
         }
         
         return $errors;
+    }
+    
+    /**
+     * Get price history for all resources
+     */
+    private function getPriceHistoryForResources(array $resources): array {
+        $priceHistory = [];
+        foreach ($resources as $resource) {
+            $priceHistory[$resource->id] = $this->priceHistoryRepository->getCurrentPricesForResource($resource->id);
+        }
+        return $priceHistory;
     }
     
     /**

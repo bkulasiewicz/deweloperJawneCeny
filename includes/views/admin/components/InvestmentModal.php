@@ -71,6 +71,28 @@ class InvestmentModal extends UJC_Admin_Page {
                             <td id="view-proj-kod">-</td>
                         </tr>
                     </table>
+                    
+                    <h3 style="margin-top: 20px;">Konfiguracja komponentów</h3>
+                    <p class="description">Elementy inwestycji uwzględnione w cenach zasobów:</p>
+                    
+                    <table class="form-table">
+                        <tr>
+                            <th>Części nieruchomości:</th>
+                            <td id="view-has_property_parts">-</td>
+                        </tr>
+                        <tr>
+                            <th>Pomieszczenia przynależne:</th>
+                            <td id="view-has_belonging_rooms">-</td>
+                        </tr>
+                        <tr>
+                            <th>Prawa niezbędne:</th>
+                            <td id="view-has_usage_rights">-</td>
+                        </tr>
+                        <tr>
+                            <th>Inne świadczenia:</th>
+                            <td id="view-has_other_services">-</td>
+                        </tr>
+                    </table>
                 </div>
                 
                 <!-- Formularz edycji (ukryty) -->
@@ -110,6 +132,32 @@ class InvestmentModal extends UJC_Admin_Page {
                             <tr>
                                 <th><label for="edit-proj-kod">Kod pocztowy</label></th>
                                 <td><input type="text" id="edit-proj-kod" name="proj_kod" class="regular-text" pattern="[0-9]{2}-[0-9]{3}" placeholder="00-000"></td>
+                            </tr>
+                        </table>
+                        
+                        <h3 style="margin-top: 30px;">Konfiguracja komponentów</h3>
+                        <p class="description">Wskaż jakie elementy zawiera inwestycja, których cena nie jest uwzględniona w cenie lokalu/domu:</p>
+                        
+                        <table class="form-table">
+                            <tr>
+                                <td colspan="2">
+                                    <label style="display: block; margin-bottom: 10px;">
+                                        <input type="checkbox" id="edit-has_property_parts" name="has_property_parts" value="1" style="margin-right: 8px;">
+                                        <strong>części nieruchomości będące przedmiotem umowy</strong> (np. miejsce postojowe)
+                                    </label>
+                                    <label style="display: block; margin-bottom: 10px;">
+                                        <input type="checkbox" id="edit-has_belonging_rooms" name="has_belonging_rooms" value="1" style="margin-right: 8px;">
+                                        <strong>pomieszczenia przynależne</strong> (np. komórka lokatorska)
+                                    </label>
+                                    <label style="display: block; margin-bottom: 10px;">
+                                        <input type="checkbox" id="edit-has_usage_rights" name="has_usage_rights" value="1" style="margin-right: 8px;">
+                                        <strong>prawa niezbędne do korzystania z lokalu lub domu</strong>
+                                    </label>
+                                    <label style="display: block; margin-bottom: 10px;">
+                                        <input type="checkbox" id="edit-has_other_services" name="has_other_services" value="1" style="margin-right: 8px;">
+                                        <strong>inne rodzaje świadczeń pieniężnych na rzecz dewelopera</strong>
+                                    </label>
+                                </td>
                             </tr>
                         </table>
                     </form>
@@ -173,6 +221,12 @@ class InvestmentModal extends UJC_Admin_Page {
                 $('#view-proj-ulica').text(data.proj_ulica || '-');
                 $('#view-proj-nr').text(data.proj_nr || '-');
                 $('#view-proj-kod').text(data.proj_kod || '-');
+                
+                // Komponenty - show Tak/Nie based on boolean values
+                $('#view-has_property_parts').text(data.has_property_parts == '1' ? 'Tak' : 'Nie');
+                $('#view-has_belonging_rooms').text(data.has_belonging_rooms == '1' ? 'Tak' : 'Nie');
+                $('#view-has_usage_rights').text(data.has_usage_rights == '1' ? 'Tak' : 'Nie');
+                $('#view-has_other_services').text(data.has_other_services == '1' ? 'Tak' : 'Nie');
             }
             
             // Wypełnij formularz edycji
@@ -185,6 +239,12 @@ class InvestmentModal extends UJC_Admin_Page {
                 $('#edit-proj-ulica').val(data.proj_ulica || '');
                 $('#edit-proj-nr').val(data.proj_nr || '');
                 $('#edit-proj-kod').val(data.proj_kod || '');
+                
+                // Komponenty - set checkbox states
+                $('#edit-has_property_parts').prop('checked', data.has_property_parts == '1');
+                $('#edit-has_belonging_rooms').prop('checked', data.has_belonging_rooms == '1');
+                $('#edit-has_usage_rights').prop('checked', data.has_usage_rights == '1');
+                $('#edit-has_other_services').prop('checked', data.has_other_services == '1');
             }
             
             // Przełącz na tryb edycji
@@ -316,7 +376,11 @@ class InvestmentModal extends UJC_Admin_Page {
                 'proj_miejscowosc' => 'sanitize_text_field',
                 'proj_ulica' => 'sanitize_text_field',
                 'proj_nr' => 'sanitize_text_field',
-                'proj_kod' => 'sanitize_text_field'
+                'proj_kod' => 'sanitize_text_field',
+                'has_property_parts' => function($value) { return isset($value) ? 1 : 0; },
+                'has_belonging_rooms' => function($value) { return isset($value) ? 1 : 0; },
+                'has_usage_rights' => function($value) { return isset($value) ? 1 : 0; },
+                'has_other_services' => function($value) { return isset($value) ? 1 : 0; }
             ]);
             
             Logger::info('UJC: Investment data to update: ' . print_r($data, true));

@@ -10,12 +10,14 @@ if (!defined('ABSPATH')) {
  */
 class ResourceModal extends UJC_Admin_Page {
     
-    private $saveResourceUseCase;
+    private $createResourceUseCase;
+    private $updateResourceUseCase;
     private $getResourceByIdUseCase;
     private $deleteResourceUseCase;
     
     public function __construct() {
-        $this->saveResourceUseCase = new SaveResourceUseCase();
+        $this->createResourceUseCase = new CreateResourceUseCase();
+        $this->updateResourceUseCase = new UpdateResourceUseCase();
         $this->getResourceByIdUseCase = new GetResourceByIdUseCase();
         $this->deleteResourceUseCase = new DeleteResourceUseCase();
         
@@ -52,12 +54,10 @@ class ResourceModal extends UJC_Admin_Page {
                                 <th><label for="modal-rodzaj_nieruchomosci">Rodzaj zasobu *</label></th>
                                 <td>
                                     <select id="modal-rodzaj_nieruchomosci" name="rodzaj_nieruchomosci" required>
-                                        <option value="">Wybierz rodzaj</option>
-                                        <option value="Lokal mieszkalny">Lokal mieszkalny</option>
+                                        <option value="Lokal mieszkalny" selected>Lokal mieszkalny</option>
                                         <option value="Dom jednorodzinny">Dom jednorodzinny</option>
                                         <option value="Miejsce postojowe">Miejsce postojowe</option>
                                         <option value="Komórka lokatorska">Komórka lokatorska</option>
-                                        <option value="Część nieruchomości">Część nieruchomości</option>
                                         <option value="Garaż">Garaż</option>
                                     </select>
                                 </td>
@@ -97,63 +97,111 @@ class ResourceModal extends UJC_Admin_Page {
                             </tr>
                         </table>
                         
-                        <!-- Sekcja części nieruchomości - pojedynczy dodatek -->
-                        <div style="margin-top: 20px;">
-                            <label style="font-weight: 600;">
-                                <input type="checkbox" id="extra-checkbox" style="margin-right: 8px;"> 
-                                Dodaj część nieruchomości (miejsce postojowe, komórka, itp.)
-                            </label>
-                        </div>
-                        <div id="extra-section" style="display: none; margin-top: 15px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
-                            <table class="form-table">
-                                <tr>
-                                    <th style="width: 150px;">
-                                        <label for="extra-type">Rodzaj części *</label>
-                                    </th>
-                                    <td>
-                                        <select id="extra-type" name="extra_type" style="width: 200px;">
-                                            <option value="">-- wybierz typ --</option>
-                                            <optgroup label="Pomieszczenia">
-                                                <option value="Miejsce postojowe">Miejsce postojowe</option>
-                                                <option value="Komórka lokatorska">Komórka lokatorska</option>
-                                                <option value="Garaż">Garaż</option>
-                                                <option value="Piwnica">Piwnica</option>
-                                                <option value="Strych">Strych</option>
-                                            </optgroup>
-                                            <optgroup label="Części nieruchomości">
-                                                <option value="Balkon">Balkon</option>
-                                                <option value="Taras">Taras</option>
-                                                <option value="Ogródek">Ogródek</option>
-                                                <option value="Udział w gruncie">Udział w gruncie</option>
-                                            </optgroup>
-                                            <optgroup label="Prawa">
-                                                <option value="Prawo do tarasu">Prawo do tarasu</option>
-                                                <option value="Prawo do ogródka">Prawo do ogródka</option>
-                                            </optgroup>
-                                            <optgroup label="Świadczenia">
-                                                <option value="Opłata rezerwacyjna">Opłata rezerwacyjna</option>
-                                                <option value="Opłata administracyjna">Opłata administracyjna</option>
-                                            </optgroup>
-                                        </select>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th><label for="extra-oznaczenie">Oznaczenie</label></th>
-                                    <td>
-                                        <input type="text" id="extra-oznaczenie" name="extra_oznaczenie" class="regular-text" 
-                                               placeholder="np. MP-15, KL-2, 1/100">
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th><label for="extra-cena">Cena części</label></th>
-                                    <td>
-                                        <input type="number" id="extra-cena" name="extra_cena" step="0.01" min="0" class="regular-text"> zł
-                                    </td>
-                                </tr>
-                            </table>
+                        <!-- Dynamic component sections based on investment configuration -->
+                        
+                        <!-- Części nieruchomości będące przedmiotem umowy -->
+                        <div id="property-parts-section" style="display: none; margin-top: 20px;">
+                            <h3>Część nieruchomości będąca przedmiotem umowy</h3>
+                            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                                <table class="form-table">
+                                    <tr>
+                                        <th><label for="property-part-type">Rodzaj części *</label></th>
+                                        <td>
+                                            <input type="text" id="property-part-type" name="property_part_type" class="regular-text" 
+                                                   placeholder="np. Miejsce postojowe">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><label for="property-part-designation">Oznaczenie</label></th>
+                                        <td>
+                                            <input type="text" id="property-part-designation" name="property_part_designation" class="regular-text" 
+                                                   placeholder="np. MP-15">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><label for="property-part-price">Cena części</label></th>
+                                        <td>
+                                            <input type="number" id="property-part-price" name="property_part_price" step="0.01" min="0" class="regular-text"> zł
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
                         </div>
                         
-                        <!-- Cena uwzględniająca inne składowe - pokazuje się tylko gdy jest część -->
+                        <!-- Pomieszczenia przynależne -->
+                        <div id="belonging-rooms-section" style="display: none; margin-top: 20px;">
+                            <h3>Pomieszczenie przynależne</h3>
+                            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                                <table class="form-table">
+                                    <tr>
+                                        <th><label for="belonging-room-type">Rodzaj pomieszczenia *</label></th>
+                                        <td>
+                                            <input type="text" id="belonging-room-type" name="belonging_room_type" class="regular-text" 
+                                                   placeholder="np. Komórka lokatorska">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><label for="belonging-room-designation">Oznaczenie</label></th>
+                                        <td>
+                                            <input type="text" id="belonging-room-designation" name="belonging_room_designation" class="regular-text" 
+                                                   placeholder="np. KL-2">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><label for="belonging-room-price">Cena pomieszczenia</label></th>
+                                        <td>
+                                            <input type="number" id="belonging-room-price" name="belonging_room_price" step="0.01" min="0" class="regular-text"> zł
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Prawa niezbędne do korzystania z lokalu/domu -->
+                        <div id="usage-rights-section" style="display: none; margin-top: 20px;">
+                            <h3>Prawa niezbędne do korzystania z lokalu lub domu</h3>
+                            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                                <table class="form-table">
+                                    <tr>
+                                        <th><label for="usage-rights-description">Opis praw *</label></th>
+                                        <td>
+                                            <textarea id="usage-rights-description" name="usage_rights_description" class="regular-text" rows="3" 
+                                                      placeholder="Opisz prawa niezbędne do korzystania z lokalu/domu"></textarea>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><label for="usage-rights-price">Wartość praw</label></th>
+                                        <td>
+                                            <input type="number" id="usage-rights-price" name="usage_rights_price" step="0.01" min="0" class="regular-text"> zł
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Inne świadczenia pieniężne na rzecz dewelopera -->
+                        <div id="other-services-section" style="display: none; margin-top: 20px;">
+                            <h3>Inne świadczenia pieniężne na rzecz dewelopera</h3>
+                            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                                <table class="form-table">
+                                    <tr>
+                                        <th><label for="other-services-description">Opis świadczeń *</label></th>
+                                        <td>
+                                            <textarea id="other-services-description" name="other_services_description" class="regular-text" rows="3" 
+                                                      placeholder="Opisz inne świadczenia pieniężne"></textarea>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><label for="other-services-price">Wartość świadczeń</label></th>
+                                        <td>
+                                            <input type="number" id="other-services-price" name="other_services_price" step="0.01" min="0" class="regular-text"> zł
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Cena uwzględniająca inne składowe -->
                         <div id="final-price-section" style="display: none; margin-top: 20px;">
                             <h3>Cena finalna</h3>
                             <table class="form-table">
@@ -267,28 +315,65 @@ class ResourceModal extends UJC_Admin_Page {
         <!-- JavaScript dla modala -->
         <script>
         jQuery(document).ready(function($) {
+            // Załaduj konfigurację inwestycji
+            function loadInvestmentConfiguration() {
+                const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : ($('#ujc-nonce').length ? $('#ujc-nonce').val() : '');
+                
+                return $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, {
+                    action: 'ujc_get_investment',
+                    nonce: nonce
+                }).done(function(response) {
+                    if (response.success) {
+                        const config = response.data;
+                        
+                        // Show/hide component sections based on investment config
+                        $('#property-parts-section').toggle(config.has_property_parts == '1');
+                        $('#belonging-rooms-section').toggle(config.has_belonging_rooms == '1');
+                        $('#usage-rights-section').toggle(config.has_usage_rights == '1');
+                        $('#other-services-section').toggle(config.has_other_services == '1');
+                        
+                        // Show final price section if any component is enabled
+                        const hasAnyComponent = config.has_property_parts == '1' || 
+                                              config.has_belonging_rooms == '1' || 
+                                              config.has_usage_rights == '1' || 
+                                              config.has_other_services == '1';
+                        $('#final-price-section').toggle(hasAnyComponent);
+                        
+                        console.log('Investment config loaded:', config);
+                        window.investmentConfig = config; // Store globally for later use
+                    } else {
+                        console.error('Error loading investment configuration:', response.data);
+                    }
+                }).fail(function(xhr, status, error) {
+                    console.error('AJAX error loading investment config:', xhr, status, error);
+                });
+            }
+            
             // Otwórz modal - dodawanie
             window.openResourceModal = function(mode = 'add', resourceId = null) {
-                if (mode === 'add') {
-                    $('#modal-title').text('Dodaj Zasób');
-                    $('#modal-submit-btn').text('Dodaj Zasób');
-                    $('#modal-action').val('add');
-                    $('#resource-id').val('');
-                    $('#resource-modal-form')[0].reset();
-                    $('#modal-delete-btn').hide(); // Ukryj przycisk usuń w trybie dodawania
-                } else if (mode === 'edit' && resourceId) {
-                    $('#modal-title').text('Edytuj Zasób');
-                    $('#modal-submit-btn').text('Zapisz Zmiany');
-                    $('#modal-action').val('edit');
-                    $('#resource-id').val(resourceId);
-                    $('#modal-delete-btn').show(); // Pokaż przycisk usuń w trybie edycji
+                // Load investment configuration first
+                loadInvestmentConfiguration().always(function() {
+                    if (mode === 'add') {
+                        $('#modal-title').text('Dodaj Zasób');
+                        $('#modal-submit-btn').text('Dodaj Zasób');
+                        $('#modal-action').val('add');
+                        $('#resource-id').val('');
+                        $('#resource-modal-form')[0].reset();
+                        $('#modal-delete-btn').hide(); // Ukryj przycisk usuń w trybie dodawania
+                    } else if (mode === 'edit' && resourceId) {
+                        $('#modal-title').text('Edytuj Zasób');
+                        $('#modal-submit-btn').text('Zapisz Zmiany');
+                        $('#modal-action').val('edit');
+                        $('#resource-id').val(resourceId);
+                        $('#modal-delete-btn').show(); // Pokaż przycisk usuń w trybie edycji
+                        
+                        // Załaduj dane zasobu
+                        loadResourceData(resourceId);
+                    }
                     
-                    // Załaduj dane zasobu
-                    loadResourceData(resourceId);
-                }
-                
-                $('#ujc-resource-modal').show();
-                setupAutoCalculations();
+                    $('#ujc-resource-modal').show();
+                    setupAutoCalculations();
+                });
             };
             
             // Załaduj dane zasobu do edycji
@@ -314,20 +399,12 @@ class ResourceModal extends UJC_Admin_Page {
                         $('#modal-cena_z_dodatkami').val(data.cena_z_dodatkami || '');
                         $('#modal-status').val(data.status || 'dostepny');
                         
-                        // Załaduj dane dodatku jeśli istnieje
-                        if (data.extra) {
-                            $('#extra-checkbox').prop('checked', true);
-                            $('#extra-section').show();
-                            $('#final-price-section').show();
-                            
-                            $('#extra-type').val(data.extra.rodzaj_czesci || '');
-                            $('#extra-oznaczenie').val(data.extra.oznaczenie_czesci || '');
-                            $('#extra-cena').val(data.extra.cena_czesci || '');
-                        } else {
-                            $('#extra-checkbox').prop('checked', false);
-                            $('#extra-section').hide();
-                            $('#final-price-section').hide();
-                        }
+                        // Component data loading will be implemented after repositories are created
+                        // For now, clear component fields
+                        $('#property-part-type, #property-part-designation, #property-part-price').val('');
+                        $('#belonging-room-type, #belonging-room-designation, #belonging-room-price').val('');
+                        $('#usage-rights-description, #usage-rights-price').val('');
+                        $('#other-services-description, #other-services-price').val('');
                         
                         // Przelicz cenę finalną
                         calculateFinalPrice();
@@ -398,29 +475,31 @@ class ResourceModal extends UJC_Admin_Page {
                 });
             });
             
-            // Obsługa pojedynczej części nieruchomości
-            $('#extra-checkbox').on('change', function() {
-                if ($(this).is(':checked')) {
-                    $('#extra-section').show();
-                    $('#final-price-section').show();
-                } else {
-                    $('#extra-section').hide();
-                    $('#final-price-section').hide();
-                    // Wyczyść pola extras gdy ukrywamy sekcję
-                    $('#extra-type').val('');
-                    $('#extra-oznaczenie').val('');
-                    $('#extra-cena').val('');
-                    $('#modal-cena_z_dodatkami').val('');
-                }
-            });
+            // Dynamic component sections are now controlled by investment configuration
             
             // Automatyczne przeliczanie ceny finalnej
             function calculateFinalPrice() {
                 const cenaCalkowita = parseFloat($('#modal-cena_calkowita').val()) || 0;
-                const extraCena = parseFloat($('#extra-cena').val()) || 0;
                 
-                if ($('#extra-checkbox').is(':checked') && cenaCalkowita > 0 && extraCena > 0) {
-                    const cenaFinalna = cenaCalkowita + extraCena;
+                let totalExtra = 0;
+                
+                // Collect prices from visible component sections
+                if ($('#property-parts-section').is(':visible')) {
+                    totalExtra += parseFloat($('#property-part-price').val()) || 0;
+                }
+                if ($('#belonging-rooms-section').is(':visible')) {
+                    totalExtra += parseFloat($('#belonging-room-price').val()) || 0;
+                }
+                if ($('#usage-rights-section').is(':visible')) {
+                    totalExtra += parseFloat($('#usage-rights-price').val()) || 0;
+                }
+                if ($('#other-services-section').is(':visible')) {
+                    totalExtra += parseFloat($('#other-services-price').val()) || 0;
+                }
+                
+                // Always calculate final price if we have base price and any extras
+                if (cenaCalkowita > 0 && totalExtra > 0) {
+                    const cenaFinalna = cenaCalkowita + totalExtra;
                     $('#modal-cena_z_dodatkami').val(cenaFinalna.toFixed(2));
                 } else {
                     $('#modal-cena_z_dodatkami').val('');
@@ -428,7 +507,7 @@ class ResourceModal extends UJC_Admin_Page {
             }
             
             // Automatyczne przeliczanie przy zmianie cen
-            $('#modal-cena_calkowita, #extra-cena').on('input', calculateFinalPrice);
+            $('#modal-cena_calkowita, #property-part-price, #belonging-room-price, #usage-rights-price, #other-services-price').on('input', calculateFinalPrice);
             
             // Submit formularza
             $('#resource-modal-form').on('submit', function(e) {
@@ -512,6 +591,52 @@ class ResourceModal extends UJC_Admin_Page {
                     }
                 });
             }
+            
+            // Dynamic form fields based on property type
+            function setupPropertyTypeLogic() {
+                const $propertyType = $('#modal-rodzaj_nieruchomosci');
+                const $cenaM2Field = $('#modal-cena_m2');
+                const $cenaM2Row = $cenaM2Field.closest('tr');
+                
+                function toggleFieldsByPropertyType(propertyType) {
+                    switch(propertyType) {
+                        case 'Miejsce postojowe':
+                            // Hide cena m² for parking spaces - usually sold per unit
+                            $cenaM2Row.hide();
+                            $cenaM2Field.removeAttr('required');
+                            $cenaM2Field.val(''); // Clear value
+                            break;
+                            
+                        case 'Komórka lokatorska':
+                            // Make cena m² optional for storage rooms
+                            $cenaM2Row.show();
+                            $cenaM2Field.removeAttr('required');
+                            break;
+                            
+                        case 'Lokal mieszkalny':
+                        case 'Dom jednorodzinny': 
+                        case 'Garaż':
+                        default:
+                            // Show and require cena m² for residential properties and garages
+                            $cenaM2Row.show();
+                            $cenaM2Field.attr('required', 'required');
+                            break;
+                    }
+                }
+                
+                // Handle property type change
+                $propertyType.on('change', function() {
+                    const selectedType = $(this).val();
+                    toggleFieldsByPropertyType(selectedType);
+                });
+                
+                // Initialize on modal open
+                toggleFieldsByPropertyType($propertyType.val());
+            }
+            
+            // Initialize all functionality
+            setupAutoCalculations();
+            setupPropertyTypeLogic();
         });
         </script>
         <?php
@@ -522,7 +647,7 @@ class ResourceModal extends UJC_Admin_Page {
             'rodzaj_nieruchomosci' => 'sanitize_text_field',
             'nr_lokalu' => 'sanitize_text_field',
             'powierzchnia_uzytkowa' => 'floatval',
-            'cena_m2' => 'floatval',
+            'cena_m2' => [$this, 'sanitize_nullable_float'],
             'cena_calkowita' => 'floatval',
             'cena_z_dodatkami' => 'floatval',
             'status' => 'sanitize_text_field',
@@ -530,6 +655,14 @@ class ResourceModal extends UJC_Admin_Page {
             'extra_oznaczenie' => 'sanitize_text_field',
             'extra_cena' => 'floatval'
         ]);
+    }
+    
+    private function sanitize_nullable_float($value) {
+        // If empty string or whitespace, return null
+        if (empty($value) || trim($value) === '') {
+            return null;
+        }
+        return floatval($value);
     }
     
     private function set_price_dates_for_new_resource($data, $current_datetime) {
@@ -564,38 +697,35 @@ class ResourceModal extends UJC_Admin_Page {
     }
     
     public function ajax_save_resource() {
-        Logger::info('UJC: ajax_save_resource started');
-        Logger::info('UJC: POST data: ' . print_r($_POST, true));
-        
         if (!$this->verify_nonce()) {
-            Logger::error('UJC: save resource - nonce verification failed');
             wp_send_json_error('Błąd weryfikacji bezpieczeństwa.');
             return;
         }
         
         if (!$this->check_permissions()) {
-            Logger::error('UJC: save resource - permission check failed'); 
             wp_send_json_error('Brak uprawnień.');
             return;
         }
         
         try {
             $data = $this->sanitize_resource_data();
-            $current_datetime = DateHelper::currentDatetime();
-            $data = $this->set_price_dates_for_new_resource($data, $current_datetime);
             
-            Logger::info('UJC: Resource data to save: ' . print_r($data, true));
+            $formData = new ResourceFormData(
+                rodzaj_nieruchomosci: $data['rodzaj_nieruchomosci'],
+                nr_lokalu: $data['nr_lokalu'],
+                powierzchnia_uzytkowa: (float)$data['powierzchnia_uzytkowa'],
+                cena_m2: $data['cena_m2'] !== null ? (float)$data['cena_m2'] : null,
+                cena_calkowita: (float)$data['cena_calkowita'],
+                cena_z_dodatkami: (float)$data['cena_z_dodatkami'],
+                status: $data['status']
+            );
             
-            $result = $this->saveResourceUseCase->execute($data);
-            Logger::info('UJC: Resource create result: ' . print_r($result, true));
+            $result = $this->createResourceUseCase->execute($formData);
             
-            // Sprawdź czy result zawiera błąd walidacji
-            if (is_array($result) && isset($result['error'])) {
-                wp_send_json_error($result['error']);
-            } elseif ($result) {
-                wp_send_json_success('Zasób został dodany!');
+            if ($result->isSuccess) {
+                wp_send_json_success($result->message);
             } else {
-                wp_send_json_error('Błąd podczas dodawania zasobu.');
+                wp_send_json_error($result->message);
             }
         } catch (Exception $e) {
             wp_send_json_error('Błąd serwera: ' . $e->getMessage());
@@ -635,8 +765,15 @@ class ResourceModal extends UJC_Admin_Page {
     }
     
     public function ajax_update_resource() {
-        if (!$this->verify_nonce()) return;
-        if (!$this->check_permissions()) return;
+        if (!$this->verify_nonce()) {
+            wp_send_json_error('Błąd weryfikacji bezpieczeństwa.');
+            return;
+        }
+        
+        if (!$this->check_permissions()) {
+            wp_send_json_error('Brak uprawnień.');
+            return;
+        }
         
         try {
             $resource_id = intval($_POST['resource_id'] ?? 0);
@@ -648,20 +785,22 @@ class ResourceModal extends UJC_Admin_Page {
             
             $data = $this->sanitize_resource_data();
             
-            // Zaktualizuj daty tylko dla zmienionych cen
-            $old_data = $this->getResourceByIdUseCase->execute($resource_id);
-            $current_datetime = DateHelper::currentDatetime();
-            $data = $this->update_price_dates_if_changed($data, $old_data, $current_datetime);
+            $formData = new ResourceFormData(
+                rodzaj_nieruchomosci: $data['rodzaj_nieruchomosci'],
+                nr_lokalu: $data['nr_lokalu'],
+                powierzchnia_uzytkowa: (float)$data['powierzchnia_uzytkowa'],
+                cena_m2: $data['cena_m2'] !== null ? (float)$data['cena_m2'] : null,
+                cena_calkowita: (float)$data['cena_calkowita'],
+                cena_z_dodatkami: (float)$data['cena_z_dodatkami'],
+                status: $data['status']
+            );
             
-            $result = $this->saveResourceUseCase->execute($data, $resource_id);
+            $result = $this->updateResourceUseCase->execute($formData, $resource_id);
             
-            // Sprawdź czy result zawiera błąd walidacji
-            if (is_array($result) && isset($result['error'])) {
-                wp_send_json_error($result['error']);
-            } elseif ($result !== false) {
-                wp_send_json_success('Zasób został zaktualizowany!');
+            if ($result->isSuccess) {
+                wp_send_json_success($result->message);
             } else {
-                wp_send_json_error('Błąd podczas aktualizacji zasobu.');
+                wp_send_json_error($result->message);
             }
         } catch (Exception $e) {
             wp_send_json_error('Błąd serwera: ' . $e->getMessage());

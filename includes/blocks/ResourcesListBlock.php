@@ -35,7 +35,13 @@ class ResourcesListBlock {
                         <td><?php echo esc_html($resource['nr_lokalu']); ?></td>
                         <td><?php echo esc_html($resource['rodzaj_nieruchomosci']); ?></td>
                         <td><?php echo esc_html(number_format($resource['powierzchnia_uzytkowa'], 2, ',', ' ')); ?> m²</td>
-                        <td><?php echo esc_html(number_format($resource['cena_m2'], 2, ',', ' ')); ?> zł</td>
+                        <td>
+                            <?php if ($resource['cena_m2'] !== null && $resource['cena_m2'] > 0): ?>
+                                <?php echo esc_html(number_format($resource['cena_m2'], 2, ',', ' ')); ?> zł
+                            <?php else: ?>
+                                —
+                            <?php endif; ?>
+                        </td>
                         <td>
                             <?php if ($resource['cena_calkowita']): ?>
                                 <?php echo esc_html(number_format($resource['cena_calkowita'], 2, ',', ' ')); ?> zł

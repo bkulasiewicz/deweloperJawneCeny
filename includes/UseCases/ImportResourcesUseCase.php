@@ -6,11 +6,13 @@ if (!defined('ABSPATH')) {
 
 class ImportResourcesUseCase {
     
-    private $saveUseCase;
+    private $createUseCase;
+    private $updateUseCase;
     private $getByIdUseCase;
     
     public function __construct() {
-        $this->saveUseCase = new SaveResourceUseCase();
+        $this->createUseCase = new CreateResourceUseCase();
+        $this->updateUseCase = new UpdateResourceUseCase();
         $this->getByIdUseCase = new GetResourceByIdUseCase();
     }
     
@@ -77,12 +79,14 @@ class ImportResourcesUseCase {
             $resource_id = $resource_data['nr_lokalu']; // nr_lokalu to faktycznie ID
             $existing_resource = $this->getByIdUseCase->execute($resource_id);
             
+            $formData = new ResourceFormData($resource_data);
+            
             if ($existing_resource) {
-                $result = $this->saveUseCase->execute($resource_data, $resource_id);
-                if ($result !== false) $updated++;
+                $result = $this->updateUseCase->execute($formData, $resource_id);
+                if ($result->isSuccess) $updated++;
             } else {
-                $result = $this->saveUseCase->execute($resource_data);
-                if ($result !== false) $imported++;
+                $result = $this->createUseCase->execute($formData);
+                if ($result->isSuccess) $imported++;
             }
         }
         
@@ -120,10 +124,10 @@ class ImportResourcesUseCase {
         $nr_lokalu = trim($data[0]);
         $rodzaj = trim($data[1]) ?: 'Lokal mieszkalny';
         $powierzchnia = $this->clean_decimal($data[2] ?? '');
-        $cena_m2 = $this->clean_decimal($data[3] ?? '');
+        $cena_m2 = !empty($data[3]) ? $this->clean_decimal($data[3]) : null;
         $cena_calkowita = isset($data[4]) && !empty($data[4]) ? $this->clean_decimal($data[4]) : null;
         
-        if (empty($nr_lokalu) || $powierzchnia <= 0 || $cena_m2 <= 0) {
+        if (empty($nr_lokalu) || $powierzchnia <= 0) {
             return false;
         }
         
@@ -136,14 +140,11 @@ class ImportResourcesUseCase {
             'rodzaj_nieruchomosci' => $rodzaj,
             'powierzchnia_uzytkowa' => $powierzchnia,
             'cena_m2' => $cena_m2,
-            'data_cena_m2' => current_time('mysql'),
-            'status' => 'dostepny',
-            'updated_at' => current_time('mysql')
+            'status' => 'dostepny'
         ];
         
         if ($cena_calkowita !== null && $cena_calkowita > 0) {
             $resource_data['cena_calkowita'] = $cena_calkowita;
-            $resource_data['data_cena_calkowita'] = current_time('mysql');
         }
         
         return $resource_data;

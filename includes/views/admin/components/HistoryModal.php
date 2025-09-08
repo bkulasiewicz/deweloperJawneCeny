@@ -37,10 +37,10 @@ class HistoryModal {
             echo '<thead><tr><th>Data zmiany</th><th>Cena m²</th><th>Cena całkowita</th><th>Cena z dodatkami</th></tr></thead><tbody>';
             foreach ($history as $record) {
                 echo '<tr>';
-                echo '<td>' . esc_html(DateHelper::formatForUser($record['data_zmiany'])) . '</td>';
-                echo '<td>' . number_format($record['cena_m2_new'], 2, ',', ' ') . ' zł</td>';
-                echo '<td>' . ($record['cena_calkowita_new'] ? number_format($record['cena_calkowita_new'], 2, ',', ' ') . ' zł' : '-') . '</td>';
-                echo '<td>' . ($record['cena_z_dodatkami_new'] ? number_format($record['cena_z_dodatkami_new'], 2, ',', ' ') . ' zł' : '-') . '</td>';
+                echo '<td>' . esc_html(DateHelper::formatForUser($record->data_zmiany)) . '</td>';
+                echo '<td>' . ($record->cena_m2 !== null ? number_format($record->cena_m2, 2, ',', ' ') . ' zł' : '—') . '</td>';
+                echo '<td>' . number_format($record->cena_calkowita, 2, ',', ' ') . ' zł</td>';
+                echo '<td>' . number_format($record->cena_z_dodatkami, 2, ',', ' ') . ' zł</td>';
                 echo '</tr>';
             }
             echo '</tbody></table>';

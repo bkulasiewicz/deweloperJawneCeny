@@ -16,7 +16,7 @@ class ResourceItem {
         // Formatowanie cen (ukryj puste)
         $cena_calkowita = (!empty($resource['cena_calkowita']) && $resource['cena_calkowita'] > 0) ? number_format($resource['cena_calkowita'], 2, ',', ' ') . ' zł' : '—';
         $cena_z_dodatkami = (!empty($resource['cena_z_dodatkami']) && $resource['cena_z_dodatkami'] > 0) ? number_format($resource['cena_z_dodatkami'], 2, ',', ' ') . ' zł' : '—';
-        $cena_m2 = number_format($resource['cena_m2'], 2, ',', ' ') . ' zł';
+        $cena_m2 = (!empty($resource['cena_m2']) && $resource['cena_m2'] > 0) ? number_format($resource['cena_m2'], 2, ',', ' ') . ' zł' : '—';
         $powierzchnia = number_format($resource['powierzchnia_uzytkowa'], 2, ',', ' ') . ' m²';
         
         // Formatowanie dat

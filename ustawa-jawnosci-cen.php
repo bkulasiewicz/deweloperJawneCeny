@@ -3,7 +3,7 @@
  * Plugin Name: Deweloper Jawne Ceny
  * Plugin URI: https://www.deweloperjawneceny.pl/
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
- * Version: 1.31.5
+ * Version: 2.0.3
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -25,8 +25,8 @@ if (!defined('ABSPATH')) {
 
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
-define('DB_VERSION', '1.1');
-define('VERSION', '1.31.5');
+define('DB_VERSION', '1.2');
+define('VERSION', '2.0.3');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -67,7 +67,19 @@ class DeweloperJawneCeny {
         
         // Models
         require_once PLUGIN_DIR . 'includes/models/DaneGovXmlDataset.php';
-        require_once PLUGIN_DIR . 'includes/models/PublicationHistoryEntry.php';
+        require_once PLUGIN_DIR . 'includes/models/ResourceFormData.php';
+        
+        // DTOs
+        require_once PLUGIN_DIR . 'includes/core/ModelDto.php';
+        require_once PLUGIN_DIR . 'includes/core/Result.php';
+        require_once PLUGIN_DIR . 'includes/dto/ResourceDto.php';
+        require_once PLUGIN_DIR . 'includes/dto/InvestmentDto.php';
+        require_once PLUGIN_DIR . 'includes/dto/PropertyPartDto.php';
+        require_once PLUGIN_DIR . 'includes/dto/BelongingRoomDto.php';
+        require_once PLUGIN_DIR . 'includes/dto/UsageRightDto.php';
+        require_once PLUGIN_DIR . 'includes/dto/OtherServiceDto.php';
+        require_once PLUGIN_DIR . 'includes/dto/PriceHistoryDto.php';
+        require_once PLUGIN_DIR . 'includes/dto/SupplierDto.php';
         
         // Helpers
         require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
@@ -77,6 +89,9 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/services/CSVFormatter.php';
         require_once PLUGIN_DIR . 'includes/services/XMLFormatter.php';
         require_once PLUGIN_DIR . 'includes/services/FileManager.php';
+        
+        // DTOs that depend on services
+        require_once PLUGIN_DIR . 'includes/dto/PublicationHistoryDto.php';
         
         // Core
         require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
@@ -90,9 +105,12 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/repositories/PriceHistoryRepository.php';
         require_once PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
         require_once PLUGIN_DIR . 'includes/repositories/PublicationHistoryRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/PropertyPartsRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/BelongingRoomsRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/UsageRightsRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/OtherServicesRepository.php';
         
         // UseCases
-        require_once PLUGIN_DIR . 'includes/UseCases/SaveResourceUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/GetResourceByIdUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/GetAllResourcesUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/ImportResourcesUseCase.php';
@@ -105,6 +123,10 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/UseCases/AddPublicationHistoryUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/GetPublicationHistoryUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/GenerateFilesUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/CreateResourceUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/UpdateResourceUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/CreateInvestmentUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/UpdateInvestmentUseCase.php';
         
         // Views - Admin Components
         require_once PLUGIN_DIR . 'includes/views/admin/components/ResourceModal.php';

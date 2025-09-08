@@ -27,13 +27,18 @@ class AddPublicationHistoryUseCase {
         Logger::info('AddHistory: Attempting to add history entry - Status: ' . $status->value . ', Trigger: ' . $trigger_type->value . ', Message: ' . substr($message, 0, 100) . '...');
         
         try {
-            // Add entry to history
-            Logger::info('AddHistory: Calling repository->addEntry...');
-            $result = $this->repository->addEntry(
+            // Create DTO for new entry
+            Logger::info('AddHistory: Creating PublicationHistoryDto...');
+            $dto = new PublicationHistoryDto(
+                new DateTime(DateHelper::currentDatetime()),
                 $status->value,
                 $message,
                 $trigger_type->value
             );
+            
+            // Add entry to history
+            Logger::info('AddHistory: Calling repository->addEntry...');
+            $result = $this->repository->addEntry($dto);
             
             if ($result) {
                 Logger::success('AddHistory: Database insert SUCCESS');

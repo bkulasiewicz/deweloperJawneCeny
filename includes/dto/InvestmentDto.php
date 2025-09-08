@@ -1,0 +1,109 @@
+<?php
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class InvestmentDto extends ModelDto {
+    
+    // Field names constants
+    public const FIELD_ID = 'id';
+    public const FIELD_NAME = 'name';
+    public const FIELD_PROJ_WOJEWODZTWO = 'proj_wojewodztwo';
+    public const FIELD_PROJ_POWIAT = 'proj_powiat';
+    public const FIELD_PROJ_GMINA = 'proj_gmina';
+    public const FIELD_PROJ_MIEJSCOWOSC = 'proj_miejscowosc';
+    public const FIELD_PROJ_ULICA = 'proj_ulica';
+    public const FIELD_PROJ_NR = 'proj_nr';
+    public const FIELD_PROJ_KOD = 'proj_kod';
+    public const FIELD_HAS_PROPERTY_PARTS = 'has_property_parts';
+    public const FIELD_HAS_BELONGING_ROOMS = 'has_belonging_rooms';
+    public const FIELD_HAS_USAGE_RIGHTS = 'has_usage_rights';
+    public const FIELD_HAS_OTHER_SERVICES = 'has_other_services';
+    
+    public int $id;
+    public string $name;
+    public string $proj_wojewodztwo;
+    public string $proj_powiat;
+    public string $proj_gmina;
+    public string $proj_miejscowosc;
+    public string $proj_ulica;
+    public string $proj_nr;
+    public string $proj_kod;
+    public bool $has_property_parts;
+    public bool $has_belonging_rooms;
+    public bool $has_usage_rights;
+    public bool $has_other_services;
+    
+    public function __construct(
+        int $id, 
+        string $name, 
+        string $proj_wojewodztwo, 
+        string $proj_powiat, 
+        string $proj_gmina, 
+        string $proj_miejscowosc, 
+        string $proj_ulica, 
+        string $proj_nr, 
+        string $proj_kod, 
+        bool $has_property_parts, 
+        bool $has_belonging_rooms, 
+        bool $has_usage_rights, 
+        bool $has_other_services, 
+    ) {
+        $this->id = $id;
+        $this->name = $name;
+        $this->proj_wojewodztwo = $proj_wojewodztwo;
+        $this->proj_powiat = $proj_powiat;
+        $this->proj_gmina = $proj_gmina;
+        $this->proj_miejscowosc = $proj_miejscowosc;
+        $this->proj_ulica = $proj_ulica;
+        $this->proj_nr = $proj_nr;
+        $this->proj_kod = $proj_kod;
+        $this->has_property_parts = $has_property_parts;
+        $this->has_belonging_rooms = $has_belonging_rooms;
+        $this->has_usage_rights = $has_usage_rights;
+        $this->has_other_services = $has_other_services;
+    }
+    
+    public function hasAnyComponents(): bool {
+        return $this->has_property_parts || 
+               $this->has_belonging_rooms || 
+               $this->has_usage_rights || 
+               $this->has_other_services;
+    }
+    
+    public static function databaseToModel(array $data): static {
+        return new static(
+            (int)$data[self::FIELD_ID],
+            $data[self::FIELD_NAME],
+            $data[self::FIELD_PROJ_WOJEWODZTWO],
+            $data[self::FIELD_PROJ_POWIAT],
+            $data[self::FIELD_PROJ_GMINA],
+            $data[self::FIELD_PROJ_MIEJSCOWOSC],
+            $data[self::FIELD_PROJ_ULICA],
+            $data[self::FIELD_PROJ_NR],
+            $data[self::FIELD_PROJ_KOD],
+            (bool)$data[self::FIELD_HAS_PROPERTY_PARTS],
+            (bool)$data[self::FIELD_HAS_BELONGING_ROOMS],
+            (bool)$data[self::FIELD_HAS_USAGE_RIGHTS],
+            (bool)$data[self::FIELD_HAS_OTHER_SERVICES]
+        );
+    }
+    
+    public function modelToDatabase(): array {
+        return [
+            self::FIELD_NAME => $this->name,
+            self::FIELD_PROJ_WOJEWODZTWO => $this->proj_wojewodztwo,
+            self::FIELD_PROJ_POWIAT => $this->proj_powiat,
+            self::FIELD_PROJ_GMINA => $this->proj_gmina,
+            self::FIELD_PROJ_MIEJSCOWOSC => $this->proj_miejscowosc,
+            self::FIELD_PROJ_ULICA => $this->proj_ulica,
+            self::FIELD_PROJ_NR => $this->proj_nr,
+            self::FIELD_PROJ_KOD => $this->proj_kod,
+            self::FIELD_HAS_PROPERTY_PARTS => $this->has_property_parts,
+            self::FIELD_HAS_BELONGING_ROOMS => $this->has_belonging_rooms,
+            self::FIELD_HAS_USAGE_RIGHTS => $this->has_usage_rights,
+            self::FIELD_HAS_OTHER_SERVICES => $this->has_other_services
+        ];
+    }
+}
