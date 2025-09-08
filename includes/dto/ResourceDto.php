@@ -38,7 +38,7 @@ class ResourceDto extends ModelDto {
             $data[self::FIELD_RODZAJ_NIERUCHOMOSCI] ?? '',
             $data[self::FIELD_NR_LOKALU] ?? '',
             (float)($data[self::FIELD_POWIERZCHNIA_UZYTKOWA] ?? 0),
-            $data[self::FIELD_STATUS]
+            $data[self::FIELD_STATUS] ?? ''
         );
     }
     
@@ -50,4 +50,5 @@ class ResourceDto extends ModelDto {
             self::FIELD_STATUS => $this->status
         ];
     }
+    
 }

@@ -10,20 +10,16 @@ if (!defined('ABSPATH')) {
 class SupplierDataPage extends UJC_Admin_Page {
     
     private $saveDeveloperInfoUseCase;
-    private $developerRepository;
+    private $getDeveloperInfoUseCase;
     
     public function __construct() {
         $this->saveDeveloperInfoUseCase = new SaveDeveloperInfoUseCase();
-        $this->developerRepository = new DeveloperRepository();
+        $this->getDeveloperInfoUseCase = new GetDeveloperInfoUseCase();
         
-        // Critical logging for AJAX registration
-        Logger::log('SupplierDataPage: Registering AJAX action wp_ajax_ujc_save_developer', Logger::LEVEL_INFO);
         add_action('wp_ajax_ujc_save_developer', [$this, 'ajax_save_developer']);
         add_action('admin_head', [$this, 'add_custom_styles']);
         
         parent::__construct();
-        
-        Logger::log('SupplierDataPage: Constructor completed', Logger::LEVEL_INFO);
     }
     
     
@@ -149,42 +145,17 @@ class SupplierDataPage extends UJC_Admin_Page {
     }
     
     public function ajax_save_developer() {
-        // Critical early logging - this should appear in logs if AJAX is working
-        Logger::log('=== AJAX DEVELOPER SAVE START ===', Logger::LEVEL_INFO);
-        Logger::log('Request received at: ' . date('Y-m-d H:i:s'), Logger::LEVEL_INFO);
-        
         if (!$this->verify_nonce()) {
-            Logger::log('Nonce verification FAILED', Logger::LEVEL_ERROR);
             wp_send_json_error('Weryfikacja bezpieczeństwa nie powiodła się.');
             return;
         }
-        Logger::log('Nonce verification OK', Logger::LEVEL_INFO);
         
         if (!$this->check_permissions()) {
-            Logger::log('Permissions check FAILED', Logger::LEVEL_ERROR);
             wp_send_json_error('Brak uprawnień do wykonania tej operacji.');
             return;
         }
-        Logger::log('Permissions check OK', Logger::LEVEL_INFO);
-        
-        // Check if all required classes are loaded
-        if (!class_exists('SupplierDto')) {
-            Logger::log('SupplierDto class not found', Logger::LEVEL_ERROR);
-            wp_send_json_error('Błąd konfiguracji systemu - brak klasy SupplierDto');
-            return;
-        }
-        
-        if (!class_exists('SaveDeveloperInfoUseCase')) {
-            Logger::log('SaveDeveloperInfoUseCase class not found', Logger::LEVEL_ERROR);
-            wp_send_json_error('Błąd konfiguracji systemu - brak klasy SaveDeveloperInfoUseCase');
-            return;
-        }
-        Logger::log('Required classes loaded OK', Logger::LEVEL_INFO);
         
         try {
-            Logger::log('ajax_save_developer started', Logger::LEVEL_INFO);
-            Logger::log('POST data: ' . print_r($_POST, true), Logger::LEVEL_DEBUG);
-            
             // View tworzy DTO z sanityzacją
             $supplierDto = new SupplierDto(
                 0, // ID will be set by repository
@@ -218,25 +189,20 @@ class SupplierDataPage extends UJC_Admin_Page {
                 !empty($_POST['sposob_kontaktu']) ? sanitize_textarea_field($_POST['sposob_kontaktu']) : null
             );
             
-            Logger::log('SupplierDto created successfully, calling UseCase', Logger::LEVEL_INFO);
             $result = $this->saveDeveloperInfoUseCase->execute($supplierDto);
-            Logger::log('UseCase executed, result: ' . ($result->isSuccess ? 'SUCCESS' : 'FAILURE'), Logger::LEVEL_INFO);
             
             if ($result->isSuccess) {
-                Logger::log('Sending success response: ' . $result->message, Logger::LEVEL_INFO);
                 wp_send_json_success($result->message);
             } else {
-                Logger::log('Sending error response: ' . $result->message, Logger::LEVEL_ERROR);
                 wp_send_json_error($result->message);
             }
         } catch (Exception $e) {
-            Logger::log('Error creating SupplierDto: ' . $e->getMessage(), Logger::LEVEL_ERROR);
-            wp_send_json_error('Błąd podczas przetwarzania danych');
+            wp_send_json_error('Błąd podczas przetwarzania danych: ' . $e->getMessage());
         }
     }
     
     public function render() {
-        $developer = $this->developerRepository->read();
+        $developer = $this->getDeveloperInfoUseCase->execute();
         $is_saved = !empty($developer);
         
         ?>

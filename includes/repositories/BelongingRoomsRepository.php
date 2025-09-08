@@ -13,7 +13,7 @@ class BelongingRoomsRepository {
         $table = TableNames::getResourceBelongingRooms();        
         global $wpdb;
         $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM `{$table}` WHERE resource_id = %d ORDER BY created_at ASC", 
+            "SELECT * FROM `{$table}` WHERE resource_id = %d ORDER BY id ASC", 
             $resourceId
         ), ARRAY_A);
         
@@ -65,5 +65,32 @@ class BelongingRoomsRepository {
         $table = TableNames::getResourceBelongingRooms();        
         global $wpdb;
         return $wpdb->delete($table, ['id' => $id], ['%d']);
+    }
+    
+    /**
+     * Create belonging rooms table
+     */
+    public function createTable(): bool {
+        global $wpdb;
+        $table = TableNames::getResourceBelongingRooms();
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        if (UJC_Schema_Manager::tableExists($table)) {
+            return true;
+        }
+        
+        $sql = "CREATE TABLE `{$table}` (
+            " . BelongingRoomDto::FIELD_ID . " int(11) NOT NULL AUTO_INCREMENT,
+            " . BelongingRoomDto::FIELD_RESOURCE_ID . " int(11) NOT NULL,
+            " . BelongingRoomDto::FIELD_TYPE . " varchar(100) NOT NULL,
+            " . BelongingRoomDto::FIELD_DESIGNATION . " varchar(50),
+            " . BelongingRoomDto::FIELD_PRICE . " decimal(10,2),
+            " . BelongingRoomDto::FIELD_PRICE_DATE . " datetime,
+            
+            PRIMARY KEY (" . BelongingRoomDto::FIELD_ID . "),
+            KEY " . BelongingRoomDto::FIELD_RESOURCE_ID . " (" . BelongingRoomDto::FIELD_RESOURCE_ID . ")
+        ) " . $charset_collate;
+        
+        return $wpdb->query($wpdb->prepare($sql)) !== false;
     }
 }

@@ -12,34 +12,30 @@ class ResourceItem {
     /**
      * Renderuje HTML dla pojedynczego zasobu
      */
-    public static function render_item_html($resource) {
+    public static function render_item_html(PresentableResource $resource) {
         // Formatowanie cen (ukryj puste)
-        $cena_calkowita = (!empty($resource['cena_calkowita']) && $resource['cena_calkowita'] > 0) ? number_format($resource['cena_calkowita'], 2, ',', ' ') . ' zł' : '—';
-        $cena_z_dodatkami = (!empty($resource['cena_z_dodatkami']) && $resource['cena_z_dodatkami'] > 0) ? number_format($resource['cena_z_dodatkami'], 2, ',', ' ') . ' zł' : '—';
-        $cena_m2 = (!empty($resource['cena_m2']) && $resource['cena_m2'] > 0) ? number_format($resource['cena_m2'], 2, ',', ' ') . ' zł' : '—';
-        $powierzchnia = number_format($resource['powierzchnia_uzytkowa'], 2, ',', ' ') . ' m²';
+        $cena_calkowita = ($resource->cena_calkowita > 0) ? number_format($resource->cena_calkowita, 2, ',', ' ') . ' zł' : '—';
+        $cena_z_dodatkami = ($resource->cena_z_dodatkami > 0) ? number_format($resource->cena_z_dodatkami, 2, ',', ' ') . ' zł' : '—';
+        $cena_m2 = ($resource->cena_m2 !== null && $resource->cena_m2 > 0) ? number_format($resource->cena_m2, 2, ',', ' ') . ' zł' : '—';
+        $powierzchnia = number_format($resource->powierzchnia_uzytkowa, 2, ',', ' ') . ' m²';
         
         // Formatowanie dat
-        $data_cena_m2 = DateHelper::formatForUser($resource['data_cena_m2']);
-        $data_cena_calkowita = DateHelper::formatForUser($resource['data_cena_calkowita']);
-        $data_cena_z_dodatkami = DateHelper::formatForUser($resource['data_cena_z_dodatkami']);
-        $created_at = DateHelper::formatForUser($resource['created_at']);
-        $updated_at = DateHelper::formatForUser($resource['updated_at']);
+        $data_zmiany = DateHelper::formatForUser($resource->data_zmiany);
+        $data_cena_z_dodatkami = DateHelper::formatForUser($resource->data_cena_z_dodatkami);
         
-        // Status badge
-        $status_class = match($resource['status']) {
-            'dostepny' => 'ujc-status-available',
-            'rezerwacja' => 'ujc-status-reserved', 
-            'sprzedany' => 'ujc-status-sold',
-            default => 'ujc-status-default'
+        // Status badge - semantic CSS classes
+        $status_class = match($resource->status) {
+            ResourceStatus::AVAILABLE => 'ujc-status-available',
+            ResourceStatus::RESERVED => 'ujc-status-reserved', 
+            ResourceStatus::SOLD => 'ujc-status-sold',
         };
         
         return "
             <div class=\"ujc-resource-item-row\">
                 <div class=\"ujc-resource-identity\">
                     <div class=\"ujc-resource-title\">
-                        <strong>{$resource['rodzaj_nieruchomosci']}</strong>
-                        <span class=\"ujc-resource-number\">#{$resource['nr_lokalu']}</span>
+                        <strong>{$resource->rodzaj_nieruchomosci->getDisplayText()}</strong>
+                        <span class=\"ujc-resource-number\">#{$resource->nr_lokalu}</span>
                     </div>
                     <div class=\"ujc-resource-surface\">{$powierzchnia}</div>
                 </div>
@@ -60,13 +56,13 @@ class ResourceItem {
                 </div>
                 
                 <div class=\"ujc-resource-status\">
-                    <span class=\"ujc-status-badge {$status_class}\">{$resource['status']}</span>
-                    <span class=\"ujc-date-info\" title=\"Data ostatniej aktualizacji cen\">Akt: {$updated_at}</span>
+                    <span class=\"ujc-status-badge {$status_class}\">{$resource->status->getDisplayText()}</span>
+                    <span class=\"ujc-date-info\" title=\"Data ostatniej aktualizacji cen\">Akt: {$data_zmiany}</span>
                 </div>
                 
                 <div class=\"ujc-resource-actions\">
-                    <button type=\"button\" class=\"button button-small\" onclick=\"showResourceHistory({$resource['id']})\">Historia</button>
-                    <button type=\"button\" class=\"button button-small button-primary\" onclick=\"openResourceModal('edit', {$resource['id']})\">Edytuj</button>
+                    <button type=\"button\" class=\"button button-small\" onclick=\"showResourceHistory({$resource->id})\">Historia</button>
+                    <button type=\"button\" class=\"button button-small button-primary\" onclick=\"openResourceModal('edit', {$resource->id})\">Edytuj</button>
                 </div>
             </div>
         ";

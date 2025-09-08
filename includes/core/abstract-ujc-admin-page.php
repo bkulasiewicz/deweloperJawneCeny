@@ -39,18 +39,26 @@ abstract class UJC_Admin_Page {
      * Weryfikacja nonce
      */
     protected function verify_nonce($nonce_field = 'nonce', $nonce_action = 'ujc_admin_nonce') {
+        Logger::info('UJC: verify_nonce called with field: ' . $nonce_field . ', action: ' . $nonce_action);
+        Logger::info('UJC: POST data keys: ' . implode(', ', array_keys($_POST)));
+        
         $nonce = $_POST[$nonce_field] ?? '';
+        Logger::info('UJC: Nonce from POST: ' . ($nonce ? 'EXISTS (' . substr($nonce, 0, 10) . '...)' : 'EMPTY'));
         
         if (empty($nonce)) {
             Logger::error('UJC: Empty nonce field: ' . $nonce_field);
             return false;
         }
         
-        if (!wp_verify_nonce($nonce, $nonce_action)) {
+        $verify_result = wp_verify_nonce($nonce, $nonce_action);
+        Logger::info('UJC: wp_verify_nonce result: ' . ($verify_result ? 'SUCCESS' : 'FAILED'));
+        
+        if (!$verify_result) {
             Logger::error('UJC: Nonce verification failed. Nonce: ' . $nonce . ', Action: ' . $nonce_action);
             return false;
         }
         
+        Logger::info('UJC: Nonce verification successful');
         return true;
     }
     

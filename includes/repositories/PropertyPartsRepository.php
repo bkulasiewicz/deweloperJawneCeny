@@ -13,7 +13,7 @@ class PropertyPartsRepository {
         $table = TableNames::getResourcePropertyParts();        
         global $wpdb;
         $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM `{$table}` WHERE resource_id = %d ORDER BY created_at ASC", 
+            "SELECT * FROM `{$table}` WHERE resource_id = %d ORDER BY id ASC", 
             $resourceId
         ), ARRAY_A);
         
@@ -65,5 +65,32 @@ class PropertyPartsRepository {
         $table = TableNames::getResourcePropertyParts();        
         global $wpdb;
         return $wpdb->delete($table, ['id' => $id], ['%d']);
+    }
+    
+    /**
+     * Create property parts table
+     */
+    public function createTable(): bool {
+        global $wpdb;
+        $table = TableNames::getResourcePropertyParts();
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        if (UJC_Schema_Manager::tableExists($table)) {
+            return true;
+        }
+        
+        $sql = "CREATE TABLE `{$table}` (
+            " . PropertyPartDto::FIELD_ID . " int(11) NOT NULL AUTO_INCREMENT,
+            " . PropertyPartDto::FIELD_RESOURCE_ID . " int(11) NOT NULL,
+            " . PropertyPartDto::FIELD_TYPE . " varchar(100) NOT NULL,
+            " . PropertyPartDto::FIELD_DESIGNATION . " varchar(50),
+            " . PropertyPartDto::FIELD_PRICE . " decimal(10,2),
+            " . PropertyPartDto::FIELD_PRICE_DATE . " datetime,
+            
+            PRIMARY KEY (" . PropertyPartDto::FIELD_ID . "),
+            KEY " . PropertyPartDto::FIELD_RESOURCE_ID . " (" . PropertyPartDto::FIELD_RESOURCE_ID . ")
+        ) " . $charset_collate;
+        
+        return $wpdb->query($wpdb->prepare($sql)) !== false;
     }
 }

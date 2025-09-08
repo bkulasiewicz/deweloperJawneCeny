@@ -12,22 +12,25 @@ class ResourcesPage {
     private $developerRepository;
     private $investmentRepository;
     private $resourceRepository;
-    private $saveInvestmentInfoUseCase;
     private $importResourcesUseCase;
+    private $getAllResourcesUseCase;
     private $historyModal;
     private $resourceModal;
     private $investmentModal;
     
     public function __construct() {
+        Logger::info('UJC: ResourcesPage constructor started');
         // Wszystkie instancje w konstruktorze
         $this->developerRepository = new DeveloperRepository();
         $this->investmentRepository = new InvestmentRepository();
         $this->resourceRepository = new ResourceRepository();
-        $this->saveInvestmentInfoUseCase = new SaveInvestmentInfoUseCase();
         $this->importResourcesUseCase = new ImportResourcesUseCase();
+        $this->getAllResourcesUseCase = new GetAllResourcesUseCase();
         $this->historyModal = new HistoryModal();
         $this->resourceModal = new ResourceModal();
+        Logger::info('UJC: ResourcesPage about to create InvestmentModal');
         $this->investmentModal = new InvestmentModal();
+        Logger::info('UJC: ResourcesPage InvestmentModal created successfully');
         
         // Dodaj AJAX handlers dla zasobów
         add_action('wp_ajax_ujc_get_resources', [$this, 'ajax_get_resources']);
@@ -264,7 +267,16 @@ class ResourcesPage {
      * Renderuje listę zasobów bezpośrednio w PHP
      */
     private function render_resources_list() {
-        $resources = $this->resourceRepository->readAll();
+        try {
+            $resources = $this->getAllResourcesUseCase->execute();
+        } catch (Exception $e) {
+            ?>
+            <div class="ujc-no-resources">
+                <p>Błąd podczas pobierania zasobów: <?php echo esc_html($e->getMessage()); ?></p>
+            </div>
+            <?php
+            return;
+        }
         
         if (empty($resources)) {
             ?>
@@ -292,47 +304,86 @@ class ResourcesPage {
      * AJAX: Pobiera listę wszystkich zasobów
      */
     public function ajax_get_resources() {
+        Logger::info("ResourcesPage::ajax_get_resources - AJAX REQUEST RECEIVED");
+        
         check_ajax_referer('ujc_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
+            Logger::error("ResourcesPage::ajax_get_resources - Access denied");
             wp_send_json_error('Brak uprawnień');
         }
         
-        $resources = $this->resourceRepository->readAll();
-        
-        // Przekaż surowe dane - formatowanie w JavaScript
-        $formatted_resources = [];
-        foreach ($resources as $resource) {
-            $formatted_resources[] = [
-                'id' => $resource['id'],
-                'rodzaj_nieruchomosci' => $resource['rodzaj_nieruchomosci'],
-                'nr_lokalu' => $resource['nr_lokalu'],
-                'powierzchnia_uzytkowa' => $resource['powierzchnia_uzytkowa'],
-                'cena_m2' => $resource['cena_m2'],
-                'cena_calkowita' => $resource['cena_calkowita'],
-                'cena_z_dodatkami' => $resource['cena_z_dodatkami'],
-                'status' => $resource['status'],
-                'data_cena_m2' => $resource['data_cena_m2'],
-                'data_cena_calkowita' => $resource['data_cena_calkowita'],
-                'data_cena_z_dodatkami' => $resource['data_cena_z_dodatkami'],
-                'created_at' => $resource['created_at'],
-                'updated_at' => $resource['updated_at']
-            ];
+        try {
+            Logger::info("ResourcesPage::ajax_get_resources - Starting");
+            
+            $resources = $this->getAllResourcesUseCase->execute();
+            
+            Logger::info("ResourcesPage::ajax_get_resources - Got " . count($resources) . " resources, sending JSON response");
+            
+            wp_send_json_success($resources);
+        } catch (Exception $e) {
+            Logger::error("ResourcesPage::ajax_get_resources - Exception: " . $e->getMessage());
+            wp_send_json_error('Błąd podczas pobierania zasobów: ' . $e->getMessage());
         }
-        
-        wp_send_json_success($formatted_resources);
     }
     
     public function ajax_save_investment() {
+        Logger::info('UJC: ajax_save_investment started. POST data: ' . print_r($_POST, true));
+        
         check_ajax_referer('ujc_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
         
-        $result = $this->saveInvestmentInfoUseCase->execute($_POST);
-        
-        if ($result['success']) {
-            wp_send_json_success($result['message']);
-        } else {
-            wp_send_json_error($result['message']);
+        try {
+            // Convert POST data to InvestmentDto format
+            $data = [
+                'name' => sanitize_text_field($_POST['investment_name'] ?? ''),
+                'proj_wojewodztwo' => sanitize_text_field($_POST['proj_wojewodztwo'] ?? ''),
+                'proj_powiat' => sanitize_text_field($_POST['proj_powiat'] ?? ''),
+                'proj_gmina' => sanitize_text_field($_POST['proj_gmina'] ?? ''),
+                'proj_miejscowosc' => sanitize_text_field($_POST['proj_miejscowosc'] ?? ''),
+                'proj_ulica' => sanitize_text_field($_POST['proj_ulica'] ?? ''),
+                'proj_nr' => sanitize_text_field($_POST['proj_nr'] ?? ''),
+                'proj_kod' => sanitize_text_field($_POST['proj_kod'] ?? ''),
+                'has_property_parts' => isset($_POST['has_property_parts']) ? 1 : 0,
+                'has_belonging_rooms' => isset($_POST['has_belonging_rooms']) ? 1 : 0,
+                'has_usage_rights' => isset($_POST['has_usage_rights']) ? 1 : 0,
+                'has_other_services' => isset($_POST['has_other_services']) ? 1 : 0,
+            ];
+            
+            Logger::info('UJC: Sanitized data: ' . print_r($data, true));
+            
+            // Create InvestmentDto
+            $investmentDto = new InvestmentDto(
+                0, // ID will be generated by database
+                $data['name'],
+                $data['proj_wojewodztwo'],
+                $data['proj_powiat'],
+                $data['proj_gmina'],
+                $data['proj_miejscowosc'],
+                $data['proj_ulica'],
+                $data['proj_nr'],
+                $data['proj_kod'],
+                (bool)$data['has_property_parts'],
+                (bool)$data['has_belonging_rooms'],
+                (bool)$data['has_usage_rights'],
+                (bool)$data['has_other_services']
+            );
+            
+            // Use CreateInvestmentUseCase
+            $createUseCase = new CreateInvestmentUseCase();
+            $result = $createUseCase->execute($investmentDto);
+            
+            Logger::info('UJC: CreateInvestmentUseCase result: ' . ($result->isSuccess ? 'SUCCESS' : 'FAILURE') . ' - ' . $result->message);
+            
+            if ($result->isSuccess) {
+                wp_send_json_success($result->message);
+            } else {
+                wp_send_json_error($result->message);
+            }
+            
+        } catch (Exception $e) {
+            Logger::error('UJC: Exception in ajax_save_investment: ' . $e->getMessage());
+            wp_send_json_error('Błąd podczas zapisywania inwestycji: ' . $e->getMessage());
         }
     }
     

@@ -54,4 +54,33 @@ class PriceHistoryRepository {
         
         return PriceHistoryDto::databaseToModel($result);
     }
+    
+    /**
+     * Create price history table using PriceHistoryDto field constants
+     */
+    public function createTable(): bool {
+        global $wpdb;
+        $table = TableNames::getPriceHistory();
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        if (UJC_Schema_Manager::tableExists($table)) {
+            return true;
+        }
+        
+        $sql = "CREATE TABLE `{$table}` (
+            " . PriceHistoryDto::FIELD_ID . " int(11) NOT NULL AUTO_INCREMENT,
+            " . PriceHistoryDto::FIELD_RESOURCE_ID . " int(11) NOT NULL,
+            " . PriceHistoryDto::FIELD_CENA_M2 . " decimal(10,2) NOT NULL,
+            " . PriceHistoryDto::FIELD_CENA_CALKOWITA . " decimal(12,2) NOT NULL,
+            " . PriceHistoryDto::FIELD_DATA_ZMIANY . " datetime NOT NULL,
+            " . PriceHistoryDto::FIELD_CENA_Z_DODATKAMI . " decimal(12,2) NOT NULL,
+            " . PriceHistoryDto::FIELD_DATA_CENA_Z_DODATKAMI . " datetime NOT NULL,
+            
+            PRIMARY KEY (" . PriceHistoryDto::FIELD_ID . "),
+            KEY " . PriceHistoryDto::FIELD_RESOURCE_ID . " (" . PriceHistoryDto::FIELD_RESOURCE_ID . "),
+            KEY " . PriceHistoryDto::FIELD_DATA_ZMIANY . " (" . PriceHistoryDto::FIELD_DATA_ZMIANY . ")
+        ) " . $charset_collate;
+        
+        return $wpdb->query($wpdb->prepare($sql)) !== false;
+    }
 }

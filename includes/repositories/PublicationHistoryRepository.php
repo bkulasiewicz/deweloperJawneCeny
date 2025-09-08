@@ -114,4 +114,31 @@ class PublicationHistoryRepository {
             return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `{$this->table_name}`"));
         }
     }
+    
+    /**
+     * Create publication history table using PublicationHistoryDto field constants
+     */
+    public function createTable(): bool {
+        global $wpdb;
+        $table = TableNames::getPublicationHistory();
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        if (UJC_Schema_Manager::tableExists($table)) {
+            return true;
+        }
+        
+        $sql = "CREATE TABLE `{$table}` (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            " . PublicationHistoryDto::FIELD_TIMESTAMP . " int(11) NOT NULL,
+            " . PublicationHistoryDto::FIELD_STATUS . " varchar(20) NOT NULL,
+            " . PublicationHistoryDto::FIELD_MESSAGE . " text,
+            " . PublicationHistoryDto::FIELD_TRIGGER_TYPE . " varchar(20) NOT NULL,
+            
+            PRIMARY KEY (id),
+            KEY " . PublicationHistoryDto::FIELD_TIMESTAMP . " (" . PublicationHistoryDto::FIELD_TIMESTAMP . "),
+            KEY " . PublicationHistoryDto::FIELD_STATUS . " (" . PublicationHistoryDto::FIELD_STATUS . ")
+        ) " . $charset_collate;
+        
+        return $wpdb->query($wpdb->prepare($sql)) !== false;
+    }
 }

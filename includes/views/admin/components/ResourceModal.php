@@ -54,11 +54,11 @@ class ResourceModal extends UJC_Admin_Page {
                                 <th><label for="modal-rodzaj_nieruchomosci">Rodzaj zasobu *</label></th>
                                 <td>
                                     <select id="modal-rodzaj_nieruchomosci" name="rodzaj_nieruchomosci" required>
-                                        <option value="Lokal mieszkalny" selected>Lokal mieszkalny</option>
-                                        <option value="Dom jednorodzinny">Dom jednorodzinny</option>
-                                        <option value="Miejsce postojowe">Miejsce postojowe</option>
-                                        <option value="Komórka lokatorska">Komórka lokatorska</option>
-                                        <option value="Garaż">Garaż</option>
+                                        <?php foreach (PropertyType::cases() as $type): ?>
+                                            <option value="<?php echo esc_attr($type->value); ?>" <?php echo $type === PropertyType::RESIDENTIAL_UNIT ? 'selected' : ''; ?>>
+                                                <?php echo esc_html($type->getDisplayText()); ?>
+                                            </option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </td>
                             </tr>
@@ -89,9 +89,11 @@ class ResourceModal extends UJC_Admin_Page {
                                 <th><label for="modal-status">Status</label></th>
                                 <td>
                                     <select id="modal-status" name="status">
-                                        <option value="dostepny">Dostępny</option>
-                                        <option value="rezerwacja">Rezerwacja</option>
-                                        <option value="sprzedany">Sprzedany</option>
+                                        <?php foreach (ResourceStatus::cases() as $status): ?>
+                                            <option value="<?php echo esc_attr($status->value); ?>">
+                                                <?php echo esc_html($status->getDisplayText()); ?>
+                                            </option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </td>
                             </tr>
@@ -397,7 +399,7 @@ class ResourceModal extends UJC_Admin_Page {
                         $('#modal-cena_m2').val(data.cena_m2);
                         $('#modal-cena_calkowita').val(data.cena_calkowita || '');
                         $('#modal-cena_z_dodatkami').val(data.cena_z_dodatkami || '');
-                        $('#modal-status').val(data.status || 'dostepny');
+                        $('#modal-status').val(data.status || '<?php echo ResourceStatus::cases()[0]->value; ?>');
                         
                         // Component data loading will be implemented after repositories are created
                         // For now, clear component fields
@@ -600,22 +602,22 @@ class ResourceModal extends UJC_Admin_Page {
                 
                 function toggleFieldsByPropertyType(propertyType) {
                     switch(propertyType) {
-                        case 'Miejsce postojowe':
+                        case '<?php echo PropertyType::PARKING_SPACE->value; ?>':
                             // Hide cena m² for parking spaces - usually sold per unit
                             $cenaM2Row.hide();
                             $cenaM2Field.removeAttr('required');
                             $cenaM2Field.val(''); // Clear value
                             break;
                             
-                        case 'Komórka lokatorska':
+                        case '<?php echo PropertyType::STORAGE_ROOM->value; ?>':
                             // Make cena m² optional for storage rooms
                             $cenaM2Row.show();
                             $cenaM2Field.removeAttr('required');
                             break;
                             
-                        case 'Lokal mieszkalny':
-                        case 'Dom jednorodzinny': 
-                        case 'Garaż':
+                        case '<?php echo PropertyType::RESIDENTIAL_UNIT->value; ?>':
+                        case '<?php echo PropertyType::SINGLE_FAMILY_HOUSE->value; ?>': 
+                        case '<?php echo PropertyType::GARAGE->value; ?>':
                         default:
                             // Show and require cena m² for residential properties and garages
                             $cenaM2Row.show();
@@ -711,13 +713,13 @@ class ResourceModal extends UJC_Admin_Page {
             $data = $this->sanitize_resource_data();
             
             $formData = new ResourceFormData(
-                rodzaj_nieruchomosci: $data['rodzaj_nieruchomosci'],
+                rodzaj_nieruchomosci: PropertyType::from($data['rodzaj_nieruchomosci']),
                 nr_lokalu: $data['nr_lokalu'],
                 powierzchnia_uzytkowa: (float)$data['powierzchnia_uzytkowa'],
                 cena_m2: $data['cena_m2'] !== null ? (float)$data['cena_m2'] : null,
                 cena_calkowita: (float)$data['cena_calkowita'],
                 cena_z_dodatkami: (float)$data['cena_z_dodatkami'],
-                status: $data['status']
+                status: ResourceStatus::from($data['status'])
             );
             
             $result = $this->createResourceUseCase->execute($formData);
@@ -786,13 +788,13 @@ class ResourceModal extends UJC_Admin_Page {
             $data = $this->sanitize_resource_data();
             
             $formData = new ResourceFormData(
-                rodzaj_nieruchomosci: $data['rodzaj_nieruchomosci'],
+                rodzaj_nieruchomosci: PropertyType::from($data['rodzaj_nieruchomosci']),
                 nr_lokalu: $data['nr_lokalu'],
                 powierzchnia_uzytkowa: (float)$data['powierzchnia_uzytkowa'],
                 cena_m2: $data['cena_m2'] !== null ? (float)$data['cena_m2'] : null,
                 cena_calkowita: (float)$data['cena_calkowita'],
                 cena_z_dodatkami: (float)$data['cena_z_dodatkami'],
-                status: $data['status']
+                status: ResourceStatus::from($data['status'])
             );
             
             $result = $this->updateResourceUseCase->execute($formData, $resource_id);

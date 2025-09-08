@@ -18,25 +18,25 @@ class UJC_Schema_Manager {
         $charset_collate = $wpdb->get_charset_collate();
         
         // 1. DEWELOPER
-        self::create_developer_table($wpdb, $charset_collate);
+        (new DeveloperRepository())->createTable();
         
         // 2. INWESTYCJA
-        self::create_investment_table($wpdb, $charset_collate);
+        (new InvestmentRepository())->createTable();
         
         // 3. ZASOBY/NIERUCHOMOŚCI
-        self::create_resources_table($wpdb, $charset_collate);
+        (new ResourceRepository())->createTable();
         
         // 4. KOMPONENTY ZASOBÓW
-        self::create_resource_property_parts_table($wpdb, $charset_collate);
-        self::create_resource_belonging_rooms_table($wpdb, $charset_collate);
-        self::create_resource_usage_rights_table($wpdb, $charset_collate);
-        self::create_resource_other_services_table($wpdb, $charset_collate);
+        (new PropertyPartsRepository())->createTable();
+        (new BelongingRoomsRepository())->createTable();
+        (new UsageRightsRepository())->createTable();
+        (new OtherServicesRepository())->createTable();
         
         // 5. HISTORIA CEN
-        self::create_price_history_table($wpdb, $charset_collate);
+        (new PriceHistoryRepository())->createTable();
         
         // 6. HISTORIA PUBLIKACJI
-        self::create_publication_history_table($wpdb, $charset_collate);
+        (new PublicationHistoryRepository())->createTable();
         
         // 7. KLUCZE OBCE
         self::create_foreign_keys($wpdb);
@@ -63,245 +63,6 @@ class UJC_Schema_Manager {
         foreach ($tables as $table) {
             $wpdb->query("DROP TABLE IF EXISTS $table");
         }
-    }
-    
-    private static function create_developer_table($wpdb, $charset_collate) {
-        $table = TableNames::getDeveloperInfo();
-        
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
-            return;
-        }
-        
-        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
-            id int(11) NOT NULL AUTO_INCREMENT,
-            nazwa varchar(255) NOT NULL,
-            forma_prawna varchar(100),
-            nr_krs varchar(20),
-            nr_ceidg varchar(20),
-            nr_nip varchar(15),
-            nr_regon varchar(20),
-            telefon varchar(20),
-            email varchar(100),
-            fax varchar(20),
-            strona_www varchar(255),
-            
-            siedz_wojewodztwo varchar(50),
-            siedz_powiat varchar(50),
-            siedz_gmina varchar(50),
-            siedz_miejscowosc varchar(50),
-            siedz_ulica varchar(100),
-            siedz_nr varchar(20),
-            siedz_lokal varchar(20),
-            siedz_kod varchar(10),
-            
-            sprzed_wojewodztwo varchar(50),
-            sprzed_powiat varchar(50),
-            sprzed_gmina varchar(50),
-            sprzed_miejscowosc varchar(50),
-            sprzed_ulica varchar(100),
-            sprzed_nr varchar(20),
-            sprzed_lokal varchar(20),
-            sprzed_kod varchar(10),
-            
-            dodatkowe_lokalizacje text,
-            sposob_kontaktu text,
-            prospekt_url varchar(255),
-            
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (id)
-        ) " . $charset_collate));
-    }
-    
-    private static function create_investment_table($wpdb, $charset_collate) {
-        $table = TableNames::getInvestmentInfo();
-        
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
-            return;
-        }
-        
-        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
-            id int(11) NOT NULL AUTO_INCREMENT,
-            name varchar(255) NOT NULL,
-            proj_wojewodztwo varchar(50) NOT NULL,
-            proj_powiat varchar(50),
-            proj_gmina varchar(50),
-            proj_miejscowosc varchar(50) NOT NULL,
-            proj_ulica varchar(100),
-            proj_nr varchar(20),
-            proj_kod varchar(10),
-            
-            has_property_parts tinyint(1) DEFAULT 0,
-            has_belonging_rooms tinyint(1) DEFAULT 0,
-            has_usage_rights tinyint(1) DEFAULT 0,
-            has_other_services tinyint(1) DEFAULT 0,
-            
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (id)
-        ) " . $charset_collate));
-    }
-    
-    private static function create_resources_table($wpdb, $charset_collate) {
-        $table = TableNames::getResources();
-        
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
-            return;
-        }
-        
-        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
-            id int(11) NOT NULL AUTO_INCREMENT,
-            
-            rodzaj_nieruchomosci enum('Lokal mieszkalny', 'Dom jednorodzinny', 'Miejsce postojowe', 'Komórka lokatorska', 'Część nieruchomości', 'Garaż') NOT NULL,
-            nr_lokalu varchar(50) NOT NULL,
-            powierzchnia_uzytkowa decimal(8,2) NOT NULL,
-            
-            status enum('dostepny', 'sprzedany', 'rezerwacja') DEFAULT 'dostepny',
-            
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            
-            PRIMARY KEY (id),
-            KEY status (status)
-        ) " . $charset_collate));
-    }
-    
-    private static function create_resource_property_parts_table($wpdb, $charset_collate) {
-        $table = TableNames::getResourcePropertyParts();
-        
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
-            return;
-        }
-        
-        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
-            id int(11) NOT NULL AUTO_INCREMENT,
-            resource_id int(11) NOT NULL,
-            type varchar(100) NOT NULL,
-            designation varchar(50),
-            price decimal(10,2),
-            price_date datetime,
-            
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            
-            PRIMARY KEY (id),
-            KEY resource_id (resource_id)
-        ) " . $charset_collate));
-    }
-    
-    private static function create_resource_belonging_rooms_table($wpdb, $charset_collate) {
-        $table = TableNames::getResourceBelongingRooms();
-        
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
-            return;
-        }
-        
-        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
-            id int(11) NOT NULL AUTO_INCREMENT,
-            resource_id int(11) NOT NULL,
-            type varchar(100) NOT NULL,
-            designation varchar(50),
-            price decimal(10,2),
-            price_date datetime,
-            
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            
-            PRIMARY KEY (id),
-            KEY resource_id (resource_id)
-        ) " . $charset_collate));
-    }
-    
-    private static function create_resource_usage_rights_table($wpdb, $charset_collate) {
-        $table = TableNames::getResourceUsageRights();
-        
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
-            return;
-        }
-        
-        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
-            id int(11) NOT NULL AUTO_INCREMENT,
-            resource_id int(11) NOT NULL,
-            description text NOT NULL,
-            price decimal(10,2),
-            price_date datetime,
-            
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            
-            PRIMARY KEY (id),
-            KEY resource_id (resource_id)
-        ) " . $charset_collate));
-    }
-    
-    private static function create_resource_other_services_table($wpdb, $charset_collate) {
-        $table = TableNames::getResourceOtherServices();
-        
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
-            return;
-        }
-        
-        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
-            id int(11) NOT NULL AUTO_INCREMENT,
-            resource_id int(11) NOT NULL,
-            description text NOT NULL,
-            price decimal(10,2),
-            price_date datetime,
-            
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            
-            PRIMARY KEY (id),
-            KEY resource_id (resource_id)
-        ) " . $charset_collate));
-    }
-    
-    private static function create_price_history_table($wpdb, $charset_collate) {
-        $table = TableNames::getPriceHistory();
-        
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
-            return;
-        }
-        
-        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
-            id int(11) NOT NULL AUTO_INCREMENT,
-            resource_id int(11) NOT NULL,
-            
-            cena_m2 decimal(10,2) NOT NULL,
-            cena_calkowita decimal(12,2) NOT NULL,
-            data_zmiany datetime NOT NULL,
-            
-            cena_z_dodatkami decimal(12,2) NOT NULL,
-            data_cena_z_dodatkami datetime NOT NULL,
-            
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            
-            PRIMARY KEY (id),
-            KEY resource_id (resource_id),
-            KEY data_zmiany (data_zmiany)
-        ) " . $charset_collate));
-    }
-    
-    private static function create_publication_history_table($wpdb, $charset_collate) {
-        $table = TableNames::getPublicationHistory();
-        
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table'") == $table) {
-            return;
-        }
-        
-        $wpdb->query($wpdb->prepare("CREATE TABLE `{$table}` (
-            id int(11) NOT NULL AUTO_INCREMENT,
-            timestamp int(11) NOT NULL,
-            status varchar(20) NOT NULL,
-            message text,
-            trigger_type varchar(20) NOT NULL,
-            
-            PRIMARY KEY (id),
-            KEY timestamp (timestamp),
-            KEY status (status)
-        ) " . $charset_collate));
-        
-        Logger::success("Publication History: CREATE TABLE executed for table: {$table}");
     }
     
     private static function create_foreign_keys($wpdb) {
@@ -382,23 +143,35 @@ class UJC_Schema_Manager {
     }
     
     /**
+     * Check if table exists
+     */
+    public static function tableExists(string $table): bool {
+        global $wpdb;
+        return $wpdb->get_var("SHOW TABLES LIKE '$table'") == $table;
+    }
+    
+    /**
+     * Drop table if exists
+     */
+    public static function dropTable(string $table): bool {
+        global $wpdb;
+        return $wpdb->query("DROP TABLE IF EXISTS `$table`") !== false;
+    }
+    
+    /**
      * Usuwa tabelę developer_info i odtwarza ją
      */
     public static function reset_developer_table() {
-        global $wpdb;
-        $table = TableNames::getDeveloperInfo();
-        $wpdb->query("DROP TABLE IF EXISTS $table");
-        self::create_developer_table($wpdb, $wpdb->get_charset_collate());
+        self::dropTable(TableNames::getDeveloperInfo());
+        (new DeveloperRepository())->createTable();
     }
     
     /**
      * Usuwa tabelę investment_info i odtwarza ją
      */
     public static function reset_investment_table() {
-        global $wpdb;
-        $table = TableNames::getInvestmentInfo();
-        $wpdb->query("DROP TABLE IF EXISTS $table");
-        self::create_investment_table($wpdb, $wpdb->get_charset_collate());
+        self::dropTable(TableNames::getInvestmentInfo());
+        (new InvestmentRepository())->createTable();
     }
     
     /**
@@ -420,8 +193,8 @@ class UJC_Schema_Manager {
             $wpdb->query("DROP TABLE IF EXISTS $table");
         }
         
-        self::create_resources_table($wpdb, $charset_collate);
-        self::create_price_history_table($wpdb, $charset_collate);
+        (new ResourceRepository())->createTable();
+        (new PriceHistoryRepository())->createTable();
         self::create_foreign_keys($wpdb);
         
         // Włącz z powrotem sprawdzanie kluczy obcych
@@ -448,12 +221,12 @@ class UJC_Schema_Manager {
                 // Fallback: try to recreate table
                 Logger::info("Publication History Reset: Attempting table recreation as fallback");
                 $wpdb->query("DROP TABLE IF EXISTS `$table`");
-                self::create_publication_history_table($wpdb, $wpdb->get_charset_collate());
+                (new PublicationHistoryRepository())->createTable();
             }
         } else {
             // Tabela nie istnieje, utwórz ją
             Logger::info("Publication History Reset: Table doesn't exist, creating new one");
-            self::create_publication_history_table($wpdb, $wpdb->get_charset_collate());
+            (new PublicationHistoryRepository())->createTable();
         }
     }
 }

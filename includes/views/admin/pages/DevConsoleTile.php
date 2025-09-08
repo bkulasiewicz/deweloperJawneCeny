@@ -18,6 +18,7 @@ class DevConsoleTile {
         if (defined('WP_DEBUG') && WP_DEBUG) {
             add_action('wp_ajax_ujc_dev_clear_table', [$this, 'ajax_clear_table']);
             add_action('wp_ajax_dev_trigger_fallback', [$this, 'ajax_trigger_fallback']);
+            add_action('wp_ajax_ujc_dev_clear_logs', [$this, 'ajax_clear_logs']);
             }
     }
     
@@ -85,7 +86,19 @@ class DevConsoleTile {
         }
     }
     
-    
+    /**
+     * AJAX handler do czyszczenia logów UJC
+     */
+    public function ajax_clear_logs() {
+        check_ajax_referer('ujc_admin_nonce', 'nonce');
+        
+        try {
+            Logger::clearLogs();
+            wp_send_json_success('Logi UJC zostały wyczyszczone');
+        } catch (Exception $e) {
+            wp_send_json_error('Błąd czyszczenia logów: ' . $e->getMessage());
+        }
+    }
     
     /**
      * AJAX handler do ręcznego uruchomienia fallback cron
@@ -153,6 +166,9 @@ class DevConsoleTile {
                 <button type="button" class="button button-primary" onclick="triggerFallback()" style="margin: 5px; background-color: #d63638;">
                     🚨 Uruchom Fallback Cron
                 </button>
+                <button type="button" class="button button-secondary" onclick="clearLogs()" style="margin: 5px;">
+                    Wyczyść logi
+                </button>
                 <p><small>WP_DEBUG: <?php echo defined('WP_DEBUG') && WP_DEBUG ? 'ON' : 'OFF'; ?></small></p>
                 <?php endif; ?>
                 
@@ -206,6 +222,24 @@ class DevConsoleTile {
             }).always(function() {
                 button.textContent = originalText;
                 button.disabled = false;
+            });
+        }
+
+        function clearLogs() {
+            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
+            
+            jQuery.post(ajaxurl, {
+                action: 'ujc_dev_clear_logs',
+                nonce: nonce
+            }, function(response) {
+                if (response.success) {
+                    alert('✅ ' + response.data);
+                } else {
+                    alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
+                }
+            }).fail(function(xhr, status, error) {
+                console.error('Clear Logs AJAX Error:', xhr, status, error);
+                alert('❌ Błąd połączenia: ' + error);
             });
         }
 

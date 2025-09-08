@@ -24,14 +24,25 @@ class InvestmentRepository {
         $table = TableNames::getInvestmentInfo();        
         global $wpdb;
         
+        Logger::info('UJC: InvestmentRepository::create() started');
+        Logger::info('UJC: Table name: ' . $table);
+        
         $data = $dto->modelToDatabase();
+        Logger::info('UJC: Data to insert: ' . print_r($data, true));
+        
         $result = $wpdb->insert($table, $data);
+        Logger::info('UJC: Insert result: ' . ($result !== false ? 'SUCCESS' : 'FAILED'));
         
         if ($result === false) {
+            Logger::error('UJC: Insert failed. Last error: ' . $wpdb->last_error);
+            Logger::error('UJC: Last query: ' . $wpdb->last_query);
             throw new Exception('Failed to create investment: ' . $wpdb->last_error);
         }
         
-        return $wpdb->insert_id;
+        $insert_id = $wpdb->insert_id;
+        Logger::info('UJC: Created investment with ID: ' . $insert_id);
+        
+        return $insert_id;
     }
     
     /**
@@ -41,11 +52,55 @@ class InvestmentRepository {
         $table = TableNames::getInvestmentInfo();        
         global $wpdb;
         
+        Logger::info('UJC: InvestmentRepository::update() started for ID: ' . $id);
+        Logger::info('UJC: Table name: ' . $table);
+        
         $data = $dto->modelToDatabase();
+        Logger::info('UJC: Data to update: ' . print_r($data, true));
+        
         $result = $wpdb->update($table, $data, ['id' => $id]);
+        Logger::info('UJC: Update result: ' . ($result !== false ? 'SUCCESS (rows affected: ' . $result . ')' : 'FAILED'));
         
         if ($result === false) {
+            Logger::error('UJC: Update failed. Last error: ' . $wpdb->last_error);
+            Logger::error('UJC: Last query: ' . $wpdb->last_query);
             throw new Exception('Failed to update investment: ' . $wpdb->last_error);
         }
+        
+        Logger::info('UJC: Investment update completed successfully');
+    }
+    
+    /**
+     * Create investment table using InvestmentDto field constants
+     */
+    public function createTable(): bool {
+        global $wpdb;
+        $table = TableNames::getInvestmentInfo();
+        $charset_collate = $wpdb->get_charset_collate();
+        
+        if (UJC_Schema_Manager::tableExists($table)) {
+            return true;
+        }
+        
+        $sql = "CREATE TABLE `{$table}` (
+            " . InvestmentDto::FIELD_ID . " int(11) NOT NULL AUTO_INCREMENT,
+            " . InvestmentDto::FIELD_NAME . " varchar(255) NOT NULL,
+            " . InvestmentDto::FIELD_PROJ_WOJEWODZTWO . " varchar(50) NOT NULL,
+            " . InvestmentDto::FIELD_PROJ_POWIAT . " varchar(50),
+            " . InvestmentDto::FIELD_PROJ_GMINA . " varchar(50),
+            " . InvestmentDto::FIELD_PROJ_MIEJSCOWOSC . " varchar(50) NOT NULL,
+            " . InvestmentDto::FIELD_PROJ_ULICA . " varchar(100),
+            " . InvestmentDto::FIELD_PROJ_NR . " varchar(20),
+            " . InvestmentDto::FIELD_PROJ_KOD . " varchar(10),
+            
+            " . InvestmentDto::FIELD_HAS_PROPERTY_PARTS . " tinyint(1) DEFAULT 0,
+            " . InvestmentDto::FIELD_HAS_BELONGING_ROOMS . " tinyint(1) DEFAULT 0,
+            " . InvestmentDto::FIELD_HAS_USAGE_RIGHTS . " tinyint(1) DEFAULT 0,
+            " . InvestmentDto::FIELD_HAS_OTHER_SERVICES . " tinyint(1) DEFAULT 0,
+            
+            PRIMARY KEY (" . InvestmentDto::FIELD_ID . ")
+        ) " . $charset_collate;
+        
+        return $wpdb->query($wpdb->prepare($sql)) !== false;
     }
 }

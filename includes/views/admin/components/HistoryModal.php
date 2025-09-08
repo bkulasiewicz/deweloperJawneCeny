@@ -9,10 +9,10 @@ if (!defined('ABSPATH')) {
  */
 class HistoryModal {
     
-    private $priceHistoryRepository;
+    private $getPriceHistoryUseCase;
     
     public function __construct() {
-        $this->priceHistoryRepository = new PriceHistoryRepository();
+        $this->getPriceHistoryUseCase = new GetPriceHistoryUseCase();
         add_action('wp_ajax_ujc_get_resource_history', [$this, 'ajax_get_resource_history']);
     }
     
@@ -27,7 +27,7 @@ class HistoryModal {
         }
         
         $resource_id = intval($_POST['resource_id'] ?? 0);
-        $history = $this->priceHistoryRepository->readByResourceId($resource_id);
+        $history = $this->getPriceHistoryUseCase->execute($resource_id);
         
         ob_start();
         if (empty($history)) {

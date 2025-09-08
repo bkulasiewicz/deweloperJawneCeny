@@ -23,25 +23,37 @@ class CreateResourceUseCase {
     }
     
     public function execute(ResourceFormData $formData, $propertyParts = null, $belongingRooms = null, $usageRights = null, $otherServices = null): Result {
+        Logger::info("CreateResourceUseCase::execute - Starting for nr_lokalu: " . $formData->nr_lokalu);
+        
         if (!$this->validate($formData)) {
+            Logger::info("CreateResourceUseCase::execute - Validation failed for nr_lokalu: " . $formData->nr_lokalu);
             return Result::failure('Numer lokalu "' . $formData->nr_lokalu . '" już istnieje. Każdy zasób musi mieć unikalną nazwę.');
         }
         
         try {
+            Logger::info("CreateResourceUseCase::execute - Creating resource DTO");
             // Create resource without prices
             $resourceDto = $this->createResourceDto($formData);
+            
+            Logger::info("CreateResourceUseCase::execute - Calling repository->create()");
             $resource_id = $this->repository->create($resourceDto);
+            Logger::info("CreateResourceUseCase::execute - Resource created with ID: " . $resource_id);
             
             // Create initial price history entry
+            Logger::info("CreateResourceUseCase::execute - Creating initial price history");
             $priceHistoryDto = $this->createInitialPriceHistory($formData, $resource_id);
             $this->price_history_repo->save($priceHistoryDto);
+            Logger::info("CreateResourceUseCase::execute - Price history saved");
             
             // Zapisz komponenty jeśli zostały przekazane
+            Logger::info("CreateResourceUseCase::execute - Saving components");
             $this->saveComponents($resource_id, $propertyParts, $belongingRooms, $usageRights, $otherServices);
             
+            Logger::info("CreateResourceUseCase::execute - Resource creation completed successfully for ID: " . $resource_id);
             return Result::success('Zasób został utworzony pomyślnie');
             
         } catch (Exception $e) {
+            Logger::error("CreateResourceUseCase::execute - Exception: " . $e->getMessage());
             return Result::failure('Błąd podczas tworzenia zasobu: ' . $e->getMessage());
         }
     }
@@ -61,10 +73,10 @@ class CreateResourceUseCase {
     private function createResourceDto(ResourceFormData $formData): ResourceDto {
         return new ResourceDto(
             id: 0,
-            rodzaj_nieruchomosci: $formData->rodzaj_nieruchomosci,
+            rodzaj_nieruchomosci: $formData->rodzaj_nieruchomosci->value,
             nr_lokalu: $formData->nr_lokalu,
             powierzchnia_uzytkowa: $formData->powierzchnia_uzytkowa,
-            status: $formData->status
+            status: $formData->status->value
         );
     }
     

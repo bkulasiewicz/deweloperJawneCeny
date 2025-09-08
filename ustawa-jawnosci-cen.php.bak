@@ -3,7 +3,7 @@
  * Plugin Name: Deweloper Jawne Ceny
  * Plugin URI: https://www.deweloperjawneceny.pl/
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
- * Version: 2.0.3
+ * Version: 2.0.130
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -26,7 +26,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.2');
-define('VERSION', '2.0.2');
+define('VERSION', '2.0.128');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -64,10 +64,13 @@ class DeweloperJawneCeny {
         // Enums
         require_once PLUGIN_DIR . 'includes/enums/PublicationStatus.php';
         require_once PLUGIN_DIR . 'includes/enums/TriggerType.php';
+        require_once PLUGIN_DIR . 'includes/enums/ResourceStatus.php';
+        require_once PLUGIN_DIR . 'includes/enums/PropertyType.php';
         
         // Models
         require_once PLUGIN_DIR . 'includes/models/DaneGovXmlDataset.php';
         require_once PLUGIN_DIR . 'includes/models/ResourceFormData.php';
+        require_once PLUGIN_DIR . 'includes/models/PresentableResource.php';
         
         // DTOs
         require_once PLUGIN_DIR . 'includes/core/ModelDto.php';
@@ -110,23 +113,37 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/repositories/UsageRightsRepository.php';
         require_once PLUGIN_DIR . 'includes/repositories/OtherServicesRepository.php';
         
-        // UseCases
-        require_once PLUGIN_DIR . 'includes/UseCases/GetResourceByIdUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/GetAllResourcesUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/ImportResourcesUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/DeleteResourceUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/ResetDatabaseUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/SaveDeveloperInfoUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/SaveInvestmentInfoUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/GenerateCSVFileUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/CreateDaneGovSubmissionFilesUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/AddPublicationHistoryUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/GetPublicationHistoryUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/GenerateFilesUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/CreateResourceUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/UpdateResourceUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/CreateInvestmentUseCase.php';
-        require_once PLUGIN_DIR . 'includes/UseCases/UpdateInvestmentUseCase.php';
+        // UseCases - Resources
+        require_once PLUGIN_DIR . 'includes/UseCases/Resources/CreateResourceUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Resources/UpdateResourceUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Resources/GetResourceByIdUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Resources/GetAllResourcesUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Resources/DeleteResourceUseCase.php';
+        
+        // UseCases - Developer
+        require_once PLUGIN_DIR . 'includes/UseCases/Developer/SaveDeveloperInfoUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Developer/GetDeveloperInfoUseCase.php';
+        
+        // UseCases - Investment
+        require_once PLUGIN_DIR . 'includes/UseCases/Investment/CreateInvestmentUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Investment/UpdateInvestmentUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Investment/GetInvestmentUseCase.php';
+        
+        // UseCases - File Generation
+        require_once PLUGIN_DIR . 'includes/UseCases/FileGeneration/GenerateCSVFileUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/FileGeneration/GenerateFilesUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/FileGeneration/CreateDaneGovSubmissionFilesUseCase.php';
+        
+        // UseCases - Publication History
+        require_once PLUGIN_DIR . 'includes/UseCases/PublicationHistory/AddPublicationHistoryUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/PublicationHistory/GetPublicationHistoryUseCase.php';
+        
+        // UseCases - Price History
+        require_once PLUGIN_DIR . 'includes/UseCases/PriceHistory/GetPriceHistoryUseCase.php';
+        
+        // UseCases - System
+        require_once PLUGIN_DIR . 'includes/UseCases/System/ImportResourcesUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/System/ResetDatabaseUseCase.php';
         
         // Views - Admin Components
         require_once PLUGIN_DIR . 'includes/views/admin/components/ResourceModal.php';
@@ -202,13 +219,8 @@ class DeweloperJawneCeny {
     
     public function activate() {
         try {
-            require_once PLUGIN_DIR . 'includes/config/TableNames.php';
-            require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
-            require_once PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
-            require_once PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
-            
-            // Initialize Logger before using it
-            Logger::init();
+            // Load all dependencies needed for schema creation
+            $this->load_dependencies();
             
             UJC_Schema_Manager::create_tables();
             

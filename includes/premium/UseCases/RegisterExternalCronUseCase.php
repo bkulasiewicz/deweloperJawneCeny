@@ -40,7 +40,13 @@ class RegisterExternalCronUseCase {
             $site_url = get_site_url();
             $endpoint = $site_url . '/wp-json/ujc/v1/external-cron';
             $domain = wp_parse_url($site_url, PHP_URL_HOST);
-            $title = $domain;
+            
+            // Get plugin version and license ID
+            $plugin_version = defined('VERSION') ? VERSION : '2.0.10';
+            $license_id = 'PREMIUM_2024';
+            
+            // Create title with metadata: domain | version | license
+            $title = $domain . ' | v' . $plugin_version . ' | ' . $license_id;
             
             // Get schedule configuration
             $available_schedules = $this->repository->getAvailableSchedules();

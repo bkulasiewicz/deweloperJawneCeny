@@ -18,8 +18,12 @@ class ImportResourcesUseCase {
     
     /**
      * Importuje dane z pliku CSV
+     * FUNKCJONALNOŚĆ TYMCZASOWO WYŁĄCZONA - niezgodność z nową strukturą enum
      */
     public function execute($file_data) {
+        throw new Exception('Import CSV jest tymczasowo wyłączony z powodu refaktoryzacji enum');
+        
+        /* WYŁĄCZONO - wymaga aktualizacji do nowej struktury enum
         // Walidacja pliku
         if (!isset($file_data['tmp_name']) || $file_data['error'] !== UPLOAD_ERR_OK) {
             throw new Exception('Błąd podczas przesyłania pliku');
@@ -31,8 +35,10 @@ class ImportResourcesUseCase {
         }
         
         return $this->importFromCsv($file_data['tmp_name']);
+        */
     }
     
+    /* WYŁĄCZONO - wymaga aktualizacji do nowej struktury enum
     private function importFromCsv($file_path) {
         $imported = 0;
         $updated = 0;
@@ -79,7 +85,15 @@ class ImportResourcesUseCase {
             $resource_id = $resource_data['nr_lokalu']; // nr_lokalu to faktycznie ID
             $existing_resource = $this->getByIdUseCase->execute($resource_id);
             
-            $formData = new ResourceFormData($resource_data);
+            $formData = new ResourceFormData(
+                rodzaj_nieruchomosci: PropertyType::from($resource_data['rodzaj_nieruchomosci']),
+                nr_lokalu: $resource_data['nr_lokalu'],
+                powierzchnia_uzytkowa: $resource_data['powierzchnia_uzytkowa'],
+                cena_m2: $resource_data['cena_m2'],
+                cena_calkowita: $resource_data['cena_calkowita'] ?? 0.0,
+                cena_z_dodatkami: $resource_data['cena_z_dodatkami'] ?? 0.0,
+                status: ResourceStatus::from($resource_data['status'])
+            );
             
             if ($existing_resource) {
                 $result = $this->updateUseCase->execute($formData, $resource_id);
@@ -108,7 +122,9 @@ class ImportResourcesUseCase {
         
         return $result;
     }
+    */
     
+    /* WYŁĄCZONO - wymaga aktualizacji do nowej struktury enum
     private function detect_csv_separator($line) {
         $separators = [';', ',', '\t'];
         $separator_counts = [];
@@ -122,7 +138,7 @@ class ImportResourcesUseCase {
     
     private function clean_csv_row($data) {
         $nr_lokalu = trim($data[0]);
-        $rodzaj = trim($data[1]) ?: 'Lokal mieszkalny';
+        $rodzaj = trim($data[1]) ?: 'Lokal mieszkalny'; // PROBLEM: używa display text zamiast database key
         $powierzchnia = $this->clean_decimal($data[2] ?? '');
         $cena_m2 = !empty($data[3]) ? $this->clean_decimal($data[3]) : null;
         $cena_calkowita = isset($data[4]) && !empty($data[4]) ? $this->clean_decimal($data[4]) : null;
@@ -131,21 +147,20 @@ class ImportResourcesUseCase {
             return false;
         }
         
+        // PROBLEM: sprawdza display text zamiast database keys
         if (!in_array($rodzaj, ['Lokal mieszkalny', 'Dom jednorodzinny'])) {
             $rodzaj = 'Lokal mieszkalny';
         }
         
         $resource_data = [
             'nr_lokalu' => $nr_lokalu,
-            'rodzaj_nieruchomosci' => $rodzaj,
+            'rodzaj_nieruchomosci' => $rodzaj, // PROBLEM: zwraca display text
             'powierzchnia_uzytkowa' => $powierzchnia,
             'cena_m2' => $cena_m2,
-            'status' => 'dostepny'
+            'cena_calkowita' => $cena_calkowita ?? 0.0,
+            'cena_z_dodatkami' => 0.0,
+            'status' => 'dostepny' // PROBLEM: display text zamiast 'available'
         ];
-        
-        if ($cena_calkowita !== null && $cena_calkowita > 0) {
-            $resource_data['cena_calkowita'] = $cena_calkowita;
-        }
         
         return $resource_data;
     }
@@ -158,4 +173,5 @@ class ImportResourcesUseCase {
         
         return floatval($clean);
     }
+    */
 }

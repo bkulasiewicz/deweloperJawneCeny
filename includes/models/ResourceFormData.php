@@ -10,22 +10,22 @@ if (!defined('ABSPATH')) {
  */
 class ResourceFormData {
     
-    public readonly string $rodzaj_nieruchomosci;
+    public readonly PropertyType $rodzaj_nieruchomosci;
     public readonly string $nr_lokalu;
     public readonly float $powierzchnia_uzytkowa;
     public readonly ?float $cena_m2;
     public readonly float $cena_calkowita;
     public readonly float $cena_z_dodatkami;
-    public readonly string $status;
+    public readonly ResourceStatus $status;
     
     public function __construct(
-        string $rodzaj_nieruchomosci,
+        PropertyType $rodzaj_nieruchomosci,
         string $nr_lokalu,
         float $powierzchnia_uzytkowa,
         ?float $cena_m2,
         float $cena_calkowita,
         float $cena_z_dodatkami,
-        string $status
+        ResourceStatus $status
     ) {
         $this->rodzaj_nieruchomosci = $rodzaj_nieruchomosci;
         $this->nr_lokalu = $nr_lokalu;

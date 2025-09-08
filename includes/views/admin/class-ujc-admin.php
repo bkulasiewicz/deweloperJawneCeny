@@ -14,7 +14,6 @@ class UJC_Admin {
     private $resources_page_instance;
     private $publication_page_instance;
     private $resource_modal_instance;
-    private $investment_modal_instance;
     private $history_modal_instance;
     private $dev_console_instance;
     
@@ -28,22 +27,10 @@ class UJC_Admin {
         $this->resources_page_instance = new ResourcesPage();
         $this->publication_page_instance = new PublicationPage();
         $this->resource_modal_instance = new ResourceModal();
-        $this->investment_modal_instance = new InvestmentModal();
         $this->history_modal_instance = new HistoryModal();
         $this->dev_console_instance = new DevConsoleTile();
         
         // AJAX handlers usunięte - są obsługiwane w głównym pliku pluginu
-        
-        // Debug: Check if AJAX action is registered
-        add_action('admin_init', function() {
-            global $wp_filter;
-            $ajax_action = 'wp_ajax_ujc_save_developer';
-            if (isset($wp_filter[$ajax_action])) {
-                Logger::log('AJAX action registered: ' . $ajax_action, Logger::LEVEL_INFO);
-            } else {
-                Logger::log('AJAX action NOT registered: ' . $ajax_action, Logger::LEVEL_ERROR);
-            }
-        });
     }
     
     public function add_admin_menu() {

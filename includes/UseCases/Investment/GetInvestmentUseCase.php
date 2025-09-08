@@ -1,0 +1,22 @@
+<?php
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class GetInvestmentUseCase {
+    
+    private $repository;
+    
+    public function __construct() {
+        $this->repository = new InvestmentRepository();
+    }
+    
+    public function execute(): ?InvestmentDto {
+        try {
+            return $this->repository->read();
+        } catch (Exception $e) {
+            throw new Exception('Błąd podczas pobierania danych inwestycji: ' . $e->getMessage());
+        }
+    }
+}

@@ -27,6 +27,14 @@ class DateHelper {
     }
     
     /**
+     * Format DateTime object for user display (DD.MM.YYYY HH:MM)
+     * Converts from UTC to WordPress local timezone
+     */
+    public static function formatDateTimeForUser(DateTime $date): string {
+        return wp_date('d.m.Y H:i', $date->getTimestamp());
+    }
+    
+    /**
      * Format UTC date from database for CSV export (YYYY-MM-DD HH:MM:SS)
      * Converts from UTC to WordPress local timezone
      */

@@ -10,13 +10,18 @@ if (!defined('ABSPATH')) {
  */
 class InvestmentModal extends UJC_Admin_Page {
     
-    private $investmentRepository;
+    private $createInvestmentUseCase;
+    private $updateInvestmentUseCase;
+    private $getInvestmentUseCase;
     
     public function __construct() {
-        $this->investmentRepository = new InvestmentRepository();
+        $this->createInvestmentUseCase = new CreateInvestmentUseCase();
+        $this->updateInvestmentUseCase = new UpdateInvestmentUseCase();
+        $this->getInvestmentUseCase = new GetInvestmentUseCase();
         
         add_action('wp_ajax_ujc_get_investment', [$this, 'ajax_get_investment']);
         add_action('wp_ajax_ujc_update_investment', [$this, 'ajax_update_investment']);
+        add_action('wp_ajax_ujc_log_debug', [$this, 'ajax_log_debug']);
         
         parent::__construct();
     }
@@ -197,16 +202,13 @@ class InvestmentModal extends UJC_Admin_Page {
                     action: 'ujc_get_investment',
                     nonce: nonce
                 }, function(response) {
-                    console.log('Investment data response:', response);
                     if (response.success) {
                         currentInvestmentData = response.data;
                         populateViewData(response.data);
                     } else {
-                        console.error('Error loading investment data:', response.data);
                         alert('❌ Błąd ładowania danych inwestycji: ' + (response.data || 'Nieznany błąd'));
                     }
                 }).fail(function(xhr, status, error) {
-                    console.error('AJAX error:', xhr, status, error);
                     alert('❌ Błąd połączenia: ' + error);
                 });
             }
@@ -249,7 +251,6 @@ class InvestmentModal extends UJC_Admin_Page {
             
             // Przełącz na tryb edycji
             $(document).off('click', '#edit-investment-btn').on('click', '#edit-investment-btn', function() {
-                console.log('Edit button clicked', currentInvestmentData);
                 if (currentInvestmentData) {
                     populateEditForm(currentInvestmentData);
                     $('#investment-view').hide();
@@ -264,7 +265,6 @@ class InvestmentModal extends UJC_Admin_Page {
             
             // Anuluj edycję
             $(document).off('click', '#cancel-investment-edit').on('click', '#cancel-investment-edit', function() {
-                console.log('Cancel edit clicked');
                 $('#investment-edit').hide();
                 $('#investment-edit-buttons').hide();
                 $('#investment-view').show();
@@ -275,29 +275,22 @@ class InvestmentModal extends UJC_Admin_Page {
             
             // Zapisz zmiany
             $(document).off('click', '#save-investment-btn').on('click', '#save-investment-btn', function() {
-                console.log('Save investment button clicked');
-                
                 const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : ($('#ujc-nonce').length ? $('#ujc-nonce').val() : '');
                 const formData = $('#investment-edit-form').serialize() + '&action=ujc_update_investment&nonce=' + nonce;
-                
-                console.log('Saving with data:', formData);
                 
                 const $btn = $(this);
                 const originalText = $btn.text();
                 $btn.text('Zapisywanie...').prop('disabled', true);
                 
                 $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, formData, function(response) {
-                    console.log('Save response:', response);
                     if (response.success) {
                         alert('✅ ' + response.data);
-                        loadInvestmentData(); // Przeładuj dane
-                        $('#cancel-investment-edit').click(); // Wróć do widoku
+                        loadInvestmentData();
+                        $('#cancel-investment-edit').click();
                     } else {
-                        console.error('Save error:', response.data);
                         alert('❌ ' + (response.data || 'Błąd podczas zapisywania'));
                     }
                 }).fail(function(xhr, status, error) {
-                    console.error('Save AJAX error:', xhr, status, error);
                     alert('❌ Błąd połączenia: ' + error);
                 }).always(function() {
                     $btn.text(originalText).prop('disabled', false);
@@ -325,45 +318,35 @@ class InvestmentModal extends UJC_Admin_Page {
     }
     
     public function ajax_get_investment() {
-        Logger::info('UJC: ajax_get_investment started');
-        
         if (!$this->verify_nonce()) {
-            Logger::error('UJC: nonce verification failed');
             return;
         }
         
         if (!$this->check_permissions()) {
-            Logger::error('UJC: permission check failed');
             return;
         }
         
         try {
-            
-            $investment = $this->investmentRepository->read();
-            Logger::info('UJC: Investment data retrieved: ' . print_r($investment, true));
+            $investment = $this->getInvestmentUseCase->execute();
             
             if ($investment) {
                 wp_send_json_success($investment);
             } else {
-                Logger::error('UJC: No investment data found');
                 wp_send_json_error('Brak danych inwestycji');
             }
         } catch (Exception $e) {
-            Logger::error('UJC: Exception in ajax_get_investment: ' . $e->getMessage());
             wp_send_json_error('Błąd serwera: ' . $e->getMessage());
         }
     }
     
     public function ajax_update_investment() {
-        Logger::info('UJC: ajax_update_investment started');
-        
         if (!$this->verify_nonce()) {
-            Logger::error('UJC: nonce verification failed in update');
+            wp_send_json_error('Weryfikacja bezpieczeństwa nie powiodła się.');
             return;
         }
         
         if (!$this->check_permissions()) {
-            Logger::error('UJC: permission check failed in update');
+            wp_send_json_error('Brak uprawnień do wykonania tej operacji.');
             return;
         }
         
@@ -377,27 +360,75 @@ class InvestmentModal extends UJC_Admin_Page {
                 'proj_ulica' => 'sanitize_text_field',
                 'proj_nr' => 'sanitize_text_field',
                 'proj_kod' => 'sanitize_text_field',
-                'has_property_parts' => function($value) { return isset($value) ? 1 : 0; },
-                'has_belonging_rooms' => function($value) { return isset($value) ? 1 : 0; },
-                'has_usage_rights' => function($value) { return isset($value) ? 1 : 0; },
-                'has_other_services' => function($value) { return isset($value) ? 1 : 0; }
+                'has_property_parts' => [$this, 'sanitize_checkbox'],
+                'has_belonging_rooms' => [$this, 'sanitize_checkbox'],
+                'has_usage_rights' => [$this, 'sanitize_checkbox'],
+                'has_other_services' => [$this, 'sanitize_checkbox']
             ]);
             
-            Logger::info('UJC: Investment data to update: ' . print_r($data, true));
+            $existingInvestment = $this->getInvestmentUseCase->execute();
             
-            
-            $result = $this->investmentRepository->save($data);
-            Logger::info('UJC: Update result: ' . ($result !== false ? 'success' : 'failed'));
-            
-            if ($result !== false) {
-                wp_send_json_success('Dane inwestycji zostały zaktualizowane!');
+            if ($existingInvestment) {
+                $investmentDto = new InvestmentDto(
+                    $existingInvestment->id,
+                    $data['name'],
+                    $data['proj_wojewodztwo'],
+                    $data['proj_powiat'], 
+                    $data['proj_gmina'],
+                    $data['proj_miejscowosc'],
+                    $data['proj_ulica'],
+                    $data['proj_nr'],
+                    $data['proj_kod'],
+                    (bool)$data['has_property_parts'],
+                    (bool)$data['has_belonging_rooms'],
+                    (bool)$data['has_usage_rights'],
+                    (bool)$data['has_other_services']
+                );
+                
+                $result = $this->updateInvestmentUseCase->execute($investmentDto, $existingInvestment->id);
             } else {
-                wp_send_json_error('Błąd podczas aktualizacji danych inwestycji.');
+                $investmentDto = new InvestmentDto(
+                    0,
+                    $data['name'],
+                    $data['proj_wojewodztwo'],
+                    $data['proj_powiat'], 
+                    $data['proj_gmina'],
+                    $data['proj_miejscowosc'],
+                    $data['proj_ulica'],
+                    $data['proj_nr'],
+                    $data['proj_kod'],
+                    (bool)$data['has_property_parts'],
+                    (bool)$data['has_belonging_rooms'],
+                    (bool)$data['has_usage_rights'],
+                    (bool)$data['has_other_services']
+                );
+                
+                $result = $this->createInvestmentUseCase->execute($investmentDto);
+            }
+            
+            if ($result->isSuccess) {
+                wp_send_json_success($result->message);
+            } else {
+                wp_send_json_error($result->message);
             }
         } catch (Exception $e) {
-            Logger::error('UJC: Exception in ajax_update_investment: ' . $e->getMessage());
-            wp_send_json_error('Błąd serwera: ' . $e->getMessage());
+            wp_send_json_error('Błąd podczas przetwarzania danych: ' . $e->getMessage());
         }
+    }
+    
+    public function sanitize_checkbox($value) {
+        return isset($value) && $value ? true : false;
+    }
+    
+    public function ajax_log_debug() {
+        if (!$this->verify_nonce()) {
+            wp_send_json_error('Nonce failed');
+            return;
+        }
+        
+        $message = sanitize_text_field($_POST['message'] ?? '');
+        Logger::info('UJC DEBUG FROM JS: ' . $message);
+        wp_send_json_success('Logged');
     }
     
     public function render() {
