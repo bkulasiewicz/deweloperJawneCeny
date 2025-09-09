@@ -32,8 +32,7 @@ class ResourcesPage {
         $this->investmentModal = new InvestmentModal();
         Logger::info('UJC: ResourcesPage InvestmentModal created successfully');
         
-        // Dodaj AJAX handlers dla zasobów
-        add_action('wp_ajax_ujc_get_resources', [$this, 'ajax_get_resources']);
+        // Dodaj AJAX handlers
         add_action('wp_ajax_ujc_save_investment', [$this, 'ajax_save_investment']);
         add_action('wp_ajax_ujc_import_resources', [$this, 'ajax_import_resources']);
     }
@@ -267,9 +266,14 @@ class ResourcesPage {
      * Renderuje listę zasobów bezpośrednio w PHP
      */
     private function render_resources_list() {
+        Logger::info("ResourcesPage::render_resources_list - Starting PHP rendering");
+        
         try {
+            Logger::info("ResourcesPage::render_resources_list - Calling getAllResourcesUseCase->execute()");
             $resources = $this->getAllResourcesUseCase->execute();
+            Logger::info("ResourcesPage::render_resources_list - Got " . count($resources) . " resources from UseCase");
         } catch (Exception $e) {
+            Logger::error("ResourcesPage::render_resources_list - Exception: " . $e->getMessage());
             ?>
             <div class="ujc-no-resources">
                 <p>Błąd podczas pobierania zasobów: <?php echo esc_html($e->getMessage()); ?></p>
@@ -279,6 +283,7 @@ class ResourcesPage {
         }
         
         if (empty($resources)) {
+            Logger::info("ResourcesPage::render_resources_list - No resources found, showing empty state");
             ?>
             <div class="ujc-no-resources">
                 <p>Brak zasobów. Kliknij "Dodaj Zasób" aby rozpocząć.</p>
@@ -294,37 +299,12 @@ class ResourcesPage {
             return;
         }
         
+        Logger::info("ResourcesPage::render_resources_list - Rendering " . count($resources) . " resource items");
         foreach ($resources as $resource) {
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Resource item output contains safe onclick attributes
             echo ResourceItem::render_item_html($resource);
         }
-    }
-    
-    /**
-     * AJAX: Pobiera listę wszystkich zasobów
-     */
-    public function ajax_get_resources() {
-        Logger::info("ResourcesPage::ajax_get_resources - AJAX REQUEST RECEIVED");
-        
-        check_ajax_referer('ujc_admin_nonce', 'nonce');
-        
-        if (!current_user_can('manage_options')) {
-            Logger::error("ResourcesPage::ajax_get_resources - Access denied");
-            wp_send_json_error('Brak uprawnień');
-        }
-        
-        try {
-            Logger::info("ResourcesPage::ajax_get_resources - Starting");
-            
-            $resources = $this->getAllResourcesUseCase->execute();
-            
-            Logger::info("ResourcesPage::ajax_get_resources - Got " . count($resources) . " resources, sending JSON response");
-            
-            wp_send_json_success($resources);
-        } catch (Exception $e) {
-            Logger::error("ResourcesPage::ajax_get_resources - Exception: " . $e->getMessage());
-            wp_send_json_error('Błąd podczas pobierania zasobów: ' . $e->getMessage());
-        }
+        Logger::info("ResourcesPage::render_resources_list - PHP rendering completed successfully");
     }
     
     public function ajax_save_investment() {

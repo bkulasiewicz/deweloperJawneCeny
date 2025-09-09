@@ -25,16 +25,17 @@ class ResourceItem {
         
         // Status badge - semantic CSS classes
         $status_class = match($resource->status) {
-            ResourceStatus::AVAILABLE => 'ujc-status-available',
-            ResourceStatus::RESERVED => 'ujc-status-reserved', 
-            ResourceStatus::SOLD => 'ujc-status-sold',
+            'Dostępny' => 'ujc-status-available',
+            'Zarezerwowany' => 'ujc-status-reserved', 
+            'Sprzedany' => 'ujc-status-sold',
+            default => 'ujc-status-available'
         };
         
         return "
             <div class=\"ujc-resource-item-row\">
                 <div class=\"ujc-resource-identity\">
                     <div class=\"ujc-resource-title\">
-                        <strong>{$resource->rodzaj_nieruchomosci->getDisplayText()}</strong>
+                        <strong>{$resource->rodzaj_nieruchomosci}</strong>
                         <span class=\"ujc-resource-number\">#{$resource->nr_lokalu}</span>
                     </div>
                     <div class=\"ujc-resource-surface\">{$powierzchnia}</div>
@@ -56,7 +57,7 @@ class ResourceItem {
                 </div>
                 
                 <div class=\"ujc-resource-status\">
-                    <span class=\"ujc-status-badge {$status_class}\">{$resource->status->getDisplayText()}</span>
+                    <span class=\"ujc-status-badge {$status_class}\">{$resource->status}</span>
                     <span class=\"ujc-date-info\" title=\"Data ostatniej aktualizacji cen\">Akt: {$data_zmiany}</span>
                 </div>
                 
