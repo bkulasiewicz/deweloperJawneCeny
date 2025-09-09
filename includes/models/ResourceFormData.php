@@ -18,6 +18,11 @@ class ResourceFormData {
     public readonly float $cena_z_dodatkami;
     public readonly ResourceStatus $status;
     
+    public readonly ?PropertyPartFormData $property_part;
+    public readonly ?BelongingRoomFormData $belonging_room;
+    public readonly ?UsageRightFormData $usage_right;
+    public readonly ?OtherServiceFormData $other_service;
+    
     public function __construct(
         PropertyType $rodzaj_nieruchomosci,
         string $nr_lokalu,
@@ -25,7 +30,11 @@ class ResourceFormData {
         ?float $cena_m2,
         float $cena_calkowita,
         float $cena_z_dodatkami,
-        ResourceStatus $status
+        ResourceStatus $status,
+        ?PropertyPartFormData $property_part = null,
+        ?BelongingRoomFormData $belonging_room = null,
+        ?UsageRightFormData $usage_right = null,
+        ?OtherServiceFormData $other_service = null
     ) {
         $this->rodzaj_nieruchomosci = $rodzaj_nieruchomosci;
         $this->nr_lokalu = $nr_lokalu;
@@ -34,5 +43,9 @@ class ResourceFormData {
         $this->cena_calkowita = $cena_calkowita;
         $this->cena_z_dodatkami = $cena_z_dodatkami;
         $this->status = $status;
+        $this->property_part = $property_part;
+        $this->belonging_room = $belonging_room;
+        $this->usage_right = $usage_right;
+        $this->other_service = $other_service;
     }
 }

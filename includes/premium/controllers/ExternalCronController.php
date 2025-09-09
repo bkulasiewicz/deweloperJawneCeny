@@ -66,12 +66,12 @@ class ExternalCronController {
             
             $execution_time = round(microtime(true) - $start_time, 2);
             
-            Logger::info('External cron file generation completed in ' . $execution_time . 's: ' . ($result['success'] ? 'SUCCESS' : 'FAILED'));
+            Logger::info('External cron file generation completed in ' . $execution_time . 's: ' . ($result->isSuccess ? 'SUCCESS' : 'FAILED'));
             
             // Return simple response
-            if ($result['success']) {
-                $csv_file = isset($result['csv']['filename']) ? $result['csv']['filename'] : null;
-                $xml_file = isset($result['xml']['filename']) ? $result['xml']['filename'] : null;
+            if ($result->isSuccess) {
+                $csv_file = $result->csvFile?->filename;
+                $xml_file = $result->xmlFile?->filename;
                 
                 Logger::success('External cron returning SUCCESS response - CSV: ' . ($csv_file ?? 'none') . ', XML: ' . ($xml_file ?? 'none'));
                 
@@ -87,9 +87,9 @@ class ExternalCronController {
                     ]
                 ], 200);
             } else {
-                Logger::error('External cron returning ERROR response: ' . ($result['error'] ?? 'unknown error'));
+                Logger::error('External cron returning ERROR response: ' . $result->message);
                 
-                return new WP_Error('generation_failed', $result['error'], [
+                return new WP_Error('generation_failed', $result->message, [
                     'status' => 500,
                     'execution_time' => $execution_time
                 ]);

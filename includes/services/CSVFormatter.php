@@ -18,22 +18,71 @@ class CSVFormatter {
      * @param ResourceDto[] $resources Array of ResourceDto objects
      * @return Generator CSV rows as generator for memory efficiency
      */
-    public function generate(SupplierDto $developer, InvestmentDto $investment, array $resources, array $priceHistory = []): Generator {
-        // Yield headers first
-        yield $this->getCsvHeaders($investment);
+    public function generate(SupplierDto $developer, InvestmentDto $investment, array $resources, array $priceHistory = []): array {
+        // Detect which components exist in resources
+        $componentFlags = $this->detectComponentsInResources($resources);
         
-        // Yield data rows
+        $csvRows = [];
+        
+        // Add headers first
+        $csvRows[] = $this->getCsvHeaders($componentFlags);
+        
+        // Add data rows
         foreach ($resources as $resource) {
             $resourcePrices = $priceHistory[$resource->id];
-            yield $this->resourceToRow($developer, $investment, $resource, $resourcePrices);
+            $csvRows[] = $this->resourceToRow($developer, $investment, $componentFlags, $resource, $resourcePrices);
         }
+        
+        return $csvRows;
+    }
+    
+    /**
+     * Detect which components exist in resources
+     */
+    private function detectComponentsInResources(array $resources): array {
+        $flags = [
+            'has_property_parts' => false,
+            'has_belonging_rooms' => false,
+            'has_usage_rights' => false,
+            'has_other_services' => false
+        ];
+        
+        foreach ($resources as $resource) {
+            // Check for property parts
+            if (!empty($resource->property_part_title)) {
+                $flags['has_property_parts'] = true;
+            }
+            
+            // Check for belonging rooms
+            if (!empty($resource->belonging_room_title)) {
+                $flags['has_belonging_rooms'] = true;
+            }
+            
+            // Check for usage rights
+            if (!empty($resource->usage_right_title)) {
+                $flags['has_usage_rights'] = true;
+            }
+            
+            // Check for other services
+            if (!empty($resource->other_service_title)) {
+                $flags['has_other_services'] = true;
+            }
+            
+            // Early exit if all components detected
+            if ($flags['has_property_parts'] && $flags['has_belonging_rooms'] && 
+                $flags['has_usage_rights'] && $flags['has_other_services']) {
+                break;
+            }
+        }
+        
+        return $flags;
     }
     
     /**
      * Get CSV headers according to Polish law requirements
-     * Dynamic headers based on investment configuration
+     * Dynamic headers based on detected components in resources
      */
-    private function getCsvHeaders(InvestmentDto $investment): array {
+    private function getCsvHeaders(array $componentFlags): array {
         // Basic headers - always included
         $headers = [
             'Nazwa dewelopera',
@@ -81,8 +130,8 @@ class CSVFormatter {
             'Data od której obowiązuje cena lokalu mieszkalnego lub domu jednorodzinnego uwzględniająca cenę lokalu stanowiącą iloczyn powierzchni oraz metrażu i innych składowych ceny, o których mowa w art. 19a ust. 1 pkt 1), 2) lub 3)'
         ];
         
-        // Dynamic component headers based on investment configuration
-        if ($investment->has_property_parts) {
+        // Dynamic component headers based on detected components
+        if ($componentFlags['has_property_parts']) {
             $headers = array_merge($headers, [
                 'Rodzaj części nieruchomości będących przedmiotem umowy',
                 'Oznaczenie części nieruchomości nadane przez dewelopera',
@@ -91,7 +140,7 @@ class CSVFormatter {
             ]);
         }
         
-        if ($investment->has_belonging_rooms) {
+        if ($componentFlags['has_belonging_rooms']) {
             $headers = array_merge($headers, [
                 'Rodzaj pomieszczeń przynależnych, o których mowa w art. 2 ust. 4 ustawy z dnia 24 czerwca 1994 r. o własności lokali',
                 'Oznaczenie pomieszczeń przynależnych, o których mowa w art. 2 ust. 4 ustawy z dnia 24 czerwca 1994 r. o własności lokali',
@@ -100,7 +149,7 @@ class CSVFormatter {
             ]);
         }
         
-        if ($investment->has_usage_rights) {
+        if ($componentFlags['has_usage_rights']) {
             $headers = array_merge($headers, [
                 'Wyszczególnienie praw niezbędnych do korzystania z lokalu mieszkalnego lub domu jednorodzinnego',
                 'Wartość praw niezbędnych do korzystania z lokalu mieszkalnego lub domu jednorodzinnego [zł]',
@@ -108,7 +157,7 @@ class CSVFormatter {
             ]);
         }
         
-        if ($investment->has_other_services) {
+        if ($componentFlags['has_other_services']) {
             $headers = array_merge($headers, [
                 'Wyszczególnienie rodzajów innych świadczeń pieniężnych, które nabywca zobowiązany jest spełnić na rzecz dewelopera w wykonaniu umowy przenoszącej własność',
                 'Wartość innych świadczeń pieniężnych, które nabywca zobowiązany jest spełnić na rzecz dewelopera w wykonaniu umowy przenoszącej własność [zł]',
@@ -121,9 +170,9 @@ class CSVFormatter {
     
     /**
      * Convert resource data to CSV row
-     * Dynamic row generation based on investment configuration
+     * Dynamic row generation based on detected components
      */
-    private function resourceToRow(SupplierDto $developer, InvestmentDto $investment, ResourceDto $resource, PriceHistoryDto $prices): array {
+    private function resourceToRow(SupplierDto $developer, InvestmentDto $investment, array $componentFlags, ResourceDto $resource, PriceHistoryDto $prices): array {
         // Basic row data - always included
         $row = [
             $developer->nazwa,
@@ -170,7 +219,7 @@ class CSVFormatter {
             $investment->proj_kod,
             
             // Property - use current prices from history
-            $resource->rodzaj_nieruchomosci,
+            $resource->rodzaj_nieruchomosci->getDisplayText(),
             $resource->nr_lokalu,
             $prices->cena_m2 ?? '',
             DateHelper::formatForCsv($prices->data_zmiany),
@@ -182,38 +231,38 @@ class CSVFormatter {
             DateHelper::formatForCsv($prices->data_cena_z_dodatkami)
         ];
         
-        // Dynamic component data based on investment configuration
-        if ($investment->has_property_parts) {
+        // Dynamic component data based on detected components
+        if ($componentFlags['has_property_parts']) {
             $row = array_merge($row, [
-                $this->getFirstComponentField($resource, 'property_parts', 'type'),
-                $this->getFirstComponentField($resource, 'property_parts', 'designation'),
-                $this->getFirstComponentField($resource, 'property_parts', 'price'),
-                $this->getFirstComponentFieldDate($resource, 'property_parts', 'price_date')
+                $resource->property_part_title ?? '',
+                $resource->property_part_designation ?? '',
+                $resource->property_part_price ?? '',
+                $this->safeFormatDate($resource->property_part_price_date, 'property_part_price_date')
             ]);
         }
         
-        if ($investment->has_belonging_rooms) {
+        if ($componentFlags['has_belonging_rooms']) {
             $row = array_merge($row, [
-                $this->getFirstComponentField($resource, 'belonging_rooms', 'type'),
-                $this->getFirstComponentField($resource, 'belonging_rooms', 'designation'),
-                $this->getFirstComponentField($resource, 'belonging_rooms', 'price'),
-                $this->getFirstComponentFieldDate($resource, 'belonging_rooms', 'price_date')
+                $resource->belonging_room_title ?? '',
+                $resource->belonging_room_designation ?? '',
+                $resource->belonging_room_price ?? '',
+                $this->safeFormatDate($resource->belonging_room_price_date, 'belonging_room_price_date')
             ]);
         }
         
-        if ($investment->has_usage_rights) {
+        if ($componentFlags['has_usage_rights']) {
             $row = array_merge($row, [
-                $this->getFirstComponentField($resource, 'usage_rights', 'description'),
-                $this->getFirstComponentField($resource, 'usage_rights', 'price'),
-                $this->getFirstComponentFieldDate($resource, 'usage_rights', 'price_date')
+                $resource->usage_right_title ?? '',
+                $resource->usage_right_price ?? '',
+                $this->safeFormatDate($resource->usage_right_price_date, 'usage_right_price_date')
             ]);
         }
         
-        if ($investment->has_other_services) {
+        if ($componentFlags['has_other_services']) {
             $row = array_merge($row, [
-                $this->getFirstComponentField($resource, 'other_services', 'description'),
-                $this->getFirstComponentField($resource, 'other_services', 'price'),
-                $this->getFirstComponentFieldDate($resource, 'other_services', 'price_date')
+                $resource->other_service_title ?? '',
+                $resource->other_service_price ?? '',
+                $this->safeFormatDate($resource->other_service_price_date, 'other_service_price_date')
             ]);
         }
         
@@ -229,60 +278,18 @@ class CSVFormatter {
     }
     
     /**
-     * Get first component field value from ResourceDto
+     * Safely format date with logging for debugging
      */
-    private function getFirstComponentField(ResourceDto $resource, $componentType, $field) {
-        // Check if resource has the component property
-        if (!property_exists($resource, $componentType) || empty($resource->$componentType)) {
-            return '';
-        }
-        
-        $components = $resource->$componentType;
-        if (!is_array($components) || empty($components)) {
-            return '';
-        }
-        
-        $firstComponent = $components[0] ?? null;
-        if (!$firstComponent) {
-            return '';
-        }
-        
-        // Handle both model objects and arrays
-        if (is_object($firstComponent)) {
-            return $firstComponent->$field ?? '';
-        } else {
-            return $firstComponent[$field] ?? '';
-        }
-    }
-    
-    /**
-     * Get first component date field value from ResourceDto
-     */
-    private function getFirstComponentFieldDate(ResourceDto $resource, $componentType, $field) {
-        // Check if resource has the component property
-        if (!property_exists($resource, $componentType) || empty($resource->$componentType)) {
-            return '';
-        }
-        
-        $components = $resource->$componentType;
-        if (!is_array($components) || empty($components)) {
-            return '';
-        }
-        
-        $firstComponent = $components[0] ?? null;
-        if (!$firstComponent) {
-            return '';
-        }
-        
-        // Handle both model objects and arrays
-        if (is_object($firstComponent)) {
-            $date = $firstComponent->$field ?? null;
-            if ($date instanceof DateTime) {
-                return DateHelper::formatForCsv($date->format('Y-m-d'));
+    private function safeFormatDate($date, $field_name): string {
+        try {
+            if (empty($date)) {
+                return '';
             }
+            
             return DateHelper::formatForCsv($date);
-        } else {
-            return DateHelper::formatForCsv($firstComponent[$field] ?? null);
+        } catch (Exception $e) {
+            Logger::error("CSVFormatter: Exception formatting date for field '{$field_name}': " . $e->getMessage());
+            return '';
         }
     }
     

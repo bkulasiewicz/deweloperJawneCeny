@@ -29,12 +29,16 @@ class AddPublicationHistoryUseCase {
         try {
             // Create DTO for new entry
             Logger::info('AddHistory: Creating PublicationHistoryDto...');
+            $currentDatetime = DateHelper::currentDatetime();
+            Logger::info('AddHistory: Current datetime from DateHelper: ' . $currentDatetime);
+            
             $dto = new PublicationHistoryDto(
-                new DateTime(DateHelper::currentDatetime()),
+                $currentDatetime,
                 $status->value,
                 $message,
                 $trigger_type->value
             );
+            Logger::info('AddHistory: PublicationHistoryDto created successfully');
             
             // Add entry to history
             Logger::info('AddHistory: Calling repository->addEntry...');

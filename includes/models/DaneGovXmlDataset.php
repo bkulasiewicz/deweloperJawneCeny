@@ -63,11 +63,11 @@ class DaneGovXmlDataset {
     }
     
     /**
-     * Dodaje nowy zasób (publikację CSV) - tylko dane zmienne
-     * URL do CSV jest WYMAGANE
+     * Dodaje nowy zasób (publikację CSV) z gotowym ext_ident
+     * URL do CSV i ext_ident są WYMAGANE
      */
-    public function addResource(string $developerName, string $nip, string $csv_url, ?string $date = null): void {
-        $this->resources[] = new DaneGovResource($developerName, $nip, $csv_url, $date);
+    public function addResource(string $developerName, string $ext_ident, string $csv_url, string $data_date): void {
+        $this->resources[] = new DaneGovResource($developerName, $ext_ident, $csv_url, $data_date);
     }
 }
 
@@ -147,25 +147,15 @@ class DaneGovResource {
     public string $dataDate;
     
     /**
-     * Konstruktor - przyjmuje tylko dane zmienne
-     * URL do CSV jest WYMAGANE - nie może być null
+     * Konstruktor - przyjmuje gotowe dane z bazy (bez generowania)
+     * Wszystkie parametry są wymagane
      */
-    public function __construct(string $developerName, string $nip, string $csv_url, ?string $date = null) {
-        $this->dataDate = $date ?? gmdate('Y-m-d');
-        
-        $this->extIdent = $this->generateDailyExtIdent($nip, $this->dataDate);
+    public function __construct(string $developerName, string $ext_ident, string $csv_url, string $data_date) {
+        $this->extIdent = $ext_ident;
         $this->url = $csv_url;
-        $this->title = new DaneGovResourceTitle($developerName, $this->dataDate);
-        $this->description = new DaneGovResourceDescription($developerName, $this->dataDate);
-    }
-    
-    /**
-     * Generuje ZMIENNY identyfikator dla publikacji (36 znaków)
-     */
-    private function generateDailyExtIdent(string $nip, string $date): string {
-        $formatted_date = gmdate('Ymd', strtotime($date));
-        $base = "deweloper_{$nip}_{$formatted_date}_00000";
-        return str_pad($base, 36, '_', STR_PAD_RIGHT);
+        $this->dataDate = $data_date;
+        $this->title = new DaneGovResourceTitle($developerName, $data_date);
+        $this->description = new DaneGovResourceDescription($developerName, $data_date);
     }
 }
 

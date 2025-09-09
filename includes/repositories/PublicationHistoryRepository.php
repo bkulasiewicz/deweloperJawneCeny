@@ -27,11 +27,7 @@ class PublicationHistoryRepository {
         
         $data = $dto->modelToDatabase();
         
-        $result = $wpdb->insert(
-            $this->table_name,
-            $data,
-            ['%d', '%s', '%s', '%s']
-        );
+        $result = $wpdb->insert($this->table_name, $data);
         
         if ($result === false) {
             return false;
@@ -129,7 +125,7 @@ class PublicationHistoryRepository {
         
         $sql = "CREATE TABLE `{$table}` (
             id int(11) NOT NULL AUTO_INCREMENT,
-            " . PublicationHistoryDto::FIELD_TIMESTAMP . " int(11) NOT NULL,
+            " . PublicationHistoryDto::FIELD_TIMESTAMP . " datetime NOT NULL,
             " . PublicationHistoryDto::FIELD_STATUS . " varchar(20) NOT NULL,
             " . PublicationHistoryDto::FIELD_MESSAGE . " text,
             " . PublicationHistoryDto::FIELD_TRIGGER_TYPE . " varchar(20) NOT NULL,

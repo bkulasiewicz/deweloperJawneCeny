@@ -11,10 +11,12 @@ class PublicationPage {
     
     private $generateFilesUseCase;
     private $getPublicationHistoryUseCase;
+    private $csvFilesSection;
     
     public function __construct() {
         $this->generateFilesUseCase = new GenerateFilesUseCase();
         $this->getPublicationHistoryUseCase = new GetPublicationHistoryUseCase();
+        $this->csvFilesSection = new CsvFilesSection();
         add_action('wp_ajax_ujc_publication_generate', [$this, 'ajax_generate_files']);
     }
     
@@ -23,14 +25,21 @@ class PublicationPage {
         check_ajax_referer('ujc_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
         
-        Logger::info('PUBLICATION PAGE: Starting GenerateFilesUseCase execution');
-        $result = $this->generateFilesUseCase->execute(TriggerType::Manual);
-        Logger::info('PUBLICATION PAGE: GenerateFilesUseCase result: ' . ($result['success'] ? 'SUCCESS' : 'FAILED'));
-        
-        if ($result['success']) {
-            wp_send_json_success($result['message']);
-        } else {
-            wp_send_json_error($result['message']);
+        try {
+            Logger::info('PUBLICATION PAGE: Starting GenerateFilesUseCase execution');
+            $result = $this->generateFilesUseCase->execute(TriggerType::Manual);
+            Logger::info('PUBLICATION PAGE: GenerateFilesUseCase result: ' . ($result->isSuccess ? 'SUCCESS' : 'FAILED'));
+            Logger::info('PUBLICATION PAGE: Result message: ' . $result->message);
+            
+            if ($result->isSuccess) {
+                wp_send_json_success($result->message);
+            } else {
+                wp_send_json_error($result->message);
+            }
+        } catch (Exception $e) {
+            Logger::error('PUBLICATION PAGE: Exception in ajax_generate_files: ' . $e->getMessage());
+            Logger::error('PUBLICATION PAGE: Exception trace: ' . $e->getTraceAsString());
+            wp_send_json_error('Błąd wewnętrzny: ' . $e->getMessage());
         }
     }
     
@@ -54,13 +63,56 @@ class PublicationPage {
                     <?php $this->render_manual_generation(); ?>
                 </div>
                 
-                <!-- Historia z możliwością pobrania -->
-                <div class="ujc-publication-history">
-                    <h2>Historia Publikacji</h2>
-                    <?php $this->render_publication_history(); ?>
+                <!-- CSV Files and Publication History Side by Side -->
+                <div class="ujc-publication-sections">
+                    <div class="ujc-publication-left">
+                        <?php $this->csvFilesSection->render(); ?>
+                    </div>
+                    
+                    <div class="ujc-publication-right">
+                        <div class="ujc-publication-history">
+                            <h2>Historia Publikacji</h2>
+                            <?php $this->render_publication_history(); ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+        
+        <style>
+        .ujc-publication-sections {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .ujc-publication-left {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .ujc-publication-right {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .ujc-publication-history {
+            background: #f0f0f1;
+            border-radius: 4px;
+            padding: 20px;
+        }
+        
+        .ujc-publication-history h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 782px) {
+            .ujc-publication-sections {
+                flex-direction: column;
+            }
+        }
+        </style>
         
         <script>
         function generateFiles() {
@@ -71,7 +123,7 @@ class PublicationPage {
             
             const nonce = ujc_ajax.nonce;
             
-            jQuery.post(ajaxurl, {
+            jQuery.post(ujc_ajax.ajax_url, {
                 action: 'ujc_publication_generate',
                 nonce: nonce
             }, function(response) {

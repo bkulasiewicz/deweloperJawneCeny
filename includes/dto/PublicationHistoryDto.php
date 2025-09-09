@@ -11,13 +11,13 @@ class PublicationHistoryDto extends ModelDto {
     public const FIELD_MESSAGE = 'message';
     public const FIELD_TRIGGER_TYPE = 'trigger_type';
     
-    public DateTime $timestamp;
+    public string $timestamp;
     public string $status;
     public string $message;
     public string $trigger_type;
     
     public function __construct(
-        DateTime $timestamp,
+        string $timestamp,
         string $status,
         string $message,
         string $trigger_type
@@ -30,7 +30,7 @@ class PublicationHistoryDto extends ModelDto {
     
     public static function databaseToModel(array $data): static {
         return new static(
-            new DateTime($data[self::FIELD_TIMESTAMP]),
+            $data[self::FIELD_TIMESTAMP],
             $data[self::FIELD_STATUS],
             $data[self::FIELD_MESSAGE] ?? '',
             $data[self::FIELD_TRIGGER_TYPE]
@@ -50,7 +50,7 @@ class PublicationHistoryDto extends ModelDto {
      * Get formatted date for display
      */
     public function getFormattedDate(): string {
-        return DateHelper::formatTimestampForUser($this->timestamp);
+        return DateHelper::formatForUser($this->timestamp);
     }
     
     /**

@@ -20,13 +20,13 @@ class FileManager {
     }
     
     /**
-     * Save CSV from generator to file
+     * Save CSV from array to file
      * 
-     * @param Generator $csvRows CSV rows generator
+     * @param array $csvRows CSV rows array
      * @param string $filename Filename to save
      * @return array Result with filepath and url
      */
-    public function saveCSV(Generator $csvRows, string $filename): array {
+    public function saveCSV(array $csvRows, string $filename): array {
         Logger::info('FileManager: Starting CSV save - filename: ' . $filename);
         
         $this->ensureDirectoryExists();
@@ -126,8 +126,8 @@ class FileManager {
     /**
      * Generate CSV filename according to law requirements
      */
-    public function generateCSVFilename(array $developer): string {
-        $developer_name_clean = $this->sanitizeFilename($developer['nazwa'] ?? 'developer');
+    public function generateCSVFilename(SupplierDto $developer): string {
+        $developer_name_clean = $this->sanitizeFilename($developer->nazwa ?? 'developer');
         $date_string = DateHelper::getCurrentDateYmd();
         return "Ceny-ofertowe-mieszkan-dewelopera-{$developer_name_clean}-{$date_string}.csv";
     }

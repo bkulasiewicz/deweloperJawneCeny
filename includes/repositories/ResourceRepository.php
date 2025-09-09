@@ -139,6 +139,24 @@ class ResourceRepository {
             " . ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA . " decimal(8,2) NOT NULL,
             " . ResourceDto::FIELD_STATUS . " enum({$statusEnum}),
             
+            " . ResourceDto::FIELD_PROPERTY_PART_TITLE . " varchar(100) DEFAULT NULL,
+            " . ResourceDto::FIELD_PROPERTY_PART_DESIGNATION . " varchar(50) DEFAULT NULL,
+            " . ResourceDto::FIELD_PROPERTY_PART_PRICE . " decimal(10,2) DEFAULT NULL,
+            " . ResourceDto::FIELD_PROPERTY_PART_PRICE_DATE . " datetime DEFAULT NULL,
+            
+            " . ResourceDto::FIELD_BELONGING_ROOM_TITLE . " varchar(100) DEFAULT NULL,
+            " . ResourceDto::FIELD_BELONGING_ROOM_DESIGNATION . " varchar(50) DEFAULT NULL,
+            " . ResourceDto::FIELD_BELONGING_ROOM_PRICE . " decimal(10,2) DEFAULT NULL,
+            " . ResourceDto::FIELD_BELONGING_ROOM_PRICE_DATE . " datetime DEFAULT NULL,
+            
+            " . ResourceDto::FIELD_USAGE_RIGHT_TITLE . " text DEFAULT NULL,
+            " . ResourceDto::FIELD_USAGE_RIGHT_PRICE . " decimal(10,2) DEFAULT NULL,
+            " . ResourceDto::FIELD_USAGE_RIGHT_PRICE_DATE . " datetime DEFAULT NULL,
+            
+            " . ResourceDto::FIELD_OTHER_SERVICE_TITLE . " text DEFAULT NULL,
+            " . ResourceDto::FIELD_OTHER_SERVICE_PRICE . " decimal(10,2) DEFAULT NULL,
+            " . ResourceDto::FIELD_OTHER_SERVICE_PRICE_DATE . " datetime DEFAULT NULL,
+            
             PRIMARY KEY (" . ResourceDto::FIELD_ID . "),
             KEY " . ResourceDto::FIELD_STATUS . " (" . ResourceDto::FIELD_STATUS . ")
         ) " . $charset_collate;

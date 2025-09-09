@@ -18,18 +18,18 @@ class PriceHistoryDto extends ModelDto {
     public readonly int $resource_id;
     public readonly ?float $cena_m2;
     public readonly float $cena_calkowita;
-    public readonly DateTime $data_zmiany;
+    public readonly string $data_zmiany;
     public readonly float $cena_z_dodatkami;
-    public readonly DateTime $data_cena_z_dodatkami;
+    public readonly string $data_cena_z_dodatkami;
     
     public function __construct(
         int $id,
         int $resource_id,
         ?float $cena_m2,
         float $cena_calkowita,
-        DateTime $data_zmiany,
+        string $data_zmiany,
         float $cena_z_dodatkami,
-        DateTime $data_cena_z_dodatkami
+        string $data_cena_z_dodatkami
     ) {
         $this->id = $id;
         $this->resource_id = $resource_id;
@@ -46,9 +46,9 @@ class PriceHistoryDto extends ModelDto {
             (int)$data[self::FIELD_RESOURCE_ID],
             $data[self::FIELD_CENA_M2] !== null ? (float)$data[self::FIELD_CENA_M2] : null,
             (float)$data[self::FIELD_CENA_CALKOWITA],
-            new DateTime($data[self::FIELD_DATA_ZMIANY]),
+            $data[self::FIELD_DATA_ZMIANY],
             (float)$data[self::FIELD_CENA_Z_DODATKAMI],
-            new DateTime($data[self::FIELD_DATA_CENA_Z_DODATKAMI])
+            $data[self::FIELD_DATA_CENA_Z_DODATKAMI]
         );
     }
     

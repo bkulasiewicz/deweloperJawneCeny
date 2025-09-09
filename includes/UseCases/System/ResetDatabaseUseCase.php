@@ -31,6 +31,14 @@ class ResetDatabaseUseCase {
     }
     
     /**
+     * Resetuje dane XML Resource
+     */
+    public function resetXmlResourceData() {
+        UJC_Schema_Manager::reset_xml_resource_table();
+        return 'Tabela XML Resources została zresetowana';
+    }
+    
+    /**
      * Resetuje wszystkie tabele z danymi
      */
     public function resetAllData() {

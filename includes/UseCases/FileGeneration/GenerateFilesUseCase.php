@@ -13,19 +13,22 @@ class GenerateFilesUseCase {
     private $csvUseCase;
     private $submissionUseCase;
     private $historyUseCase;
+    private $addXmlResourceUseCase;
     
     public function __construct() {
         $this->csvUseCase = new GenerateCSVFileUseCase();
         $this->submissionUseCase = new CreateDaneGovSubmissionFilesUseCase();
         $this->historyUseCase = new AddPublicationHistoryUseCase();
+        $this->addXmlResourceUseCase = new AddXmlResourceUseCase();
     }
     
     /**
      * Main method generating CSV and XML files
      * 
      * @param TriggerType $trigger_type Type of trigger
+     * @return FileGenerationResult
      */
-    public function execute(TriggerType $trigger_type) {
+    public function execute(TriggerType $trigger_type): FileGenerationResult {
         $error_message = null;
         
         Logger::info('GenerateFiles started with trigger: ' . $trigger_type->value);
@@ -40,10 +43,23 @@ class GenerateFilesUseCase {
                 
                 Logger::info('GenerateFiles: Logging ERROR to history...');
                 $this->historyUseCase->execute(PublicationStatus::Error, $error_message, $trigger_type);
-                return $csv_result;
+                return FileGenerationResult::failure($error_message);
             }
             
             Logger::success('GenerateFiles: CSV generation SUCCESS: ' . ($csv_result['csv']['filename'] ?? 'unknown'));
+            
+            // Save CSV resource to database for XML generation
+            Logger::info('GenerateFiles: Saving CSV resource to database...');
+            $xmlResourceResult = $this->addXmlResourceUseCase->execute($csv_result['csv']['url'] ?? '');
+            if (!$xmlResourceResult->isSuccess) {
+                $error_message = 'Błąd zapisu resource do bazy: ' . $xmlResourceResult->message;
+                Logger::error('GenerateFiles: Failed to save CSV resource: ' . $error_message);
+                
+                Logger::info('GenerateFiles: Logging ERROR to history...');
+                $this->historyUseCase->execute(PublicationStatus::Error, $error_message, $trigger_type);
+                return FileGenerationResult::failure($error_message);
+            }
+            Logger::success('GenerateFiles: CSV resource saved to database');
             
             // Create submission files (XML + MD5) based on CSV
             Logger::info('GenerateFiles: Starting XML generation...');
@@ -54,7 +70,7 @@ class GenerateFilesUseCase {
                 
                 Logger::info('GenerateFiles: Logging ERROR to history...');
                 $this->historyUseCase->execute(PublicationStatus::Error, $error_message, $trigger_type);
-                return $submission_result;
+                return FileGenerationResult::failure($error_message);
             }
             
             Logger::success('GenerateFiles: XML generation SUCCESS');
@@ -75,12 +91,14 @@ class GenerateFilesUseCase {
             
             Logger::success('GenerateFiles: Returning SUCCESS response');
             
-            return [
-                'success' => true,
-                'message' => 'Pliki zostały wygenerowane i przygotowane do zgłoszenia na dane.gov.pl',
-                'csv' => $csv_result['csv'],
-                'xml' => $submission_result['files']
-            ];
+            $csvFile = FileData::fromArray($csv_result['csv']);
+            $xmlFile = FileData::fromArray($submission_result['files']);
+            
+            return FileGenerationResult::success(
+                'Pliki zostały wygenerowane i przygotowane do zgłoszenia na dane.gov.pl',
+                $csvFile,
+                $xmlFile
+            );
             
         } catch (Exception $e) {
             $error_message = 'Wyjątek: ' . $e->getMessage();
@@ -89,10 +107,7 @@ class GenerateFilesUseCase {
             Logger::info('GenerateFiles: Logging EXCEPTION to history...');
             $this->historyUseCase->execute(PublicationStatus::Error, $error_message, $trigger_type);
             
-            return [
-                'success' => false,
-                'error' => $e->getMessage()
-            ];
+            return FileGenerationResult::failure($e->getMessage());
         }
     }
 }

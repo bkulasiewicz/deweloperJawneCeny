@@ -71,6 +71,11 @@ class DevConsoleTile {
                     wp_send_json_success($result);
                     break;
                     
+                case 'xml_resource':
+                    $result = $this->resetDatabaseUseCase->resetXmlResourceData();
+                    wp_send_json_success($result);
+                    break;
+                    
                 case 'all':
                     UJC_Schema_Manager::drop_tables();
                     UJC_Schema_Manager::create_tables();
@@ -184,6 +189,9 @@ class DevConsoleTile {
                 </button>
                 <button type="button" class="button button-secondary" onclick="confirmClearTable('publication_history', 'historię publikacji')" style="margin: 5px;">
                     🗑️ Usuń historię publikacji
+                </button>
+                <button type="button" class="button button-secondary" onclick="confirmClearTable('xml_resource', 'XML Resources')" style="margin: 5px;">
+                    🗑️ Usuń XML Resources
                 </button>
                 
                 <hr style="margin: 20px 0;">

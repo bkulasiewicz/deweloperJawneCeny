@@ -12,9 +12,9 @@ class DeleteResourceUseCase {
         $this->repository = new ResourceRepository();
     }
     
-    public function execute($resource_id) {
+    public function execute($resource_id): Result {
         if (!$resource_id || !is_numeric($resource_id)) {
-            return ['error' => 'Nieprawidłowy ID zasobu'];
+            return Result::failure('Nieprawidłowy ID zasobu');
         }
         
         $resource_id = intval($resource_id);
@@ -22,16 +22,16 @@ class DeleteResourceUseCase {
         // Check if resource exists
         $existing_resource = $this->repository->readById($resource_id);
         if (!$existing_resource) {
-            return ['error' => 'Zasób nie został znaleziony'];
+            return Result::failure('Zasób nie został znaleziony');
         }
         
         // Delete the resource
         $result = $this->repository->delete($resource_id);
         
         if ($result === false) {
-            return ['error' => 'Błąd podczas usuwania zasobu'];
+            return Result::failure('Błąd podczas usuwania zasobu');
         }
         
-        return ['success' => true, 'message' => 'Zasób został pomyślnie usunięty'];
+        return Result::success('Zasób został pomyślnie usunięty');
     }
 }

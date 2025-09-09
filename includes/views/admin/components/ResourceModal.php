@@ -101,15 +101,36 @@ class ResourceModal extends UJC_Admin_Page {
                         
                         <!-- Dynamic component sections based on investment configuration -->
                         
+                        <!-- Component add buttons -->
+                        <div id="component-buttons" style="margin-top: 20px;">
+                            <button type="button" id="add-property-part-btn" class="component-add-btn">
+                                + Część nieruchomości będąca przedmiotem umowy
+                            </button>
+                            <button type="button" id="add-belonging-room-btn" class="component-add-btn">
+                                + Pomieszczenie przynależne
+                            </button>
+                            <button type="button" id="add-usage-rights-btn" class="component-add-btn">
+                                + Prawa niezbędne do korzystania z lokalu lub domu
+                            </button>
+                            <button type="button" id="add-other-services-btn" class="component-add-btn">
+                                + Inne świadczenia pieniężne na rzecz dewelopera
+                            </button>
+                        </div>
+                        
                         <!-- Części nieruchomości będące przedmiotem umowy -->
-                        <div id="property-parts-section" style="display: none; margin-top: 20px;">
-                            <h3>Część nieruchomości będąca przedmiotem umowy</h3>
+                        <div id="property-parts-section" class="component-section" style="display: none; margin-top: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h3 style="margin: 0;">Część nieruchomości będąca przedmiotem umowy</h3>
+                                <button type="button" class="remove-section-btn" data-section="property-parts" style="background: #0073aa; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                                    Usuń
+                                </button>
+                            </div>
                             <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
                                 <table class="form-table">
                                     <tr>
-                                        <th><label for="property-part-type">Rodzaj części *</label></th>
+                                        <th><label for="property-part-title">Rodzaj części *</label></th>
                                         <td>
-                                            <input type="text" id="property-part-type" name="property_part_type" class="regular-text" 
+                                            <input type="text" id="property-part-title" name="property_part_title" class="regular-text" 
                                                    placeholder="np. Miejsce postojowe">
                                         </td>
                                     </tr>
@@ -131,14 +152,19 @@ class ResourceModal extends UJC_Admin_Page {
                         </div>
                         
                         <!-- Pomieszczenia przynależne -->
-                        <div id="belonging-rooms-section" style="display: none; margin-top: 20px;">
-                            <h3>Pomieszczenie przynależne</h3>
+                        <div id="belonging-rooms-section" class="component-section" style="display: none; margin-top: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h3 style="margin: 0;">Pomieszczenie przynależne</h3>
+                                <button type="button" class="remove-section-btn" data-section="belonging-rooms" style="background: #0073aa; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                                    Usuń
+                                </button>
+                            </div>
                             <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
                                 <table class="form-table">
                                     <tr>
-                                        <th><label for="belonging-room-type">Rodzaj pomieszczenia *</label></th>
+                                        <th><label for="belonging-room-title">Rodzaj pomieszczenia *</label></th>
                                         <td>
-                                            <input type="text" id="belonging-room-type" name="belonging_room_type" class="regular-text" 
+                                            <input type="text" id="belonging-room-title" name="belonging_room_title" class="regular-text" 
                                                    placeholder="np. Komórka lokatorska">
                                         </td>
                                     </tr>
@@ -160,21 +186,26 @@ class ResourceModal extends UJC_Admin_Page {
                         </div>
                         
                         <!-- Prawa niezbędne do korzystania z lokalu/domu -->
-                        <div id="usage-rights-section" style="display: none; margin-top: 20px;">
-                            <h3>Prawa niezbędne do korzystania z lokalu lub domu</h3>
+                        <div id="usage-rights-section" class="component-section" style="display: none; margin-top: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h3 style="margin: 0;">Prawa niezbędne do korzystania z lokalu lub domu</h3>
+                                <button type="button" class="remove-section-btn" data-section="usage-rights" style="background: #0073aa; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                                    Usuń
+                                </button>
+                            </div>
                             <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
                                 <table class="form-table">
                                     <tr>
-                                        <th><label for="usage-rights-description">Opis praw *</label></th>
+                                        <th><label for="usage-rights-title">Opis praw *</label></th>
                                         <td>
-                                            <textarea id="usage-rights-description" name="usage_rights_description" class="regular-text" rows="3" 
+                                            <textarea id="usage-rights-title" name="usage_right_title" class="regular-text" rows="3" 
                                                       placeholder="Opisz prawa niezbędne do korzystania z lokalu/domu"></textarea>
                                         </td>
                                     </tr>
                                     <tr>
                                         <th><label for="usage-rights-price">Wartość praw</label></th>
                                         <td>
-                                            <input type="number" id="usage-rights-price" name="usage_rights_price" step="0.01" min="0" class="regular-text"> zł
+                                            <input type="number" id="usage-rights-price" name="usage_right_price" step="0.01" min="0" class="regular-text"> zł
                                         </td>
                                     </tr>
                                 </table>
@@ -182,21 +213,26 @@ class ResourceModal extends UJC_Admin_Page {
                         </div>
                         
                         <!-- Inne świadczenia pieniężne na rzecz dewelopera -->
-                        <div id="other-services-section" style="display: none; margin-top: 20px;">
-                            <h3>Inne świadczenia pieniężne na rzecz dewelopera</h3>
+                        <div id="other-services-section" class="component-section" style="display: none; margin-top: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h3 style="margin: 0;">Inne świadczenia pieniężne na rzecz dewelopera</h3>
+                                <button type="button" class="remove-section-btn" data-section="other-services" style="background: #0073aa; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                                    Usuń
+                                </button>
+                            </div>
                             <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
                                 <table class="form-table">
                                     <tr>
-                                        <th><label for="other-services-description">Opis świadczeń *</label></th>
+                                        <th><label for="other-services-title">Opis świadczeń *</label></th>
                                         <td>
-                                            <textarea id="other-services-description" name="other_services_description" class="regular-text" rows="3" 
+                                            <textarea id="other-services-title" name="other_service_title" class="regular-text" rows="3" 
                                                       placeholder="Opisz inne świadczenia pieniężne"></textarea>
                                         </td>
                                     </tr>
                                     <tr>
                                         <th><label for="other-services-price">Wartość świadczeń</label></th>
                                         <td>
-                                            <input type="number" id="other-services-price" name="other_services_price" step="0.01" min="0" class="regular-text"> zł
+                                            <input type="number" id="other-services-price" name="other_service_price" step="0.01" min="0" class="regular-text"> zł
                                         </td>
                                     </tr>
                                 </table>
@@ -204,7 +240,7 @@ class ResourceModal extends UJC_Admin_Page {
                         </div>
                         
                         <!-- Cena uwzględniająca inne składowe -->
-                        <div id="final-price-section" style="display: none; margin-top: 20px;">
+                        <div id="final-price-section" style="margin-top: 20px;">
                             <h3>Cena finalna</h3>
                             <table class="form-table">
                                 <tr>
@@ -312,6 +348,42 @@ class ResourceModal extends UJC_Admin_Page {
             background-color: #d63638 !important;
             color: #fff !important;
         }
+        
+        /* Component add buttons styling */
+        .component-add-btn {
+            display: none;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #0073aa;
+            background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f4 100%);
+            color: #0073aa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .component-add-btn:hover {
+            background: linear-gradient(135deg, #e8f4f8 0%, #d4edda 100%);
+            border-color: #005a87;
+            color: #005a87;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        
+        .component-add-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        #component-buttons {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
         </style>
         
         <!-- JavaScript dla modala -->
@@ -328,18 +400,14 @@ class ResourceModal extends UJC_Admin_Page {
                     if (response.success) {
                         const config = response.data;
                         
-                        // Show/hide component sections based on investment config
-                        $('#property-parts-section').toggle(config.has_property_parts == '1');
-                        $('#belonging-rooms-section').toggle(config.has_belonging_rooms == '1');
-                        $('#usage-rights-section').toggle(config.has_usage_rights == '1');
-                        $('#other-services-section').toggle(config.has_other_services == '1');
+                        // Show/hide component buttons based on investment config
+                        $('#add-property-part-btn').toggle(config.has_property_parts == '1');
+                        $('#add-belonging-room-btn').toggle(config.has_belonging_rooms == '1');
+                        $('#add-usage-rights-btn').toggle(config.has_usage_rights == '1');
+                        $('#add-other-services-btn').toggle(config.has_other_services == '1');
                         
-                        // Show final price section if any component is enabled
-                        const hasAnyComponent = config.has_property_parts == '1' || 
-                                              config.has_belonging_rooms == '1' || 
-                                              config.has_usage_rights == '1' || 
-                                              config.has_other_services == '1';
-                        $('#final-price-section').toggle(hasAnyComponent);
+                        // Final price section is always visible now
+                        $('#final-price-section').show();
                         
                         console.log('Investment config loaded:', config);
                         window.investmentConfig = config; // Store globally for later use
@@ -401,12 +469,68 @@ class ResourceModal extends UJC_Admin_Page {
                         $('#modal-cena_z_dodatkami').val(data.cena_z_dodatkami || '');
                         $('#modal-status').val(data.status || '<?php echo ResourceStatus::cases()[0]->value; ?>');
                         
-                        // Component data loading will be implemented after repositories are created
-                        // For now, clear component fields
-                        $('#property-part-type, #property-part-designation, #property-part-price').val('');
-                        $('#belonging-room-type, #belonging-room-designation, #belonging-room-price').val('');
-                        $('#usage-rights-description, #usage-rights-price').val('');
-                        $('#other-services-description, #other-services-price').val('');
+                        // Load component data and show sections/buttons based on data availability
+                        if (data.property_part_title) {
+                            $('#property-part-title').val(data.property_part_title);
+                            $('#property-part-designation').val(data.property_part_designation || '');
+                            $('#property-part-price').val(data.property_part_price || '');
+                            // Show section, hide button
+                            $('#property-parts-section').show();
+                            $('#add-property-part-btn').hide();
+                        } else {
+                            $('#property-part-title, #property-part-designation, #property-part-price').val('');
+                            // Hide section, show button (if enabled by investment config)
+                            $('#property-parts-section').hide();
+                            if (window.investmentConfig && window.investmentConfig.has_property_parts == '1') {
+                                $('#add-property-part-btn').show();
+                            }
+                        }
+                        
+                        if (data.belonging_room_title) {
+                            $('#belonging-room-title').val(data.belonging_room_title);
+                            $('#belonging-room-designation').val(data.belonging_room_designation || '');
+                            $('#belonging-room-price').val(data.belonging_room_price || '');
+                            // Show section, hide button
+                            $('#belonging-rooms-section').show();
+                            $('#add-belonging-room-btn').hide();
+                        } else {
+                            $('#belonging-room-title, #belonging-room-designation, #belonging-room-price').val('');
+                            // Hide section, show button (if enabled by investment config)
+                            $('#belonging-rooms-section').hide();
+                            if (window.investmentConfig && window.investmentConfig.has_belonging_rooms == '1') {
+                                $('#add-belonging-room-btn').show();
+                            }
+                        }
+                        
+                        if (data.usage_right_title) {
+                            $('#usage-rights-title').val(data.usage_right_title || '');
+                            $('#usage-rights-price').val(data.usage_right_price || '');
+                            // Show section, hide button
+                            $('#usage-rights-section').show();
+                            $('#add-usage-rights-btn').hide();
+                        } else {
+                            $('#usage-rights-title, #usage-rights-price').val('');
+                            // Hide section, show button (if enabled by investment config)
+                            $('#usage-rights-section').hide();
+                            if (window.investmentConfig && window.investmentConfig.has_usage_rights == '1') {
+                                $('#add-usage-rights-btn').show();
+                            }
+                        }
+                        
+                        if (data.other_service_title) {
+                            $('#other-services-title').val(data.other_service_title || '');
+                            $('#other-services-price').val(data.other_service_price || '');
+                            // Show section, hide button
+                            $('#other-services-section').show();
+                            $('#add-other-services-btn').hide();
+                        } else {
+                            $('#other-services-title, #other-services-price').val('');
+                            // Hide section, show button (if enabled by investment config)
+                            $('#other-services-section').hide();
+                            if (window.investmentConfig && window.investmentConfig.has_other_services == '1') {
+                                $('#add-other-services-btn').show();
+                            }
+                        }
                         
                         // Przelicz cenę finalną
                         calculateFinalPrice();
@@ -424,9 +548,37 @@ class ResourceModal extends UJC_Admin_Page {
             function closeModal() {
                 $('#ujc-resource-modal').hide();
                 $('#resource-modal-form')[0].reset();
+                // Reset component buttons and sections
+                $('.component-add-btn').hide();
+                $('.component-section').hide();
             }
             
             $('.ujc-modal-close, .ujc-modal-cancel').on('click', closeModal);
+            
+            // Component button click handlers
+            $('#add-property-part-btn').on('click', function() {
+                $(this).hide();
+                $('#property-parts-section').show();
+                calculateFinalPrice();
+            });
+            
+            $('#add-belonging-room-btn').on('click', function() {
+                $(this).hide();
+                $('#belonging-rooms-section').show();
+                calculateFinalPrice();
+            });
+            
+            $('#add-usage-rights-btn').on('click', function() {
+                $(this).hide();
+                $('#usage-rights-section').show();
+                calculateFinalPrice();
+            });
+            
+            $('#add-other-services-btn').on('click', function() {
+                $(this).hide();
+                $('#other-services-section').show();
+                calculateFinalPrice();
+            });
             
             // Zamknij modal kliknięciem poza nim
             $('#ujc-resource-modal').on('click', function(e) {
@@ -476,6 +628,59 @@ class ResourceModal extends UJC_Admin_Page {
                     $deleteBtn.text(originalText).prop('disabled', false);
                 });
             });
+            
+            // Remove section button click handlers
+            $('.remove-section-btn').on('click', function() {
+                const sectionType = $(this).data('section');
+                
+                // Hide the section
+                $(`#${sectionType}-section`).hide();
+                
+                // Clear form data for this section
+                clearSectionData(sectionType);
+                
+                // Show the corresponding add button
+                showAddButtonIfEnabled(sectionType);
+                
+                // Recalculate final price
+                calculateFinalPrice();
+            });
+            
+            // Clear form data for a specific section type
+            function clearSectionData(sectionType) {
+                switch(sectionType) {
+                    case 'property-parts':
+                        $('#property-part-title, #property-part-designation, #property-part-price').val('');
+                        break;
+                    case 'belonging-rooms':
+                        $('#belonging-room-title, #belonging-room-designation, #belonging-room-price').val('');
+                        break;
+                    case 'usage-rights':
+                        $('#usage-rights-title, #usage-rights-price').val('');
+                        break;
+                    case 'other-services':
+                        $('#other-services-title, #other-services-price').val('');
+                        break;
+                }
+            }
+            
+            // Show add button for the section type
+            function showAddButtonIfEnabled(sectionType) {
+                switch(sectionType) {
+                    case 'property-parts':
+                        $('#add-property-part-btn').show();
+                        break;
+                    case 'belonging-rooms':
+                        $('#add-belonging-room-btn').show();
+                        break;
+                    case 'usage-rights':
+                        $('#add-usage-rights-btn').show();
+                        break;
+                    case 'other-services':
+                        $('#add-other-services-btn').show();
+                        break;
+                }
+            }
             
             // Dynamic component sections are now controlled by investment configuration
             
@@ -655,7 +860,22 @@ class ResourceModal extends UJC_Admin_Page {
             'status' => 'sanitize_text_field',
             'extra_type' => 'sanitize_text_field',
             'extra_oznaczenie' => 'sanitize_text_field',
-            'extra_cena' => 'floatval'
+            'extra_cena' => 'floatval',
+            
+            // Component fields
+            'property_part_title' => 'sanitize_text_field',
+            'property_part_designation' => 'sanitize_text_field',
+            'property_part_price' => [$this, 'sanitize_nullable_float'],
+            
+            'belonging_room_title' => 'sanitize_text_field',
+            'belonging_room_designation' => 'sanitize_text_field',
+            'belonging_room_price' => [$this, 'sanitize_nullable_float'],
+            
+            'usage_right_title' => 'sanitize_textarea_field',
+            'usage_right_price' => [$this, 'sanitize_nullable_float'],
+            
+            'other_service_title' => 'sanitize_textarea_field',
+            'other_service_price' => [$this, 'sanitize_nullable_float']
         ]);
     }
     
@@ -712,6 +932,42 @@ class ResourceModal extends UJC_Admin_Page {
         try {
             $data = $this->sanitize_resource_data();
             
+            // Create component models first
+            $propertyPart = null;
+            if (!empty($data['property_part_title']) && isset($data['property_part_price'])) {
+                $propertyPart = new PropertyPartFormData(
+                    title: $data['property_part_title'],
+                    designation: $data['property_part_designation'] ?? '',
+                    price: (float)$data['property_part_price']
+                );
+            }
+            
+            $belongingRoom = null;
+            if (!empty($data['belonging_room_title']) && isset($data['belonging_room_price'])) {
+                $belongingRoom = new BelongingRoomFormData(
+                    title: $data['belonging_room_title'],
+                    designation: $data['belonging_room_designation'] ?? '',
+                    price: (float)$data['belonging_room_price']
+                );
+            }
+            
+            $usageRight = null;
+            if (!empty($data['usage_right_title']) && isset($data['usage_right_price'])) {
+                $usageRight = new UsageRightFormData(
+                    title: $data['usage_right_title'],
+                    price: (float)$data['usage_right_price']
+                );
+            }
+            
+            $otherService = null;
+            if (!empty($data['other_service_title']) && isset($data['other_service_price'])) {
+                $otherService = new OtherServiceFormData(
+                    title: $data['other_service_title'],
+                    price: (float)$data['other_service_price']
+                );
+            }
+            
+            // Create ResourceFormData with components included
             $formData = new ResourceFormData(
                 rodzaj_nieruchomosci: PropertyType::from($data['rodzaj_nieruchomosci']),
                 nr_lokalu: $data['nr_lokalu'],
@@ -719,7 +975,11 @@ class ResourceModal extends UJC_Admin_Page {
                 cena_m2: $data['cena_m2'] !== null ? (float)$data['cena_m2'] : null,
                 cena_calkowita: (float)$data['cena_calkowita'],
                 cena_z_dodatkami: (float)$data['cena_z_dodatkami'],
-                status: ResourceStatus::from($data['status'])
+                status: ResourceStatus::from($data['status']),
+                property_part: $propertyPart,
+                belonging_room: $belongingRoom,
+                usage_right: $usageRight,
+                other_service: $otherService
             );
             
             $result = $this->createResourceUseCase->execute($formData);
@@ -787,6 +1047,42 @@ class ResourceModal extends UJC_Admin_Page {
             
             $data = $this->sanitize_resource_data();
             
+            // Create component models first
+            $propertyPart = null;
+            if (!empty($data['property_part_title']) && isset($data['property_part_price'])) {
+                $propertyPart = new PropertyPartFormData(
+                    title: $data['property_part_title'],
+                    designation: $data['property_part_designation'] ?? '',
+                    price: (float)$data['property_part_price']
+                );
+            }
+            
+            $belongingRoom = null;
+            if (!empty($data['belonging_room_title']) && isset($data['belonging_room_price'])) {
+                $belongingRoom = new BelongingRoomFormData(
+                    title: $data['belonging_room_title'],
+                    designation: $data['belonging_room_designation'] ?? '',
+                    price: (float)$data['belonging_room_price']
+                );
+            }
+            
+            $usageRight = null;
+            if (!empty($data['usage_right_title']) && isset($data['usage_right_price'])) {
+                $usageRight = new UsageRightFormData(
+                    title: $data['usage_right_title'],
+                    price: (float)$data['usage_right_price']
+                );
+            }
+            
+            $otherService = null;
+            if (!empty($data['other_service_title']) && isset($data['other_service_price'])) {
+                $otherService = new OtherServiceFormData(
+                    title: $data['other_service_title'],
+                    price: (float)$data['other_service_price']
+                );
+            }
+            
+            // Create ResourceFormData with components included
             $formData = new ResourceFormData(
                 rodzaj_nieruchomosci: PropertyType::from($data['rodzaj_nieruchomosci']),
                 nr_lokalu: $data['nr_lokalu'],
@@ -794,7 +1090,11 @@ class ResourceModal extends UJC_Admin_Page {
                 cena_m2: $data['cena_m2'] !== null ? (float)$data['cena_m2'] : null,
                 cena_calkowita: (float)$data['cena_calkowita'],
                 cena_z_dodatkami: (float)$data['cena_z_dodatkami'],
-                status: ResourceStatus::from($data['status'])
+                status: ResourceStatus::from($data['status']),
+                property_part: $propertyPart,
+                belonging_room: $belongingRoom,
+                usage_right: $usageRight,
+                other_service: $otherService
             );
             
             $result = $this->updateResourceUseCase->execute($formData, $resource_id);
@@ -830,12 +1130,10 @@ class ResourceModal extends UJC_Admin_Page {
             
             $result = $this->deleteResourceUseCase->execute($resource_id);
             
-            if (isset($result['error'])) {
-                wp_send_json_error($result['error']);
-            } elseif (isset($result['success']) && $result['success']) {
-                wp_send_json_success($result['message']);
+            if ($result->isSuccess) {
+                wp_send_json_success($result->message);
             } else {
-                wp_send_json_error('Błąd podczas usuwania zasobu.');
+                wp_send_json_error($result->message);
             }
         } catch (Exception $e) {
             wp_send_json_error('Błąd serwera: ' . $e->getMessage());

@@ -35,23 +35,11 @@ class GetAllResourcesUseCase {
                 Logger::info("GetAllResourcesUseCase::execute - Got prices for resource ID: " . $resource->id);
                 
                 // Safe enum conversion with fallback
-                Logger::info("GetAllResourcesUseCase::execute - Converting PropertyType: " . $resource->rodzaj_nieruchomosci);
-                try {
-                    $propertyTypeDisplay = PropertyType::from($resource->rodzaj_nieruchomosci)->getDisplayText();
-                } catch (ValueError $e) {
-                    Logger::info("GetAllResourcesUseCase::execute - PropertyType conversion failed, using fallback");
-                    // Fallback for old/invalid values
-                    $propertyTypeDisplay = $resource->rodzaj_nieruchomosci;
-                }
+                Logger::info("GetAllResourcesUseCase::execute - Converting PropertyType: " . $resource->rodzaj_nieruchomosci->value);
+                $propertyTypeDisplay = $resource->rodzaj_nieruchomosci->getDisplayText();
                 
-                Logger::info("GetAllResourcesUseCase::execute - Converting ResourceStatus: " . $resource->status);
-                try {
-                    $statusDisplay = ResourceStatus::from($resource->status)->getDisplayText();
-                } catch (ValueError $e) {
-                    Logger::info("GetAllResourcesUseCase::execute - ResourceStatus conversion failed, using fallback");
-                    // Fallback for old/invalid values
-                    $statusDisplay = $resource->status;
-                }
+                Logger::info("GetAllResourcesUseCase::execute - Converting ResourceStatus: " . $resource->status->value);
+                $statusDisplay = $resource->status->getDisplayText();
                 
                 Logger::info("GetAllResourcesUseCase::execute - Creating PresentableResource for ID: " . $resource->id);
                 $presentableResource = new PresentableResource(
@@ -63,8 +51,8 @@ class GetAllResourcesUseCase {
                     $currentPrices->cena_m2,
                     $currentPrices->cena_calkowita,
                     $currentPrices->cena_z_dodatkami,
-                    DateHelper::formatDateTimeForUser($currentPrices->data_zmiany),
-                    DateHelper::formatDateTimeForUser($currentPrices->data_cena_z_dodatkami)
+                    DateHelper::formatForUser($currentPrices->data_zmiany),
+                    DateHelper::formatForUser($currentPrices->data_cena_z_dodatkami)
                 );
                 
                 Logger::info("GetAllResourcesUseCase::execute - Successfully created PresentableResource for ID: " . $resource->id);

@@ -8,39 +8,39 @@ class UpdateResourceUseCase {
     
     private $repository;
     private $price_history_repo;
-    private $property_parts_repo;
-    private $belonging_rooms_repo;
-    private $usage_rights_repo;
-    private $other_services_repo;
     
     public function __construct() {
         $this->repository = new ResourceRepository();
         $this->price_history_repo = new PriceHistoryRepository();
-        $this->property_parts_repo = new PropertyPartsRepository();
-        $this->belonging_rooms_repo = new BelongingRoomsRepository();
-        $this->usage_rights_repo = new UsageRightsRepository();
-        $this->other_services_repo = new OtherServicesRepository();
     }
     
-    public function execute(ResourceFormData $formData, int $resource_id, $propertyParts = null, $belongingRooms = null, $usageRights = null, $otherServices = null): Result {
+    public function execute(ResourceFormData $formData, int $resource_id): Result {
+        Logger::info("UpdateResourceUseCase::execute - Starting for resource ID: {$resource_id}, nr_lokalu: {$formData->nr_lokalu}");
+        
         if (!$this->validate($formData, $resource_id)) {
+            Logger::info("UpdateResourceUseCase::execute - Validation failed - nr_lokalu '{$formData->nr_lokalu}' already exists");
             return Result::failure('Numer lokalu "' . $formData->nr_lokalu . '" już istnieje. Każdy zasób musi mieć unikalną nazwę.');
         }
+        Logger::info("UpdateResourceUseCase::execute - Validation passed");
         
         try {
-            // Create resource DTO without prices
-            $resourceDto = $this->createResourceDto($formData);
+            // Create resource DTO with proper date logic
+            Logger::info("UpdateResourceUseCase::execute - Creating ResourceDto from FormData");
+            $resourceDto = $this->createResourceDto($formData, $resource_id);
+            
+            Logger::info("UpdateResourceUseCase::execute - Updating resource in repository");
             $this->repository->update($resourceDto, $resource_id);
             
-            // Zapisz komponenty jeśli zostały przekazane
-            $this->updateComponents($resource_id, $propertyParts, $belongingRooms, $usageRights, $otherServices);
-            
             // Zapisz historię cen jeśli się zmieniły
+            Logger::info("UpdateResourceUseCase::execute - Checking and saving price history changes");
             $this->savePriceHistoryIfChanged($formData, $resource_id);
             
+            Logger::info("UpdateResourceUseCase::execute - Successfully completed for resource ID: {$resource_id}");
             return Result::success('Zasób został zaktualizowany pomyślnie');
             
         } catch (Exception $e) {
+            Logger::error("UpdateResourceUseCase::execute - Exception: " . $e->getMessage());
+            Logger::error("UpdateResourceUseCase::execute - Exception trace: " . $e->getTraceAsString());
             return Result::failure('Błąd podczas aktualizacji zasobu: ' . $e->getMessage());
         }
     }
@@ -61,44 +61,71 @@ class UpdateResourceUseCase {
         return true;
     }
     
-    private function updateComponents($resource_id, $propertyParts, $belongingRooms, $usageRights, $otherServices) {
-        if ($propertyParts) {
-            $this->property_parts_repo->deleteByResourceId($resource_id);
-            foreach ($propertyParts as $part) {
-                $this->property_parts_repo->save($part, $resource_id);
-            }
-        }
-        
-        if ($belongingRooms) {
-            $this->belonging_rooms_repo->deleteByResourceId($resource_id);
-            foreach ($belongingRooms as $room) {
-                $this->belonging_rooms_repo->save($room, $resource_id);
-            }
-        }
-        
-        if ($usageRights) {
-            $this->usage_rights_repo->deleteByResourceId($resource_id);
-            foreach ($usageRights as $right) {
-                $this->usage_rights_repo->save($right, $resource_id);
-            }
-        }
-        
-        if ($otherServices) {
-            $this->other_services_repo->deleteByResourceId($resource_id);
-            foreach ($otherServices as $service) {
-                $this->other_services_repo->save($service, $resource_id);
-            }
-        }
-    }
     
-    private function createResourceDto(ResourceFormData $formData): ResourceDto {
+    private function createResourceDto(ResourceFormData $formData, int $resource_id): ResourceDto {
+        // Get existing resource for date comparison
+        $existingResource = $this->repository->readById($resource_id);
+        $currentDate = DateHelper::currentDatetime();
+        
         return new ResourceDto(
-            id: 0,
+            id: 0, // ID will be set by repository->update()
             rodzaj_nieruchomosci: $formData->rodzaj_nieruchomosci,
             nr_lokalu: $formData->nr_lokalu,
             powierzchnia_uzytkowa: $formData->powierzchnia_uzytkowa,
-            status: $formData->status
+            status: $formData->status,
+            property_part_title: $formData->property_part?->title,
+            property_part_designation: $formData->property_part?->designation,
+            property_part_price: $formData->property_part?->price,
+            belonging_room_title: $formData->belonging_room?->title,
+            belonging_room_designation: $formData->belonging_room?->designation,
+            belonging_room_price: $formData->belonging_room?->price,
+            usage_right_title: $formData->usage_right?->title,
+            usage_right_price: $formData->usage_right?->price,
+            other_service_title: $formData->other_service?->title,
+            other_service_price: $formData->other_service?->price,
+            property_part_price_date: $this->getDateForComponent(
+                $formData->property_part?->price,
+                $existingResource?->property_part_price,
+                $existingResource?->property_part_price_date,
+                $currentDate
+            ),
+            belonging_room_price_date: $this->getDateForComponent(
+                $formData->belonging_room?->price,
+                $existingResource?->belonging_room_price,
+                $existingResource?->belonging_room_price_date,
+                $currentDate
+            ),
+            usage_right_price_date: $this->getDateForComponent(
+                $formData->usage_right?->price,
+                $existingResource?->usage_right_price,
+                $existingResource?->usage_right_price_date,
+                $currentDate
+            ),
+            other_service_price_date: $this->getDateForComponent(
+                $formData->other_service?->price,
+                $existingResource?->other_service_price,
+                $existingResource?->other_service_price_date,
+                $currentDate
+            )
         );
+    }
+    
+    /**
+     * Calculate date for component based on price changes
+     */
+    private function getDateForComponent(?float $newPrice, ?float $oldPrice, ?string $oldDate, string $currentDate): ?string {
+        // If no price, no date needed
+        if ($newPrice === null) {
+            return null;
+        }
+        
+        // If price changed, use current date
+        if ($newPrice != $oldPrice) {
+            return $currentDate;
+        }
+        
+        // If price same, keep old date (or current if no old date)
+        return $oldDate ?? $currentDate;
     }
     
     private function savePriceHistoryIfChanged(ResourceFormData $formData, int $resource_id) {
@@ -115,11 +142,11 @@ class UpdateResourceUseCase {
             
             // Determine dates based on what changed
             $data_zmiany = $cena_m2_changed || $cena_calkowita_changed 
-                ? new DateTime($currentDatetime) 
+                ? $currentDatetime
                 : $currentPrices->data_zmiany;
                 
             $data_cena_z_dodatkami = $cena_z_dodatkami_changed 
-                ? new DateTime($currentDatetime) 
+                ? $currentDatetime
                 : $currentPrices->data_cena_z_dodatkami;
             
             $priceHistoryDto = new PriceHistoryDto(

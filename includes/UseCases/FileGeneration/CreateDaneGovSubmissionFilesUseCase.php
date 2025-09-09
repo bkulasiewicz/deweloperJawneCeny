@@ -47,21 +47,33 @@ class CreateDaneGovSubmissionFilesUseCase {
             $developer_data = $validation_result['data'];
             Logger::info('CreateDaneGov: Developer data validated - Name: ' . ($developer_data['developer_name'] ?? 'unknown') . ', NIP: ' . ($developer_data['nip'] ?? 'unknown'));
             
-            // Utwórz model danych z zwalidowanymi danymi
-            Logger::info('CreateDaneGov: Creating dataset model...');
-            Logger::info('CreateDaneGov: CSV URL being passed to dataset: ' . $developer_data['csv_url']);
+            // Utwórz model danych z wszystkimi resources z bazy
+            Logger::info('CreateDaneGov: Creating dataset model from database resources...');
             $dataset = new DaneGovXmlDataset(
                 $developer_data['developer_name'],
                 $developer_data['nip']
             );
-            $dataset->addResource(
-                $developer_data['developer_name'],
-                $developer_data['nip'],
-                $developer_data['csv_url']
-            );
-            Logger::info('CreateDaneGov: Dataset resources count after addResource: ' . count($dataset->resources));
+            
+            // Pobierz wszystkie XML resources z bazy i dodaj do dataset
+            Logger::info('CreateDaneGov: Loading all XML resources from database...');
+            $xmlResourceRepo = new XmlResourceRepository();
+            $allXmlResources = $xmlResourceRepo->readAll();
+            Logger::info('CreateDaneGov: Found ' . count($allXmlResources) . ' XML resources in database');
+            
+            foreach ($allXmlResources as $xmlResource) {
+                Logger::info('CreateDaneGov: Adding resource - ext_ident: ' . $xmlResource->ext_ident . ', URL: ' . $xmlResource->csv_url . ', date: ' . $xmlResource->data_date);
+                $dataset->addResource(
+                    $developer_data['developer_name'],
+                    $xmlResource->ext_ident,
+                    $xmlResource->csv_url,
+                    $xmlResource->data_date
+                );
+            }
+            
+            Logger::info('CreateDaneGov: Dataset resources count after loading from database: ' . count($dataset->resources));
             if (!empty($dataset->resources)) {
                 Logger::info('CreateDaneGov: First resource URL in dataset: ' . $dataset->resources[0]->url);
+                Logger::info('CreateDaneGov: Last resource URL in dataset: ' . end($dataset->resources)->url);
             }
             
             // Generuj XML - XMLFormatter TYLKO formatuje, NIE waliduje
@@ -105,49 +117,63 @@ class CreateDaneGovSubmissionFilesUseCase {
      * @return array ['valid' => bool, 'errors' => array, 'data' => array]
      */
     private function validateDataForSubmission($csv_url = null) {
+        Logger::info('CreateDaneGov: validateDataForSubmission started with CSV URL: ' . ($csv_url ?? 'null'));
         $errors = [];
         $validated_data = [];
         
         // 1. WALIDACJA CSV URL - KRYTYCZNE
+        Logger::info('CreateDaneGov: Validating CSV URL...');
         if (empty($csv_url)) {
             $errors[] = 'URL pliku CSV jest wymagany dla generacji XML';
+            Logger::error('CreateDaneGov: CSV URL is empty');
         } else {
             // Walidacja formatu URL
             if (!filter_var($csv_url, FILTER_VALIDATE_URL)) {
                 $errors[] = 'Nieprawidłowy format URL: ' . $csv_url;
+                Logger::error('CreateDaneGov: Invalid CSV URL format: ' . $csv_url);
             } else {
                 $validated_data['csv_url'] = $csv_url;
+                Logger::info('CreateDaneGov: CSV URL validation SUCCESS');
             }
         }
         
         // 2. WALIDACJA DANYCH DEWELOPERA - KRYTYCZNE
+        Logger::info('CreateDaneGov: Loading developer data...');
         $developer = $this->developerRepository->read();
+        Logger::info('CreateDaneGov: Developer loaded: ' . ($developer ? 'SUCCESS' : 'FAILED'));
         
         if (!$developer) {
             $errors[] = 'Brak danych dewelopera w bazie. Proszę najpierw uzupełnić dane firmy';
         } else {
+            Logger::info('CreateDaneGov: Starting developer field validation...');
             // 2a. Walidacja nazwy dewelopera
-            $developer_name = trim($developer['nazwa'] ?? '');
+            $developer_name = trim($developer->nazwa ?? '');
             if (empty($developer_name)) {
                 $errors[] = 'Nazwa dewelopera jest wymagana';
+                Logger::error('CreateDaneGov: Developer name is empty');
             } else {
                 $validated_data['developer_name'] = $developer_name;
+                Logger::info('CreateDaneGov: Developer name validated: ' . $developer_name);
             }
             
             // 2b. Walidacja NIP - KRYTYCZNE dla identyfikatorów
-            $nip = trim($developer['nr_nip'] ?? '');
+            $nip = trim($developer->nr_nip ?? '');
             if (empty($nip)) {
                 $errors[] = 'NIP dewelopera jest wymagany';
+                Logger::error('CreateDaneGov: NIP is empty');
             } else {
+                Logger::info('CreateDaneGov: Validating NIP: ' . $nip);
                 // Usuń wszystko oprócz cyfr dla walidacji
                 $clean_nip = preg_replace('/[^0-9]/', '', $nip);
                 
                 // Sprawdź długość (NIP w Polsce ma zawsze 10 cyfr)
                 if (strlen($clean_nip) !== 10) {
                     $errors[] = 'NIP musi zawierać dokładnie 10 cyfr (podano: ' . strlen($clean_nip) . ')';
+                    Logger::error('CreateDaneGov: Invalid NIP length: ' . strlen($clean_nip));
                 } else {
                     // Zachowaj oryginalny NIP (może mieć myślniki)
                     $validated_data['nip'] = $nip;
+                    Logger::info('CreateDaneGov: NIP validation SUCCESS');
                 }
             }
         }

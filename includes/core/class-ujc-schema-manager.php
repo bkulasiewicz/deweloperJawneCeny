@@ -23,22 +23,19 @@ class UJC_Schema_Manager {
         // 2. INWESTYCJA
         (new InvestmentRepository())->createTable();
         
-        // 3. ZASOBY/NIERUCHOMOŚCI
+        // 3. ZASOBY/NIERUCHOMOŚCI (with integrated component fields)
         (new ResourceRepository())->createTable();
         
-        // 4. KOMPONENTY ZASOBÓW
-        (new PropertyPartsRepository())->createTable();
-        (new BelongingRoomsRepository())->createTable();
-        (new UsageRightsRepository())->createTable();
-        (new OtherServicesRepository())->createTable();
-        
-        // 5. HISTORIA CEN
+        // 4. HISTORIA CEN
         (new PriceHistoryRepository())->createTable();
         
         // 6. HISTORIA PUBLIKACJI
         (new PublicationHistoryRepository())->createTable();
         
-        // 7. KLUCZE OBCE
+        // 7. XML RESOURCES
+        (new XmlResourceRepository())->create();
+        
+        // 8. KLUCZE OBCE
         self::create_foreign_keys($wpdb);
     }
     
@@ -51,10 +48,7 @@ class UJC_Schema_Manager {
         $tables = [
             TableNames::getPriceHistory(),
             TableNames::getPublicationHistory(),
-            TableNames::getResourcePropertyParts(),
-            TableNames::getResourceBelongingRooms(),
-            TableNames::getResourceUsageRights(),
-            TableNames::getResourceOtherServices(),
+            TableNames::getXmlResource(),
             TableNames::getResources(), 
             TableNames::getInvestmentInfo(),
             TableNames::getDeveloperInfo()
@@ -68,60 +62,12 @@ class UJC_Schema_Manager {
     private static function create_foreign_keys($wpdb) {
         $resources_table = TableNames::getResources();
         $price_history_table = TableNames::getPriceHistory();
-        $property_parts_table = TableNames::getResourcePropertyParts();
-        $belonging_rooms_table = TableNames::getResourceBelongingRooms();
-        $usage_rights_table = TableNames::getResourceUsageRights();
-        $other_services_table = TableNames::getResourceOtherServices();
         
         // FK dla price history
         if (!self::foreign_key_exists($wpdb, $price_history_table, 'resource_id')) {
             $wpdb->query("
                 ALTER TABLE $price_history_table 
                 ADD CONSTRAINT fk_history_ujc_resources 
-                FOREIGN KEY (resource_id) 
-                REFERENCES $resources_table(id) 
-                ON DELETE CASCADE
-            ");
-        }
-        
-        // FK dla property parts
-        if (!self::foreign_key_exists($wpdb, $property_parts_table, 'resource_id')) {
-            $wpdb->query("
-                ALTER TABLE $property_parts_table 
-                ADD CONSTRAINT fk_property_parts_ujc_resources 
-                FOREIGN KEY (resource_id) 
-                REFERENCES $resources_table(id) 
-                ON DELETE CASCADE
-            ");
-        }
-        
-        // FK dla belonging rooms
-        if (!self::foreign_key_exists($wpdb, $belonging_rooms_table, 'resource_id')) {
-            $wpdb->query("
-                ALTER TABLE $belonging_rooms_table 
-                ADD CONSTRAINT fk_belonging_rooms_ujc_resources 
-                FOREIGN KEY (resource_id) 
-                REFERENCES $resources_table(id) 
-                ON DELETE CASCADE
-            ");
-        }
-        
-        // FK dla usage rights
-        if (!self::foreign_key_exists($wpdb, $usage_rights_table, 'resource_id')) {
-            $wpdb->query("
-                ALTER TABLE $usage_rights_table 
-                ADD CONSTRAINT fk_usage_rights_ujc_resources 
-                FOREIGN KEY (resource_id) 
-                REFERENCES $resources_table(id) 
-                ON DELETE CASCADE
-            ");
-        }
-        
-        // FK dla other services
-        if (!self::foreign_key_exists($wpdb, $other_services_table, 'resource_id')) {
-            $wpdb->query("
-                ALTER TABLE $other_services_table 
-                ADD CONSTRAINT fk_other_services_ujc_resources 
                 FOREIGN KEY (resource_id) 
                 REFERENCES $resources_table(id) 
                 ON DELETE CASCADE
@@ -205,28 +151,15 @@ class UJC_Schema_Manager {
      * Usuwa tabelę publication_history i odtwarza ją
      */
     public static function reset_publication_history_table() {
-        global $wpdb;
-        $table = TableNames::getPublicationHistory();
-        
-        // Sprawdź czy tabela istnieje przed usunięciem
-        $table_exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table)) == $table;
-        
-        if ($table_exists) {
-            // Użyj TRUNCATE do wyczyszczenia danych zamiast DROP+CREATE
-            $result = $wpdb->query("TRUNCATE TABLE `$table`");
-            if ($result !== false) {
-                Logger::success("Publication History Reset: TRUNCATE SUCCESS");
-            } else {
-                Logger::error("Publication History Reset: TRUNCATE FAILED - Error: " . $wpdb->last_error);
-                // Fallback: try to recreate table
-                Logger::info("Publication History Reset: Attempting table recreation as fallback");
-                $wpdb->query("DROP TABLE IF EXISTS `$table`");
-                (new PublicationHistoryRepository())->createTable();
-            }
-        } else {
-            // Tabela nie istnieje, utwórz ją
-            Logger::info("Publication History Reset: Table doesn't exist, creating new one");
-            (new PublicationHistoryRepository())->createTable();
-        }
+        self::dropTable(TableNames::getPublicationHistory());
+        (new PublicationHistoryRepository())->createTable();
+    }
+    
+    /**
+     * Usuwa tabelę xml_resources i odtwarza ją
+     */
+    public static function reset_xml_resource_table() {
+        self::dropTable(TableNames::getXmlResource());
+        (new XmlResourceRepository())->create();
     }
 }

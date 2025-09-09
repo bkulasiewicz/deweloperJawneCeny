@@ -3,7 +3,7 @@
  * Plugin Name: Deweloper Jawne Ceny
  * Plugin URI: https://www.deweloperjawneceny.pl/
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
- * Version: 2.0.133
+ * Version: 3.0.19
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -25,8 +25,8 @@ if (!defined('ABSPATH')) {
 
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
-define('DB_VERSION', '1.2');
-define('VERSION', '2.0.133');
+define('DB_VERSION', '1.6');
+define('VERSION', '3.0.19');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -70,19 +70,22 @@ class DeweloperJawneCeny {
         // Models
         require_once PLUGIN_DIR . 'includes/models/DaneGovXmlDataset.php';
         require_once PLUGIN_DIR . 'includes/models/ResourceFormData.php';
+        require_once PLUGIN_DIR . 'includes/models/PropertyPartFormData.php';
+        require_once PLUGIN_DIR . 'includes/models/BelongingRoomFormData.php';
+        require_once PLUGIN_DIR . 'includes/models/UsageRightFormData.php';
+        require_once PLUGIN_DIR . 'includes/models/OtherServiceFormData.php';
         require_once PLUGIN_DIR . 'includes/models/PresentableResource.php';
+        require_once PLUGIN_DIR . 'includes/models/FileData.php';
+        require_once PLUGIN_DIR . 'includes/models/FileGenerationResult.php';
         
         // DTOs
         require_once PLUGIN_DIR . 'includes/core/ModelDto.php';
         require_once PLUGIN_DIR . 'includes/core/Result.php';
         require_once PLUGIN_DIR . 'includes/dto/ResourceDto.php';
         require_once PLUGIN_DIR . 'includes/dto/InvestmentDto.php';
-        require_once PLUGIN_DIR . 'includes/dto/PropertyPartDto.php';
-        require_once PLUGIN_DIR . 'includes/dto/BelongingRoomDto.php';
-        require_once PLUGIN_DIR . 'includes/dto/UsageRightDto.php';
-        require_once PLUGIN_DIR . 'includes/dto/OtherServiceDto.php';
         require_once PLUGIN_DIR . 'includes/dto/PriceHistoryDto.php';
         require_once PLUGIN_DIR . 'includes/dto/SupplierDto.php';
+        require_once PLUGIN_DIR . 'includes/dto/XmlResourceDto.php';
         
         // Helpers
         require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
@@ -108,10 +111,7 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/repositories/PriceHistoryRepository.php';
         require_once PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
         require_once PLUGIN_DIR . 'includes/repositories/PublicationHistoryRepository.php';
-        require_once PLUGIN_DIR . 'includes/repositories/PropertyPartsRepository.php';
-        require_once PLUGIN_DIR . 'includes/repositories/BelongingRoomsRepository.php';
-        require_once PLUGIN_DIR . 'includes/repositories/UsageRightsRepository.php';
-        require_once PLUGIN_DIR . 'includes/repositories/OtherServicesRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/XmlResourceRepository.php';
         
         // UseCases - Resources
         require_once PLUGIN_DIR . 'includes/UseCases/Resources/CreateResourceUseCase.php';
@@ -141,6 +141,9 @@ class DeweloperJawneCeny {
         // UseCases - Price History
         require_once PLUGIN_DIR . 'includes/UseCases/PriceHistory/GetPriceHistoryUseCase.php';
         
+        // UseCases - XML Resource
+        require_once PLUGIN_DIR . 'includes/UseCases/XmlResource/AddXmlResourceUseCase.php';
+        
         // UseCases - System
         require_once PLUGIN_DIR . 'includes/UseCases/System/ImportResourcesUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/System/ResetDatabaseUseCase.php';
@@ -154,6 +157,7 @@ class DeweloperJawneCeny {
         // Dashboard Components
         require_once PLUGIN_DIR . 'includes/views/admin/Dashboard/AutomationTile.php';
         require_once PLUGIN_DIR . 'includes/views/admin/Dashboard/HistoryTile.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/Dashboard/CsvFilesSection.php';
         
         // Views - Admin Pages
         require_once PLUGIN_DIR . 'includes/views/admin/pages/DashboardPage.php';

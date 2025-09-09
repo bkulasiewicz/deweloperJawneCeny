@@ -31,24 +31,9 @@ class TableNames {
         return $wpdb->prefix . 'publication_history';
     }
     
-    public static function getResourcePropertyParts(): string {
+    public static function getXmlResource(): string {
         global $wpdb;
-        return $wpdb->prefix . 'resource_property_parts';
-    }
-    
-    public static function getResourceBelongingRooms(): string {
-        global $wpdb;
-        return $wpdb->prefix . 'resource_belonging_rooms';
-    }
-    
-    public static function getResourceUsageRights(): string {
-        global $wpdb;
-        return $wpdb->prefix . 'resource_usage_rights';
-    }
-    
-    public static function getResourceOtherServices(): string {
-        global $wpdb;
-        return $wpdb->prefix . 'resource_other_services';
+        return $wpdb->prefix . 'xml_resources';
     }
     
 }

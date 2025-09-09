@@ -45,15 +45,24 @@ class GenerateCSVFileUseCase {
             // Get data
             Logger::info('GenerateCSV: Fetching data from repositories...');
             $developer = $this->developerRepository->read();
+            Logger::info('GenerateCSV: Developer data loaded');
+            
             $investment = $this->investmentRepository->read();
+            Logger::info('GenerateCSV: Investment data loaded');
+            
             $resources = $this->resourceRepository->readAll();
+            Logger::info('GenerateCSV: Resources loaded - count: ' . count($resources));
+            
+            Logger::info('GenerateCSV: Getting price history for resources...');
             $priceHistory = $this->getPriceHistoryForResources($resources);
+            Logger::info('GenerateCSV: Price history loaded - count: ' . count($priceHistory));
             
             Logger::info('GenerateCSV: Data fetched - Resources count: ' . count($resources));
             
             // Generate CSV content
             Logger::info('GenerateCSV: Generating CSV content...');
             $csvRows = $this->csvFormatter->generate($developer, $investment, $resources, $priceHistory);
+            Logger::info('GenerateCSV: CSV rows generated - count: ' . count($csvRows));
             
             // Generate filename
             $filename = $this->fileManager->generateCSVFilename($developer);
@@ -119,8 +128,16 @@ class GenerateCSVFileUseCase {
     private function getPriceHistoryForResources(array $resources): array {
         $priceHistory = [];
         foreach ($resources as $resource) {
-            $priceHistory[$resource->id] = $this->priceHistoryRepository->getCurrentPricesForResource($resource->id);
+            Logger::info('GenerateCSV: Getting price history for resource ID: ' . $resource->id);
+            try {
+                $priceHistory[$resource->id] = $this->priceHistoryRepository->getCurrentPricesForResource($resource->id);
+                Logger::info('GenerateCSV: Price history loaded for resource ID: ' . $resource->id);
+            } catch (Exception $e) {
+                Logger::error('GenerateCSV: Failed to get price history for resource ID: ' . $resource->id . ' - ' . $e->getMessage());
+                throw $e;
+            }
         }
+        Logger::info('GenerateCSV: All price histories loaded');
         return $priceHistory;
     }
     

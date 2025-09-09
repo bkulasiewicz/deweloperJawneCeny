@@ -99,21 +99,21 @@ class WpCronFallbackUseCase {
         // Generate files using existing UseCase with WpCronFallback trigger
         $result = $this->generateFilesUseCase->execute(TriggerType::WpCronFallback);
         
-        if ($result['success']) {
+        if ($result->isSuccess) {
             Logger::success('WP Cron Fallback: Fallback generation completed successfully');
             return [
                 'success' => true,
                 'message' => "Fallback generation successful (reason: {$reason})",
                 'action_taken' => 'fallback_generated',
-                'generation_result' => $result
+                'generation_result' => ['success' => $result->isSuccess, 'message' => $result->message]
             ];
         } else {
-            Logger::error('WP Cron Fallback: Fallback generation failed - ' . ($result['error'] ?? 'unknown error'));
+            Logger::error('WP Cron Fallback: Fallback generation failed - ' . $result->message);
             return [
                 'success' => false,
-                'message' => "Fallback generation failed: " . ($result['error'] ?? 'unknown error'),
+                'message' => "Fallback generation failed: " . $result->message,
                 'action_taken' => 'fallback_failed',
-                'generation_result' => $result
+                'generation_result' => ['success' => $result->isSuccess, 'message' => $result->message]
             ];
         }
     }

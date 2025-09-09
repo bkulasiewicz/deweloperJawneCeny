@@ -37,10 +37,10 @@ class DashboardPage {
             
             $result = $this->generateFilesUseCase->execute(TriggerType::Manual);
             
-            if ($result['success']) {
-                wp_send_json_success($result['message']);
+            if ($result->isSuccess) {
+                wp_send_json_success($result->message);
             } else {
-                wp_send_json_error($result['message']);
+                wp_send_json_error($result->message);
             }
         } catch (Exception $e) {
             wp_send_json_error('Błąd generowania: ' . $e->getMessage());
