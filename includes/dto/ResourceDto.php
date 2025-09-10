@@ -7,9 +7,10 @@ if (!defined('ABSPATH')) {
 class ResourceDto extends ModelDto {
     
     public const FIELD_ID = 'id';
-    public const FIELD_RODZAJ_NIERUCHOMOSCI = 'rodzaj_nieruchomosci';
-    public const FIELD_NR_LOKALU = 'nr_lokalu';
-    public const FIELD_POWIERZCHNIA_UZYTKOWA = 'powierzchnia_uzytkowa';
+    public const FIELD_INVESTMENT_ID = 'investment_id';
+    public const FIELD_RODZAJ_NIERUCHOMOSCI = 'property_type';
+    public const FIELD_NR_LOKALU = 'unit_number';
+    public const FIELD_POWIERZCHNIA_UZYTKOWA = 'usable_area';
     public const FIELD_STATUS = 'status';
     
     public const FIELD_PROPERTY_PART_TITLE = 'property_part_title';
@@ -32,6 +33,7 @@ class ResourceDto extends ModelDto {
     public const FIELD_OTHER_SERVICE_PRICE_DATE = 'other_service_price_date';
     
     public int $id;
+    public int $investment_id;
     public PropertyType $rodzaj_nieruchomosci;
     public string $nr_lokalu;
     public float $powierzchnia_uzytkowa;
@@ -58,6 +60,7 @@ class ResourceDto extends ModelDto {
     
     public function __construct(
         int $id,
+        int $investment_id,
         PropertyType $rodzaj_nieruchomosci,
         string $nr_lokalu,
         float $powierzchnia_uzytkowa,
@@ -78,6 +81,7 @@ class ResourceDto extends ModelDto {
         ?string $other_service_price_date = null
     ) {
         $this->id = $id;
+        $this->investment_id = $investment_id;
         $this->rodzaj_nieruchomosci = $rodzaj_nieruchomosci;
         $this->nr_lokalu = $nr_lokalu;
         $this->powierzchnia_uzytkowa = $powierzchnia_uzytkowa;
@@ -101,6 +105,7 @@ class ResourceDto extends ModelDto {
     public static function databaseToModel(array $data): static {
         return new static(
             (int)$data[self::FIELD_ID],
+            (int)($data[self::FIELD_INVESTMENT_ID] ?? 1),
             PropertyType::from($data[self::FIELD_RODZAJ_NIERUCHOMOSCI] ?? ''),
             $data[self::FIELD_NR_LOKALU] ?? '',
             (float)($data[self::FIELD_POWIERZCHNIA_UZYTKOWA] ?? 0),
@@ -124,6 +129,7 @@ class ResourceDto extends ModelDto {
     
     public function modelToDatabase(): array {
         return [
+            self::FIELD_INVESTMENT_ID => $this->investment_id,
             self::FIELD_RODZAJ_NIERUCHOMOSCI => $this->rodzaj_nieruchomosci->value,
             self::FIELD_NR_LOKALU => $this->nr_lokalu,
             self::FIELD_POWIERZCHNIA_UZYTKOWA => $this->powierzchnia_uzytkowa,

@@ -58,8 +58,9 @@ class DaneGovXmlDataset {
      * Generuje STAŁY identyfikator dla dewelopera (36 znaków)
      */
     private function generateStableExtIdent(string $nip): string {
-        $base = "deweloper_{$nip}_ceny_mieszkan";
-        return str_pad($base, 36, '_', STR_PAD_RIGHT);
+        $base = "dev{$nip}";
+        $padding = str_repeat('2024', ceil((36 - strlen($base)) / 4));
+        return substr($base . $padding, 0, 36);
     }
     
     /**
@@ -167,8 +168,9 @@ class DaneGovResourceTitle {
     public string $english;
     
     public function __construct(string $developerName, string $date) {
-        $this->polish = "Ceny ofertowe mieszkań dewelopera {$developerName} {$date}";
-        $this->english = "Offer prices for developer's apartments {$developerName} {$date}";
+        $formattedDate = DateHelper::formatDateOnly($date);
+        $this->polish = "Ceny ofertowe mieszkań dewelopera {$developerName} {$formattedDate}";
+        $this->english = "Offer prices for developer's apartments {$developerName} {$formattedDate}";
     }
 }
 
@@ -185,8 +187,9 @@ class DaneGovResourceDescription {
     private const LEGAL_TEXT_EN = "in accordance with art. 19b. ust. 1 Ustawy z dnia 20 maja 2021 r. o ochronie praw nabywcy lokalu mieszkalnego lub domu jednorodzinnego oraz Deweloperskim Funduszu Gwarancyjnym (Dz. U. z 2024 r. poz. 695).";
     
     public function __construct(string $developerName, string $date) {
-        $this->polish = "Dane dotyczące cen ofertowych mieszkań dewelopera {$developerName} udostępnione {$date} " . self::LEGAL_TEXT_PL;
+        $formattedDate = DateHelper::formatDateOnly($date);
+        $this->polish = "Dane dotyczące cen ofertowych mieszkań dewelopera {$developerName} udostępnione {$formattedDate} " . self::LEGAL_TEXT_PL;
         
-        $this->english = "Data on offer prices of apartments of the developer {$developerName} made available {$date} " . self::LEGAL_TEXT_EN;
+        $this->english = "Data on offer prices of apartments of the developer {$developerName} made available {$formattedDate} " . self::LEGAL_TEXT_EN;
     }
 }

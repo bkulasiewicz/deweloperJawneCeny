@@ -8,20 +8,22 @@ class InvestmentDto extends ModelDto {
     
     // Field names constants
     public const FIELD_ID = 'id';
+    public const FIELD_DEVELOPER_ID = 'developer_id';
     public const FIELD_NAME = 'name';
-    public const FIELD_PROJ_WOJEWODZTWO = 'proj_wojewodztwo';
-    public const FIELD_PROJ_POWIAT = 'proj_powiat';
-    public const FIELD_PROJ_GMINA = 'proj_gmina';
-    public const FIELD_PROJ_MIEJSCOWOSC = 'proj_miejscowosc';
-    public const FIELD_PROJ_ULICA = 'proj_ulica';
-    public const FIELD_PROJ_NR = 'proj_nr';
-    public const FIELD_PROJ_KOD = 'proj_kod';
+    public const FIELD_PROJ_WOJEWODZTWO = 'project_province';
+    public const FIELD_PROJ_POWIAT = 'project_county';
+    public const FIELD_PROJ_GMINA = 'project_municipality';
+    public const FIELD_PROJ_MIEJSCOWOSC = 'project_city';
+    public const FIELD_PROJ_ULICA = 'project_street';
+    public const FIELD_PROJ_NR = 'project_number';
+    public const FIELD_PROJ_KOD = 'project_postal_code';
     public const FIELD_HAS_PROPERTY_PARTS = 'has_property_parts';
     public const FIELD_HAS_BELONGING_ROOMS = 'has_belonging_rooms';
     public const FIELD_HAS_USAGE_RIGHTS = 'has_usage_rights';
     public const FIELD_HAS_OTHER_SERVICES = 'has_other_services';
     
     public int $id;
+    public int $developer_id;
     public string $name;
     public string $proj_wojewodztwo;
     public string $proj_powiat;
@@ -37,6 +39,7 @@ class InvestmentDto extends ModelDto {
     
     public function __construct(
         int $id, 
+        int $developer_id, 
         string $name, 
         string $proj_wojewodztwo, 
         string $proj_powiat, 
@@ -51,6 +54,7 @@ class InvestmentDto extends ModelDto {
         bool $has_other_services, 
     ) {
         $this->id = $id;
+        $this->developer_id = $developer_id;
         $this->name = $name;
         $this->proj_wojewodztwo = $proj_wojewodztwo;
         $this->proj_powiat = $proj_powiat;
@@ -75,6 +79,7 @@ class InvestmentDto extends ModelDto {
     public static function databaseToModel(array $data): static {
         return new static(
             (int)$data[self::FIELD_ID],
+            (int)($data[self::FIELD_DEVELOPER_ID] ?? 1),
             $data[self::FIELD_NAME],
             $data[self::FIELD_PROJ_WOJEWODZTWO],
             $data[self::FIELD_PROJ_POWIAT],
@@ -92,6 +97,7 @@ class InvestmentDto extends ModelDto {
     
     public function modelToDatabase(): array {
         return [
+            self::FIELD_DEVELOPER_ID => $this->developer_id,
             self::FIELD_NAME => $this->name,
             self::FIELD_PROJ_WOJEWODZTWO => $this->proj_wojewodztwo,
             self::FIELD_PROJ_POWIAT => $this->proj_powiat,

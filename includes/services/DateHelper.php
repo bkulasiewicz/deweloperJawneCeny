@@ -27,6 +27,16 @@ class DateHelper {
     }
     
     /**
+     * Format UTC date from database for user display - date only (DD.MM.YYYY)
+     * Converts from UTC to WordPress local timezone
+     */
+    public static function formatDateOnly($date): string {
+        if (empty($date)) return '';
+        // Convert UTC from database to WordPress local time
+        return wp_date('d.m.Y', strtotime($date . ' UTC'));
+    }
+    
+    /**
      * Format DateTime object for user display (DD.MM.YYYY HH:MM)
      * Converts from UTC to WordPress local timezone
      */

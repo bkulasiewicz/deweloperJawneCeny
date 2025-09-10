@@ -69,6 +69,7 @@ class UpdateResourceUseCase {
         
         return new ResourceDto(
             id: 0, // ID will be set by repository->update()
+            investment_id: 1, // Default investment_id for compatibility
             rodzaj_nieruchomosci: $formData->rodzaj_nieruchomosci,
             nr_lokalu: $formData->nr_lokalu,
             powierzchnia_uzytkowa: $formData->powierzchnia_uzytkowa,

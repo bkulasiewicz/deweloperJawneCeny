@@ -98,16 +98,18 @@ document.addEventListener('DOMContentLoaded', function() {
             historyHtml += '<span class="price-current">' + formatPrice(entry.cena_m2) + ' zł</span>';
             historyHtml += '</div>';
             
-            // Total price
+            // Unit price (cena lokalu)
             historyHtml += '<div class="history-change">';
-            historyHtml += '<span class="history-change-type">Cena całkowita:</span>';
+            historyHtml += '<span class="history-change-type">Cena lokalu:</span>';
             historyHtml += '<span class="price-current">' + formatPrice(entry.cena_calkowita) + ' zł</span>';
+            historyHtml += '<div class="history-date-small">Data zmiany: ' + formatDate(entry.data_zmiany) + '</div>';
             historyHtml += '</div>';
             
-            // Price with extras
+            // Full price (cena pełna)
             historyHtml += '<div class="history-change">';
-            historyHtml += '<span class="history-change-type">Cena z dodatkami:</span>';
+            historyHtml += '<span class="history-change-type">Cena pełna:</span>';
             historyHtml += '<span class="price-current">' + formatPrice(entry.cena_z_dodatkami) + ' zł</span>';
+            historyHtml += '<div class="history-date-small">Data zmiany: ' + formatDate(entry.data_cena_z_dodatkami) + '</div>';
             historyHtml += '</div>';
             
             historyHtml += '</div>';

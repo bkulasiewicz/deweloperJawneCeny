@@ -8,11 +8,11 @@ class PriceHistoryDto extends ModelDto {
     
     public const FIELD_ID = 'id';
     public const FIELD_RESOURCE_ID = 'resource_id';
-    public const FIELD_CENA_M2 = 'cena_m2';
-    public const FIELD_CENA_CALKOWITA = 'cena_calkowita';
-    public const FIELD_CENA_Z_DODATKAMI = 'cena_z_dodatkami';
-    public const FIELD_DATA_ZMIANY = 'data_zmiany';
-    public const FIELD_DATA_CENA_Z_DODATKAMI = 'data_cena_z_dodatkami';
+    public const FIELD_CENA_M2 = 'price_per_m2';
+    public const FIELD_CENA_CALKOWITA = 'total_price';
+    public const FIELD_CENA_Z_DODATKAMI = 'price_with_extras';
+    public const FIELD_DATA_ZMIANY = 'change_date';
+    public const FIELD_DATA_CENA_Z_DODATKAMI = 'price_with_extras_date';
     
     public readonly int $id;
     public readonly int $resource_id;

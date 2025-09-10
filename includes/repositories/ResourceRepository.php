@@ -15,7 +15,7 @@ class ResourceRepository {
         
         Logger::info("ResourceRepository::readAll - Table: $table");
         
-        $results = $wpdb->get_results($wpdb->prepare("SELECT r.* FROM `{$table}` r ORDER BY r.id ASC"), ARRAY_A);
+        $results = $wpdb->get_results($wpdb->prepare("SELECT r.* FROM `{$table}` r ORDER BY r." . ResourceDto::FIELD_ID . " ASC"), ARRAY_A);
         
         Logger::info("ResourceRepository::readAll - SQL Results count: " . count($results));
         if ($wpdb->last_error) {
@@ -40,7 +40,7 @@ class ResourceRepository {
         global $wpdb;
         
         $data = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM `{$table}` WHERE id = %d", 
+            "SELECT * FROM `{$table}` WHERE " . ResourceDto::FIELD_ID . " = %d", 
             $id
         ), ARRAY_A);
         
@@ -134,6 +134,7 @@ class ResourceRepository {
         
         $sql = "CREATE TABLE IF NOT EXISTS `{$table}` (
             " . ResourceDto::FIELD_ID . " int(11) NOT NULL AUTO_INCREMENT,
+            " . ResourceDto::FIELD_INVESTMENT_ID . " int(11) NOT NULL DEFAULT 1,
             " . ResourceDto::FIELD_RODZAJ_NIERUCHOMOSCI . " enum({$propertyEnum}) NOT NULL,
             " . ResourceDto::FIELD_NR_LOKALU . " varchar(50) NOT NULL,
             " . ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA . " decimal(8,2) NOT NULL,
@@ -158,7 +159,8 @@ class ResourceRepository {
             " . ResourceDto::FIELD_OTHER_SERVICE_PRICE_DATE . " datetime DEFAULT NULL,
             
             PRIMARY KEY (" . ResourceDto::FIELD_ID . "),
-            KEY " . ResourceDto::FIELD_STATUS . " (" . ResourceDto::FIELD_STATUS . ")
+            KEY " . ResourceDto::FIELD_STATUS . " (" . ResourceDto::FIELD_STATUS . "),
+            FOREIGN KEY (" . ResourceDto::FIELD_INVESTMENT_ID . ") REFERENCES " . TableNames::getInvestmentInfo() . "(id) ON DELETE CASCADE
         ) " . $charset_collate;
         
         return $wpdb->query($wpdb->prepare($sql)) !== false;

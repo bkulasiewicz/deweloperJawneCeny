@@ -46,7 +46,7 @@ class PublicationHistoryRepository {
         
         $results = $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM `{$this->table_name}` 
-             ORDER BY timestamp DESC 
+             ORDER BY " . PublicationHistoryDto::FIELD_TIMESTAMP . " DESC 
              LIMIT %d",
             $limit
         ), ARRAY_A);
@@ -86,7 +86,7 @@ class PublicationHistoryRepository {
         global $wpdb;
         
         $result = $wpdb->get_row($wpdb->prepare("SELECT * FROM `{$this->table_name}` 
-                  ORDER BY timestamp DESC 
+                  ORDER BY " . PublicationHistoryDto::FIELD_TIMESTAMP . " DESC 
                   LIMIT %d", 1), ARRAY_A);
         
         return $result ? PublicationHistoryDto::databaseToModel($result) : null;
@@ -103,7 +103,7 @@ class PublicationHistoryRepository {
         
         if ($status) {
             return (int) $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM `{$this->table_name}` WHERE status = %s",
+                "SELECT COUNT(*) FROM `{$this->table_name}` WHERE " . PublicationHistoryDto::FIELD_STATUS . " = %s",
                 $status
             ));
         } else {

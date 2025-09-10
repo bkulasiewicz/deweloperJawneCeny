@@ -168,7 +168,7 @@ class SupplierDataPage extends UJC_Admin_Page {
                 !empty($_POST['telefon']) ? sanitize_text_field($_POST['telefon']) : null,
                 sanitize_email($_POST['email'] ?? ''),
                 !empty($_POST['fax']) ? sanitize_text_field($_POST['fax']) : null,
-                esc_url_raw($_POST['strona_www'] ?? ''),
+                sanitize_text_field($_POST['strona_www'] ?? ''),
                 sanitize_text_field($_POST['siedz_wojewodztwo'] ?? ''),
                 !empty($_POST['siedz_powiat']) ? sanitize_text_field($_POST['siedz_powiat']) : null,
                 !empty($_POST['siedz_gmina']) ? sanitize_text_field($_POST['siedz_gmina']) : null,
@@ -256,7 +256,7 @@ class SupplierDataPage extends UJC_Admin_Page {
                             </div>
                             <div class="ujc-readonly-item">
                                 <strong>Strona WWW</strong>
-                                <span><a href="<?php echo esc_url($developer->strona_www ?? ''); ?>" target="_blank"><?php echo esc_html($developer->strona_www ?? ''); ?></a></span>
+                                <span><a href="<?php echo esc_attr($developer->strona_www ?? ''); ?>" target="_blank"><?php echo esc_html($developer->strona_www ?? ''); ?></a></span>
                             </div>
                             <?php if (!empty($developer->fax)): ?>
                             <div class="ujc-readonly-item">
@@ -388,7 +388,7 @@ class SupplierDataPage extends UJC_Admin_Page {
                         <div class="ujc-form-grid">
                             <div class="ujc-form-field">
                                 <label for="strona_www">Strona WWW <span class="required">*</span></label>
-                                <input type="url" id="strona_www" name="strona_www" value="<?php echo esc_attr($developer->strona_www ?? ''); ?>" required>
+                                <input type="text" id="strona_www" name="strona_www" value="<?php echo esc_attr($developer->strona_www ?? ''); ?>" required placeholder="www.example.com">
                             </div>
                             <div class="ujc-form-field">
                                 <label for="fax">Fax</label>

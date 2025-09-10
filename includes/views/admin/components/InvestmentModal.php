@@ -371,6 +371,7 @@ class InvestmentModal extends UJC_Admin_Page {
             if ($existingInvestment) {
                 $investmentDto = new InvestmentDto(
                     $existingInvestment->id,
+                    $existingInvestment->developer_id, // Preserve existing developer_id
                     $data['name'],
                     $data['proj_wojewodztwo'],
                     $data['proj_powiat'], 
@@ -389,6 +390,7 @@ class InvestmentModal extends UJC_Admin_Page {
             } else {
                 $investmentDto = new InvestmentDto(
                     0,
+                    1, // Default developer_id for compatibility
                     $data['name'],
                     $data['proj_wojewodztwo'],
                     $data['proj_powiat'], 

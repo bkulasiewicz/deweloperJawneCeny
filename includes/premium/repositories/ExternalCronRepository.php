@@ -177,7 +177,7 @@ class ExternalCronRepository {
             '1hour' => ['hours' => [-1], 'minutes' => [0], 'interval_text' => 'Co godzinę'],
             '6hour' => ['hours' => [0, 6, 12, 18], 'minutes' => [0], 'interval_text' => 'Co 6 godzin'],
             '12hour' => ['hours' => [0, 12], 'minutes' => [0], 'interval_text' => 'Co 12 godzin'],
-            '24hour' => ['hours' => [22], 'minutes' => [0], 'interval_text' => 'Codziennie o 22:00 UTC']
+            '24hour' => ['hours' => [21], 'minutes' => [0], 'interval_text' => 'Codziennie o 21:00 UTC']
         ];
     }
 }

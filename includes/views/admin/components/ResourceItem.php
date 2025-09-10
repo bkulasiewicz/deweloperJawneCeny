@@ -19,9 +19,9 @@ class ResourceItem {
         $cena_m2 = ($resource->cena_m2 !== null && $resource->cena_m2 > 0) ? number_format($resource->cena_m2, 2, ',', ' ') . ' zł' : '—';
         $powierzchnia = number_format($resource->powierzchnia_uzytkowa, 2, ',', ' ') . ' m²';
         
-        // Formatowanie dat
-        $data_zmiany = DateHelper::formatForUser($resource->data_zmiany);
-        $data_cena_z_dodatkami = DateHelper::formatForUser($resource->data_cena_z_dodatkami);
+        // Daty już sformatowane w GetAllResourcesUseCase
+        $data_zmiany = $resource->data_zmiany;
+        $data_cena_z_dodatkami = $resource->data_cena_z_dodatkami;
         
         // Status badge - semantic CSS classes
         $status_class = match($resource->status) {
@@ -47,11 +47,11 @@ class ResourceItem {
                         <span class=\"ujc-price-value\">{$cena_m2}/m²</span>
                     </div>
                     <div class=\"ujc-price-secondary\">
-                        <span class=\"ujc-price-label\">Całkowita:</span>
+                        <span class=\"ujc-price-label\">Cena lokalu:</span>
                         <span class=\"ujc-price-value\">{$cena_calkowita}</span>
                     </div>
                     <div class=\"ujc-price-secondary\">
-                        <span class=\"ujc-price-label\">Z dodatkami:</span>
+                        <span class=\"ujc-price-label\">Cena pełna:</span>
                         <span class=\"ujc-price-value\">{$cena_z_dodatkami}</span>
                     </div>
                 </div>

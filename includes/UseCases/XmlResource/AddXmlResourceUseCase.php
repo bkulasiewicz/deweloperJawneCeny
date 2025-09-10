@@ -88,10 +88,10 @@ class AddXmlResourceUseCase {
         $timestamp = gmdate('His'); // HHMMSS for uniqueness
         $random = sprintf('%03d', mt_rand(0, 999)); // 3-digit random
         
-        $base = "dew_{$nip}_{$formatted_date}_{$timestamp}_{$random}";
+        $base = "dew{$nip}{$formatted_date}{$timestamp}{$random}";
         
         // Ensure exactly 36 characters
-        $ext_ident = substr(str_pad($base, 36, '_', STR_PAD_RIGHT), 0, 36);
+        $ext_ident = substr(str_pad($base, 36, '0', STR_PAD_RIGHT), 0, 36);
         
         Logger::info('AddXmlResource: Generated base: ' . $base);
         Logger::info('AddXmlResource: Final ext_ident: ' . $ext_ident . ' (length: ' . strlen($ext_ident) . ')');

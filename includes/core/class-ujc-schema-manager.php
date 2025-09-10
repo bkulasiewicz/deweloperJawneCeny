@@ -34,9 +34,6 @@ class UJC_Schema_Manager {
         
         // 7. XML RESOURCES
         (new XmlResourceRepository())->create();
-        
-        // 8. KLUCZE OBCE
-        self::create_foreign_keys($wpdb);
     }
     
     /**
@@ -59,34 +56,6 @@ class UJC_Schema_Manager {
         }
     }
     
-    private static function create_foreign_keys($wpdb) {
-        $resources_table = TableNames::getResources();
-        $price_history_table = TableNames::getPriceHistory();
-        
-        // FK dla price history
-        if (!self::foreign_key_exists($wpdb, $price_history_table, 'resource_id')) {
-            $wpdb->query("
-                ALTER TABLE $price_history_table 
-                ADD CONSTRAINT fk_history_ujc_resources 
-                FOREIGN KEY (resource_id) 
-                REFERENCES $resources_table(id) 
-                ON DELETE CASCADE
-            ");
-        }
-    }
-    
-    private static function foreign_key_exists($wpdb, $table, $column) {
-        $constraints = $wpdb->get_results("
-            SELECT CONSTRAINT_NAME 
-            FROM information_schema.KEY_COLUMN_USAGE 
-            WHERE TABLE_SCHEMA = DATABASE() 
-            AND TABLE_NAME = '$table' 
-            AND COLUMN_NAME = '$column'
-            AND REFERENCED_TABLE_NAME IS NOT NULL
-        ");
-        
-        return !empty($constraints);
-    }
     
     /**
      * Check if table exists

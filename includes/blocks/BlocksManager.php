@@ -69,8 +69,8 @@ class BlocksManager {
             wp_die('Nieprawidłowe ID zasobu');
         }
         
-        $priceHistoryRepo = new PriceHistoryRepository();
-        $history = $priceHistoryRepo->readByResourceId($resource_id);
+        $getPriceHistoryUseCase = new GetPriceHistoryUseCase();
+        $history = $getPriceHistoryUseCase->execute($resource_id);
         
         wp_send_json_success([
             'history' => $history,

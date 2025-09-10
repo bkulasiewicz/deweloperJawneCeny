@@ -7,37 +7,37 @@ if (!defined('ABSPATH')) {
 class SupplierDto extends ModelDto {
     
     public const FIELD_ID = 'id';
-    public const FIELD_NAZWA = 'nazwa';
-    public const FIELD_FORMA_PRAWNA = 'forma_prawna';
-    public const FIELD_NR_KRS = 'nr_krs';
-    public const FIELD_NR_CEIDG = 'nr_ceidg';
-    public const FIELD_NR_NIP = 'nr_nip';
-    public const FIELD_NR_REGON = 'nr_regon';
-    public const FIELD_TELEFON = 'telefon';
+    public const FIELD_NAZWA = 'name';
+    public const FIELD_FORMA_PRAWNA = 'legal_form';
+    public const FIELD_NR_KRS = 'krs_number';
+    public const FIELD_NR_CEIDG = 'ceidg_number';
+    public const FIELD_NR_NIP = 'tax_number';
+    public const FIELD_NR_REGON = 'regon_number';
+    public const FIELD_TELEFON = 'phone';
     public const FIELD_EMAIL = 'email';
     public const FIELD_FAX = 'fax';
-    public const FIELD_STRONA_WWW = 'strona_www';
+    public const FIELD_STRONA_WWW = 'website';
     
-    public const FIELD_SIEDZ_WOJEWODZTWO = 'siedz_wojewodztwo';
-    public const FIELD_SIEDZ_POWIAT = 'siedz_powiat';
-    public const FIELD_SIEDZ_GMINA = 'siedz_gmina';
-    public const FIELD_SIEDZ_MIEJSCOWOSC = 'siedz_miejscowosc';
-    public const FIELD_SIEDZ_ULICA = 'siedz_ulica';
-    public const FIELD_SIEDZ_NR = 'siedz_nr';
-    public const FIELD_SIEDZ_LOKAL = 'siedz_lokal';
-    public const FIELD_SIEDZ_KOD = 'siedz_kod';
+    public const FIELD_SIEDZ_WOJEWODZTWO = 'office_province';
+    public const FIELD_SIEDZ_POWIAT = 'office_county';
+    public const FIELD_SIEDZ_GMINA = 'office_municipality';
+    public const FIELD_SIEDZ_MIEJSCOWOSC = 'office_city';
+    public const FIELD_SIEDZ_ULICA = 'office_street';
+    public const FIELD_SIEDZ_NR = 'office_number';
+    public const FIELD_SIEDZ_LOKAL = 'office_unit';
+    public const FIELD_SIEDZ_KOD = 'office_postal_code';
     
-    public const FIELD_SPRZED_WOJEWODZTWO = 'sprzed_wojewodztwo';
-    public const FIELD_SPRZED_POWIAT = 'sprzed_powiat';
-    public const FIELD_SPRZED_GMINA = 'sprzed_gmina';
-    public const FIELD_SPRZED_MIEJSCOWOSC = 'sprzed_miejscowosc';
-    public const FIELD_SPRZED_ULICA = 'sprzed_ulica';
-    public const FIELD_SPRZED_NR = 'sprzed_nr';
-    public const FIELD_SPRZED_LOKAL = 'sprzed_lokal';
-    public const FIELD_SPRZED_KOD = 'sprzed_kod';
+    public const FIELD_SPRZED_WOJEWODZTWO = 'sales_province';
+    public const FIELD_SPRZED_POWIAT = 'sales_county';
+    public const FIELD_SPRZED_GMINA = 'sales_municipality';
+    public const FIELD_SPRZED_MIEJSCOWOSC = 'sales_city';
+    public const FIELD_SPRZED_ULICA = 'sales_street';
+    public const FIELD_SPRZED_NR = 'sales_number';
+    public const FIELD_SPRZED_LOKAL = 'sales_unit';
+    public const FIELD_SPRZED_KOD = 'sales_postal_code';
     
-    public const FIELD_DODATKOWE_LOKALIZACJE = 'dodatkowe_lokalizacje';
-    public const FIELD_SPOSOB_KONTAKTU = 'sposob_kontaktu';
+    public const FIELD_DODATKOWE_LOKALIZACJE = 'additional_locations';
+    public const FIELD_SPOSOB_KONTAKTU = 'contact_method';
     
     public readonly int $id;
     public readonly string $nazwa;

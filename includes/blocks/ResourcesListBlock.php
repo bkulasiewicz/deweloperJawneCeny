@@ -24,7 +24,8 @@ class ResourcesListBlock {
                         <th>Typ</th>
                         <th>Powierzchnia</th>
                         <th>Cena za m²</th>
-                        <th>Cena całkowita</th>
+                        <th>Cena lokalu</th>
+                        <th>Cena pełna</th>
                         <th>Status</th>
                         <th>Historia cen</th>
                     </tr>
@@ -32,30 +33,37 @@ class ResourcesListBlock {
                 <tbody>
                     <?php foreach ($resources as $resource): ?>
                     <tr>
-                        <td><?php echo esc_html($resource['nr_lokalu']); ?></td>
-                        <td><?php echo esc_html($resource['rodzaj_nieruchomosci']); ?></td>
-                        <td><?php echo esc_html(number_format($resource['powierzchnia_uzytkowa'], 2, ',', ' ')); ?> m²</td>
+                        <td><?php echo esc_html($resource->nr_lokalu); ?></td>
+                        <td><?php echo esc_html($resource->rodzaj_nieruchomosci); ?></td>
+                        <td><?php echo esc_html(number_format($resource->powierzchnia_uzytkowa, 2, ',', ' ')); ?> m²</td>
                         <td>
-                            <?php if ($resource['cena_m2'] !== null && $resource['cena_m2'] > 0): ?>
-                                <?php echo esc_html(number_format($resource['cena_m2'], 2, ',', ' ')); ?> zł
+                            <?php if ($resource->cena_m2 !== null && $resource->cena_m2 > 0): ?>
+                                <?php echo esc_html(number_format($resource->cena_m2, 2, ',', ' ')); ?> zł
                             <?php else: ?>
                                 —
                             <?php endif; ?>
                         </td>
                         <td>
-                            <?php if ($resource['cena_calkowita']): ?>
-                                <?php echo esc_html(number_format($resource['cena_calkowita'], 2, ',', ' ')); ?> zł
+                            <?php if ($resource->cena_calkowita): ?>
+                                <?php echo esc_html(number_format($resource->cena_calkowita, 2, ',', ' ')); ?> zł
                             <?php else: ?>
                                 -
                             <?php endif; ?>
                         </td>
                         <td>
-                            <span class="status-<?php echo esc_attr($resource['status']); ?>">
-                                <?php echo esc_html(ucfirst($resource['status'])); ?>
+                            <?php if ($resource->cena_z_dodatkami): ?>
+                                <?php echo esc_html(number_format($resource->cena_z_dodatkami, 2, ',', ' ')); ?> zł
+                            <?php else: ?>
+                                -
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <span class="status-<?php echo esc_attr($resource->status); ?>">
+                                <?php echo esc_html(ucfirst($resource->status)); ?>
                             </span>
                         </td>
                         <td>
-                            <button class="price-history-btn" data-resource-id="<?php echo esc_attr($resource['id']); ?>" data-resource-name="<?php echo esc_attr($resource['nr_lokalu']); ?>">
+                            <button class="price-history-btn" data-resource-id="<?php echo esc_attr($resource->id); ?>" data-resource-name="<?php echo esc_attr($resource->nr_lokalu); ?>">
                                 Historia cen
                             </button>
                         </td>

@@ -246,7 +246,7 @@ class ResourceModal extends UJC_Admin_Page {
                                 <tr>
                                     <th><label for="modal-cena_z_dodatkami">Cena uwzględniająca inne składowe</label></th>
                                     <td>
-                                        <input type="number" id="modal-cena_z_dodatkami" name="cena_z_dodatkami" step="0.01" min="0" class="regular-text"> zł
+                                        <input type="number" id="modal-cena_z_dodatkami" name="cena_z_dodatkami" step="0.01" min="0" class="regular-text" readonly> zł
                                         <p class="description">Cena końcowa uwzględniająca wszystkie składowe zgodnie z art. 19a ust. 1 (opcjonalne)</p>
                                     </td>
                                 </tr>
@@ -704,8 +704,8 @@ class ResourceModal extends UJC_Admin_Page {
                     totalExtra += parseFloat($('#other-services-price').val()) || 0;
                 }
                 
-                // Always calculate final price if we have base price and any extras
-                if (cenaCalkowita > 0 && totalExtra > 0) {
+                // Always calculate final price if we have base price
+                if (cenaCalkowita > 0) {
                     const cenaFinalna = cenaCalkowita + totalExtra;
                     $('#modal-cena_z_dodatkami').val(cenaFinalna.toFixed(2));
                 } else {
@@ -932,38 +932,42 @@ class ResourceModal extends UJC_Admin_Page {
         try {
             $data = $this->sanitize_resource_data();
             
-            // Create component models first
+            // Create component models first - based on price > 0
             $propertyPart = null;
-            if (!empty($data['property_part_title']) && isset($data['property_part_price'])) {
+            $propertyPartPrice = isset($data['property_part_price']) ? (float)$data['property_part_price'] : 0;
+            if ($propertyPartPrice > 0) {
                 $propertyPart = new PropertyPartFormData(
                     title: $data['property_part_title'],
                     designation: $data['property_part_designation'] ?? '',
-                    price: (float)$data['property_part_price']
+                    price: $propertyPartPrice
                 );
             }
             
             $belongingRoom = null;
-            if (!empty($data['belonging_room_title']) && isset($data['belonging_room_price'])) {
+            $belongingRoomPrice = isset($data['belonging_room_price']) ? (float)$data['belonging_room_price'] : 0;
+            if ($belongingRoomPrice > 0) {
                 $belongingRoom = new BelongingRoomFormData(
                     title: $data['belonging_room_title'],
                     designation: $data['belonging_room_designation'] ?? '',
-                    price: (float)$data['belonging_room_price']
+                    price: $belongingRoomPrice
                 );
             }
             
             $usageRight = null;
-            if (!empty($data['usage_right_title']) && isset($data['usage_right_price'])) {
+            $usageRightPrice = isset($data['usage_right_price']) ? (float)$data['usage_right_price'] : 0;
+            if ($usageRightPrice > 0) {
                 $usageRight = new UsageRightFormData(
                     title: $data['usage_right_title'],
-                    price: (float)$data['usage_right_price']
+                    price: $usageRightPrice
                 );
             }
             
             $otherService = null;
-            if (!empty($data['other_service_title']) && isset($data['other_service_price'])) {
+            $otherServicePrice = isset($data['other_service_price']) ? (float)$data['other_service_price'] : 0;
+            if ($otherServicePrice > 0) {
                 $otherService = new OtherServiceFormData(
                     title: $data['other_service_title'],
-                    price: (float)$data['other_service_price']
+                    price: $otherServicePrice
                 );
             }
             
@@ -1049,36 +1053,40 @@ class ResourceModal extends UJC_Admin_Page {
             
             // Create component models first
             $propertyPart = null;
-            if (!empty($data['property_part_title']) && isset($data['property_part_price'])) {
+            $propertyPartPrice = isset($data['property_part_price']) ? (float)$data['property_part_price'] : 0;
+            if ($propertyPartPrice > 0) {
                 $propertyPart = new PropertyPartFormData(
                     title: $data['property_part_title'],
                     designation: $data['property_part_designation'] ?? '',
-                    price: (float)$data['property_part_price']
+                    price: $propertyPartPrice
                 );
             }
             
             $belongingRoom = null;
-            if (!empty($data['belonging_room_title']) && isset($data['belonging_room_price'])) {
+            $belongingRoomPrice = isset($data['belonging_room_price']) ? (float)$data['belonging_room_price'] : 0;
+            if ($belongingRoomPrice > 0) {
                 $belongingRoom = new BelongingRoomFormData(
                     title: $data['belonging_room_title'],
                     designation: $data['belonging_room_designation'] ?? '',
-                    price: (float)$data['belonging_room_price']
+                    price: $belongingRoomPrice
                 );
             }
             
             $usageRight = null;
-            if (!empty($data['usage_right_title']) && isset($data['usage_right_price'])) {
+            $usageRightPrice = isset($data['usage_right_price']) ? (float)$data['usage_right_price'] : 0;
+            if ($usageRightPrice > 0) {
                 $usageRight = new UsageRightFormData(
                     title: $data['usage_right_title'],
-                    price: (float)$data['usage_right_price']
+                    price: $usageRightPrice
                 );
             }
             
             $otherService = null;
-            if (!empty($data['other_service_title']) && isset($data['other_service_price'])) {
+            $otherServicePrice = isset($data['other_service_price']) ? (float)$data['other_service_price'] : 0;
+            if ($otherServicePrice > 0) {
                 $otherService = new OtherServiceFormData(
                     title: $data['other_service_title'],
-                    price: (float)$data['other_service_price']
+                    price: $otherServicePrice
                 );
             }
             

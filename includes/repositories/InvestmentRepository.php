@@ -84,6 +84,7 @@ class InvestmentRepository {
         
         $sql = "CREATE TABLE `{$table}` (
             " . InvestmentDto::FIELD_ID . " int(11) NOT NULL AUTO_INCREMENT,
+            " . InvestmentDto::FIELD_DEVELOPER_ID . " int(11) NOT NULL DEFAULT 1,
             " . InvestmentDto::FIELD_NAME . " varchar(255) NOT NULL,
             " . InvestmentDto::FIELD_PROJ_WOJEWODZTWO . " varchar(50) NOT NULL,
             " . InvestmentDto::FIELD_PROJ_POWIAT . " varchar(50),
@@ -98,7 +99,8 @@ class InvestmentRepository {
             " . InvestmentDto::FIELD_HAS_USAGE_RIGHTS . " tinyint(1) DEFAULT 0,
             " . InvestmentDto::FIELD_HAS_OTHER_SERVICES . " tinyint(1) DEFAULT 0,
             
-            PRIMARY KEY (" . InvestmentDto::FIELD_ID . ")
+            PRIMARY KEY (" . InvestmentDto::FIELD_ID . "),
+            FOREIGN KEY (" . InvestmentDto::FIELD_DEVELOPER_ID . ") REFERENCES " . TableNames::getDeveloperInfo() . "(id) ON DELETE CASCADE
         ) " . $charset_collate;
         
         return $wpdb->query($wpdb->prepare($sql)) !== false;

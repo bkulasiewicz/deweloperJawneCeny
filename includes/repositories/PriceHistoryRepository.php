@@ -14,7 +14,7 @@ class PriceHistoryRepository {
         global $wpdb;
         
         $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM `{$table}` WHERE resource_id = %d ORDER BY data_zmiany DESC", 
+            "SELECT * FROM `{$table}` WHERE " . PriceHistoryDto::FIELD_RESOURCE_ID . " = %d ORDER BY " . PriceHistoryDto::FIELD_ID . " DESC", 
             $resource_id
         ), ARRAY_A);
         
@@ -44,7 +44,7 @@ class PriceHistoryRepository {
         global $wpdb;
         
         $result = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM `{$table}` WHERE resource_id = %d ORDER BY data_zmiany DESC LIMIT 1",
+            "SELECT * FROM `{$table}` WHERE " . PriceHistoryDto::FIELD_RESOURCE_ID . " = %d ORDER BY " . PriceHistoryDto::FIELD_ID . " DESC LIMIT 1",
             $resource_id
         ), ARRAY_A);
         
@@ -78,7 +78,8 @@ class PriceHistoryRepository {
             
             PRIMARY KEY (" . PriceHistoryDto::FIELD_ID . "),
             KEY " . PriceHistoryDto::FIELD_RESOURCE_ID . " (" . PriceHistoryDto::FIELD_RESOURCE_ID . "),
-            KEY " . PriceHistoryDto::FIELD_DATA_ZMIANY . " (" . PriceHistoryDto::FIELD_DATA_ZMIANY . ")
+            KEY " . PriceHistoryDto::FIELD_DATA_ZMIANY . " (" . PriceHistoryDto::FIELD_DATA_ZMIANY . "),
+            FOREIGN KEY (" . PriceHistoryDto::FIELD_RESOURCE_ID . ") REFERENCES " . TableNames::getResources() . "(id) ON DELETE CASCADE
         ) " . $charset_collate;
         
         return $wpdb->query($wpdb->prepare($sql)) !== false;

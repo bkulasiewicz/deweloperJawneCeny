@@ -36,10 +36,10 @@ class CsvFilesSection {
                         <div class="ujc-csv-file-item">
                             <div class="ujc-csv-file-info">
                                 <div class="ujc-csv-file-date">
-                                    <strong><?php echo esc_html($this->formatDate($file->data_date)); ?></strong>
+                                    <strong><?php echo esc_html(DateHelper::formatDateOnly($file->data_date)); ?></strong>
                                 </div>
                                 <div class="ujc-csv-file-time">
-                                    <small><?php echo esc_html($this->formatDateTime($file->created_at)); ?></small>
+                                    <small><?php echo esc_html(DateHelper::formatForUser($file->created_at)); ?></small>
                                 </div>
                             </div>
                             <div class="ujc-csv-file-actions">
@@ -144,27 +144,4 @@ class CsvFilesSection {
         }
     }
     
-    /**
-     * Format date for display
-     */
-    private function formatDate(string $date): string {
-        try {
-            $dateObj = new DateTime($date);
-            return $dateObj->format('d.m.Y');
-        } catch (Exception $e) {
-            return $date;
-        }
-    }
-    
-    /**
-     * Format datetime for display
-     */
-    private function formatDateTime(string $datetime): string {
-        try {
-            $dateObj = new DateTime($datetime);
-            return $dateObj->format('d.m.Y H:i');
-        } catch (Exception $e) {
-            return $datetime;
-        }
-    }
 }

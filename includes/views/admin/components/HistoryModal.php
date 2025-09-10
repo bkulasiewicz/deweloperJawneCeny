@@ -34,12 +34,13 @@ class HistoryModal {
             echo '<p>Brak historii zmian cen dla tego zasobu.</p>';
         } else {
             echo '<table class="wp-list-table widefat fixed striped">';
-            echo '<thead><tr><th>Data zmiany</th><th>Cena m²</th><th>Cena całkowita</th><th>Cena z dodatkami</th></tr></thead><tbody>';
+            echo '<thead><tr><th>Data zmiany ceny lokalu</th><th>Cena m²</th><th>Cena lokalu</th><th>Data zmiany ceny pełnej</th><th>Cena pełna</th></tr></thead><tbody>';
             foreach ($history as $record) {
                 echo '<tr>';
-                echo '<td>' . esc_html(DateHelper::formatForUser($record->data_zmiany)) . '</td>';
+                echo '<td>' . esc_html($record->data_zmiany) . '</td>';
                 echo '<td>' . ($record->cena_m2 !== null ? number_format($record->cena_m2, 2, ',', ' ') . ' zł' : '—') . '</td>';
                 echo '<td>' . number_format($record->cena_calkowita, 2, ',', ' ') . ' zł</td>';
+                echo '<td>' . esc_html($record->data_cena_z_dodatkami) . '</td>';
                 echo '<td>' . number_format($record->cena_z_dodatkami, 2, ',', ' ') . ' zł</td>';
                 echo '</tr>';
             }
