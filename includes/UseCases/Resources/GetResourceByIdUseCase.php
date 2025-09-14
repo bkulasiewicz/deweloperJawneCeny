@@ -36,7 +36,7 @@ class GetResourceByIdUseCase {
             $current_prices = null;
         }
         
-        // Return resource data with prices and component fields directly
+        // Return resource data with prices, component fields and marketing fields
         Logger::info("GetResourceByIdUseCase::execute - Successfully completed for resource ID: " . $resource_id);
         return [
             'id' => $resource->id,
@@ -60,7 +60,13 @@ class GetResourceByIdUseCase {
             'other_service_price' => $resource->other_service_price,
             'other_service_price_date' => $resource->other_service_price_date,
             'property_part_price_date' => $resource->property_part_price_date,
-            'belonging_room_price_date' => $resource->belonging_room_price_date
+            'belonging_room_price_date' => $resource->belonging_room_price_date,
+            // Marketing fields
+            'floor_number' => $resource->floor_number,
+            'room_count' => $resource->room_count,
+            'additional_description' => $resource->additional_description,
+            'garden_area' => $resource->garden_area,
+            'floor_plan_pdf' => $resource->floor_plan_pdf
         ];
     }
 }

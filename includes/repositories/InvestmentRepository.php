@@ -73,7 +73,7 @@ class InvestmentRepository {
     /**
      * Create investment table using InvestmentDto field constants
      */
-    public function createTable(): bool {
+    public function createTable(string $currentDbVersion): bool {
         global $wpdb;
         $table = TableNames::getInvestmentInfo();
         $charset_collate = $wpdb->get_charset_collate();
@@ -99,10 +99,17 @@ class InvestmentRepository {
             " . InvestmentDto::FIELD_HAS_USAGE_RIGHTS . " tinyint(1) DEFAULT 0,
             " . InvestmentDto::FIELD_HAS_OTHER_SERVICES . " tinyint(1) DEFAULT 0,
             
+            " . InvestmentDto::FIELD_SHOW_FLOOR_FIELD . " tinyint(1) DEFAULT 0,
+            " . InvestmentDto::FIELD_SHOW_ROOMS_FIELD . " tinyint(1) DEFAULT 0,
+            " . InvestmentDto::FIELD_SHOW_DESCRIPTION_FIELD . " tinyint(1) DEFAULT 0,
+            " . InvestmentDto::FIELD_SHOW_GARDEN_FIELD . " tinyint(1) DEFAULT 0,
+            " . InvestmentDto::FIELD_SHOW_FLOOR_PLAN_FIELD . " tinyint(1) DEFAULT 0,
+            
             PRIMARY KEY (" . InvestmentDto::FIELD_ID . "),
             FOREIGN KEY (" . InvestmentDto::FIELD_DEVELOPER_ID . ") REFERENCES " . TableNames::getDeveloperInfo() . "(id) ON DELETE CASCADE
         ) " . $charset_collate;
         
-        return $wpdb->query($wpdb->prepare($sql)) !== false;
+        return $wpdb->query($sql) !== false;
     }
+    
 }

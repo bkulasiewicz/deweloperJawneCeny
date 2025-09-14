@@ -173,3 +173,24 @@
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
+
+/* Fix for dashicons alignment with text in buttons */
+.button .dashicons {
+    vertical-align: middle;
+    margin-top: -2px;
+    line-height: 1;
+}
+
+/* Enhanced button flexbox layout for perfect icon-text alignment */
+.button {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    vertical-align: top;
+}
+
+/* Ensure dashicons in flex buttons are properly aligned */
+.button .dashicons {
+    margin-top: 0;
+    flex-shrink: 0;
+}

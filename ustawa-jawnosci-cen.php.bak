@@ -3,7 +3,7 @@
  * Plugin Name: Deweloper Jawne Ceny
  * Plugin URI: https://www.deweloperjawneceny.pl/
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
- * Version: 3.2.0
+ * Version: 4.2.0
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -25,8 +25,8 @@ if (!defined('ABSPATH')) {
 
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
-define('DB_VERSION', '1.6');
-define('VERSION', '3.1.21');
+define('DB_VERSION', '1.7');
+define('VERSION', '4.1.45');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -44,7 +44,9 @@ class DeweloperJawneCeny {
         
         add_action('plugins_loaded', [$this, 'init']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
         add_action('init', [$this, 'handle_file_requests']);
+
     }
     
     public function init() {
@@ -75,6 +77,7 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/models/UsageRightFormData.php';
         require_once PLUGIN_DIR . 'includes/models/OtherServiceFormData.php';
         require_once PLUGIN_DIR . 'includes/models/PresentableResource.php';
+        require_once PLUGIN_DIR . 'includes/models/ShortcodeResource.php';
         require_once PLUGIN_DIR . 'includes/models/FileData.php';
         require_once PLUGIN_DIR . 'includes/models/FileGenerationResult.php';
         
@@ -119,6 +122,7 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/UseCases/Resources/UpdateResourceUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/Resources/GetResourceByIdUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/Resources/GetAllResourcesUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Resources/GetResourcesForGovernmentUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/Resources/DeleteResourceUseCase.php';
         
         // UseCases - Developer
@@ -149,6 +153,9 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/UseCases/System/ImportResourcesUseCase.php';
         require_once PLUGIN_DIR . 'includes/UseCases/System/ResetDatabaseUseCase.php';
         
+        // UseCases - Frontend
+        require_once PLUGIN_DIR . 'includes/UseCases/Frontend/GetResourcesForFrontendUseCase.php';
+        
         // Views - Admin Components
         require_once PLUGIN_DIR . 'includes/views/admin/components/ResourceModal.php';
         require_once PLUGIN_DIR . 'includes/views/admin/components/InvestmentModal.php';
@@ -166,10 +173,15 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/views/admin/pages/ResourcesPage.php';
         require_once PLUGIN_DIR . 'includes/views/admin/pages/PublicationPage.php';
         require_once PLUGIN_DIR . 'includes/views/admin/pages/DevConsoleTile.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/FrontendManagementPage.php';
         
         // Blocks
         require_once PLUGIN_DIR . 'includes/blocks/ResourcesListBlock.php';
         require_once PLUGIN_DIR . 'includes/blocks/BlocksManager.php';
+        
+        // Shortcodes
+        require_once PLUGIN_DIR . 'includes/shortcodes/ResourcesListShortcode.php';
+        require_once PLUGIN_DIR . 'includes/shortcodes/ShortcodeManager.php';
         
         // Load premium features if available
         $premium_loader = PLUGIN_DIR . 'includes/premium/loader.php';
@@ -184,6 +196,7 @@ class DeweloperJawneCeny {
         }
         
         new BlocksManager();
+        new ShortcodeManager();
         
         // Initialize WordPress Filesystem
         WP_Filesystem();
@@ -195,6 +208,19 @@ class DeweloperJawneCeny {
     
     public function enqueue_frontend_scripts() {
         wp_enqueue_style('ujc-frontend', PLUGIN_URL . 'assets/admin.css', [], VERSION);
+        wp_enqueue_style('ujc-resource-modal', PLUGIN_URL . 'assets/admin-resource-modal.css', [], VERSION);
+        
+        wp_enqueue_script('ujc-resources-list-widget', PLUGIN_URL . 'assets/blocks/resources-list-widget.js', ['jquery'], VERSION, true);
+        
+        wp_localize_script('ujc-resources-list-widget', 'resourcesListAjax', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('resources_list_nonce'),
+            'strings' => [
+                'loading' => 'Ładowanie...',
+                'error' => 'Wystąpił błąd podczas ładowania historii cen.',
+                'no_history' => 'Brak historii cen dla tego zasobu.'
+            ]
+        ]);
     }
     
     public function handle_file_requests() {
@@ -203,10 +229,21 @@ class DeweloperJawneCeny {
             $upload_dir = wp_upload_dir();
             $filepath = $upload_dir['basedir'] . '/ujc-data/' . $file;
             
-            if (file_exists($filepath) && in_array(pathinfo($file, PATHINFO_EXTENSION), ['csv', 'xml'])) {
+            $extension = pathinfo($file, PATHINFO_EXTENSION);
+            $allowed_extensions = ['csv', 'xml', 'pdf'];
+            
+            if (file_exists($filepath) && in_array($extension, $allowed_extensions)) {
                 global $wp_filesystem;
                 
-                $mime_type = pathinfo($file, PATHINFO_EXTENSION) === 'csv' ? 'text/csv' : 'application/xml';
+                // Set appropriate MIME type
+                $mime_types = [
+                    'csv' => 'text/csv',
+                    'xml' => 'application/xml',
+                    'pdf' => 'application/pdf'
+                ];
+                
+                $mime_type = $mime_types[$extension] ?? 'application/octet-stream';
+                
                 header('Content-Type: ' . $mime_type . '; charset=UTF-8');
                 header('Content-Disposition: attachment; filename="' . esc_attr($file) . '"');
                 
@@ -227,16 +264,34 @@ class DeweloperJawneCeny {
             // Load all dependencies needed for schema creation
             $this->load_dependencies();
             
+            // NOW we can safely use Logger
+            Logger::info('UJC Plugin activate() - START');
+            Logger::info('UJC Plugin: Dependencies loaded');
+            
+            Logger::info('UJC Plugin: Calling UJC_Schema_Manager::create_tables()...');
             UJC_Schema_Manager::create_tables();
+            Logger::info('UJC Plugin: create_tables() completed');
             
             $upload_dir = wp_upload_dir();
             $data_dir = $upload_dir['basedir'] . '/ujc-data';
             if (!file_exists($data_dir)) {
                 wp_mkdir_p($data_dir);
+                Logger::info('UJC Plugin: Created data directory: ' . $data_dir);
+            } else {
+                Logger::info('UJC Plugin: Data directory already exists: ' . $data_dir);
             }
             
             $settings_repository = new SettingsRepository();
+            $currentVersion = $settings_repository->getDbVersion();
+            Logger::info('UJC Plugin: Current DB version before update: ' . $currentVersion);
+            Logger::info('UJC Plugin: Setting DB version to: ' . DB_VERSION);
+            
             $settings_repository->setDbVersion(DB_VERSION);
+            
+            $newVersion = $settings_repository->getDbVersion();
+            Logger::info('UJC Plugin: DB version after update: ' . $newVersion);
+            
+            Logger::info('UJC Plugin activate() - COMPLETED');
             
         } catch (Exception $e) {
             Logger::error('UJC Activation Error: ' . $e->getMessage());
@@ -247,6 +302,7 @@ class DeweloperJawneCeny {
         // External cron cleanup handled by premium features if available
         // No cleanup needed for freemium version
     }
+
 }
 
 // Initialize

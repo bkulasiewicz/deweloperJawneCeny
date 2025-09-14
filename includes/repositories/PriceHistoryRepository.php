@@ -58,7 +58,7 @@ class PriceHistoryRepository {
     /**
      * Create price history table using PriceHistoryDto field constants
      */
-    public function createTable(): bool {
+    public function createTable(string $currentDbVersion): bool {
         global $wpdb;
         $table = TableNames::getPriceHistory();
         $charset_collate = $wpdb->get_charset_collate();

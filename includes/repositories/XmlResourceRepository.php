@@ -15,7 +15,7 @@ class XmlResourceRepository {
     /**
      * Create table structure
      */
-    public function create() {
+    public function create(string $currentDbVersion) {
         global $wpdb;
         
         $charset_collate = $wpdb->get_charset_collate();

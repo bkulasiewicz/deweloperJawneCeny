@@ -10,7 +10,8 @@ if (!defined('ABSPATH')) {
  */
 enum PropertyType: string {
     case RESIDENTIAL_UNIT = 'residential_unit';
-    case SINGLE_FAMILY_HOUSE = 'single_family_house';  
+    case SINGLE_FAMILY_HOUSE = 'single_family_house';
+    case SERVICE_PREMISES = 'service_premises';
     case PARKING_SPACE = 'parking_space';
     case STORAGE_ROOM = 'storage_room';
     case GARAGE = 'garage';
@@ -25,6 +26,7 @@ enum PropertyType: string {
             self::PARKING_SPACE => 'Miejsce postojowe',
             self::STORAGE_ROOM => 'Komórka lokatorska',
             self::GARAGE => 'Garaż',
+            self::SERVICE_PREMISES => 'Lokal usługowy',
         };
     }
     

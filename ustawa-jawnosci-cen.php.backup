@@ -1,0 +1,554 @@
+<?php
+/**
+ * Plugin Name: Deweloper Jawne Ceny
+ * Plugin URI: https://www.deweloperjawneceny.pl/
+ * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
+ * Version: 3.3.18
+ * Requires at least: 5.0
+ * Tested up to: 6.8
+ * Requires PHP: 7.4
+ * Author: DeweloperJawneCeny Team
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: deweloper-jawne-ceny
+ * Domain Path: /languages
+ * 
+ * @package DeweloperJawneCeny
+ * @author DeweloperJawneCeny Team
+ * @since 1.0.0
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+
+define('PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('PLUGIN_URL', plugin_dir_url(__FILE__));
+define('DB_VERSION', '1.7');
+define('VERSION', '3.3.18');
+
+class DeweloperJawneCeny {
+    private static $instance = null;
+    
+    public static function get_instance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+    
+    private function __construct() {
+        register_activation_hook(__FILE__, [$this, 'activate']);
+        register_deactivation_hook(__FILE__, [$this, 'deactivate']);
+        
+        add_action('plugins_loaded', [$this, 'init']);
+        add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
+        add_action('init', [$this, 'handle_file_requests']);
+    }
+    
+    public function init() {
+        $this->load_dependencies();
+    }
+    
+    private function load_dependencies() {
+        // WordPress filesystem functions
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        
+        // Helpers
+        require_once PLUGIN_DIR . 'includes/helpers/PremiumHelper.php';
+        
+        // Config
+        require_once PLUGIN_DIR . 'includes/config/TableNames.php';
+        
+        // Enums
+        require_once PLUGIN_DIR . 'includes/enums/PublicationStatus.php';
+        require_once PLUGIN_DIR . 'includes/enums/TriggerType.php';
+        require_once PLUGIN_DIR . 'includes/enums/ResourceStatus.php';
+        require_once PLUGIN_DIR . 'includes/enums/PropertyType.php';
+        
+        // Models
+        require_once PLUGIN_DIR . 'includes/models/DaneGovXmlDataset.php';
+        require_once PLUGIN_DIR . 'includes/models/ResourceFormData.php';
+        require_once PLUGIN_DIR . 'includes/models/PropertyPartFormData.php';
+        require_once PLUGIN_DIR . 'includes/models/BelongingRoomFormData.php';
+        require_once PLUGIN_DIR . 'includes/models/UsageRightFormData.php';
+        require_once PLUGIN_DIR . 'includes/models/OtherServiceFormData.php';
+        require_once PLUGIN_DIR . 'includes/models/PresentableResource.php';
+        require_once PLUGIN_DIR . 'includes/models/FileData.php';
+        require_once PLUGIN_DIR . 'includes/models/FileGenerationResult.php';
+        
+        // DTOs
+        require_once PLUGIN_DIR . 'includes/core/ModelDto.php';
+        require_once PLUGIN_DIR . 'includes/core/Result.php';
+        require_once PLUGIN_DIR . 'includes/dto/ResourceDto.php';
+        require_once PLUGIN_DIR . 'includes/dto/InvestmentDto.php';
+        require_once PLUGIN_DIR . 'includes/dto/PriceHistoryDto.php';
+        require_once PLUGIN_DIR . 'includes/dto/SupplierDto.php';
+        require_once PLUGIN_DIR . 'includes/dto/XmlResourceDto.php';
+        
+        // Helpers
+        require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
+        
+        // Services
+        require_once PLUGIN_DIR . 'includes/services/DateHelper.php';
+        require_once PLUGIN_DIR . 'includes/services/CSVFormatter.php';
+        require_once PLUGIN_DIR . 'includes/services/XMLFormatter.php';
+        require_once PLUGIN_DIR . 'includes/services/FileManager.php';
+        
+        // DTOs that depend on services
+        require_once PLUGIN_DIR . 'includes/dto/PublicationHistoryDto.php';
+        require_once PLUGIN_DIR . 'includes/models/PresentablePriceHistory.php';
+        require_once PLUGIN_DIR . 'includes/models/FrontendSettingsDto.php';
+        
+        // Core
+        require_once PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
+        require_once PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
+        
+        
+        // Repositories
+        require_once PLUGIN_DIR . 'includes/repositories/DeveloperRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/InvestmentRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/ResourceRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/PriceHistoryRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/PublicationHistoryRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/XmlResourceRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/FrontendSettingsRepository.php';
+        
+        // UseCases - Resources
+        require_once PLUGIN_DIR . 'includes/UseCases/Resources/CreateResourceUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Resources/UpdateResourceUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Resources/GetResourceByIdUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Resources/GetAllResourcesUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Resources/GetResourcesForGovernmentUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Resources/DeleteResourceUseCase.php';
+        
+        // UseCases - Developer
+        require_once PLUGIN_DIR . 'includes/UseCases/Developer/SaveDeveloperInfoUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Developer/GetDeveloperInfoUseCase.php';
+        
+        // UseCases - Investment
+        require_once PLUGIN_DIR . 'includes/UseCases/Investment/CreateInvestmentUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Investment/UpdateInvestmentUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Investment/GetInvestmentUseCase.php';
+        
+        // UseCases - File Generation
+        require_once PLUGIN_DIR . 'includes/UseCases/FileGeneration/GenerateCSVFileUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/FileGeneration/GenerateFilesUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/FileGeneration/CreateDaneGovSubmissionFilesUseCase.php';
+        
+        // UseCases - Publication History
+        require_once PLUGIN_DIR . 'includes/UseCases/PublicationHistory/AddPublicationHistoryUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/PublicationHistory/GetPublicationHistoryUseCase.php';
+        
+        // UseCases - Price History
+        require_once PLUGIN_DIR . 'includes/UseCases/PriceHistory/GetPriceHistoryUseCase.php';
+        
+        // UseCases - XML Resource
+        require_once PLUGIN_DIR . 'includes/UseCases/XmlResource/AddXmlResourceUseCase.php';
+        
+        // UseCases - System
+        require_once PLUGIN_DIR . 'includes/UseCases/System/ImportResourcesUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/System/ResetDatabaseUseCase.php';
+        
+        // UseCases - Frontend
+        require_once PLUGIN_DIR . 'includes/UseCases/Frontend/SaveFrontendSettingsUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Frontend/GetFrontendSettingsUseCase.php';
+        require_once PLUGIN_DIR . 'includes/UseCases/Frontend/GetResourcesForFrontendUseCase.php';
+        
+        // Views - Admin Components
+        require_once PLUGIN_DIR . 'includes/views/admin/components/ResourceModal.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/InvestmentModal.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/ResourceItem.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/components/HistoryModal.php';
+        
+        // Dashboard Components
+        require_once PLUGIN_DIR . 'includes/views/admin/Dashboard/AutomationTile.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/Dashboard/HistoryTile.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/Dashboard/CsvFilesSection.php';
+        
+        // Views - Admin Pages
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/DashboardPage.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/SupplierDataPage.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/ResourcesPage.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/PublicationPage.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/DevConsoleTile.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/pages/FrontendManagementPage.php';
+        
+        // Blocks
+        require_once PLUGIN_DIR . 'includes/blocks/ResourcesListBlock.php';
+        require_once PLUGIN_DIR . 'includes/blocks/BlocksManager.php';
+        
+        // Shortcodes
+        require_once PLUGIN_DIR . 'includes/shortcodes/ResourcesListShortcode.php';
+        require_once PLUGIN_DIR . 'includes/shortcodes/ShortcodeManager.php';
+        
+        // Load premium features if available
+        $premium_loader = PLUGIN_DIR . 'includes/premium/loader.php';
+        if (file_exists($premium_loader)) {
+            require_once $premium_loader;
+        }
+        
+        // Inicjalizuj klasy po załadowaniu wszystkich zależności
+        if (is_admin()) {
+            require_once PLUGIN_DIR . 'includes/views/admin/class-ujc-admin.php';
+            new UJC_Admin();
+        }
+        
+        new BlocksManager();
+        new ShortcodeManager();
+        
+        // Initialize WordPress Filesystem
+        WP_Filesystem();
+        
+        // Initialize Logger
+        Logger::init();
+    }
+    
+    
+    public function enqueue_frontend_scripts() {
+        wp_enqueue_style('ujc-frontend', PLUGIN_URL . 'assets/admin.css', [], VERSION);
+        wp_enqueue_style('ujc-resource-modal', PLUGIN_URL . 'assets/admin-resource-modal.css', [], VERSION);
+        wp_enqueue_style('ujc-resources-list-block', PLUGIN_URL . 'assets/blocks/resources-list-block.css', [], VERSION);
+        
+        wp_enqueue_script('ujc-resources-list-widget', PLUGIN_URL . 'assets/blocks/resources-list-widget.js', ['jquery'], VERSION, true);
+        
+        wp_localize_script('ujc-resources-list-widget', 'resourcesListAjax', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('resources_list_nonce'),
+            'strings' => [
+                'loading' => 'Ładowanie...',
+                'error' => 'Wystąpił błąd podczas ładowania historii cen.',
+                'no_history' => 'Brak historii cen dla tego zasobu.'
+            ]
+        ]);
+    }
+    
+    public function handle_file_requests() {
+        if (isset($_GET['file'])) {
+            $file = sanitize_file_name($_GET['file']);
+            $upload_dir = wp_upload_dir();
+            $filepath = $upload_dir['basedir'] . '/ujc-data/' . $file;
+            
+            if (file_exists($filepath) && in_array(pathinfo($file, PATHINFO_EXTENSION), ['csv', 'xml'])) {
+                global $wp_filesystem;
+                
+                $mime_type = pathinfo($file, PATHINFO_EXTENSION) === 'csv' ? 'text/csv' : 'application/xml';
+                header('Content-Type: ' . $mime_type . '; charset=UTF-8');
+                header('Content-Disposition: attachment; filename="' . esc_attr($file) . '"');
+                
+                // Use WordPress Filesystem instead of readfile()
+                $file_contents = $wp_filesystem->get_contents($filepath);
+                if ($file_contents !== false) {
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- File download content should not be escaped
+                    echo $file_contents;
+                }
+                exit;
+            }
+        }
+    }
+    
+    
+    public function activate() {
+        try {
+            // Load all dependencies needed for schema creation
+            $this->load_dependencies();
+            
+            // NOW we can safely use Logger
+            Logger::info('UJC Plugin activate() - START');
+            Logger::info('UJC Plugin: Dependencies loaded');
+            
+            Logger::info('UJC Plugin: Calling UJC_Schema_Manager::create_tables()...');
+            UJC_Schema_Manager::create_tables();
+            Logger::info('UJC Plugin: create_tables() completed');
+            
+            $upload_dir = wp_upload_dir();
+            $data_dir = $upload_dir['basedir'] . '/ujc-data';
+            if (!file_exists($data_dir)) {
+                wp_mkdir_p($data_dir);
+                Logger::info('UJC Plugin: Created data directory: ' . $data_dir);
+            } else {
+                Logger::info('UJC Plugin: Data directory already exists: ' . $data_dir);
+            }
+            
+            $settings_repository = new SettingsRepository();
+            $currentVersion = $settings_repository->getDbVersion();
+            Logger::info('UJC Plugin: Current DB version before update: ' . $currentVersion);
+            Logger::info('UJC Plugin: Setting DB version to: ' . DB_VERSION);
+            
+            $settings_repository->setDbVersion(DB_VERSION);
+            
+            $newVersion = $settings_repository->getDbVersion();
+            Logger::info('UJC Plugin: DB version after update: ' . $newVersion);
+            
+            Logger::info('UJC Plugin activate() - COMPLETED');
+            
+        } catch (Exception $e) {
+            Logger::error('UJC Activation Error: ' . $e->getMessage());
+        }
+    }
+    
+    public function deactivate() {
+        // External cron cleanup handled by premium features if available
+        // No cleanup needed for freemium version
+    }
+        // Default attributes with ResourceDto constants
+        $default_columns = implode(',', [
+            ResourceDto::FIELD_NR_LOKALU,
+            ResourceDto::FIELD_RODZAJ_NIERUCHOMOSCI,
+            ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA,
+            'cena_calkowita', // From PriceHistory
+            ResourceDto::FIELD_STATUS,
+            'historia_cen' // Functional column
+        ]);
+        
+        // Get frontend settings first
+        $frontend_settings_use_case = new GetFrontendSettingsUseCase();
+        $settings = $frontend_settings_use_case->execute();
+        
+        $atts = shortcode_atts([
+            'types' => null, // null means use settings default
+            'columns' => null, // null means use settings default  
+            'color' => null,
+        ], $atts);
+        
+        try {
+            // Determine selected types: shortcode parameter OR admin settings
+            if ($atts['types'] !== null) {
+                // Use shortcode parameter (override)
+                $type_strings = array_map('trim', explode(',', $atts['types']));
+                $selected_types = [];
+                
+                foreach ($type_strings as $type_string) {
+                    try {
+                        $selected_types[] = PropertyType::from($type_string);
+                    } catch (ValueError $e) {
+                        Logger::error("Invalid PropertyType in shortcode: {$type_string}");
+                        // Skip invalid types, don't fail completely
+                    }
+                }
+                
+                // If no valid types from shortcode, fall back to settings
+                if (empty($selected_types)) {
+                    $selected_types = $settings->selected_types;
+                }
+            } else {
+                // Use admin settings
+                $selected_types = $settings->selected_types;
+            }
+            
+            // Determine visible columns: shortcode parameter OR admin settings
+            if ($atts['columns'] !== null) {
+                // Use shortcode parameter (override)
+                $column_strings = array_map('trim', explode(',', $atts['columns']));
+                $available_columns = FrontendSettingsDto::getAllAvailableColumns();
+                $visible_columns = array_intersect($column_strings, $available_columns);
+                
+                // If no valid columns from shortcode, fall back to settings
+                if (empty($visible_columns)) {
+                    $visible_columns = $settings->visible_columns;
+                }
+            } else {
+                // Use admin settings
+                $visible_columns = $settings->visible_columns;
+            }
+            
+            // Use color from shortcode parameter or settings
+            $primary_color = $atts['color'] ?? $settings->primary_color;
+            
+            // Render the resources table
+            return $this->render_resources_table($selected_types, $visible_columns, $settings->column_names, $primary_color);
+            
+        } catch (Exception $e) {
+            Logger::error("Shortcode error: " . $e->getMessage());
+            return '<div class="ujc-shortcode-error">Błąd podczas ładowania zasobów.</div>';
+        }
+    }
+    
+    /**
+     * Render resources table for shortcode
+     */
+    private function render_resources_table(array $selected_types, array $visible_columns, array $column_names, string $primary_color): string {
+        Logger::info("Shortcode: render_resources_table started");
+        Logger::info("Shortcode: Selected types count: " . count($selected_types));
+        Logger::info("Shortcode: Selected type values: " . implode(', ', array_map(fn($type) => $type->value, $selected_types)));
+        
+        // Get resources using dedicated frontend UseCase with built-in filtering
+        $frontend_use_case = new GetResourcesForFrontendUseCase();
+        $filtered_resources = $frontend_use_case->execute($selected_types);
+        Logger::info("Shortcode: Got " . count($filtered_resources) . " filtered resources from GetResourcesForFrontendUseCase");
+        
+        if (empty($filtered_resources)) {
+            Logger::error("Shortcode: No resources to display");
+            return '<div class="ujc-no-resources">Brak zasobów do wyświetlenia.</div>';
+        }
+        
+        // Start output buffering
+        ob_start();
+        
+        // Generate dynamic CSS
+        $this->render_dynamic_css($primary_color);
+        
+        ?>
+        <div class="ujc-shortcode-resources-list">
+            <table class="resources-table">
+                <thead>
+                    <tr>
+                        <?php foreach ($visible_columns as $column): ?>
+                            <th><?php echo esc_html($column_names[$column] ?? ucfirst($column)); ?></th>
+                        <?php endforeach; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($filtered_resources as $resource): ?>
+                        <tr>
+                            <?php foreach ($visible_columns as $column): ?>
+                                <td><?php echo $this->render_column_value($resource, $column); ?></td>
+                            <?php endforeach; ?>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            
+            <!-- Price History Modal (same as in existing block) -->
+            <div id="price-history-modal" class="price-history-modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Historia cen - <span id="modal-resource-name"></span></h3>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="history-loading">Ładowanie...</div>
+                        <div id="history-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
+        
+        return ob_get_clean();
+    }
+    
+    /**
+     * Render individual column value
+     */
+    private function render_column_value($resource, string $column): string {
+        switch ($column) {
+            case ResourceDto::FIELD_NR_LOKALU:
+                return esc_html($resource->nr_lokalu);
+                
+            case ResourceDto::FIELD_RODZAJ_NIERUCHOMOSCI:
+                try {
+                    $propertyType = PropertyType::from($resource->rodzaj_nieruchomosci);
+                    return esc_html($propertyType->getDisplayText());
+                } catch (ValueError $e) {
+                    return esc_html($resource->rodzaj_nieruchomosci);
+                }
+                
+            case ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA:
+                // Hide surface area for parking spaces (existing logic)
+                if ($resource->rodzaj_nieruchomosci === PropertyType::PARKING_SPACE->value) {
+                    return '—';
+                }
+                return esc_html(number_format($resource->powierzchnia_uzytkowa, 2, ',', ' ')) . ' m²';
+                
+            case ResourceDto::FIELD_STATUS:
+                try {
+                    $status = ResourceStatus::from($resource->status);
+                    return '<span class="status-' . esc_attr($resource->status) . '">' . esc_html($status->getDisplayText()) . '</span>';
+                } catch (ValueError $e) {
+                    return esc_html($resource->status);
+                }
+                
+            case 'cena_m2':
+                // Hide price per m2 for parking spaces (existing logic)
+                if ($resource->rodzaj_nieruchomosci === PropertyType::PARKING_SPACE->value) {
+                    return '—';
+                }
+                if ($resource->cena_m2 !== null && $resource->cena_m2 > 0) {
+                    return esc_html(number_format($resource->cena_m2, 2, ',', ' ')) . ' zł';
+                }
+                return '—';
+                
+            case 'cena_calkowita':
+                if ($resource->cena_calkowita) {
+                    return esc_html(number_format($resource->cena_calkowita, 2, ',', ' ')) . ' zł';
+                }
+                return '—';
+                
+            case 'cena_z_dodatkami':
+                if ($resource->cena_z_dodatkami) {
+                    return esc_html(number_format($resource->cena_z_dodatkami, 2, ',', ' ')) . ' zł';
+                }
+                return '—';
+                
+            case 'historia_cen':
+                return '<button class="price-history-btn" data-resource-id="' . esc_attr($resource->id) . '" data-resource-name="' . esc_attr($resource->nr_lokalu) . '">Historia cen</button>';
+                
+            // Marketing fields
+            case ResourceDto::FIELD_FLOOR_NUMBER:
+                return $resource->floor_number ? esc_html($resource->floor_number) : '—';
+                
+            case ResourceDto::FIELD_ROOM_COUNT:
+                return $resource->room_count ? esc_html($resource->room_count) : '—';
+                
+            case ResourceDto::FIELD_ADDITIONAL_DESCRIPTION:
+                return $resource->additional_description ? esc_html(wp_trim_words($resource->additional_description, 10)) : '—';
+                
+            case ResourceDto::FIELD_GARDEN_AREA:
+                return $resource->garden_area ? esc_html(number_format($resource->garden_area, 2, ',', ' ')) . ' m²' : '—';
+                
+            case ResourceDto::FIELD_FLOOR_PLAN_PDF:
+                return $resource->floor_plan_pdf ? '<a href="' . esc_url($resource->floor_plan_pdf) . '" target="_blank">Plan</a>' : '—';
+                
+            default:
+                return '—';
+        }
+    }
+    
+    /**
+     * Render dynamic CSS with custom primary color
+     */
+    private function render_dynamic_css(string $primary_color): void {
+        // Calculate darker shade for hover
+        $primary_rgb = sscanf($primary_color, "#%02x%02x%02x");
+        $darker_color = sprintf("#%02x%02x%02x", 
+            max(0, $primary_rgb[0] - 30),
+            max(0, $primary_rgb[1] - 30), 
+            max(0, $primary_rgb[2] - 30)
+        );
+        
+        ?>
+        <style>
+        .ujc-shortcode-resources-list .price-history-btn {
+            background-color: <?php echo esc_attr($primary_color); ?>;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875em;
+            transition: background-color 0.2s;
+        }
+        
+        .ujc-shortcode-resources-list .price-history-btn:hover {
+            background-color: <?php echo esc_attr($darker_color); ?>;
+        }
+        
+        .ujc-shortcode-resources-list .resources-table tr:hover {
+            background-color: <?php echo esc_attr($primary_color); ?>15;
+        }
+        
+        .ujc-shortcode-resources-list .status-dostepny {
+            border: 1px solid <?php echo esc_attr($primary_color); ?>;
+            background-color: <?php echo esc_attr($primary_color); ?>20;
+        }
+        </style>
+        <?php
+    }
+}
+
+// Initialize
+DeweloperJawneCeny::get_instance();

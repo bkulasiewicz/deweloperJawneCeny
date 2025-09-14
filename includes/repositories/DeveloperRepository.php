@@ -41,7 +41,7 @@ class DeveloperRepository {
     /**
      * Create developer table using SupplierDto field constants
      */
-    public function createTable(): bool {
+    public function createTable(string $currentDbVersion): bool {
         global $wpdb;
         $table = TableNames::getDeveloperInfo();
         $charset_collate = $wpdb->get_charset_collate();

@@ -15,25 +15,36 @@ class UJC_Schema_Manager {
     public static function create_tables() {
         global $wpdb;
         
+        Logger::info('UJC_Schema_Manager::create_tables() - START');
+        
         $charset_collate = $wpdb->get_charset_collate();
+        Logger::info('UJC_Schema_Manager: Charset collate: ' . $charset_collate);
         
-        // 1. DEWELOPER
-        (new DeveloperRepository())->createTable();
+        // Jeden raz pobierz wersję dla wszystkich repositories
+        $currentDbVersion = (new SettingsRepository())->getDbVersion();
+        Logger::info('UJC_Schema_Manager: Current DB version from SettingsRepository: ' . $currentDbVersion);
+        Logger::info('UJC_Schema_Manager: Expected DB_VERSION constant: ' . DB_VERSION);
         
-        // 2. INWESTYCJA
-        (new InvestmentRepository())->createTable();
+        // Przekaż wersję do wszystkich repositories
+        Logger::info('UJC_Schema_Manager: Creating DeveloperRepository table...');
+        (new DeveloperRepository())->createTable($currentDbVersion);
         
-        // 3. ZASOBY/NIERUCHOMOŚCI (with integrated component fields)
-        (new ResourceRepository())->createTable();
+        Logger::info('UJC_Schema_Manager: Creating InvestmentRepository table...');
+        (new InvestmentRepository())->createTable($currentDbVersion);
         
-        // 4. HISTORIA CEN
-        (new PriceHistoryRepository())->createTable();
+        Logger::info('UJC_Schema_Manager: Creating ResourceRepository table...');
+        (new ResourceRepository())->createTable($currentDbVersion);
         
-        // 6. HISTORIA PUBLIKACJI
-        (new PublicationHistoryRepository())->createTable();
+        Logger::info('UJC_Schema_Manager: Creating PriceHistoryRepository table...');
+        (new PriceHistoryRepository())->createTable($currentDbVersion);
         
-        // 7. XML RESOURCES
-        (new XmlResourceRepository())->create();
+        Logger::info('UJC_Schema_Manager: Creating PublicationHistoryRepository table...');
+        (new PublicationHistoryRepository())->createTable($currentDbVersion);
+        
+        Logger::info('UJC_Schema_Manager: Creating XmlResourceRepository table...');
+        (new XmlResourceRepository())->create($currentDbVersion);
+        
+        Logger::info('UJC_Schema_Manager::create_tables() - COMPLETED');
     }
     
     /**

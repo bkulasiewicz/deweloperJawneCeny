@@ -23,6 +23,13 @@ class ResourceFormData {
     public readonly ?UsageRightFormData $usage_right;
     public readonly ?OtherServiceFormData $other_service;
     
+    // Marketing fields
+    public readonly ?int $floor_number;
+    public readonly ?int $room_count;
+    public readonly ?string $additional_description;
+    public readonly ?float $garden_area;
+    public readonly ?string $floor_plan_pdf;
+    
     public function __construct(
         PropertyType $rodzaj_nieruchomosci,
         string $nr_lokalu,
@@ -34,7 +41,12 @@ class ResourceFormData {
         ?PropertyPartFormData $property_part = null,
         ?BelongingRoomFormData $belonging_room = null,
         ?UsageRightFormData $usage_right = null,
-        ?OtherServiceFormData $other_service = null
+        ?OtherServiceFormData $other_service = null,
+        ?int $floor_number = null,
+        ?int $room_count = null,
+        ?string $additional_description = null,
+        ?float $garden_area = null,
+        ?string $floor_plan_pdf = null
     ) {
         $this->rodzaj_nieruchomosci = $rodzaj_nieruchomosci;
         $this->nr_lokalu = $nr_lokalu;
@@ -47,5 +59,10 @@ class ResourceFormData {
         $this->belonging_room = $belonging_room;
         $this->usage_right = $usage_right;
         $this->other_service = $other_service;
+        $this->floor_number = $floor_number;
+        $this->room_count = $room_count;
+        $this->additional_description = $additional_description;
+        $this->garden_area = $garden_area;
+        $this->floor_plan_pdf = $floor_plan_pdf;
     }
 }

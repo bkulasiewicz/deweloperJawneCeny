@@ -43,7 +43,7 @@ class ResourceModal extends UJC_Admin_Page {
                     <span class="ujc-modal-close">&times;</span>
                 </div>
                 
-                <form id="resource-modal-form" method="post">
+                <form id="resource-modal-form" method="post" enctype="multipart/form-data">
                     <?php wp_nonce_field('ujc_admin_nonce', 'nonce'); ?>
                     <input type="hidden" id="resource-id" name="resource_id" value="">
                     <input type="hidden" id="modal-action" name="modal_action" value="add">
@@ -60,6 +60,9 @@ class ResourceModal extends UJC_Admin_Page {
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
+                                    <div id="service-premises-info" style="display: none; margin-top: 8px; font-size: 14px; color: #555;">
+                                        Lokale usługowe nie są raportowane do ministerstwa
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
@@ -86,9 +89,9 @@ class ResourceModal extends UJC_Admin_Page {
                                 </td>
                             </tr>
                             <tr>
-                                <th><label for="modal-status">Status</label></th>
+                                <th><label for="modal-status">Status *</label></th>
                                 <td>
-                                    <select id="modal-status" name="status">
+                                    <select id="modal-status" name="status" required>
                                         <?php foreach (ResourceStatus::cases() as $status): ?>
                                             <option value="<?php echo esc_attr($status->value); ?>">
                                                 <?php echo esc_html($status->getDisplayText()); ?>
@@ -98,6 +101,42 @@ class ResourceModal extends UJC_Admin_Page {
                                 </td>
                             </tr>
                         </table>
+                        
+                        <!-- Marketing Fields Section - shown conditionally -->
+                        <div id="marketing-fields-section" style="display: none; margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f0f8ff;">
+                            <h3>Informacje dodatkowe</h3>
+                            <p class="description">Pola nieobowiązkowe - nie są raportowane do ministerstwa</p>
+                            
+                            <table class="form-table">
+                                <tr id="floor-field-row" style="display: none;">
+                                    <th><label for="modal-floor_number">Piętro (opcjonalne)</label></th>
+                                    <td><input type="number" id="modal-floor_number" name="floor_number" class="regular-text" min="0" placeholder="np. 2"></td>
+                                </tr>
+                                <tr id="rooms-field-row" style="display: none;">
+                                    <th><label for="modal-room_count">Liczba pokoi (opcjonalne)</label></th>
+                                    <td><input type="number" id="modal-room_count" name="room_count" class="regular-text" min="0" placeholder="np. 3"></td>
+                                </tr>
+                                <tr id="description-field-row" style="display: none;">
+                                    <th><label for="modal-additional_description">Dodatkowy opis (opcjonalne)</label></th>
+                                    <td><textarea id="modal-additional_description" name="additional_description" class="regular-text" rows="3" placeholder="Dodatkowe informacje marketingowe"></textarea></td>
+                                </tr>
+                                <tr id="garden-field-row" style="display: none;">
+                                    <th><label for="modal-garden_area">Ogród [m²] (opcjonalne)</label></th>
+                                    <td><input type="number" id="modal-garden_area" name="garden_area" step="0.01" min="0" class="regular-text" placeholder="np. 25.5"> m²</td>
+                                </tr>
+                                <tr id="floor-plan-field-row" style="display: none;">
+                                    <th><label for="modal-floor_plan_pdf" id="floor-plan-label">Plan mieszkania (PDF) (opcjonalne)</label></th>
+                                    <td>
+                                        <input type="file" id="modal-floor_plan_pdf" name="floor_plan_pdf" accept=".pdf" class="regular-text">
+                                        <p class="description">Akceptowane formaty: PDF (opcjonalne)</p>
+                                        <div id="current-floor-plan" style="display: none; margin-top: 5px;">
+                                            <strong>Aktualny plik:</strong> <span id="current-floor-plan-name"></span>
+                                            <button type="button" id="remove-floor-plan" class="button-link-delete" style="margin-left: 10px;">Usuń</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                         
                         <!-- Dynamic component sections based on investment configuration -->
                         
@@ -266,129 +305,45 @@ class ResourceModal extends UJC_Admin_Page {
                 </form>
             </div>
         </div>
-        
-        <!-- Stylowanie modala -->
-        <style>
-        .ujc-modal {
-            position: fixed;
-            z-index: 100000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        
-        .ujc-modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 0;
-            border: 1px solid #ccd0d4;
-            border-radius: 4px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .ujc-modal-header {
-            padding: 20px;
-            border-bottom: 1px solid #ccd0d4;
-            background: #f9f9f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .ujc-modal-header h2 {
-            margin: 0;
-            color: #23282d;
-        }
-        
-        .ujc-modal-close {
-            color: #666;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            line-height: 1;
-        }
-        
-        .ujc-modal-close:hover,
-        .ujc-modal-close:focus {
-            color: #d63638;
-        }
-        
-        .ujc-modal-body {
-            padding: 20px;
-        }
-        
-        .ujc-modal-footer {
-            padding: 20px;
-            border-top: 1px solid #ccd0d4;
-            background: #f9f9f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .ujc-modal-footer-left {
-            display: flex;
-            align-items: center;
-        }
-        
-        .ujc-modal-footer-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .ujc-delete-btn:hover {
-            background-color: #d63638 !important;
-            color: #fff !important;
-        }
-        
-        /* Component add buttons styling */
-        .component-add-btn {
-            display: none;
-            width: 100%;
-            margin-bottom: 10px;
-            padding: 12px 15px;
-            text-align: left;
-            border: 1px solid #0073aa;
-            background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f4 100%);
-            color: #0073aa;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .component-add-btn:hover {
-            background: linear-gradient(135deg, #e8f4f8 0%, #d4edda 100%);
-            border-color: #005a87;
-            color: #005a87;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        }
-        
-        .component-add-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        #component-buttons {
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-        </style>
-        
         <!-- JavaScript dla modala -->
         <script>
         jQuery(document).ready(function($) {
+            // Toggle marketing fields based on investment configuration
+            function toggleMarketingFields(investmentConfig) {
+                // Get currently selected property type
+                const selectedPropertyType = $('#modal-rodzaj_nieruchomosci').val();
+                
+                // Types for which we show additional information section
+                const allowedTypes = ['residential_unit', 'service_premises', 'single_family_house'];
+                const isAllowedType = allowedTypes.includes(selectedPropertyType);
+                
+                const hasAnyMarketingField = investmentConfig.show_floor_field || 
+                                           investmentConfig.show_rooms_field || 
+                                           investmentConfig.show_description_field || 
+                                           investmentConfig.show_garden_field || 
+                                           investmentConfig.show_floor_plan_field;
+                
+                // Show section only if type is allowed AND fields are enabled
+                const showSection = isAllowedType && hasAnyMarketingField;
+                $('#marketing-fields-section').toggle(showSection);
+                
+                // Show/hide individual fields
+                $('#floor-field-row').toggle(investmentConfig.show_floor_field);
+                $('#rooms-field-row').toggle(investmentConfig.show_rooms_field);
+                $('#description-field-row').toggle(investmentConfig.show_description_field);
+                $('#garden-field-row').toggle(investmentConfig.show_garden_field);
+                $('#floor-plan-field-row').toggle(investmentConfig.show_floor_plan_field);
+                
+                console.log('Marketing fields toggled:', {
+                    sectionVisible: hasAnyMarketingField,
+                    floor: investmentConfig.show_floor_field,
+                    rooms: investmentConfig.show_rooms_field,
+                    description: investmentConfig.show_description_field,
+                    garden: investmentConfig.show_garden_field,
+                    floorPlan: investmentConfig.show_floor_plan_field
+                });
+            }
+            
             // Załaduj konfigurację inwestycji
             function loadInvestmentConfiguration() {
                 const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : ($('#ujc-nonce').length ? $('#ujc-nonce').val() : '');
@@ -405,6 +360,9 @@ class ResourceModal extends UJC_Admin_Page {
                         $('#add-belonging-room-btn').toggle(config.has_belonging_rooms == '1');
                         $('#add-usage-rights-btn').toggle(config.has_usage_rights == '1');
                         $('#add-other-services-btn').toggle(config.has_other_services == '1');
+                        
+                        // Show/hide marketing fields based on investment config
+                        toggleMarketingFields(config);
                         
                         // Final price section is always visible now
                         $('#final-price-section').show();
@@ -532,6 +490,20 @@ class ResourceModal extends UJC_Admin_Page {
                             }
                         }
                         
+                        // Load marketing fields
+                        $('#modal-floor_number').val(data.floor_number || '');
+                        $('#modal-room_count').val(data.room_count || '');
+                        $('#modal-additional_description').val(data.additional_description || '');
+                        $('#modal-garden_area').val(data.garden_area || '');
+                        
+                        // Handle floor plan PDF if exists
+                        if (data.floor_plan_pdf) {
+                            $('#current-floor-plan').show();
+                            $('#current-floor-plan-name').text(data.floor_plan_pdf);
+                        } else {
+                            $('#current-floor-plan').hide();
+                        }
+                        
                         // Przelicz cenę finalną
                         calculateFinalPrice();
                     } else {
@@ -555,29 +527,23 @@ class ResourceModal extends UJC_Admin_Page {
             
             $('.ujc-modal-close, .ujc-modal-cancel').on('click', closeModal);
             
-            // Component button click handlers
-            $('#add-property-part-btn').on('click', function() {
-                $(this).hide();
-                $('#property-parts-section').show();
-                calculateFinalPrice();
-            });
+            // Generic handler for add buttons - with proper ID mapping
+            const buttonToSectionMap = {
+                'add-property-part-btn': 'property-parts-section',
+                'add-belonging-room-btn': 'belonging-rooms-section', 
+                'add-usage-rights-btn': 'usage-rights-section',
+                'add-other-services-btn': 'other-services-section'
+            };
             
-            $('#add-belonging-room-btn').on('click', function() {
-                $(this).hide();
-                $('#belonging-rooms-section').show();
-                calculateFinalPrice();
-            });
-            
-            $('#add-usage-rights-btn').on('click', function() {
-                $(this).hide();
-                $('#usage-rights-section').show();
-                calculateFinalPrice();
-            });
-            
-            $('#add-other-services-btn').on('click', function() {
-                $(this).hide();
-                $('#other-services-section').show();
-                calculateFinalPrice();
+            $('[id^="add-"][id$="-btn"]').on('click', function() {
+                const buttonId = $(this).attr('id');
+                const sectionId = buttonToSectionMap[buttonId];
+                
+                if (sectionId) {
+                    $(this).hide();
+                    $('#' + sectionId).show();
+                    calculateFinalPrice();
+                }
             });
             
             // Zamknij modal kliknięciem poza nim
@@ -646,43 +612,41 @@ class ResourceModal extends UJC_Admin_Page {
                 calculateFinalPrice();
             });
             
+            // Section configuration for data-driven approach
+            const sectionConfig = {
+                'property-parts': {
+                    fields: ['#property-part-title', '#property-part-designation', '#property-part-price'],
+                    button: '#add-property-part-btn'
+                },
+                'belonging-rooms': {
+                    fields: ['#belonging-room-title', '#belonging-room-designation', '#belonging-room-price'],
+                    button: '#add-belonging-room-btn'
+                },
+                'usage-rights': {
+                    fields: ['#usage-rights-title', '#usage-rights-price'],
+                    button: '#add-usage-rights-btn'
+                },
+                'other-services': {
+                    fields: ['#other-services-title', '#other-services-price'],
+                    button: '#add-other-services-btn'
+                }
+            };
+            
             // Clear form data for a specific section type
             function clearSectionData(sectionType) {
-                switch(sectionType) {
-                    case 'property-parts':
-                        $('#property-part-title, #property-part-designation, #property-part-price').val('');
-                        break;
-                    case 'belonging-rooms':
-                        $('#belonging-room-title, #belonging-room-designation, #belonging-room-price').val('');
-                        break;
-                    case 'usage-rights':
-                        $('#usage-rights-title, #usage-rights-price').val('');
-                        break;
-                    case 'other-services':
-                        $('#other-services-title, #other-services-price').val('');
-                        break;
+                const config = sectionConfig[sectionType];
+                if (config) {
+                    $(config.fields.join(', ')).val('');
                 }
             }
             
             // Show add button for the section type
             function showAddButtonIfEnabled(sectionType) {
-                switch(sectionType) {
-                    case 'property-parts':
-                        $('#add-property-part-btn').show();
-                        break;
-                    case 'belonging-rooms':
-                        $('#add-belonging-room-btn').show();
-                        break;
-                    case 'usage-rights':
-                        $('#add-usage-rights-btn').show();
-                        break;
-                    case 'other-services':
-                        $('#add-other-services-btn').show();
-                        break;
+                const config = sectionConfig[sectionType];
+                if (config) {
+                    $(config.button).show();
                 }
             }
-            
-            // Dynamic component sections are now controlled by investment configuration
             
             // Automatyczne przeliczanie ceny finalnej
             function calculateFinalPrice() {
@@ -723,26 +687,37 @@ class ResourceModal extends UJC_Admin_Page {
                 const mode = $('#modal-action').val();
                 const action = mode === 'edit' ? 'ujc_update_resource' : 'ujc_save_resource';
                 
-                const formData = $(this).serialize() + '&action=' + action;
+                // Create FormData to handle file uploads
+                const formData = new FormData(this);
+                formData.append('action', action);
                 
                 const $submitBtn = $('#modal-submit-btn');
                 const originalText = $submitBtn.text();
                 $submitBtn.text('Zapisywanie...').prop('disabled', true);
                 
-                $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, formData, function(response) {
-                    if (response.success) {
-                        alert('✅ ' + response.data);
-                        closeModal();
-                        if (typeof loadResourcesList === 'function') {
-                            loadResourcesList();
+                $.ajax({
+                    url: typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl,
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            alert('✅ ' + response.data);
+                            closeModal();
+                            if (typeof loadResourcesList === 'function') {
+                                loadResourcesList();
+                            }
+                        } else {
+                            alert('❌ ' + (response.data || 'Błąd podczas zapisywania'));
                         }
-                    } else {
-                        alert('❌ ' + (response.data || 'Błąd podczas zapisywania'));
+                    },
+                    error: function() {
+                        alert('❌ Błąd połączenia');
+                    },
+                    complete: function() {
+                        $submitBtn.text(originalText).prop('disabled', false);
                     }
-                }).fail(function() {
-                    alert('❌ Błąd połączenia');
-                }).always(function() {
-                    $submitBtn.text(originalText).prop('disabled', false);
                 });
             });
             
@@ -804,29 +779,80 @@ class ResourceModal extends UJC_Admin_Page {
                 const $propertyType = $('#modal-rodzaj_nieruchomosci');
                 const $cenaM2Field = $('#modal-cena_m2');
                 const $cenaM2Row = $cenaM2Field.closest('tr');
+                const $servicePremisesInfo = $('#service-premises-info');
+                const $powierzchniaField = $('#modal-powierzchnia_uzytkowa');
+                const $powierzchniaRow = $powierzchniaField.closest('tr');
                 
-                function toggleFieldsByPropertyType(propertyType) {
+                function updateFieldLabels(propertyType) {
+                    const $cenaM2Label = $('label[for="modal-cena_m2"]');
+                    const $powierzchniaLabel = $('label[for="modal-powierzchnia_uzytkowa"]');
+                    
                     switch(propertyType) {
                         case '<?php echo PropertyType::PARKING_SPACE->value; ?>':
-                            // Hide cena m² for parking spaces - usually sold per unit
+                            // Pola ukryte
+                            break;
+                        case '<?php echo PropertyType::STORAGE_ROOM->value; ?>':
+                            $powierzchniaLabel.html('Powierzchnia użytkowa [m²] (opcjonalne)');
+                            $cenaM2Label.html('Cena m² (opcjonalne)');
+                            break;
+                        case '<?php echo PropertyType::GARAGE->value; ?>':
+                            $powierzchniaLabel.html('Powierzchnia użytkowa [m²] (opcjonalne)');
+                            $cenaM2Label.html('Cena m² (opcjonalne)');
+                            break;
+                        default: // residential_unit, service_premises, single_family_house
+                            $powierzchniaLabel.html('Powierzchnia użytkowa [m²] *');
+                            $cenaM2Label.html('Cena m² *');
+                            break;
+                    }
+                }
+                
+                function toggleFieldsByPropertyType(propertyType) {
+                    // Hide service premises info by default
+                    $servicePremisesInfo.hide();
+                    
+                    switch(propertyType) {
+                        case '<?php echo PropertyType::PARKING_SPACE->value; ?>':
+                            // Hide cena m² and powierzchnia for parking spaces
                             $cenaM2Row.hide();
                             $cenaM2Field.removeAttr('required');
                             $cenaM2Field.val(''); // Clear value
+                            $powierzchniaRow.hide();
+                            $powierzchniaField.removeAttr('required');
+                            break;
+                            
+                        case '<?php echo PropertyType::SERVICE_PREMISES->value; ?>':
+                            // Show service premises info, show all other fields
+                            $servicePremisesInfo.show();
+                            $cenaM2Row.show();
+                            $cenaM2Field.attr('required', 'required');
+                            $powierzchniaRow.show();
+                            $powierzchniaField.attr('required', 'required');
                             break;
                             
                         case '<?php echo PropertyType::STORAGE_ROOM->value; ?>':
-                            // Make cena m² optional for storage rooms
+                            // Dla komórki powierzchnia i cena m² są opcjonalne
                             $cenaM2Row.show();
                             $cenaM2Field.removeAttr('required');
+                            $powierzchniaRow.show();
+                            $powierzchniaField.removeAttr('required');
                             break;
                             
                         case '<?php echo PropertyType::RESIDENTIAL_UNIT->value; ?>':
                         case '<?php echo PropertyType::SINGLE_FAMILY_HOUSE->value; ?>': 
                         case '<?php echo PropertyType::GARAGE->value; ?>':
+                            // Dla garażu powierzchnia i cena m² są opcjonalne
+                            $cenaM2Row.show();
+                            $cenaM2Field.removeAttr('required');
+                            $powierzchniaRow.show();
+                            $powierzchniaField.removeAttr('required');
+                            break;
+                            
                         default:
-                            // Show and require cena m² for residential properties and garages
+                            // Show and require all fields for residential properties
                             $cenaM2Row.show();
                             $cenaM2Field.attr('required', 'required');
+                            $powierzchniaRow.show();
+                            $powierzchniaField.attr('required', 'required');
                             break;
                     }
                 }
@@ -835,11 +861,37 @@ class ResourceModal extends UJC_Admin_Page {
                 $propertyType.on('change', function() {
                     const selectedType = $(this).val();
                     toggleFieldsByPropertyType(selectedType);
+                    updateFieldLabels(selectedType);
+                    
+                    // Also toggle marketing fields based on property type
+                    if (window.investmentConfig) {
+                        toggleMarketingFields(window.investmentConfig);
+                    }
                 });
                 
                 // Initialize on modal open
                 toggleFieldsByPropertyType($propertyType.val());
+                updateFieldLabels($propertyType.val());
             }
+            
+            // Handle floor plan file removal
+            $('#remove-floor-plan').on('click', function() {
+                if (confirm('Czy na pewno chcesz usunąć aktualny plik planu mieszkania?')) {
+                    $('#current-floor-plan').hide();
+                    $('#current-floor-plan-name').text('');
+                    // Clear the file input
+                    $('#modal-floor_plan_pdf').val('');
+                    // Set a hidden flag to indicate file should be removed
+                    if (!$('#remove-floor-plan-flag').length) {
+                        $('#resource-modal-form').append('<input type="hidden" id="remove-floor-plan-flag" name="remove_floor_plan" value="1">');
+                    }
+                }
+            });
+            
+            // Clear removal flag when new file is selected
+            $('#modal-floor_plan_pdf').on('change', function() {
+                $('#remove-floor-plan-flag').remove();
+            });
             
             // Initialize all functionality
             setupAutoCalculations();
@@ -875,16 +927,39 @@ class ResourceModal extends UJC_Admin_Page {
             'usage_right_price' => [$this, 'sanitize_nullable_float'],
             
             'other_service_title' => 'sanitize_textarea_field',
-            'other_service_price' => [$this, 'sanitize_nullable_float']
+            'other_service_price' => [$this, 'sanitize_nullable_float'],
+            
+            // Marketing fields
+            'floor_number' => [$this, 'sanitize_nullable_int'],
+            'room_count' => [$this, 'sanitize_nullable_int'],
+            'additional_description' => 'sanitize_textarea_field',
+            'garden_area' => [$this, 'sanitize_nullable_float'],
+            'floor_plan_pdf' => 'sanitize_text_field'
         ]);
     }
     
     private function sanitize_nullable_float($value) {
+        Logger::info('UJC: sanitize_nullable_float called with value: ' . var_export($value, true));
         // If empty string or whitespace, return null
         if (empty($value) || trim($value) === '') {
+            Logger::info('UJC: sanitize_nullable_float returning null for empty value');
             return null;
         }
-        return floatval($value);
+        $result = floatval($value);
+        Logger::info('UJC: sanitize_nullable_float returning: ' . $result);
+        return $result;
+    }
+    
+    private function sanitize_nullable_int($value) {
+        Logger::info('UJC: sanitize_nullable_int called with value: ' . var_export($value, true));
+        // If empty string or whitespace, return null
+        if (empty($value) || trim($value) === '') {
+            Logger::info('UJC: sanitize_nullable_int returning null for empty value');
+            return null;
+        }
+        $result = intval($value);
+        Logger::info('UJC: sanitize_nullable_int returning: ' . $result);
+        return $result;
     }
     
     private function set_price_dates_for_new_resource($data, $current_datetime) {
@@ -918,75 +993,163 @@ class ResourceModal extends UJC_Admin_Page {
         return $data;
     }
     
-    public function ajax_save_resource() {
+    /**
+     * Validates AJAX request (nonce and permissions)
+     */
+    private function validateAjaxRequest(): bool {
         if (!$this->verify_nonce()) {
             wp_send_json_error('Błąd weryfikacji bezpieczeństwa.');
-            return;
+            return false;
         }
         
         if (!$this->check_permissions()) {
             wp_send_json_error('Brak uprawnień.');
-            return;
+            return false;
         }
         
-        try {
-            $data = $this->sanitize_resource_data();
-            
-            // Create component models first - based on price > 0
-            $propertyPart = null;
-            $propertyPartPrice = isset($data['property_part_price']) ? (float)$data['property_part_price'] : 0;
-            if ($propertyPartPrice > 0) {
-                $propertyPart = new PropertyPartFormData(
-                    title: $data['property_part_title'],
+        return true;
+    }
+    
+    /**
+     * Creates component models from sanitized data
+     */
+    private function createComponentModels($data): array {
+        Logger::info('UJC: createComponentModels - starting');
+        $components = [];
+        
+        // Property Part
+        $propertyPartPrice = isset($data['property_part_price']) ? (float)$data['property_part_price'] : 0;
+        Logger::info('UJC: createComponentModels - property part price: ' . $propertyPartPrice);
+        Logger::info('UJC: createComponentModels - property part title: ' . ($data['property_part_title'] ?? 'NOT_SET'));
+        
+        if ($propertyPartPrice > 0) {
+            try {
+                $components['property_part'] = new PropertyPartFormData(
+                    title: $data['property_part_title'] ?? '',
                     designation: $data['property_part_designation'] ?? '',
                     price: $propertyPartPrice
                 );
+                Logger::info('UJC: createComponentModels - PropertyPartFormData created successfully');
+            } catch (Exception $e) {
+                Logger::error('UJC: createComponentModels - PropertyPartFormData creation failed: ' . $e->getMessage());
+                throw $e;
             }
-            
-            $belongingRoom = null;
-            $belongingRoomPrice = isset($data['belonging_room_price']) ? (float)$data['belonging_room_price'] : 0;
-            if ($belongingRoomPrice > 0) {
-                $belongingRoom = new BelongingRoomFormData(
-                    title: $data['belonging_room_title'],
-                    designation: $data['belonging_room_designation'] ?? '',
-                    price: $belongingRoomPrice
-                );
-            }
-            
-            $usageRight = null;
-            $usageRightPrice = isset($data['usage_right_price']) ? (float)$data['usage_right_price'] : 0;
-            if ($usageRightPrice > 0) {
-                $usageRight = new UsageRightFormData(
-                    title: $data['usage_right_title'],
-                    price: $usageRightPrice
-                );
-            }
-            
-            $otherService = null;
-            $otherServicePrice = isset($data['other_service_price']) ? (float)$data['other_service_price'] : 0;
-            if ($otherServicePrice > 0) {
-                $otherService = new OtherServiceFormData(
-                    title: $data['other_service_title'],
-                    price: $otherServicePrice
-                );
-            }
-            
-            // Create ResourceFormData with components included
-            $formData = new ResourceFormData(
-                rodzaj_nieruchomosci: PropertyType::from($data['rodzaj_nieruchomosci']),
+        } else {
+            $components['property_part'] = null;
+            Logger::info('UJC: createComponentModels - property part set to null (price <= 0)');
+        }
+        
+        // Belonging Room
+        $belongingRoomPrice = isset($data['belonging_room_price']) ? (float)$data['belonging_room_price'] : 0;
+        $components['belonging_room'] = ($belongingRoomPrice > 0) ? new BelongingRoomFormData(
+            title: $data['belonging_room_title'],
+            designation: $data['belonging_room_designation'] ?? '',
+            price: $belongingRoomPrice
+        ) : null;
+        
+        // Usage Right
+        $usageRightPrice = isset($data['usage_right_price']) ? (float)$data['usage_right_price'] : 0;
+        $components['usage_right'] = ($usageRightPrice > 0) ? new UsageRightFormData(
+            title: $data['usage_right_title'],
+            price: $usageRightPrice
+        ) : null;
+        
+        // Other Service
+        $otherServicePrice = isset($data['other_service_price']) ? (float)$data['other_service_price'] : 0;
+        $components['other_service'] = ($otherServicePrice > 0) ? new OtherServiceFormData(
+            title: $data['other_service_title'],
+            price: $otherServicePrice
+        ) : null;
+        
+        return $components;
+    }
+    
+    /**
+     * Creates ResourceFormData from sanitized data and components
+     */
+    private function createResourceFormData($data): ResourceFormData {
+        Logger::info('UJC: createResourceFormData - starting with data keys: ' . implode(', ', array_keys($data)));
+        Logger::info('UJC: createResourceFormData - rodzaj_nieruchomosci value: ' . $data['rodzaj_nieruchomosci']);
+        Logger::info('UJC: createResourceFormData - status value: ' . $data['status']);
+        
+        $components = $this->createComponentModels($data);
+        Logger::info('UJC: createResourceFormData - components created successfully');
+        
+        try {
+            $propertyType = PropertyType::from($data['rodzaj_nieruchomosci']);
+            Logger::info('UJC: createResourceFormData - PropertyType conversion successful');
+        } catch (Exception $e) {
+            Logger::error('UJC: createResourceFormData - PropertyType conversion failed: ' . $e->getMessage());
+            throw $e;
+        }
+        
+        try {
+            $resourceStatus = ResourceStatus::from($data['status']);
+            Logger::info('UJC: createResourceFormData - ResourceStatus conversion successful');
+        } catch (Exception $e) {
+            Logger::error('UJC: createResourceFormData - ResourceStatus conversion failed: ' . $e->getMessage());
+            throw $e;
+        }
+        
+        Logger::info('UJC: createResourceFormData - About to create ResourceFormData object');
+        Logger::info('UJC: createResourceFormData - Data for constructor: nr_lokalu=' . $data['nr_lokalu'] . ', powierzchnia=' . $data['powierzchnia_uzytkowa'] . ', cena_m2=' . ($data['cena_m2'] ?? 'NULL'));
+        
+        try {
+            $resourceFormData = new ResourceFormData(
+                rodzaj_nieruchomosci: $propertyType,
                 nr_lokalu: $data['nr_lokalu'],
                 powierzchnia_uzytkowa: (float)$data['powierzchnia_uzytkowa'],
                 cena_m2: $data['cena_m2'] !== null ? (float)$data['cena_m2'] : null,
                 cena_calkowita: (float)$data['cena_calkowita'],
                 cena_z_dodatkami: (float)$data['cena_z_dodatkami'],
-                status: ResourceStatus::from($data['status']),
-                property_part: $propertyPart,
-                belonging_room: $belongingRoom,
-                usage_right: $usageRight,
-                other_service: $otherService
+                status: $resourceStatus,
+                property_part: $components['property_part'],
+                belonging_room: $components['belonging_room'],
+                usage_right: $components['usage_right'],
+                other_service: $components['other_service'],
+                floor_number: $data['floor_number'] === '' ? null : (int)$data['floor_number'],
+                room_count: $data['room_count'] === '' ? null : (int)$data['room_count'],
+                additional_description: $data['additional_description'] === '' ? null : $data['additional_description'],
+                garden_area: $data['garden_area'] === '' ? null : (float)$data['garden_area'],
+                floor_plan_pdf: $data['floor_plan_pdf'] === '' ? null : $data['floor_plan_pdf']
             );
             
+            Logger::info('UJC: createResourceFormData - ResourceFormData object created successfully');
+            return $resourceFormData;
+            
+        } catch (Exception $e) {
+            Logger::error('UJC: createResourceFormData - ResourceFormData constructor failed: ' . $e->getMessage());
+            Logger::error('UJC: createResourceFormData - Exception trace: ' . $e->getTraceAsString());
+            throw $e;
+        }
+    }
+    
+    public function ajax_save_resource() {
+        Logger::info('UJC: ajax_save_resource started - handler is being called');
+        
+        if (!$this->validateAjaxRequest()) {
+            Logger::error('UJC: validateAjaxRequest failed');
+            return;
+        }
+        
+        Logger::info('UJC: ajax_save_resource - validation passed, proceeding with save');
+        
+        try {
+            $data = $this->sanitize_resource_data();
+            Logger::info('UJC: ajax_save_resource - data sanitized: ' . print_r($data, true));
+            
+            // Handle file upload if present
+            $uploaded_filename = $this->handle_pdf_upload();
+            if ($uploaded_filename) {
+                $data['floor_plan_pdf'] = $uploaded_filename;
+                Logger::info('UJC: ajax_save_resource - PDF uploaded successfully: ' . $uploaded_filename);
+            }
+            
+            $formData = $this->createResourceFormData($data);
+            Logger::info('UJC: ajax_save_resource - formData created successfully');
+            
             $result = $this->createResourceUseCase->execute($formData);
+            Logger::info('UJC: ajax_save_resource - usecase executed, result: ' . print_r($result, true));
             
             if ($result->isSuccess) {
                 wp_send_json_success($result->message);
@@ -994,6 +1157,8 @@ class ResourceModal extends UJC_Admin_Page {
                 wp_send_json_error($result->message);
             }
         } catch (Exception $e) {
+            Logger::error('UJC: ajax_save_resource - Exception caught: ' . $e->getMessage());
+            Logger::error('UJC: ajax_save_resource - Exception trace: ' . $e->getTraceAsString());
             wp_send_json_error('Błąd serwera: ' . $e->getMessage());
         }
     }
@@ -1001,13 +1166,8 @@ class ResourceModal extends UJC_Admin_Page {
     public function ajax_get_resource() {
         Logger::info('UJC: ajax_get_resource started');
         
-        if (!$this->verify_nonce()) {
-            Logger::error('UJC: nonce verification failed');
-            return;
-        }
-        
-        if (!$this->check_permissions()) {
-            Logger::error('UJC: permission check failed');
+        if (!$this->validateAjaxRequest()) {
+            Logger::error('UJC: validation failed');
             return;
         }
         
@@ -1031,13 +1191,7 @@ class ResourceModal extends UJC_Admin_Page {
     }
     
     public function ajax_update_resource() {
-        if (!$this->verify_nonce()) {
-            wp_send_json_error('Błąd weryfikacji bezpieczeństwa.');
-            return;
-        }
-        
-        if (!$this->check_permissions()) {
-            wp_send_json_error('Brak uprawnień.');
+        if (!$this->validateAjaxRequest()) {
             return;
         }
         
@@ -1051,60 +1205,35 @@ class ResourceModal extends UJC_Admin_Page {
             
             $data = $this->sanitize_resource_data();
             
-            // Create component models first
-            $propertyPart = null;
-            $propertyPartPrice = isset($data['property_part_price']) ? (float)$data['property_part_price'] : 0;
-            if ($propertyPartPrice > 0) {
-                $propertyPart = new PropertyPartFormData(
-                    title: $data['property_part_title'],
-                    designation: $data['property_part_designation'] ?? '',
-                    price: $propertyPartPrice
-                );
+            // Get old resource data first
+            $old_resource = $this->getResourceByIdUseCase->execute($resource_id);
+            
+            // Handle file removal if requested
+            if (isset($_POST['remove_floor_plan']) && $_POST['remove_floor_plan'] === '1') {
+                if ($old_resource && $old_resource->floor_plan_pdf) {
+                    $this->remove_old_pdf_file($old_resource->floor_plan_pdf);
+                }
+                $data['floor_plan_pdf'] = null;
+                Logger::info('UJC: ajax_update_resource - Floor plan PDF removed');
+            } else {
+                // Handle file upload if present
+                $uploaded_filename = $this->handle_pdf_upload();
+                if ($uploaded_filename) {
+                    // Remove old file if it exists
+                    if ($old_resource && $old_resource->floor_plan_pdf) {
+                        $this->remove_old_pdf_file($old_resource->floor_plan_pdf);
+                    }
+                    $data['floor_plan_pdf'] = $uploaded_filename;
+                    Logger::info('UJC: ajax_update_resource - PDF uploaded successfully: ' . $uploaded_filename);
+                } else {
+                    // Keep existing file if no new file uploaded and not marked for removal
+                    if ($old_resource && $old_resource->floor_plan_pdf) {
+                        $data['floor_plan_pdf'] = $old_resource->floor_plan_pdf;
+                    }
+                }
             }
             
-            $belongingRoom = null;
-            $belongingRoomPrice = isset($data['belonging_room_price']) ? (float)$data['belonging_room_price'] : 0;
-            if ($belongingRoomPrice > 0) {
-                $belongingRoom = new BelongingRoomFormData(
-                    title: $data['belonging_room_title'],
-                    designation: $data['belonging_room_designation'] ?? '',
-                    price: $belongingRoomPrice
-                );
-            }
-            
-            $usageRight = null;
-            $usageRightPrice = isset($data['usage_right_price']) ? (float)$data['usage_right_price'] : 0;
-            if ($usageRightPrice > 0) {
-                $usageRight = new UsageRightFormData(
-                    title: $data['usage_right_title'],
-                    price: $usageRightPrice
-                );
-            }
-            
-            $otherService = null;
-            $otherServicePrice = isset($data['other_service_price']) ? (float)$data['other_service_price'] : 0;
-            if ($otherServicePrice > 0) {
-                $otherService = new OtherServiceFormData(
-                    title: $data['other_service_title'],
-                    price: $otherServicePrice
-                );
-            }
-            
-            // Create ResourceFormData with components included
-            $formData = new ResourceFormData(
-                rodzaj_nieruchomosci: PropertyType::from($data['rodzaj_nieruchomosci']),
-                nr_lokalu: $data['nr_lokalu'],
-                powierzchnia_uzytkowa: (float)$data['powierzchnia_uzytkowa'],
-                cena_m2: $data['cena_m2'] !== null ? (float)$data['cena_m2'] : null,
-                cena_calkowita: (float)$data['cena_calkowita'],
-                cena_z_dodatkami: (float)$data['cena_z_dodatkami'],
-                status: ResourceStatus::from($data['status']),
-                property_part: $propertyPart,
-                belonging_room: $belongingRoom,
-                usage_right: $usageRight,
-                other_service: $otherService
-            );
-            
+            $formData = $this->createResourceFormData($data);
             $result = $this->updateResourceUseCase->execute($formData, $resource_id);
             
             if ($result->isSuccess) {
@@ -1118,13 +1247,7 @@ class ResourceModal extends UJC_Admin_Page {
     }
     
     public function ajax_delete_resource() {
-        if (!$this->verify_nonce()) {
-            wp_send_json_error('Błąd weryfikacji bezpieczeństwa.');
-            return;
-        }
-        
-        if (!$this->check_permissions()) {
-            wp_send_json_error('Brak uprawnień.');
+        if (!$this->validateAjaxRequest()) {
             return;
         }
         
@@ -1145,6 +1268,149 @@ class ResourceModal extends UJC_Admin_Page {
             }
         } catch (Exception $e) {
             wp_send_json_error('Błąd serwera: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Handle PDF file upload for floor plans
+     * 
+     * @return string|null Uploaded filename or null if no file uploaded
+     * @throws Exception If upload fails
+     */
+    private function handle_pdf_upload(): ?string {
+        // Check if file was uploaded
+        if (!isset($_FILES['floor_plan_pdf']) || $_FILES['floor_plan_pdf']['error'] === UPLOAD_ERR_NO_FILE) {
+            Logger::info('UJC: handle_pdf_upload - No file uploaded');
+            return null;
+        }
+
+        $file = $_FILES['floor_plan_pdf'];
+        Logger::info('UJC: handle_pdf_upload - File upload detected: ' . print_r($file, true));
+
+        // Check for upload errors
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            $error_messages = [
+                UPLOAD_ERR_INI_SIZE => 'Plik jest za duży (limit serwera)',
+                UPLOAD_ERR_FORM_SIZE => 'Plik jest za duży (limit formularza)',
+                UPLOAD_ERR_PARTIAL => 'Plik został przesłany tylko częściowo',
+                UPLOAD_ERR_NO_TMP_DIR => 'Brak folderu tymczasowego',
+                UPLOAD_ERR_CANT_WRITE => 'Nie można zapisać pliku na dysku',
+                UPLOAD_ERR_EXTENSION => 'Przesyłanie pliku zostało zatrzymane przez rozszerzenie'
+            ];
+            $error_message = $error_messages[$file['error']] ?? 'Nieznany błąd przesyłania';
+            Logger::error('UJC: handle_pdf_upload - Upload error: ' . $error_message);
+            throw new Exception($error_message);
+        }
+
+        // Validate file type
+        $allowed_types = ['application/pdf'];
+        $file_type = $file['type'];
+        $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+        if (!in_array($file_type, $allowed_types) || $file_extension !== 'pdf') {
+            Logger::error('UJC: handle_pdf_upload - Invalid file type: ' . $file_type . ', extension: ' . $file_extension);
+            throw new Exception('Można przesyłać tylko pliki PDF');
+        }
+
+        // Validate file size (10MB limit)
+        $max_size = 10 * 1024 * 1024; // 10MB
+        if ($file['size'] > $max_size) {
+            Logger::error('UJC: handle_pdf_upload - File too large: ' . $file['size'] . ' bytes');
+            throw new Exception('Plik jest za duży. Maksymalny rozmiar to 10MB');
+        }
+
+        // Generate unique filename
+        $upload_dir = wp_upload_dir();
+        $ujc_data_dir = $upload_dir['basedir'] . '/ujc-data';
+
+        // Ensure directory exists
+        if (!is_dir($ujc_data_dir)) {
+            wp_mkdir_p($ujc_data_dir);
+        }
+
+        // Generate filename based on property type and identifier
+        $property_type = sanitize_text_field($_POST['rodzaj_nieruchomosci'] ?? '');
+        $identifier = sanitize_text_field($_POST['nr_lokalu'] ?? '');
+
+        // Get property type name for filename
+        $property_type_name = $this->getPropertyTypeNameForFilename($property_type);
+
+        // Sanitize identifier for filename (remove special characters)
+        $safe_identifier = preg_replace('/[^a-zA-Z0-9_-]/', '_', $identifier);
+
+        // Generate filename: propertytype_identifier.pdf
+        $new_filename = $property_type_name;
+        if (!empty($safe_identifier)) {
+            $new_filename .= '_' . $safe_identifier;
+        }
+        $new_filename .= '.pdf';
+
+        $target_path = $ujc_data_dir . '/' . $new_filename;
+
+        Logger::info('UJC: handle_pdf_upload - Target path: ' . $target_path);
+
+        // Check if file already exists and handle overwrite
+        if (file_exists($target_path)) {
+            Logger::info('UJC: handle_pdf_upload - File already exists, will be overwritten: ' . $new_filename);
+        }
+
+        // Move uploaded file to target directory
+        if (!move_uploaded_file($file['tmp_name'], $target_path)) {
+            Logger::error('UJC: handle_pdf_upload - Failed to move uploaded file');
+            throw new Exception('Nie można zapisać przesłanego pliku');
+        }
+
+        // Set proper file permissions
+        chmod($target_path, 0644);
+
+        Logger::info('UJC: handle_pdf_upload - File uploaded successfully: ' . $new_filename);
+        return $new_filename;
+    }
+    
+    /**
+     * Get property type name for filename generation
+     *
+     * @param string $property_type Property type enum value
+     * @return string Safe filename part
+     */
+    private function getPropertyTypeNameForFilename(string $property_type): string {
+        switch ($property_type) {
+            case PropertyType::RESIDENTIAL_UNIT->value:
+                return 'mieszkanie';
+            case PropertyType::SINGLE_FAMILY_HOUSE->value:
+                return 'dom';
+            case PropertyType::SERVICE_PREMISES->value:
+                return 'lokal_uslugowy';
+            case PropertyType::PARKING_SPACE->value:
+                return 'miejsce_postojowe';
+            case PropertyType::STORAGE_ROOM->value:
+                return 'komorka';
+            case PropertyType::GARAGE->value:
+                return 'garaz';
+            default:
+                return 'lokal';
+        }
+    }
+
+    /**
+     * Remove old PDF file from ujc-data directory
+     *
+     * @param string $filename Filename to remove
+     */
+    private function remove_old_pdf_file(string $filename): void {
+        if (!$filename) {
+            return;
+        }
+        
+        $upload_dir = wp_upload_dir();
+        $file_path = $upload_dir['basedir'] . '/ujc-data/' . $filename;
+        
+        if (file_exists($file_path)) {
+            if (unlink($file_path)) {
+                Logger::info('UJC: remove_old_pdf_file - Old file removed: ' . $filename);
+            } else {
+                Logger::error('UJC: remove_old_pdf_file - Failed to remove old file: ' . $filename);
+            }
         }
     }
     

@@ -1,7 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // Price History Modal functionality
-    document.querySelectorAll('.price-history-btn').forEach(function(button) {
+    document.querySelectorAll('.ujc-historia-btn').forEach(function(button) {
+        // Skip if already has event listener
+        if (button.hasAttribute('data-ujc-history-initialized')) {
+            return;
+        }
+
+        // Mark as initialized
+        button.setAttribute('data-ujc-history-initialized', 'true');
+
         button.addEventListener('click', function() {
             const resourceId = this.dataset.resourceId;
             const resourceName = this.dataset.resourceName;
@@ -49,6 +57,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Floor Plan Download functionality
+    document.querySelectorAll('.download-floorplan-btn').forEach(function(button) {
+        // Skip if already has event listener
+        if (button.hasAttribute('data-ujc-download-initialized')) {
+            return;
+        }
+
+        // Mark as initialized
+        button.setAttribute('data-ujc-download-initialized', 'true');
+
+        button.addEventListener('click', function() {
+            const filename = this.dataset.filename;
+
+            if (!filename) return;
+
+            // Create download URL
+            const downloadUrl = window.location.origin + window.location.pathname + '?file=' + encodeURIComponent(filename);
+
+            // Trigger download
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    });
+    
     // Close modal functionality
     const modal = document.getElementById('price-history-modal');
     const closeBtn = document.querySelector('.modal-close');
@@ -60,11 +96,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Close modal when clicking outside
-    modal.addEventListener('click', function(e) {
-        if (e.target === this) {
-            this.style.display = 'none';
-        }
-    });
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.style.display = 'none';
+            }
+        });
+    }
     
     // Prevent closing when clicking modal content
     document.querySelector('.modal-content').addEventListener('click', function(e) {
@@ -90,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         history.forEach(function(entry) {
             historyHtml += '<div class="history-entry">';
-            historyHtml += '<div class="history-date">' + formatDate(entry.data_zmiany) + '</div>';
+            historyHtml += '<div class="history-date">' + entry.data_zmiany + '</div>';
             
             // Price per m2
             historyHtml += '<div class="history-change">';
@@ -102,14 +140,14 @@ document.addEventListener('DOMContentLoaded', function() {
             historyHtml += '<div class="history-change">';
             historyHtml += '<span class="history-change-type">Cena lokalu:</span>';
             historyHtml += '<span class="price-current">' + formatPrice(entry.cena_calkowita) + ' zł</span>';
-            historyHtml += '<div class="history-date-small">Data zmiany: ' + formatDate(entry.data_zmiany) + '</div>';
+            historyHtml += '<div class="history-date-small">Data zmiany: ' + entry.data_zmiany + '</div>';
             historyHtml += '</div>';
             
             // Full price (cena pełna)
             historyHtml += '<div class="history-change">';
             historyHtml += '<span class="history-change-type">Cena pełna:</span>';
             historyHtml += '<span class="price-current">' + formatPrice(entry.cena_z_dodatkami) + ' zł</span>';
-            historyHtml += '<div class="history-date-small">Data zmiany: ' + formatDate(entry.data_cena_z_dodatkami) + '</div>';
+            historyHtml += '<div class="history-date-small">Data zmiany: ' + entry.data_cena_z_dodatkami + '</div>';
             historyHtml += '</div>';
             
             historyHtml += '</div>';

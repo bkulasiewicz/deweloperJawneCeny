@@ -105,7 +105,7 @@ class ResourceRepository {
     /**
      * Create resources table using ResourceDto field constants
      */
-    public function createTable(): bool {
+    public function createTable(string $currentDbVersion): bool {
         global $wpdb;
         $table = TableNames::getResources();
         $charset_collate = $wpdb->get_charset_collate();
@@ -118,6 +118,7 @@ class ResourceRepository {
         $propertyTypes = [
             PropertyType::RESIDENTIAL_UNIT->value,
             PropertyType::SINGLE_FAMILY_HOUSE->value,
+            PropertyType::SERVICE_PREMISES->value,
             PropertyType::PARKING_SPACE->value,
             PropertyType::STORAGE_ROOM->value,
             PropertyType::GARAGE->value
@@ -158,11 +159,18 @@ class ResourceRepository {
             " . ResourceDto::FIELD_OTHER_SERVICE_PRICE . " decimal(10,2) DEFAULT NULL,
             " . ResourceDto::FIELD_OTHER_SERVICE_PRICE_DATE . " datetime DEFAULT NULL,
             
+            " . ResourceDto::FIELD_FLOOR_NUMBER . " int(11) DEFAULT NULL,
+            " . ResourceDto::FIELD_ROOM_COUNT . " int(11) DEFAULT NULL,
+            " . ResourceDto::FIELD_ADDITIONAL_DESCRIPTION . " text DEFAULT NULL,
+            " . ResourceDto::FIELD_GARDEN_AREA . " decimal(8,2) DEFAULT NULL,
+            " . ResourceDto::FIELD_FLOOR_PLAN_PDF . " varchar(255) DEFAULT NULL,
+            
             PRIMARY KEY (" . ResourceDto::FIELD_ID . "),
             KEY " . ResourceDto::FIELD_STATUS . " (" . ResourceDto::FIELD_STATUS . "),
             FOREIGN KEY (" . ResourceDto::FIELD_INVESTMENT_ID . ") REFERENCES " . TableNames::getInvestmentInfo() . "(id) ON DELETE CASCADE
         ) " . $charset_collate;
         
-        return $wpdb->query($wpdb->prepare($sql)) !== false;
+        return $wpdb->query($sql) !== false;
     }
+    
 }

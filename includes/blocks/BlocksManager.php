@@ -10,6 +10,7 @@ class BlocksManager {
         add_action('init', [$this, 'register_blocks']);
         add_action('enqueue_block_editor_assets', [$this, 'enqueue_editor_assets']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
         
         // AJAX endpoints
         add_action('wp_ajax_get_resource_price_history', [$this, 'ajax_get_price_history']);

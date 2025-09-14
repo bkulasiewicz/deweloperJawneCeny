@@ -21,6 +21,11 @@ class InvestmentDto extends ModelDto {
     public const FIELD_HAS_BELONGING_ROOMS = 'has_belonging_rooms';
     public const FIELD_HAS_USAGE_RIGHTS = 'has_usage_rights';
     public const FIELD_HAS_OTHER_SERVICES = 'has_other_services';
+    public const FIELD_SHOW_FLOOR_FIELD = 'show_floor_field';
+    public const FIELD_SHOW_ROOMS_FIELD = 'show_rooms_field';
+    public const FIELD_SHOW_DESCRIPTION_FIELD = 'show_description_field';
+    public const FIELD_SHOW_GARDEN_FIELD = 'show_garden_field';
+    public const FIELD_SHOW_FLOOR_PLAN_FIELD = 'show_floor_plan_field';
     
     public int $id;
     public int $developer_id;
@@ -36,6 +41,11 @@ class InvestmentDto extends ModelDto {
     public bool $has_belonging_rooms;
     public bool $has_usage_rights;
     public bool $has_other_services;
+    public bool $show_floor_field;
+    public bool $show_rooms_field;
+    public bool $show_description_field;
+    public bool $show_garden_field;
+    public bool $show_floor_plan_field;
     
     public function __construct(
         int $id, 
@@ -51,7 +61,12 @@ class InvestmentDto extends ModelDto {
         bool $has_property_parts, 
         bool $has_belonging_rooms, 
         bool $has_usage_rights, 
-        bool $has_other_services, 
+        bool $has_other_services,
+        bool $show_floor_field = false,
+        bool $show_rooms_field = false,
+        bool $show_description_field = false,
+        bool $show_garden_field = false,
+        bool $show_floor_plan_field = false
     ) {
         $this->id = $id;
         $this->developer_id = $developer_id;
@@ -67,6 +82,11 @@ class InvestmentDto extends ModelDto {
         $this->has_belonging_rooms = $has_belonging_rooms;
         $this->has_usage_rights = $has_usage_rights;
         $this->has_other_services = $has_other_services;
+        $this->show_floor_field = $show_floor_field;
+        $this->show_rooms_field = $show_rooms_field;
+        $this->show_description_field = $show_description_field;
+        $this->show_garden_field = $show_garden_field;
+        $this->show_floor_plan_field = $show_floor_plan_field;
     }
     
     public function hasAnyComponents(): bool {
@@ -91,7 +111,12 @@ class InvestmentDto extends ModelDto {
             (bool)$data[self::FIELD_HAS_PROPERTY_PARTS],
             (bool)$data[self::FIELD_HAS_BELONGING_ROOMS],
             (bool)$data[self::FIELD_HAS_USAGE_RIGHTS],
-            (bool)$data[self::FIELD_HAS_OTHER_SERVICES]
+            (bool)$data[self::FIELD_HAS_OTHER_SERVICES],
+            (bool)($data[self::FIELD_SHOW_FLOOR_FIELD] ?? false),
+            (bool)($data[self::FIELD_SHOW_ROOMS_FIELD] ?? false),
+            (bool)($data[self::FIELD_SHOW_DESCRIPTION_FIELD] ?? false),
+            (bool)($data[self::FIELD_SHOW_GARDEN_FIELD] ?? false),
+            (bool)($data[self::FIELD_SHOW_FLOOR_PLAN_FIELD] ?? false)
         );
     }
     
@@ -109,7 +134,12 @@ class InvestmentDto extends ModelDto {
             self::FIELD_HAS_PROPERTY_PARTS => $this->has_property_parts,
             self::FIELD_HAS_BELONGING_ROOMS => $this->has_belonging_rooms,
             self::FIELD_HAS_USAGE_RIGHTS => $this->has_usage_rights,
-            self::FIELD_HAS_OTHER_SERVICES => $this->has_other_services
+            self::FIELD_HAS_OTHER_SERVICES => $this->has_other_services,
+            self::FIELD_SHOW_FLOOR_FIELD => $this->show_floor_field,
+            self::FIELD_SHOW_ROOMS_FIELD => $this->show_rooms_field,
+            self::FIELD_SHOW_DESCRIPTION_FIELD => $this->show_description_field,
+            self::FIELD_SHOW_GARDEN_FIELD => $this->show_garden_field,
+            self::FIELD_SHOW_FLOOR_PLAN_FIELD => $this->show_floor_plan_field
         ];
     }
 }

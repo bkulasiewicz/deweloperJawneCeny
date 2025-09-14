@@ -32,4 +32,11 @@ class SettingsRepository {
     public function setDbVersion($version) {
         return update_option(self::DB_VERSION, $version);
     }
+    
+    /**
+     * Pobiera wersję bazy danych
+     */
+    public function getDbVersion() {
+        return get_option(self::DB_VERSION, DB_VERSION);
+    }
 }

@@ -13,7 +13,7 @@ class UJC_Admin {
     private $supplier_data_page_instance;
     private $resources_page_instance;
     private $publication_page_instance;
-    private $resource_modal_instance;
+    private $frontend_management_page_instance;
     private $history_modal_instance;
     private $dev_console_instance;
     
@@ -26,7 +26,7 @@ class UJC_Admin {
         $this->supplier_data_page_instance = new SupplierDataPage();
         $this->resources_page_instance = new ResourcesPage();
         $this->publication_page_instance = new PublicationPage();
-        $this->resource_modal_instance = new ResourceModal();
+        $this->frontend_management_page_instance = new FrontendManagementPage();
         $this->history_modal_instance = new HistoryModal();
         $this->dev_console_instance = new DevConsoleTile();
         
@@ -79,6 +79,15 @@ class UJC_Admin {
             'ujc-publication',
             [$this, 'publication_page']
         );
+        
+        add_submenu_page(
+            'ujc-dashboard',
+            'Warstwa Frontendowa',
+            'Warstwa Frontendowa',
+            'manage_options',
+            'ujc-frontend-management',
+            [$this, 'frontend_management_page']
+        );
     }
     
     public function dashboard_page() {
@@ -95,6 +104,10 @@ class UJC_Admin {
     
     public function publication_page() {
         $this->publication_page_instance->render();
+    }
+    
+    public function frontend_management_page() {
+        $this->frontend_management_page_instance->render();
     }
     
     public function enqueue_admin_scripts($hook) {

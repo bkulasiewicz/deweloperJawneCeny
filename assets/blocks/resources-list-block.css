@@ -1,65 +1,43 @@
-/* Resources List Block Styles */
-.resources-list-block {
+/* Resources List Frontend Styles - Clean structure for blocks and shortcodes */
+
+/* Container classes */
+.resources-list-block,
+.ujc-shortcode-resources-list {
     margin: 20px 0;
 }
 
+/* Base table structure */
 .resources-table {
     width: 100%;
     border-collapse: collapse;
     margin: 0;
-    font-family: inherit;
 }
 
 .resources-table th,
 .resources-table td {
     padding: 12px 15px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
 }
 
+/* Table styling with CSS variables */
 .resources-table th {
-    background-color: #f8f9fa;
-    font-weight: bold;
-    color: #333;
-}
-
-.resources-table tr:hover {
-    background-color: #f5f5f5;
+    background-color: var(--header-bg-color, #f9f9f9);
+    color: var(--header-text-color, #333333);
+    font-family: var(--header-font-family, inherit);
 }
 
 .resources-table td {
-    color: #666;
+    color: var(--text-color, #333333);
+    font-family: var(--content-font-family, inherit);
 }
 
-/* Status styles */
-.status-dostepny {
-    background-color: #d4edda;
-    color: #155724;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.875em;
+.resources-table tbody tr:hover {
+    background-color: var(--hover-bg-color, #f5f5f5);
 }
 
-.status-sprzedany {
-    background-color: #f8d7da;
-    color: #721c24;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.875em;
-}
-
-.status-rezerwacja {
-    background-color: #fff3cd;
-    color: #856404;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.875em;
-}
-
-/* Price History Button */
-.price-history-btn {
-    background-color: #007cba;
-    color: white;
+/* Common Button Styles */
+.ujc-historia-btn,
+.ujc-karta-btn {
     border: none;
     padding: 6px 12px;
     border-radius: 4px;
@@ -68,13 +46,54 @@
     transition: background-color 0.2s;
 }
 
-.price-history-btn:hover {
-    background-color: #005a8b;
+/* Historia Button */
+.ujc-historia-btn {
+    background-color: var(--historia-btn-bg-color, #007cba);
+    color: var(--historia-btn-text-color, #ffffff);
 }
 
-.price-history-btn:focus {
-    outline: 2px solid #007cba;
+.ujc-historia-btn:hover {
+    opacity: 0.8;
+}
+
+.ujc-historia-btn:focus {
+    outline: 2px solid var(--historia-btn-bg-color, #007cba);
     outline-offset: 2px;
+}
+
+/* Karta Button */
+.ujc-karta-btn,
+.download-floorplan-btn {
+    background-color: var(--karta-btn-bg-color, #007cba);
+    color: var(--karta-btn-text-color, #ffffff);
+}
+
+.ujc-karta-btn:hover,
+.download-floorplan-btn:hover {
+    opacity: 0.8;
+}
+
+/* Status Styles */
+.ujc-shortcode-resources-list [class*="ujc-status-"] {
+    padding: var(--status-padding, 4px 8px);
+    border-radius: var(--status-border-radius, 4px);
+    font-size: var(--status-font-size, 0.875em);
+    font-weight: var(--status-font-weight, normal);
+}
+
+.ujc-status-available {
+    background-color: var(--status-available-bg, #28a745);
+    color: var(--status-available-color, #ffffff);
+}
+
+.ujc-status-sold {
+    background-color: var(--status-sold-bg, #dc3545);
+    color: var(--status-sold-color, #ffffff);
+}
+
+.ujc-status-reserved {
+    background-color: var(--status-reserved-bg, #ffc107);
+    color: var(--status-reserved-color, #000000);
 }
 
 /* Modal Styles */
@@ -111,7 +130,6 @@
 
 .modal-header h3 {
     margin: 0;
-    color: #333;
 }
 
 .modal-close {
@@ -119,7 +137,6 @@
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: #666;
     width: 30px;
     height: 30px;
     display: flex;
@@ -128,8 +145,6 @@
 }
 
 .modal-close:hover {
-    color: #333;
-    background-color: #f0f0f0;
     border-radius: 50%;
 }
 
@@ -182,17 +197,52 @@
     font-weight: 500;
 }
 
+/* Status Display Style Variations */
+/* Badge style (default) */
+.ujc-shortcode-resources-list [class*="ujc-status-"].ujc-status-style-badge {
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+/* Pill style */
+.ujc-shortcode-resources-list [class*="ujc-status-"].ujc-status-style-pill {
+    border-radius: 50px !important;
+    border: none;
+}
+
+/* Highlight style */
+.ujc-shortcode-resources-list [class*="ujc-status-"].ujc-status-style-highlight {
+    opacity: 0.9;
+    font-weight: bold;
+}
+
+/* Underline style */
+.ujc-shortcode-resources-list [class*="ujc-status-"].ujc-status-style-underline {
+    background-color: transparent !important;
+    border-bottom: 2px solid currentColor;
+    border-radius: 0 !important;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+/* Plain style */
+.ujc-shortcode-resources-list [class*="ujc-status-"].ujc-status-style-plain {
+    background-color: transparent !important;
+    border: none;
+    border-radius: 0 !important;
+    padding: 0;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .resources-table {
         font-size: 0.875em;
     }
-    
+
     .resources-table th,
     .resources-table td {
         padding: 8px 10px;
     }
-    
+
     .resources-table th:nth-child(2),
     .resources-table td:nth-child(2) {
         display: none;
@@ -205,7 +255,7 @@
         padding: 6px 8px;
         font-size: 0.8em;
     }
-    
+
     .resources-table th:nth-child(4),
     .resources-table td:nth-child(4) {
         display: none;

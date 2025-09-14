@@ -50,8 +50,9 @@ class GenerateCSVFileUseCase {
             $investment = $this->investmentRepository->read();
             Logger::info('GenerateCSV: Investment data loaded');
             
-            $resources = $this->resourceRepository->readAll();
-            Logger::info('GenerateCSV: Resources loaded - count: ' . count($resources));
+            $getResourcesForGovernmentUseCase = new GetResourcesForGovernmentUseCase();
+            $resources = $getResourcesForGovernmentUseCase->execute();
+            Logger::info('GenerateCSV: Resources loaded for government (excluding service premises) - count: ' . count($resources));
             
             Logger::info('GenerateCSV: Getting price history for resources...');
             $priceHistory = $this->getPriceHistoryForResources($resources);
@@ -107,9 +108,10 @@ class GenerateCSVFileUseCase {
             $errors[] = "Brak danych inwestycji. Uzupełnij dane inwestycji w zakładce 'Zasoby'";
         }
         
-        $resources = $this->resourceRepository->readAll();
+        $getResourcesForGovernmentUseCase = new GetResourcesForGovernmentUseCase();
+        $resources = $getResourcesForGovernmentUseCase->execute();
         if (empty($resources)) {
-            $errors[] = "Brak nieruchomości do eksportu. Dodaj nieruchomości w zakładce 'Zasoby'";
+            $errors[] = "Brak nieruchomości do eksportu dla rządu. Dodaj nieruchomości w zakładce 'Zasoby'";
         }
         
         // Check directory using FileManager

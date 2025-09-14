@@ -107,7 +107,13 @@ class UpdateResourceUseCase {
                 $existingResource?->other_service_price,
                 $existingResource?->other_service_price_date,
                 $currentDate
-            )
+            ),
+            // Marketing fields
+            floor_number: $formData->floor_number,
+            room_count: $formData->room_count,
+            additional_description: $formData->additional_description,
+            garden_area: $formData->garden_area,
+            floor_plan_pdf: $formData->floor_plan_pdf
         );
     }
     

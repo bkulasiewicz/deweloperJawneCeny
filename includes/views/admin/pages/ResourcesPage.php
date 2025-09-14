@@ -33,7 +33,6 @@ class ResourcesPage {
         Logger::info('UJC: ResourcesPage InvestmentModal created successfully');
         
         // Dodaj AJAX handlers
-        add_action('wp_ajax_ujc_save_investment', [$this, 'ajax_save_investment']);
         add_action('wp_ajax_ujc_import_resources', [$this, 'ajax_import_resources']);
     }
     
@@ -54,9 +53,9 @@ class ResourcesPage {
             return;
         }
         
-        // Jeśli brak inwestycji, pokaż formularz dodawania inwestycji
+        // Jeśli brak inwestycji, pokaż przycisk dodawania inwestycji
         if (!$investment) {
-            $this->render_investment_form();
+            $this->render_no_investment_view();
             return;
         }
         
@@ -64,7 +63,7 @@ class ResourcesPage {
         $this->render_resources_form($investment);
     }
     
-    private function render_investment_form() {
+    private function render_no_investment_view() {
         ?>
         <div class="wrap">
             <h1>Zasoby</h1>
@@ -72,78 +71,18 @@ class ResourcesPage {
                 <p><strong>Krok 1:</strong> Najpierw dodaj dane o inwestycji</p>
             </div>
             
-            <h2>Dodaj Inwestycję</h2>
-            <form id="investment-form" method="post">
-                <?php wp_nonce_field('ujc_investment_nonce', 'nonce'); ?>
-                
-                <table class="form-table">
-                    <tr>
-                        <th><label for="investment_name">Nazwa Inwestycji *</label></th>
-                        <td><input type="text" id="investment_name" name="investment_name" required class="regular-text" placeholder="np. Osiedle Słoneczne"></td>
-                    </tr>
-                    <tr>
-                        <th><label for="proj_wojewodztwo">Województwo *</label></th>
-                        <td><input type="text" id="proj_wojewodztwo" name="proj_wojewodztwo" required class="regular-text"></td>
-                    </tr>
-                    <tr>
-                        <th><label for="proj_powiat">Powiat</label></th>
-                        <td><input type="text" id="proj_powiat" name="proj_powiat" class="regular-text"></td>
-                    </tr>
-                    <tr>
-                        <th><label for="proj_gmina">Gmina</label></th>
-                        <td><input type="text" id="proj_gmina" name="proj_gmina" class="regular-text"></td>
-                    </tr>
-                    <tr>
-                        <th><label for="proj_miejscowosc">Miejscowość *</label></th>
-                        <td><input type="text" id="proj_miejscowosc" name="proj_miejscowosc" required class="regular-text"></td>
-                    </tr>
-                    <tr>
-                        <th><label for="proj_ulica">Ulica</label></th>
-                        <td><input type="text" id="proj_ulica" name="proj_ulica" class="regular-text"></td>
-                    </tr>
-                    <tr>
-                        <th><label for="proj_nr">Nr nieruchomości</label></th>
-                        <td><input type="text" id="proj_nr" name="proj_nr" class="regular-text"></td>
-                    </tr>
-                    <tr>
-                        <th><label for="proj_kod">Kod pocztowy</label></th>
-                        <td><input type="text" id="proj_kod" name="proj_kod" class="regular-text" pattern="[0-9]{2}-[0-9]{3}" placeholder="00-000"></td>
-                    </tr>
-                </table>
-                
-                <p class="submit">
-                    <input type="submit" class="button-primary" value="Dodaj Inwestycję">
-                </p>
-            </form>
+            <div style="text-align: center; padding: 40px; background: #f9f9f9; border: 1px dashed #ccc; margin: 20px 0;">
+                <h2>Brak danych o inwestycji</h2>
+                <p style="margin-bottom: 20px;">Aby dodać zasoby, musisz najpierw utworzyć inwestycję.</p>
+                <button type="button" class="button-primary" onclick="openInvestmentModal()" style="font-size: 16px; padding: 8px 20px;">
+                    <span class="dashicons dashicons-plus-alt2" style="font-size: 16px; line-height: 1; margin-right: 5px;"></span>
+                    Dodaj Inwestycję
+                </button>
+            </div>
+            
+            <!-- Renderuj modal inwestycji -->
+            <?php $this->investmentModal->render_modal(); ?>
         </div>
-        
-        <script>
-        jQuery(document).ready(function($) {
-            $('#investment-form').on('submit', function(e) {
-                e.preventDefault();
-                
-                var formData = $(this).serialize();
-                formData += '&action=ujc_save_investment&nonce=' + ujc_ajax.nonce;
-                
-                var $submit = $(this).find('input[type="submit"]');
-                var originalText = $submit.val();
-                $submit.val('Dodawanie...').prop('disabled', true);
-                
-                $.post(ujc_ajax.ajax_url, formData, function(response) {
-                    if (response.success) {
-                        alert('✅ Inwestycja została dodana!');
-                        location.reload();
-                    } else {
-                        alert('❌ ' + (response.data || 'Błąd podczas dodawania'));
-                    }
-                }).fail(function() {
-                    alert('❌ Błąd połączenia');
-                }).always(function() {
-                    $submit.val(originalText).prop('disabled', false);
-                });
-            });
-        });
-        </script>
         <?php
     }
     
@@ -161,7 +100,7 @@ class ResourcesPage {
             
             <!-- Przycisk informacji o inwestycji -->
             <div style="margin: 20px 0;">
-                <button type="button" class="button" onclick="openInvestmentModal()" style="display: flex; align-items: center; gap: 5px;">
+                <button type="button" class="button" onclick="openInvestmentModal(<?php echo $investment->id; ?>)" style="display: flex; align-items: center; gap: 5px;">
                     <span class="dashicons dashicons-info" style="font-size: 16px; line-height: 1;"></span>
                     <span>Dane Inwestycji</span>
                 </button>
@@ -307,66 +246,6 @@ class ResourcesPage {
         Logger::info("ResourcesPage::render_resources_list - PHP rendering completed successfully");
     }
     
-    public function ajax_save_investment() {
-        Logger::info('UJC: ajax_save_investment started. POST data: ' . print_r($_POST, true));
-        
-        check_ajax_referer('ujc_admin_nonce', 'nonce');
-        if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
-        
-        try {
-            // Convert POST data to InvestmentDto format
-            $data = [
-                'name' => sanitize_text_field($_POST['investment_name'] ?? ''),
-                'proj_wojewodztwo' => sanitize_text_field($_POST['proj_wojewodztwo'] ?? ''),
-                'proj_powiat' => sanitize_text_field($_POST['proj_powiat'] ?? ''),
-                'proj_gmina' => sanitize_text_field($_POST['proj_gmina'] ?? ''),
-                'proj_miejscowosc' => sanitize_text_field($_POST['proj_miejscowosc'] ?? ''),
-                'proj_ulica' => sanitize_text_field($_POST['proj_ulica'] ?? ''),
-                'proj_nr' => sanitize_text_field($_POST['proj_nr'] ?? ''),
-                'proj_kod' => sanitize_text_field($_POST['proj_kod'] ?? ''),
-                'has_property_parts' => isset($_POST['has_property_parts']) ? 1 : 0,
-                'has_belonging_rooms' => isset($_POST['has_belonging_rooms']) ? 1 : 0,
-                'has_usage_rights' => isset($_POST['has_usage_rights']) ? 1 : 0,
-                'has_other_services' => isset($_POST['has_other_services']) ? 1 : 0,
-            ];
-            
-            Logger::info('UJC: Sanitized data: ' . print_r($data, true));
-            
-            // Create InvestmentDto
-            $investmentDto = new InvestmentDto(
-                0, // ID will be generated by database
-                1, // Default developer_id for compatibility
-                $data['name'],
-                $data['proj_wojewodztwo'],
-                $data['proj_powiat'],
-                $data['proj_gmina'],
-                $data['proj_miejscowosc'],
-                $data['proj_ulica'],
-                $data['proj_nr'],
-                $data['proj_kod'],
-                (bool)$data['has_property_parts'],
-                (bool)$data['has_belonging_rooms'],
-                (bool)$data['has_usage_rights'],
-                (bool)$data['has_other_services']
-            );
-            
-            // Use CreateInvestmentUseCase
-            $createUseCase = new CreateInvestmentUseCase();
-            $result = $createUseCase->execute($investmentDto);
-            
-            Logger::info('UJC: CreateInvestmentUseCase result: ' . ($result->isSuccess ? 'SUCCESS' : 'FAILURE') . ' - ' . $result->message);
-            
-            if ($result->isSuccess) {
-                wp_send_json_success($result->message);
-            } else {
-                wp_send_json_error($result->message);
-            }
-            
-        } catch (Exception $e) {
-            Logger::error('UJC: Exception in ajax_save_investment: ' . $e->getMessage());
-            wp_send_json_error('Błąd podczas zapisywania inwestycji: ' . $e->getMessage());
-        }
-    }
     
     public function ajax_import_resources() {
         check_ajax_referer('ujc_admin_nonce', 'nonce');

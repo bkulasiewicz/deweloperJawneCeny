@@ -81,7 +81,13 @@ class CreateResourceUseCase {
             property_part_price_date: $formData->property_part?->price !== null ? $currentDate : null,
             belonging_room_price_date: $formData->belonging_room?->price !== null ? $currentDate : null,
             usage_right_price_date: $formData->usage_right?->price !== null ? $currentDate : null,
-            other_service_price_date: $formData->other_service?->price !== null ? $currentDate : null
+            other_service_price_date: $formData->other_service?->price !== null ? $currentDate : null,
+            // Marketing fields
+            floor_number: $formData->floor_number,
+            room_count: $formData->room_count,
+            additional_description: $formData->additional_description,
+            garden_area: $formData->garden_area,
+            floor_plan_pdf: $formData->floor_plan_pdf
         );
     }
     

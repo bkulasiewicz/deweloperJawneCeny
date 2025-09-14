@@ -138,6 +138,130 @@ Key actions:
 - `ujc_generate_files` - Cron hook for automated generation
 - Admin menu added at priority 10
 
+## Shortcode [resources_list]
+
+The plugin provides a powerful `[resources_list]` shortcode for displaying property listings on frontend pages with full customization options.
+
+### Basic Usage
+```
+[resources_list]
+```
+Displays residential units with default columns and styling.
+
+### Parameters
+
+#### Property Types (`types`)
+Comma-separated list of property types to display:
+- `residential_unit` - Lokal mieszkalny (default)
+- `single_family_house` - Dom jednorodzinny  
+- `service_premises` - Lokal usługowy
+- `parking_space` - Miejsce postojowe
+- `storage_room` - Komórka lokatorska
+- `garage` - Garaż
+
+**Example:**
+```
+[resources_list types="residential_unit,parking_space"]
+```
+
+#### Columns (`columns`)
+Comma-separated list in format `field:display_name`. **The order of elements determines the display order in the table**.
+
+**Available Fields:**
+- `nr_lokalu` - Unit number
+- `rodzaj_nieruchomosci` - Property type
+- `powierzchnia_uzytkowa` - Usable area (m²)
+- `status` - Availability status
+- `cena_m2` - Price per m²
+- `cena_calkowita` - Total price
+- `cena_z_dodatkami` - Price with extras
+- `floor_number` - Floor number
+- `room_count` - Number of rooms
+- `additional_description` - Additional description
+- `garden_area` - Garden area (m²)
+- `floor_plan_pdf` - Floor plan PDF link
+- `historia_cen` - Price history button
+
+**Example:**
+```
+[resources_list columns="nr_lokalu:Numer,powierzchnia_uzytkowa:Powierzchnia,cena_calkowita:Cena,historia_cen:Historia"]
+```
+
+#### Clickable Rows (`detail_page_url`)
+Optional parameter to make table rows clickable. When clicked, opens detail page in new tab.
+
+**Format:** Base URL ending with `/`
+**Result:** `detail_page_url` + `nr_lokalu` (e.g., `/mieszkania/A1`)
+
+**Example:**
+```
+[resources_list detail_page_url="/mieszkania/"]
+```
+
+#### Styling Options
+- `header_bg_color` - Table header background color (default: `#f9f9f9`)
+- `header_text_color` - Header text color (default: `#333333`)
+- `button_bg_color` - Button background color (default: `#007cba`)
+- `button_text_color` - Button text color (default: `#ffffff`)
+- `hover_bg_color` - Row hover background color (default: `#f5f5f5`)
+- `text_color` - Table content text color (default: `#333333`)
+- `header_font_family` - Header font family (default: `inherit`)
+- `content_font_family` - Content font family (default: `inherit`)
+
+### Advanced Examples
+
+**Custom property types and columns:**
+```
+[resources_list
+    types="residential_unit,parking_space"
+    columns="nr_lokalu:Lokal,rodzaj_nieruchomosci:Typ,powierzchnia_uzytkowa:Powierzchnia,cena_calkowita:Cena_całkowita,status:Status,historia_cen:Historia"
+    button_bg_color="#28a745"
+    header_bg_color="#e9ecef"]
+```
+
+**Single property type with custom styling:**
+```
+[resources_list
+    types="single_family_house"
+    columns="nr_lokalu:Dom,powierzchnia_uzytkowa:Powierzchnia,garden_area:Ogród,cena_calkowita:Cena,floor_plan_pdf:Plan"
+    header_bg_color="#343a40"
+    header_text_color="#ffffff"
+    button_bg_color="#dc3545"]
+```
+
+**Clickable rows with detail pages:**
+```
+[resources_list
+    detail_page_url="/mieszkania/"
+    types="residential_unit"
+    columns="nr_lokalu:Numer,powierzchnia_uzytkowa:Powierzchnia,cena_calkowita:Cena"]
+```
+
+**All features combined:**
+```
+[resources_list
+    detail_page_url="/nieruchomosci/"
+    types="residential_unit,parking_space"
+    columns="nr_lokalu:Lokal,rodzaj_nieruchomosci:Typ,cena_calkowita:Cena,historia_cen:Historia"
+    header_bg_color="#2c3e50"
+    header_text_color="#ffffff"
+    button_bg_color="#e74c3c"]
+```
+
+### Column Ordering
+**Important:** The order of fields in the `columns` parameter determines the order of columns in the displayed table. Clients can customize column order by rearranging the field names in the shortcode parameter.
+
+**Example - Different column orders:**
+```
+[resources_list columns="cena_calkowita:Cena,nr_lokalu:Lokal,powierzchnia_uzytkowa:Powierzchnia"]
+```
+Will display: Price | Unit Number | Area
+
+```
+[resources_list columns="nr_lokalu:Lokal,powierzchnia_uzytkowa:Powierzchnia,cena_calkowita:Cena"]
+```  
+Will display: Unit Number | Area | Price
+
 ## Deployment
 
 ### Building Releases

@@ -32,6 +32,12 @@ class ResourceDto extends ModelDto {
     public const FIELD_USAGE_RIGHT_PRICE_DATE = 'usage_right_price_date';
     public const FIELD_OTHER_SERVICE_PRICE_DATE = 'other_service_price_date';
     
+    public const FIELD_FLOOR_NUMBER = 'floor_number';
+    public const FIELD_ROOM_COUNT = 'room_count';
+    public const FIELD_ADDITIONAL_DESCRIPTION = 'additional_description';
+    public const FIELD_GARDEN_AREA = 'garden_area';
+    public const FIELD_FLOOR_PLAN_PDF = 'floor_plan_pdf';
+    
     public int $id;
     public int $investment_id;
     public PropertyType $rodzaj_nieruchomosci;
@@ -58,6 +64,12 @@ class ResourceDto extends ModelDto {
     public ?string $usage_right_price_date;
     public ?string $other_service_price_date;
     
+    public ?int $floor_number;
+    public ?int $room_count;
+    public ?string $additional_description;
+    public ?float $garden_area;
+    public ?string $floor_plan_pdf;
+    
     public function __construct(
         int $id,
         int $investment_id,
@@ -78,7 +90,12 @@ class ResourceDto extends ModelDto {
         ?string $property_part_price_date = null,
         ?string $belonging_room_price_date = null,
         ?string $usage_right_price_date = null,
-        ?string $other_service_price_date = null
+        ?string $other_service_price_date = null,
+        ?int $floor_number = null,
+        ?int $room_count = null,
+        ?string $additional_description = null,
+        ?float $garden_area = null,
+        ?string $floor_plan_pdf = null
     ) {
         $this->id = $id;
         $this->investment_id = $investment_id;
@@ -100,6 +117,11 @@ class ResourceDto extends ModelDto {
         $this->belonging_room_price_date = $belonging_room_price_date;
         $this->usage_right_price_date = $usage_right_price_date;
         $this->other_service_price_date = $other_service_price_date;
+        $this->floor_number = $floor_number;
+        $this->room_count = $room_count;
+        $this->additional_description = $additional_description;
+        $this->garden_area = $garden_area;
+        $this->floor_plan_pdf = $floor_plan_pdf;
     }
     
     public static function databaseToModel(array $data): static {
@@ -123,7 +145,12 @@ class ResourceDto extends ModelDto {
             $data[self::FIELD_PROPERTY_PART_PRICE_DATE] ?? null,
             $data[self::FIELD_BELONGING_ROOM_PRICE_DATE] ?? null,
             $data[self::FIELD_USAGE_RIGHT_PRICE_DATE] ?? null,
-            $data[self::FIELD_OTHER_SERVICE_PRICE_DATE] ?? null
+            $data[self::FIELD_OTHER_SERVICE_PRICE_DATE] ?? null,
+            isset($data[self::FIELD_FLOOR_NUMBER]) ? (int)$data[self::FIELD_FLOOR_NUMBER] : null,
+            isset($data[self::FIELD_ROOM_COUNT]) ? (int)$data[self::FIELD_ROOM_COUNT] : null,
+            $data[self::FIELD_ADDITIONAL_DESCRIPTION] ?? null,
+            isset($data[self::FIELD_GARDEN_AREA]) ? (float)$data[self::FIELD_GARDEN_AREA] : null,
+            $data[self::FIELD_FLOOR_PLAN_PDF] ?? null
         );
     }
     
@@ -147,7 +174,12 @@ class ResourceDto extends ModelDto {
             self::FIELD_PROPERTY_PART_PRICE_DATE => $this->property_part_price_date,
             self::FIELD_BELONGING_ROOM_PRICE_DATE => $this->belonging_room_price_date,
             self::FIELD_USAGE_RIGHT_PRICE_DATE => $this->usage_right_price_date,
-            self::FIELD_OTHER_SERVICE_PRICE_DATE => $this->other_service_price_date
+            self::FIELD_OTHER_SERVICE_PRICE_DATE => $this->other_service_price_date,
+            self::FIELD_FLOOR_NUMBER => $this->floor_number,
+            self::FIELD_ROOM_COUNT => $this->room_count,
+            self::FIELD_ADDITIONAL_DESCRIPTION => $this->additional_description,
+            self::FIELD_GARDEN_AREA => $this->garden_area,
+            self::FIELD_FLOOR_PLAN_PDF => $this->floor_plan_pdf
         ];
     }
     
