@@ -5,11 +5,11 @@ if (!defined('ABSPATH')) {
 }
 
 class CreateInvestmentUseCase {
-    
+
     private $repository;
-    
-    public function __construct() {
-        $this->repository = new InvestmentRepository();
+
+    public function __construct(InvestmentRepository $repository) {
+        $this->repository = $repository;
     }
     
     public function execute(InvestmentDto $dto): Result {

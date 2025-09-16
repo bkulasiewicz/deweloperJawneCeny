@@ -8,11 +8,11 @@ if (!defined('ABSPATH')) {
  * Use case for adding entries to publication history
  */
 class AddPublicationHistoryUseCase {
-    
+
     private $repository;
-    
-    public function __construct() {
-        $this->repository = new PublicationHistoryRepository();
+
+    public function __construct(PublicationHistoryRepository $repository) {
+        $this->repository = $repository;
     }
     
     /**

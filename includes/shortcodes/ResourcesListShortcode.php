@@ -214,7 +214,7 @@ class ResourcesListShortcode {
         Logger::info("Shortcode: Selected type values: " . implode(', ', array_map(fn($type) => $type->value, $selected_types)));
         
         // Get resources using dedicated frontend UseCase with built-in filtering
-        $frontend_use_case = new GetResourcesForFrontendUseCase();
+        $frontend_use_case = DIContainer::get(GetResourcesForFrontendUseCase::class);
         $filtered_resources = $frontend_use_case->execute($selected_types);
         Logger::info("Shortcode: Got " . count($filtered_resources) . " filtered resources from GetResourcesForFrontendUseCase");
         

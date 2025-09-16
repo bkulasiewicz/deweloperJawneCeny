@@ -11,14 +11,17 @@ class SupplierDataPage extends UJC_Admin_Page {
     
     private $saveDeveloperInfoUseCase;
     private $getDeveloperInfoUseCase;
-    
-    public function __construct() {
-        $this->saveDeveloperInfoUseCase = new SaveDeveloperInfoUseCase();
-        $this->getDeveloperInfoUseCase = new GetDeveloperInfoUseCase();
-        
+
+    public function __construct(
+        SaveDeveloperInfoUseCase $saveDeveloperInfoUseCase,
+        GetDeveloperInfoUseCase $getDeveloperInfoUseCase
+    ) {
+        $this->saveDeveloperInfoUseCase = $saveDeveloperInfoUseCase;
+        $this->getDeveloperInfoUseCase = $getDeveloperInfoUseCase;
+
         add_action('wp_ajax_ujc_save_developer', [$this, 'ajax_save_developer']);
         add_action('admin_head', [$this, 'add_custom_styles']);
-        
+
         parent::__construct();
     }
     

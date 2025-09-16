@@ -43,7 +43,7 @@ class RegisterExternalCronUseCase {
             
             // Get plugin version and license ID
             $plugin_version = defined('VERSION') ? VERSION : '2.0.10';
-            $license_id = 'DJC8N5Q1WZ';
+            $license_id = 'NA9WQCIPYU';
             
             // Create title with metadata: domain | version | license
             $title = $domain . ' | v' . $plugin_version . ' | ' . $license_id;

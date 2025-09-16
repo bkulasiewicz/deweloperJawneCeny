@@ -16,15 +16,20 @@ class DashboardPage {
     private $automationTile;
     private $historyTile;
     
-    public function __construct() {
-        $this->developerRepository = new DeveloperRepository();
-        $this->investmentRepository = new InvestmentRepository();
-        $this->resourceRepository = new ResourceRepository();
-        $this->generateFilesUseCase = new GenerateFilesUseCase();
-        
-        // Initialize dashboard tiles
-        $this->automationTile = new AutomationTile();
-        $this->historyTile = new HistoryTile();
+    public function __construct(
+        DeveloperRepository $developerRepository,
+        InvestmentRepository $investmentRepository,
+        ResourceRepository $resourceRepository,
+        GenerateFilesUseCase $generateFilesUseCase,
+        AutomationTile $automationTile,
+        HistoryTile $historyTile
+    ) {
+        $this->developerRepository = $developerRepository;
+        $this->investmentRepository = $investmentRepository;
+        $this->resourceRepository = $resourceRepository;
+        $this->generateFilesUseCase = $generateFilesUseCase;
+        $this->automationTile = $automationTile;
+        $this->historyTile = $historyTile;
         
         add_action('wp_ajax_ujc_manual_generation', [$this, 'ajax_manual_generation']);
         add_action('wp_ajax_download_logs', [$this, 'ajax_download_logs']);

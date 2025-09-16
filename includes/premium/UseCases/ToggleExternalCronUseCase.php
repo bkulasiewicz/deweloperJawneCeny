@@ -16,12 +16,18 @@ class ToggleExternalCronUseCase {
     private $investmentRepository;  
     private $resourceRepository;
     
-    public function __construct() {
-        $this->registerUseCase = new RegisterExternalCronUseCase();
-        $this->unregisterUseCase = new UnregisterExternalCronUseCase();
-        $this->developerRepository = new DeveloperRepository();
-        $this->investmentRepository = new InvestmentRepository();
-        $this->resourceRepository = new ResourceRepository();
+    public function __construct(
+        RegisterExternalCronUseCase $registerUseCase,
+        UnregisterExternalCronUseCase $unregisterUseCase,
+        DeveloperRepository $developerRepository,
+        InvestmentRepository $investmentRepository,
+        ResourceRepository $resourceRepository
+    ) {
+        $this->registerUseCase = $registerUseCase;
+        $this->unregisterUseCase = $unregisterUseCase;
+        $this->developerRepository = $developerRepository;
+        $this->investmentRepository = $investmentRepository;
+        $this->resourceRepository = $resourceRepository;
     }
     
     /**

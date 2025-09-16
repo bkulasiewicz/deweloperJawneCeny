@@ -5,11 +5,11 @@ if (!defined('ABSPATH')) {
 }
 
 class GetPriceHistoryUseCase {
-    
+
     private $repository;
-    
-    public function __construct() {
-        $this->repository = new PriceHistoryRepository();
+
+    public function __construct(PriceHistoryRepository $repository) {
+        $this->repository = $repository;
     }
     
     /**

@@ -5,12 +5,20 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Shortcode Manager
- * Handles registration and management of plugin shortcodes
+ * Shortcode Manager - Enhanced with Dependency Injection
+ * Handles registration and management of plugin shortcodes with proper DI support
  */
 class ShortcodeManager {
-    
+
     public function __construct() {
+        $this->initializeShortcodeHooks();
+        Logger::info('ShortcodeManager: Initialized');
+    }
+
+    /**
+     * Initialize WordPress shortcode hooks
+     */
+    private function initializeShortcodeHooks() {
         add_action('init', [$this, 'register_shortcodes']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_shortcode_assets']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_shortcode_assets']);

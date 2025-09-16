@@ -14,18 +14,16 @@ class AutomationTile {
     private $externalCronController;
     private $toggleExternalCronUseCase;
     
-    public function __construct() {
-        // Initialize premium features if classes exist
-        if (class_exists('ExternalCronRepository')) {
-            $this->externalCronRepository = new ExternalCronRepository();
-        }
-        
-        if (class_exists('ExternalCronController')) {
-            $this->externalCronController = new ExternalCronController();
-        }
-        
-        if (class_exists('ToggleExternalCronUseCase')) {
-            $this->toggleExternalCronUseCase = new ToggleExternalCronUseCase();
+    public function __construct(
+        ?ExternalCronRepository $externalCronRepository = null,
+        ?ExternalCronController $externalCronController = null,
+        ?ToggleExternalCronUseCase $toggleExternalCronUseCase = null
+    ) {
+        $this->externalCronRepository = $externalCronRepository;
+        $this->externalCronController = $externalCronController;
+        $this->toggleExternalCronUseCase = $toggleExternalCronUseCase;
+
+        if ($this->toggleExternalCronUseCase) {
             add_action('wp_ajax_ujc_toggle_external_cron', [$this, 'ajax_toggle_external_cron']);
         }
     }

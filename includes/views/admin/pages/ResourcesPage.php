@@ -8,37 +8,34 @@ if (!defined('ABSPATH')) {
  * Strona zasobów
  */
 class ResourcesPage {
-    
-    private $developerRepository;
-    private $investmentRepository;
-    private $resourceRepository;
-    private $importResourcesUseCase;
+
     private $getAllResourcesUseCase;
-    private $historyModal;
     private $resourceModal;
     private $investmentModal;
-    
-    public function __construct() {
-        Logger::info('UJC: ResourcesPage constructor started');
-        // Wszystkie instancje w konstruktorze
-        $this->developerRepository = new DeveloperRepository();
-        $this->investmentRepository = new InvestmentRepository();
-        $this->resourceRepository = new ResourceRepository();
-        $this->importResourcesUseCase = new ImportResourcesUseCase();
-        $this->getAllResourcesUseCase = new GetAllResourcesUseCase();
-        $this->historyModal = new HistoryModal();
-        $this->resourceModal = new ResourceModal();
-        Logger::info('UJC: ResourcesPage about to create InvestmentModal');
-        $this->investmentModal = new InvestmentModal();
-        Logger::info('UJC: ResourcesPage InvestmentModal created successfully');
-        
+
+    public function __construct(
+        GetAllResourcesUseCase $getAllResourcesUseCase,
+        ResourceModal $resourceModal,
+        InvestmentModal $investmentModal
+    ) {
+        Logger::info('UJC: ResourcesPage constructor started with DI');
+
+        $this->getAllResourcesUseCase = $getAllResourcesUseCase;
+        $this->resourceModal = $resourceModal;
+        $this->investmentModal = $investmentModal;
+
         // Dodaj AJAX handlers
         add_action('wp_ajax_ujc_import_resources', [$this, 'ajax_import_resources']);
+
+        Logger::info('UJC: ResourcesPage initialized with DI successfully');
     }
     
     public function render() {
-        $developer = $this->developerRepository->read();
-        $investment = $this->investmentRepository->read();
+        $developerRepository = DIContainer::get(DeveloperRepository::class);
+        $investmentRepository = DIContainer::get(InvestmentRepository::class);
+
+        $developer = $developerRepository->read();
+        $investment = $investmentRepository->read();
         
         // Sprawdź czy dane dostawcy są wypełnione
         if (!$developer) {
@@ -249,16 +246,17 @@ class ResourcesPage {
     
     public function ajax_import_resources() {
         check_ajax_referer('ujc_admin_nonce', 'nonce');
-        
+
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Brak uprawnień');
         }
-        
+
         try {
-            $result = $this->importResourcesUseCase->execute($_FILES['import_file']);
-            
+            $importResourcesUseCase = DIContainer::get(ImportResourcesUseCase::class);
+            $result = $importResourcesUseCase->execute($_FILES['import_file']);
+
             wp_send_json_success($result);
-            
+
         } catch (Exception $e) {
             Logger::error('UJC Import Error: ' . $e->getMessage());
             wp_send_json_error($e->getMessage());

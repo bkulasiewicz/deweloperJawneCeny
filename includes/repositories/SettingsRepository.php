@@ -8,7 +8,7 @@ class SettingsRepository {
     
     const LAST_GENERATION_STATUS = 'last_generation_status';
     const LAST_GENERATION_TIME = 'last_generation_time';
-    const DB_VERSION = 'db_version';
+    const DB_VERSION = 'jawneceny_db_version';
     
     /**
      * Zapisuje status ostatniej generacji

@@ -14,10 +14,14 @@ class CreateDaneGovSubmissionFilesUseCase {
     private $fileManager;
     private $developerRepository;
     
-    public function __construct() {
-        $this->xmlFormatter = new XMLFormatter();
-        $this->fileManager = new FileManager();
-        $this->developerRepository = new DeveloperRepository();
+    public function __construct(
+        XMLFormatter $xmlFormatter,
+        FileManager $fileManager,
+        DeveloperRepository $developerRepository
+    ) {
+        $this->xmlFormatter = $xmlFormatter;
+        $this->fileManager = $fileManager;
+        $this->developerRepository = $developerRepository;
     }
     
     /**

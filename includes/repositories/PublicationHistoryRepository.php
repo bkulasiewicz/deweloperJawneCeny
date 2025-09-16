@@ -72,7 +72,7 @@ class PublicationHistoryRepository {
     public function clearHistory() {
         global $wpdb;
         
-        $result = $wpdb->query("TRUNCATE TABLE {$this->table_name}");
+        $result = $wpdb->query("TRUNCATE TABLE `{$this->table_name}`");
         
         return $result !== false;
     }
@@ -107,7 +107,7 @@ class PublicationHistoryRepository {
                 $status
             ));
         } else {
-            return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `{$this->table_name}`"));
+            return (int) $wpdb->get_var("SELECT COUNT(*) FROM `{$this->table_name}`");
         }
     }
     
@@ -135,6 +135,6 @@ class PublicationHistoryRepository {
             KEY " . PublicationHistoryDto::FIELD_STATUS . " (" . PublicationHistoryDto::FIELD_STATUS . ")
         ) " . $charset_collate;
         
-        return $wpdb->query($wpdb->prepare($sql)) !== false;
+        return $wpdb->query($sql) !== false;
     }
 }

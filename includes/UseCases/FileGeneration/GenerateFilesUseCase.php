@@ -15,11 +15,16 @@ class GenerateFilesUseCase {
     private $historyUseCase;
     private $addXmlResourceUseCase;
     
-    public function __construct() {
-        $this->csvUseCase = new GenerateCSVFileUseCase();
-        $this->submissionUseCase = new CreateDaneGovSubmissionFilesUseCase();
-        $this->historyUseCase = new AddPublicationHistoryUseCase();
-        $this->addXmlResourceUseCase = new AddXmlResourceUseCase();
+    public function __construct(
+        GenerateCSVFileUseCase $csvUseCase,
+        CreateDaneGovSubmissionFilesUseCase $submissionUseCase,
+        AddPublicationHistoryUseCase $historyUseCase,
+        AddXmlResourceUseCase $addXmlResourceUseCase
+    ) {
+        $this->csvUseCase = $csvUseCase;
+        $this->submissionUseCase = $submissionUseCase;
+        $this->historyUseCase = $historyUseCase;
+        $this->addXmlResourceUseCase = $addXmlResourceUseCase;
     }
     
     /**

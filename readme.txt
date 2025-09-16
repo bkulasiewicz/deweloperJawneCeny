@@ -5,11 +5,13 @@ Tags: real-estate, pricing, compliance, data-export, xml, csv, dane-gov-pl, nier
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.2.0
+Stable tag: 4.2.26
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości.
+
+Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law.
 
 == Description ==
 
@@ -56,6 +58,52 @@ Wtyczka zapewnia pełną zgodność z polskimi przepisami dotyczącymi jawności
 = Wsparcie =
 
 Jeśli potrzebujesz pomocy z konfiguracją lub masz pytania, skorzystaj z formularza kontaktowego dostępnego na naszej stronie [www.deweloperjawneceny.pl](https://www.deweloperjawneceny.pl/).
+
+== Description (English) ==
+
+**Deweloper Jawne Ceny** is a WordPress plugin created specifically for Polish real estate developers who must comply with obligations arising from the Act of May 21, 2025 on amending the act on the protection of the rights of residential premises buyers.
+
+= Key Features =
+
+* **Developer data management** - storing information about the development company
+* **Investment catalog** - managing residential projects
+* **Property pricing** - entering and updating prices of individual units
+* **Automatic file generation** - creating XML and CSV files compliant with dane.gov.pl portal requirements
+* **Publication history** - tracking all data publications
+* **Public links** - automatic sharing of files for government authorities
+* **Website display** - basic options for presenting properties to clients
+
+= Legal Compliance =
+
+The plugin ensures full compliance with Polish regulations regarding real estate price transparency:
+
+* Automatic generation of XML files compliant with dane.gov.pl schema
+* Data export in CSV format for easy analysis
+* Public data sharing under permanent URLs
+* Automatic MD5 checksum generation
+
+= Plugin Versions =
+
+**Free version:**
+* Full data management features and manual file generation
+* Basic website display capabilities for properties
+* Legal compliance
+
+**Premium version:**
+* Automation and scheduled data publishing
+* Extended website display options for properties
+* Advanced client presentation features
+
+= Who is it for? =
+
+* **Real estate developers** - companies building apartments for sale
+* **Developer service offices** - companies managing the sales process
+* **Law firms** - compliance support for developers
+* **Consulting companies** - compliance consulting
+
+= Support =
+
+If you need help with configuration or have questions, use the contact form available on our website [www.deweloperjawneceny.pl](https://www.deweloperjawneceny.pl/).
 
 == Installation ==
 

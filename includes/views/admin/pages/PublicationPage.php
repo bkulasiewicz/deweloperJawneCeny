@@ -8,16 +8,21 @@ if (!defined('ABSPATH')) {
  * Strona Publikacja Danych - status publikacji, historia, generowanie
  */
 class PublicationPage {
-    
+
     private $generateFilesUseCase;
     private $getPublicationHistoryUseCase;
     private $csvFilesSection;
-    
-    public function __construct() {
-        $this->generateFilesUseCase = new GenerateFilesUseCase();
-        $this->getPublicationHistoryUseCase = new GetPublicationHistoryUseCase();
+
+    public function __construct(GetPublicationHistoryUseCase $getPublicationHistoryUseCase) {
+        Logger::info('UJC: PublicationPage constructor started with DI');
+
+        $this->generateFilesUseCase = DIContainer::get(GenerateFilesUseCase::class);
+        $this->getPublicationHistoryUseCase = $getPublicationHistoryUseCase;
         $this->csvFilesSection = new CsvFilesSection();
+
         add_action('wp_ajax_ujc_publication_generate', [$this, 'ajax_generate_files']);
+
+        Logger::info('UJC: PublicationPage initialized with DI successfully');
     }
     
     public function ajax_generate_files() {

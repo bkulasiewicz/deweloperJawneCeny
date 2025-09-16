@@ -7,7 +7,8 @@ if (!defined('ABSPATH')) {
 class ResourcesListBlock {
     
     public static function render($attributes, $content) {
-        $useCase = new GetAllResourcesUseCase();
+        // Use DI Container for getting Use Cases
+        $useCase = DIContainer::get(GetAllResourcesUseCase::class);
         $resources = $useCase->execute();
         
         if (empty($resources)) {

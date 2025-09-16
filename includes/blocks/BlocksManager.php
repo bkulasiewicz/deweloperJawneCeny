@@ -70,7 +70,8 @@ class BlocksManager {
             wp_die('Nieprawidłowe ID zasobu');
         }
         
-        $getPriceHistoryUseCase = new GetPriceHistoryUseCase();
+        // Use DI Container for Use Cases
+        $getPriceHistoryUseCase = DIContainer::get(GetPriceHistoryUseCase::class);
         $history = $getPriceHistoryUseCase->execute($resource_id);
         
         wp_send_json_success([

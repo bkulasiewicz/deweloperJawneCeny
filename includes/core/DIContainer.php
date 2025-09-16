@@ -1,0 +1,440 @@
+<?php
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+use lucatume\DI52\Container;
+
+/**
+ * Dependency Injection Container for UJC Plugin
+ * Implements layered architecture: Infrastructure -> Domain -> Application -> Presentation
+ * Optimized for performance with proper caching and lazy loading
+ */
+class DIContainer {
+    private static $container = null;
+    private static $isInitialized = false;
+
+    /**
+     * Initialize DI Container with all services (optimized)
+     */
+    public static function init() {
+        if (self::$container === null) {
+            $startTime = microtime(true);
+            self::$container = new Container();
+            Logger::info('DIContainer: Initializing DI Container');
+
+            self::registerInfrastructure();
+            self::registerDomain();
+            self::registerApplication();
+            self::registerPresentation();
+
+            self::$isInitialized = true;
+            $endTime = microtime(true);
+            $initTime = round(($endTime - $startTime) * 1000, 2);
+            Logger::info("DIContainer: All services registered in {$initTime}ms");
+        }
+        return self::$container;
+    }
+
+    /**
+     * Get service from container (optimized)
+     */
+    public static function get($abstract) {
+        if (self::$container === null) {
+            self::init();
+        }
+
+        // Only log in debug mode to reduce performance impact
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            Logger::info("DIContainer: Getting service: {$abstract}");
+        }
+
+        return self::$container->get($abstract);
+    }
+
+    /**
+     * Check if container is initialized
+     */
+    public static function isInitialized(): bool {
+        return self::$isInitialized;
+    }
+
+    /**
+     * Get container instance count for debugging
+     */
+    public static function getStats(): array {
+        if (!self::$isInitialized) {
+            return ['status' => 'not_initialized'];
+        }
+
+        return [
+            'status' => 'initialized',
+            'container_class' => get_class(self::$container),
+            'services_count' => '20+ Use Cases, 7 repositories, 5 services, 3 modals, 2 controllers'
+        ];
+    }
+
+    /**
+     * INFRASTRUCTURE LAYER - Repositories jako singletony
+     * Dostęp do bazy danych, zewnętrznych APIs, filesystem
+     */
+    private static function registerInfrastructure() {
+        $c = self::$container;
+        Logger::info('DIContainer: Registering Infrastructure layer');
+
+        // Wszystkie repositories jako singletony - jedna instancja w całej aplikacji
+        $c->singleton(ResourceRepository::class);
+        $c->singleton(PriceHistoryRepository::class);
+        $c->singleton(PublicationHistoryRepository::class);
+        $c->singleton(SettingsRepository::class);
+        $c->singleton(DeveloperRepository::class);
+        $c->singleton(InvestmentRepository::class);
+        $c->singleton(XmlResourceRepository::class);
+
+        // Premium repositories (conditional loading)
+        if (class_exists('ExternalCronRepository')) {
+            $c->singleton(ExternalCronRepository::class);
+        }
+
+        Logger::info('DIContainer: Infrastructure layer registered (7 repositories + premium)');
+    }
+
+    /**
+     * DOMAIN LAYER - Use Cases z dependency injection
+     * Business logic, główne przypadki użycia aplikacji
+     */
+    private static function registerDomain() {
+        $c = self::$container;
+        Logger::info('DIContainer: Registering Domain layer');
+
+        // Resource Use Cases
+        $c->bind(GetAllResourcesUseCase::class, function() use ($c) {
+            return new GetAllResourcesUseCase(
+                $c->get(ResourceRepository::class),
+                $c->get(PriceHistoryRepository::class)
+            );
+        });
+
+        $c->bind(GetResourcesForFrontendUseCase::class, function() use ($c) {
+            return new GetResourcesForFrontendUseCase(
+                $c->get(ResourceRepository::class)
+            );
+        });
+
+        $c->bind(CreateResourceUseCase::class, function() use ($c) {
+            return new CreateResourceUseCase(
+                $c->get(ResourceRepository::class),
+                $c->get(PriceHistoryRepository::class)
+            );
+        });
+
+        $c->bind(UpdateResourceUseCase::class, function() use ($c) {
+            return new UpdateResourceUseCase(
+                $c->get(ResourceRepository::class),
+                $c->get(PriceHistoryRepository::class)
+            );
+        });
+
+        $c->bind(DeleteResourceUseCase::class, function() use ($c) {
+            return new DeleteResourceUseCase(
+                $c->get(ResourceRepository::class)
+            );
+        });
+
+        $c->bind(GetResourceByIdUseCase::class, function() use ($c) {
+            return new GetResourceByIdUseCase(
+                $c->get(ResourceRepository::class),
+                $c->get(PriceHistoryRepository::class)
+            );
+        });
+
+        $c->bind(GetResourcesForGovernmentUseCase::class, function() use ($c) {
+            return new GetResourcesForGovernmentUseCase(
+                $c->get(ResourceRepository::class),
+                $c->get(PriceHistoryRepository::class)
+            );
+        });
+
+        // Publication History Use Cases
+        $c->bind(GetPublicationHistoryUseCase::class, function() use ($c) {
+            return new GetPublicationHistoryUseCase(
+                $c->get(PublicationHistoryRepository::class)
+            );
+        });
+
+        $c->bind(AddPublicationHistoryUseCase::class, function() use ($c) {
+            return new AddPublicationHistoryUseCase(
+                $c->get(PublicationHistoryRepository::class)
+            );
+        });
+
+        // Price History Use Cases
+        $c->bind(GetPriceHistoryUseCase::class, function() use ($c) {
+            return new GetPriceHistoryUseCase(
+                $c->get(PriceHistoryRepository::class)
+            );
+        });
+
+        // Developer Use Cases
+        $c->bind(SaveDeveloperInfoUseCase::class, function() use ($c) {
+            return new SaveDeveloperInfoUseCase(
+                $c->get(DeveloperRepository::class)
+            );
+        });
+
+        $c->bind(GetDeveloperInfoUseCase::class, function() use ($c) {
+            return new GetDeveloperInfoUseCase(
+                $c->get(DeveloperRepository::class)
+            );
+        });
+
+        // Investment Use Cases
+        $c->bind(CreateInvestmentUseCase::class, function() use ($c) {
+            return new CreateInvestmentUseCase(
+                $c->get(InvestmentRepository::class)
+            );
+        });
+
+        $c->bind(GetInvestmentUseCase::class, function() use ($c) {
+            return new GetInvestmentUseCase(
+                $c->get(InvestmentRepository::class)
+            );
+        });
+
+        $c->bind(UpdateInvestmentUseCase::class, function() use ($c) {
+            return new UpdateInvestmentUseCase(
+                $c->get(InvestmentRepository::class)
+            );
+        });
+
+        // XML Resource Use Cases
+        $c->bind(AddXmlResourceUseCase::class, function() use ($c) {
+            return new AddXmlResourceUseCase(
+                $c->get(XmlResourceRepository::class),
+                $c->get(DeveloperRepository::class)
+            );
+        });
+
+        // File Generation Use Cases
+        $c->bind(GenerateCSVFileUseCase::class, function() use ($c) {
+            return new GenerateCSVFileUseCase(
+                $c->get(DeveloperRepository::class),
+                $c->get(InvestmentRepository::class),
+                $c->get(ResourceRepository::class),
+                $c->get(PriceHistoryRepository::class),
+                $c->get(CSVFormatter::class),
+                $c->get(FileManager::class),
+                $c->get(GetResourcesForGovernmentUseCase::class)
+            );
+        });
+
+        $c->bind(CreateDaneGovSubmissionFilesUseCase::class, function() use ($c) {
+            return new CreateDaneGovSubmissionFilesUseCase(
+                $c->get(XMLFormatter::class),
+                $c->get(FileManager::class),
+                $c->get(DeveloperRepository::class)
+            );
+        });
+
+        $c->bind(GenerateFilesUseCase::class, function() use ($c) {
+            return new GenerateFilesUseCase(
+                $c->get(GenerateCSVFileUseCase::class),
+                $c->get(CreateDaneGovSubmissionFilesUseCase::class),
+                $c->get(AddPublicationHistoryUseCase::class),
+                $c->get(AddXmlResourceUseCase::class)
+            );
+        });
+
+        // System Use Cases
+        $c->bind(ImportResourcesUseCase::class, function() use ($c) {
+            return new ImportResourcesUseCase(
+                $c->get(CreateResourceUseCase::class),
+                $c->get(UpdateResourceUseCase::class),
+                $c->get(GetResourceByIdUseCase::class)
+            );
+        });
+
+        // Premium Use Cases (conditional loading)
+        if (class_exists('WpCronFallbackUseCase')) {
+            $c->bind(WpCronFallbackUseCase::class, function() use ($c) {
+                return new WpCronFallbackUseCase(
+                    $c->get(SettingsRepository::class),
+                    $c->get(GetPublicationHistoryUseCase::class),
+                    $c->get(GenerateFilesUseCase::class)
+                );
+            });
+        }
+
+        if (class_exists('ToggleExternalCronUseCase')) {
+            $c->bind(ToggleExternalCronUseCase::class, function() use ($c) {
+                return new ToggleExternalCronUseCase(
+                    $c->get(RegisterExternalCronUseCase::class),
+                    $c->get(UnregisterExternalCronUseCase::class),
+                    $c->get(DeveloperRepository::class),
+                    $c->get(InvestmentRepository::class),
+                    $c->get(ResourceRepository::class)
+                );
+            });
+        }
+
+        if (class_exists('RegisterExternalCronUseCase')) {
+            $c->bind(RegisterExternalCronUseCase::class, function() use ($c) {
+                return new RegisterExternalCronUseCase();
+            });
+        }
+
+        if (class_exists('UnregisterExternalCronUseCase')) {
+            $c->bind(UnregisterExternalCronUseCase::class, function() use ($c) {
+                return new UnregisterExternalCronUseCase();
+            });
+        }
+
+        if (class_exists('UpdateExternalCronScheduleUseCase')) {
+            $c->bind(UpdateExternalCronScheduleUseCase::class, function() use ($c) {
+                return new UpdateExternalCronScheduleUseCase();
+            });
+        }
+
+        Logger::info('DIContainer: Domain layer registered (20+ Use Cases + premium)');
+    }
+
+    /**
+     * APPLICATION LAYER - Controllers i Services
+     * Orchestracja, formatowanie, file operations
+     */
+    private static function registerApplication() {
+        $c = self::$container;
+        Logger::info('DIContainer: Registering Application layer');
+
+        // Services jako singletony
+        $c->singleton(FileManager::class);
+        $c->singleton(CSVFormatter::class);
+        $c->singleton(XMLFormatter::class);
+        $c->singleton(DateHelper::class);
+
+        // Modale - zwykłe bindings (nie singleton)
+        $c->bind(ResourceModal::class, function() use ($c) {
+            return new ResourceModal(
+                $c->get(CreateResourceUseCase::class),
+                $c->get(UpdateResourceUseCase::class),
+                $c->get(GetResourceByIdUseCase::class),
+                $c->get(DeleteResourceUseCase::class)
+            );
+        });
+
+        $c->bind(InvestmentModal::class, function() use ($c) {
+            return new InvestmentModal(
+                $c->get(CreateInvestmentUseCase::class),
+                $c->get(UpdateInvestmentUseCase::class),
+                $c->get(GetInvestmentUseCase::class)
+            );
+        });
+
+        $c->bind(HistoryModal::class, function() use ($c) {
+            return new HistoryModal(
+                $c->get(GetPriceHistoryUseCase::class)
+            );
+        });
+
+        // Controllers - Faza 4
+        $c->singleton(AdminController::class, function() use ($c) {
+            return new AdminController();
+        });
+
+        $c->singleton(ShortcodeManager::class);
+
+        // Premium controllers (conditional loading)
+        if (class_exists('ExternalCronController')) {
+            $c->bind(ExternalCronController::class, function() use ($c) {
+                return new ExternalCronController(
+                    $c->get(ExternalCronRepository::class),
+                    $c->get(GenerateFilesUseCase::class),
+                    $c->get(UpdateExternalCronScheduleUseCase::class),
+                    $c->get(RegisterExternalCronUseCase::class),
+                    $c->get(UnregisterExternalCronUseCase::class)
+                );
+            });
+        }
+
+        if (class_exists('WpCronFallbackController')) {
+            $c->bind(WpCronFallbackController::class, function() use ($c) {
+                return new WpCronFallbackController(
+                    $c->get(WpCronFallbackUseCase::class)
+                );
+            });
+        }
+
+        Logger::info('DIContainer: Application layer registered (5 services + controllers + premium)');
+    }
+
+    /**
+     * PRESENTATION LAYER - Admin Pages, UI Components
+     * Renderowanie, templates, user interface
+     */
+    private static function registerPresentation() {
+        $c = self::$container;
+        Logger::info('DIContainer: Registering Presentation layer');
+
+        // Admin Pages - LAZY LOADING (tworzone tylko gdy potrzebne)
+        $c->bind(ResourcesPage::class, function() use ($c) {
+            return new ResourcesPage(
+                $c->get(GetAllResourcesUseCase::class),
+                $c->get(ResourceModal::class),
+                $c->get(InvestmentModal::class)
+            );
+        });
+
+        $c->bind(PublicationPage::class, function() use ($c) {
+            return new PublicationPage(
+                $c->get(GetPublicationHistoryUseCase::class)
+            );
+        });
+
+        $c->bind(SupplierDataPage::class, function() use ($c) {
+            return new SupplierDataPage(
+                $c->get(SaveDeveloperInfoUseCase::class),
+                $c->get(GetDeveloperInfoUseCase::class)
+            );
+        });
+
+        $c->bind(DashboardPage::class, function() use ($c) {
+            return new DashboardPage(
+                $c->get(DeveloperRepository::class),
+                $c->get(InvestmentRepository::class),
+                $c->get(ResourceRepository::class),
+                $c->get(GenerateFilesUseCase::class),
+                $c->get(AutomationTile::class),
+                $c->get(HistoryTile::class)
+            );
+        });
+
+        $c->bind(DevConsoleTile::class, function() use ($c) {
+            return new DevConsoleTile(
+                $c->get(ResetDatabaseUseCase::class)
+            );
+        });
+
+        $c->bind(AutomationTile::class, function() use ($c) {
+            // Premium dependencies are optional (nullable)
+            $externalCronRepo = class_exists('ExternalCronRepository') ? $c->get(ExternalCronRepository::class) : null;
+            $externalCronController = class_exists('ExternalCronController') ? $c->get(ExternalCronController::class) : null;
+            $toggleUseCase = class_exists('ToggleExternalCronUseCase') ? $c->get(ToggleExternalCronUseCase::class) : null;
+
+            return new AutomationTile(
+                $externalCronRepo,
+                $externalCronController,
+                $toggleUseCase
+            );
+        });
+
+        $c->bind(HistoryTile::class, function() use ($c) {
+            return new HistoryTile();
+        });
+
+        $c->bind(FrontendManagementPage::class, function() use ($c) {
+            return new FrontendManagementPage();
+        });
+
+        Logger::info('DIContainer: Presentation layer registered (7 pages/components, modals via DI)');
+    }
+}

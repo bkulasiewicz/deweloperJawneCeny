@@ -14,10 +14,14 @@ class InvestmentModal extends UJC_Admin_Page {
     private $updateInvestmentUseCase;
     private $getInvestmentUseCase;
     
-    public function __construct() {
-        $this->createInvestmentUseCase = new CreateInvestmentUseCase();
-        $this->updateInvestmentUseCase = new UpdateInvestmentUseCase();
-        $this->getInvestmentUseCase = new GetInvestmentUseCase();
+    public function __construct(
+        CreateInvestmentUseCase $createInvestmentUseCase,
+        UpdateInvestmentUseCase $updateInvestmentUseCase,
+        GetInvestmentUseCase $getInvestmentUseCase
+    ) {
+        $this->createInvestmentUseCase = $createInvestmentUseCase;
+        $this->updateInvestmentUseCase = $updateInvestmentUseCase;
+        $this->getInvestmentUseCase = $getInvestmentUseCase;
         
         add_action('wp_ajax_ujc_get_investment', [$this, 'ajax_get_investment']);
         add_action('wp_ajax_ujc_update_investment', [$this, 'ajax_update_investment']);

@@ -15,7 +15,7 @@ class ResourceRepository {
         
         Logger::info("ResourceRepository::readAll - Table: $table");
         
-        $results = $wpdb->get_results($wpdb->prepare("SELECT r.* FROM `{$table}` r ORDER BY r." . ResourceDto::FIELD_ID . " ASC"), ARRAY_A);
+        $results = $wpdb->get_results("SELECT r.* FROM `{$table}` r ORDER BY r." . ResourceDto::FIELD_ID . " ASC", ARRAY_A);
         
         Logger::info("ResourceRepository::readAll - SQL Results count: " . count($results));
         if ($wpdb->last_error) {

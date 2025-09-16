@@ -15,10 +15,14 @@ class WpCronFallbackUseCase {
     private $getPublicationHistoryUseCase;
     private $generateFilesUseCase;
     
-    public function __construct() {
-        $this->settingsRepository = new SettingsRepository();
-        $this->getPublicationHistoryUseCase = new GetPublicationHistoryUseCase();
-        $this->generateFilesUseCase = new GenerateFilesUseCase();
+    public function __construct(
+        SettingsRepository $settingsRepository,
+        GetPublicationHistoryUseCase $getPublicationHistoryUseCase,
+        GenerateFilesUseCase $generateFilesUseCase
+    ) {
+        $this->settingsRepository = $settingsRepository;
+        $this->getPublicationHistoryUseCase = $getPublicationHistoryUseCase;
+        $this->generateFilesUseCase = $generateFilesUseCase;
     }
     
     /**

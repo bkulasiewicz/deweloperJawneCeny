@@ -8,8 +8,8 @@ class UpdateInvestmentUseCase {
     
     private $repository;
     
-    public function __construct() {
-        $this->repository = new InvestmentRepository();
+    public function __construct(InvestmentRepository $repository) {
+        $this->repository = $repository;
     }
     
     public function execute(InvestmentDto $dto, int $investment_id): Result {

@@ -5,11 +5,11 @@ if (!defined('ABSPATH')) {
 }
 
 class GetDeveloperInfoUseCase {
-    
+
     private $repository;
-    
-    public function __construct() {
-        $this->repository = new DeveloperRepository();
+
+    public function __construct(DeveloperRepository $repository) {
+        $this->repository = $repository;
     }
     
     public function execute(): ?SupplierDto {

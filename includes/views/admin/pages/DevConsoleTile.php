@@ -12,8 +12,8 @@ class DevConsoleTile {
     
     private $resetDatabaseUseCase;
     
-    public function __construct() {
-        $this->resetDatabaseUseCase = new ResetDatabaseUseCase();
+    public function __construct(ResetDatabaseUseCase $resetDatabaseUseCase) {
+        $this->resetDatabaseUseCase = $resetDatabaseUseCase;
         // Inicjalizuj tylko w trybie deweloperskim
         if (defined('WP_DEBUG') && WP_DEBUG) {
             add_action('wp_ajax_ujc_dev_clear_table', [$this, 'ajax_clear_table']);

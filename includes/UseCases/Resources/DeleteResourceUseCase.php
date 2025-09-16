@@ -5,11 +5,11 @@ if (!defined('ABSPATH')) {
 }
 
 class DeleteResourceUseCase {
-    
+
     private $repository;
-    
-    public function __construct() {
-        $this->repository = new ResourceRepository();
+
+    public function __construct(ResourceRepository $repository) {
+        $this->repository = $repository;
     }
     
     public function execute($resource_id): Result {

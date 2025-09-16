@@ -9,9 +9,12 @@ class AddXmlResourceUseCase {
     private $xmlResourceRepo;
     private $developerRepo;
     
-    public function __construct() {
-        $this->xmlResourceRepo = new XmlResourceRepository();
-        $this->developerRepo = new DeveloperRepository();
+    public function __construct(
+        XmlResourceRepository $xmlResourceRepo,
+        DeveloperRepository $developerRepo
+    ) {
+        $this->xmlResourceRepo = $xmlResourceRepo;
+        $this->developerRepo = $developerRepo;
     }
     
     /**

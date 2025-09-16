@@ -10,10 +10,14 @@ class ImportResourcesUseCase {
     private $updateUseCase;
     private $getByIdUseCase;
     
-    public function __construct() {
-        $this->createUseCase = new CreateResourceUseCase();
-        $this->updateUseCase = new UpdateResourceUseCase();
-        $this->getByIdUseCase = new GetResourceByIdUseCase();
+    public function __construct(
+        CreateResourceUseCase $createUseCase,
+        UpdateResourceUseCase $updateUseCase,
+        GetResourceByIdUseCase $getByIdUseCase
+    ) {
+        $this->createUseCase = $createUseCase;
+        $this->updateUseCase = $updateUseCase;
+        $this->getByIdUseCase = $getByIdUseCase;
     }
     
     /**

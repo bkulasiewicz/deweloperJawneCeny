@@ -15,11 +15,16 @@ class ResourceModal extends UJC_Admin_Page {
     private $getResourceByIdUseCase;
     private $deleteResourceUseCase;
     
-    public function __construct() {
-        $this->createResourceUseCase = new CreateResourceUseCase();
-        $this->updateResourceUseCase = new UpdateResourceUseCase();
-        $this->getResourceByIdUseCase = new GetResourceByIdUseCase();
-        $this->deleteResourceUseCase = new DeleteResourceUseCase();
+    public function __construct(
+        CreateResourceUseCase $createResourceUseCase,
+        UpdateResourceUseCase $updateResourceUseCase,
+        GetResourceByIdUseCase $getResourceByIdUseCase,
+        DeleteResourceUseCase $deleteResourceUseCase
+    ) {
+        $this->createResourceUseCase = $createResourceUseCase;
+        $this->updateResourceUseCase = $updateResourceUseCase;
+        $this->getResourceByIdUseCase = $getResourceByIdUseCase;
+        $this->deleteResourceUseCase = $deleteResourceUseCase;
         
         add_action('wp_ajax_ujc_save_resource', [$this, 'ajax_save_resource']);
         add_action('wp_ajax_ujc_get_resource', [$this, 'ajax_get_resource']);

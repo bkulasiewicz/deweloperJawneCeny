@@ -5,13 +5,13 @@ if (!defined('ABSPATH')) {
 }
 
 class CreateResourceUseCase {
-    
+
     private $repository;
     private $price_history_repo;
-    
-    public function __construct() {
-        $this->repository = new ResourceRepository();
-        $this->price_history_repo = new PriceHistoryRepository();
+
+    public function __construct(ResourceRepository $repository, PriceHistoryRepository $priceHistoryRepo) {
+        $this->repository = $repository;
+        $this->price_history_repo = $priceHistoryRepo;
     }
     
     public function execute(ResourceFormData $formData): Result {

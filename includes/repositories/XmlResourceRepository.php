@@ -15,11 +15,15 @@ class XmlResourceRepository {
     /**
      * Create table structure
      */
-    public function create(string $currentDbVersion) {
+    public function create(string $currentDbVersion = null) {
         global $wpdb;
-        
+
+        if (UJC_Schema_Manager::tableExists($this->table_name)) {
+            return true;
+        }
+
         $charset_collate = $wpdb->get_charset_collate();
-        
+
         $sql = "CREATE TABLE `{$this->table_name}` (
             `" . XmlResourceDto::FIELD_ID . "` int(11) NOT NULL AUTO_INCREMENT,
             `" . XmlResourceDto::FIELD_EXT_IDENT . "` varchar(36) NOT NULL,
@@ -30,9 +34,8 @@ class XmlResourceRepository {
             UNIQUE KEY `unique_ext_ident` (`" . XmlResourceDto::FIELD_EXT_IDENT . "`),
             UNIQUE KEY `unique_daily_publication` (`" . XmlResourceDto::FIELD_DATA_DATE . "`)
         ) $charset_collate;";
-        
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
+
+        return $wpdb->query($sql) !== false;
     }
     
     /**
@@ -63,7 +66,7 @@ class XmlResourceRepository {
         global $wpdb;
         
         $results = $wpdb->get_results(
-            "SELECT * FROM `{$this->table_name}` 
+            "SELECT * FROM `{$this->table_name}`
              ORDER BY `" . XmlResourceDto::FIELD_DATA_DATE . "` ASC",
             ARRAY_A
         );

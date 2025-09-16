@@ -15,8 +15,8 @@ class WpCronFallbackController {
     
     private $wpCronFallbackUseCase;
     
-    public function __construct() {
-        $this->wpCronFallbackUseCase = new WpCronFallbackUseCase();
+    public function __construct(WpCronFallbackUseCase $wpCronFallbackUseCase) {
+        $this->wpCronFallbackUseCase = $wpCronFallbackUseCase;
         
         // Register custom cron schedule
         add_filter('cron_schedules', [$this, 'add_custom_cron_schedule']);
@@ -124,7 +124,7 @@ class WpCronFallbackController {
      * Manual trigger for testing purposes
      */
     public static function trigger_fallback_manually(): array {
-        $useCase = new WpCronFallbackUseCase();
+        $useCase = DIContainer::get(WpCronFallbackUseCase::class);
         return $useCase->execute();
     }
 }

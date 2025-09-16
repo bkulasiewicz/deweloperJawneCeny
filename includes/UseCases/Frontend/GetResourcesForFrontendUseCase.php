@@ -9,12 +9,13 @@ if (!defined('ABSPATH')) {
  * Returns ShortcodeResource objects with all fields for shortcode functionality
  */
 class GetResourcesForFrontendUseCase {
-    
+
     private $resourceRepository;
     private $priceHistoryRepository;
-    
-    public function __construct() {
-        $this->resourceRepository = new ResourceRepository();
+
+    public function __construct(ResourceRepository $resourceRepository) {
+        $this->resourceRepository = $resourceRepository;
+        // TODO: Dodać PriceHistoryRepository jako parametr w następnej fazie
         $this->priceHistoryRepository = new PriceHistoryRepository();
     }
     

@@ -5,21 +5,31 @@ if (!defined('ABSPATH')) {
 }
 
 class GenerateCSVFileUseCase {
-    
+
     private $developerRepository;
     private $investmentRepository;
     private $resourceRepository;
     private $priceHistoryRepository;
     private $csvFormatter;
     private $fileManager;
-    
-    public function __construct() {
-        $this->developerRepository = new DeveloperRepository();
-        $this->investmentRepository = new InvestmentRepository();
-        $this->resourceRepository = new ResourceRepository();
-        $this->priceHistoryRepository = new PriceHistoryRepository();
-        $this->csvFormatter = new CSVFormatter();
-        $this->fileManager = new FileManager();
+    private $getResourcesForGovernmentUseCase;
+
+    public function __construct(
+        DeveloperRepository $developerRepository,
+        InvestmentRepository $investmentRepository,
+        ResourceRepository $resourceRepository,
+        PriceHistoryRepository $priceHistoryRepository,
+        CSVFormatter $csvFormatter,
+        FileManager $fileManager,
+        GetResourcesForGovernmentUseCase $getResourcesForGovernmentUseCase
+    ) {
+        $this->developerRepository = $developerRepository;
+        $this->investmentRepository = $investmentRepository;
+        $this->resourceRepository = $resourceRepository;
+        $this->priceHistoryRepository = $priceHistoryRepository;
+        $this->csvFormatter = $csvFormatter;
+        $this->fileManager = $fileManager;
+        $this->getResourcesForGovernmentUseCase = $getResourcesForGovernmentUseCase;
     }
     
     /**
@@ -50,8 +60,7 @@ class GenerateCSVFileUseCase {
             $investment = $this->investmentRepository->read();
             Logger::info('GenerateCSV: Investment data loaded');
             
-            $getResourcesForGovernmentUseCase = new GetResourcesForGovernmentUseCase();
-            $resources = $getResourcesForGovernmentUseCase->execute();
+            $resources = $this->getResourcesForGovernmentUseCase->execute();
             Logger::info('GenerateCSV: Resources loaded for government (excluding service premises) - count: ' . count($resources));
             
             Logger::info('GenerateCSV: Getting price history for resources...');
@@ -108,8 +117,7 @@ class GenerateCSVFileUseCase {
             $errors[] = "Brak danych inwestycji. Uzupełnij dane inwestycji w zakładce 'Zasoby'";
         }
         
-        $getResourcesForGovernmentUseCase = new GetResourcesForGovernmentUseCase();
-        $resources = $getResourcesForGovernmentUseCase->execute();
+        $resources = $this->getResourcesForGovernmentUseCase->execute();
         if (empty($resources)) {
             $errors[] = "Brak nieruchomości do eksportu dla rządu. Dodaj nieruchomości w zakładce 'Zasoby'";
         }

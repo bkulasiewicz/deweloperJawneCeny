@@ -82,6 +82,6 @@ class PriceHistoryRepository {
             FOREIGN KEY (" . PriceHistoryDto::FIELD_RESOURCE_ID . ") REFERENCES " . TableNames::getResources() . "(id) ON DELETE CASCADE
         ) " . $charset_collate;
         
-        return $wpdb->query($wpdb->prepare($sql)) !== false;
+        return $wpdb->query($sql) !== false;
     }
 }

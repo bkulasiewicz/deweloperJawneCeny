@@ -3,7 +3,8 @@
  * Plugin Name: Deweloper Jawne Ceny
  * Plugin URI: https://www.deweloperjawneceny.pl/
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
- * Version: 4.2.0
+ * Description (EN): Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
+ * Version: 4.2.26
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -26,7 +27,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.7');
-define('VERSION', '4.1.45');
+define('VERSION', '4.2.25');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -56,9 +57,25 @@ class DeweloperJawneCeny {
     private function load_dependencies() {
         // WordPress filesystem functions
         require_once(ABSPATH . 'wp-admin/includes/file.php');
-        
+
+        // Composer autoloader - handles DI52 and PSR Container interfaces
+        $autoloader = PLUGIN_DIR . 'includes/vendor/autoload.php';
+        if (file_exists($autoloader)) {
+            require_once $autoloader;
+        } else {
+            // Fallback error if Composer dependencies are missing
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error"><p>DeweloperJawneCeny: Brak zależności Composer. Uruchom <code>composer install</code> w katalogu wtyczki.</p></div>';
+            });
+            return;
+        }
+
         // Helpers
         require_once PLUGIN_DIR . 'includes/helpers/PremiumHelper.php';
+        require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
+
+        // DI Container - must be loaded before other classes
+        require_once PLUGIN_DIR . 'includes/core/DIContainer.php';
         
         // Config
         require_once PLUGIN_DIR . 'includes/config/TableNames.php';
@@ -81,7 +98,7 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/models/FileData.php';
         require_once PLUGIN_DIR . 'includes/models/FileGenerationResult.php';
         
-        // DTOs
+        // DTOs - ModelDto must be loaded first
         require_once PLUGIN_DIR . 'includes/core/ModelDto.php';
         require_once PLUGIN_DIR . 'includes/core/Result.php';
         require_once PLUGIN_DIR . 'includes/dto/ResourceDto.php';
@@ -98,6 +115,7 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/services/CSVFormatter.php';
         require_once PLUGIN_DIR . 'includes/services/XMLFormatter.php';
         require_once PLUGIN_DIR . 'includes/services/FileManager.php';
+        require_once PLUGIN_DIR . 'includes/services/ModalFactory.php';
         
         // DTOs that depend on services
         require_once PLUGIN_DIR . 'includes/dto/PublicationHistoryDto.php';
@@ -174,6 +192,9 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/views/admin/pages/PublicationPage.php';
         require_once PLUGIN_DIR . 'includes/views/admin/pages/DevConsoleTile.php';
         require_once PLUGIN_DIR . 'includes/views/admin/pages/FrontendManagementPage.php';
+
+        // Controllers
+        require_once PLUGIN_DIR . 'includes/controllers/AdminController.php';
         
         // Blocks
         require_once PLUGIN_DIR . 'includes/blocks/ResourcesListBlock.php';
@@ -189,18 +210,23 @@ class DeweloperJawneCeny {
             require_once $premium_loader;
         }
         
-        // Inicjalizuj klasy po załadowaniu wszystkich zależności
+        // Initialize DI Container after all classes are loaded
+        Logger::info('Main: Initializing DI Container');
+        DIContainer::init();
+        Logger::info('Main: DI Container initialized successfully');
+
+        // Initialize context-specific components
         if (is_admin()) {
-            require_once PLUGIN_DIR . 'includes/views/admin/class-ujc-admin.php';
-            new UJC_Admin();
+            Logger::info('Main: Initializing admin context');
+            $this->init_admin();
         }
-        
-        new BlocksManager();
-        new ShortcodeManager();
-        
+
+        Logger::info('Main: Initializing frontend context');
+        $this->init_frontend();
+
         // Initialize WordPress Filesystem
         WP_Filesystem();
-        
+
         // Initialize Logger
         Logger::init();
     }
@@ -257,47 +283,79 @@ class DeweloperJawneCeny {
             }
         }
     }
-    
-    
+
+    /**
+     * Load only essential dependencies for plugin activation (without DI52)
+     */
+    private function load_activation_dependencies() {
+        // WordPress filesystem functions
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+
+        // Helpers (Logger is essential for activation)
+        require_once PLUGIN_DIR . 'includes/helpers/PremiumHelper.php';
+        require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
+
+        // Config
+        require_once PLUGIN_DIR . 'includes/config/TableNames.php';
+
+        // Core schema manager
+        require_once PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
+
+        // Only load SettingsRepository for activation
+        require_once PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/DeveloperRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/InvestmentRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/ResourceRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/PriceHistoryRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/PublicationHistoryRepository.php';
+        require_once PLUGIN_DIR . 'includes/repositories/XmlResourceRepository.php';
+
+        Logger::info('UJC: Activation dependencies loaded (without DI52)');
+    }
+
     public function activate() {
+        // ULTRA MINIMAL ACTIVATION - tylko podstawowe error logging
+        error_log('UJC: MINIMAL activation start');
+
         try {
-            // Load all dependencies needed for schema creation
-            $this->load_dependencies();
-            
-            // NOW we can safely use Logger
-            Logger::info('UJC Plugin activate() - START');
-            Logger::info('UJC Plugin: Dependencies loaded');
-            
-            Logger::info('UJC Plugin: Calling UJC_Schema_Manager::create_tables()...');
-            UJC_Schema_Manager::create_tables();
-            Logger::info('UJC Plugin: create_tables() completed');
-            
+            error_log('UJC: Testing basic functionality');
+
+            // Test 1: Sprawdź czy WordPress functions działają
             $upload_dir = wp_upload_dir();
-            $data_dir = $upload_dir['basedir'] . '/ujc-data';
-            if (!file_exists($data_dir)) {
-                wp_mkdir_p($data_dir);
-                Logger::info('UJC Plugin: Created data directory: ' . $data_dir);
-            } else {
-                Logger::info('UJC Plugin: Data directory already exists: ' . $data_dir);
+            if ($upload_dir) {
+                error_log('UJC: wp_upload_dir() works');
             }
-            
-            $settings_repository = new SettingsRepository();
-            $currentVersion = $settings_repository->getDbVersion();
-            Logger::info('UJC Plugin: Current DB version before update: ' . $currentVersion);
-            Logger::info('UJC Plugin: Setting DB version to: ' . DB_VERSION);
-            
-            $settings_repository->setDbVersion(DB_VERSION);
-            
-            $newVersion = $settings_repository->getDbVersion();
-            Logger::info('UJC Plugin: DB version after update: ' . $newVersion);
-            
-            Logger::info('UJC Plugin activate() - COMPLETED');
-            
+
+            error_log('UJC: Basic tests passed');
+
         } catch (Exception $e) {
-            Logger::error('UJC Activation Error: ' . $e->getMessage());
+            error_log('UJC: Exception during activation: ' . $e->getMessage());
+        } catch (Error $e) {
+            error_log('UJC: Fatal error during activation: ' . $e->getMessage());
         }
+
+        error_log('UJC: MINIMAL activation completed');
     }
     
+    /**
+     * Initialize admin context - controllers for WordPress admin panel
+     */
+    private function init_admin() {
+        // Initialize WordPress admin interface through AdminController
+        DIContainer::get(AdminController::class);
+        Logger::info('Main: Admin context initialized with AdminController from DI Container');
+    }
+
+    /**
+     * Initialize frontend context - public-facing features
+     */
+    private function init_frontend() {
+        // Initialize through DI Container
+        new BlocksManager();
+        DIContainer::get(ShortcodeManager::class);
+        Logger::info('Main: Frontend context initialized with DI Container');
+    }
+
     public function deactivate() {
         // External cron cleanup handled by premium features if available
         // No cleanup needed for freemium version

@@ -12,7 +12,7 @@ class InvestmentRepository {
     public function read(): ?InvestmentDto {
         $table = TableNames::getInvestmentInfo();        
         global $wpdb;
-        $data = $wpdb->get_row($wpdb->prepare("SELECT * FROM `{$table}` LIMIT 1"), ARRAY_A);
+        $data = $wpdb->get_row("SELECT * FROM `{$table}` LIMIT 1", ARRAY_A);
         
         return $data ? InvestmentDto::databaseToModel($data) : null;
     }

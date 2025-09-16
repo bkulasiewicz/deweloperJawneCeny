@@ -13,7 +13,8 @@ class HistoryTile {
     private $getPublicationHistoryUseCase;
     
     public function __construct() {
-        $this->getPublicationHistoryUseCase = new GetPublicationHistoryUseCase();
+        $publicationHistoryRepository = new PublicationHistoryRepository();
+        $this->getPublicationHistoryUseCase = new GetPublicationHistoryUseCase($publicationHistoryRepository);
     }
     
     /**

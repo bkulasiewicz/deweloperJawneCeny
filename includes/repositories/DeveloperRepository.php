@@ -12,7 +12,7 @@ class DeveloperRepository {
     public function read(): ?SupplierDto {
         $table = TableNames::getDeveloperInfo();        
         global $wpdb;
-        $data = $wpdb->get_row($wpdb->prepare("SELECT * FROM `{$table}` LIMIT 1"), ARRAY_A);
+        $data = $wpdb->get_row("SELECT * FROM `{$table}` LIMIT 1", ARRAY_A);
         
         return $data ? SupplierDto::databaseToModel($data) : null;
     }
@@ -86,6 +86,6 @@ class DeveloperRepository {
             PRIMARY KEY (" . SupplierDto::FIELD_ID . ")
         ) " . $charset_collate;
         
-        return $wpdb->query($wpdb->prepare($sql)) !== false;
+        return $wpdb->query($sql) !== false;
     }
 }

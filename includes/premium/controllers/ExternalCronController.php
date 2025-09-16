@@ -16,12 +16,18 @@ class ExternalCronController {
     private $registerExternalCronUseCase;
     private $unregisterExternalCronUseCase;
     
-    public function __construct() {
-        $this->repository = new ExternalCronRepository();
-        $this->generateFilesUseCase = new GenerateFilesUseCase();
-        $this->updateExternalCronScheduleUseCase = new UpdateExternalCronScheduleUseCase();
-        $this->registerExternalCronUseCase = new RegisterExternalCronUseCase();
-        $this->unregisterExternalCronUseCase = new UnregisterExternalCronUseCase();
+    public function __construct(
+        ExternalCronRepository $repository,
+        GenerateFilesUseCase $generateFilesUseCase,
+        UpdateExternalCronScheduleUseCase $updateExternalCronScheduleUseCase,
+        RegisterExternalCronUseCase $registerExternalCronUseCase,
+        UnregisterExternalCronUseCase $unregisterExternalCronUseCase
+    ) {
+        $this->repository = $repository;
+        $this->generateFilesUseCase = $generateFilesUseCase;
+        $this->updateExternalCronScheduleUseCase = $updateExternalCronScheduleUseCase;
+        $this->registerExternalCronUseCase = $registerExternalCronUseCase;
+        $this->unregisterExternalCronUseCase = $unregisterExternalCronUseCase;
         add_action('rest_api_init', [$this, 'register_rest_endpoint']);
         add_action('wp_ajax_ujc_update_external_cron_schedule', [$this, 'ajax_update_schedule']);
     }
@@ -183,20 +189,22 @@ class ExternalCronController {
     
     /**
      * Auto-register with cron-job.org on activation
-     * 
+     *
      * @param string $schedule Schedule to use for registration
      * @return bool Success status
      */
     public static function register_with_cronjoborg($schedule = '24hour') {
-        $result = $this->registerExternalCronUseCase->execute($schedule);
+        $registerUseCase = DIContainer::get(RegisterExternalCronUseCase::class);
+        $result = $registerUseCase->execute($schedule);
         return $result['success'];
     }
-    
+
     /**
      * Auto-unregister on deactivation
      */
     public static function unregister_from_cronjoborg() {
-        $result = $this->unregisterExternalCronUseCase->execute();
+        $unregisterUseCase = DIContainer::get(UnregisterExternalCronUseCase::class);
+        $result = $unregisterUseCase->execute();
         return $result['success'];
     }
     
