@@ -77,7 +77,7 @@ class ResourceModal extends UJC_Admin_Page {
                             <tr>
                                 <th><label for="modal-powierzchnia_uzytkowa">Powierzchnia użytkowa [m²] *</label></th>
                                 <td>
-                                    <input type="number" id="modal-powierzchnia_uzytkowa" name="powierzchnia_uzytkowa" required step="0.01" min="0" class="regular-text"> m²
+                                    <input type="number" id="modal-powierzchnia_uzytkowa" name="powierzchnia_uzytkowa" required step="0.01" min="0" class="regular-text" value=""> m²
                                 </td>
                             </tr>
                             <tr>
@@ -428,7 +428,7 @@ class ResourceModal extends UJC_Admin_Page {
                         console.log('Populating form with data:', data);
                         $('#modal-rodzaj_nieruchomosci').val(data.rodzaj_nieruchomosci);
                         $('#modal-nr_lokalu').val(data.nr_lokalu);
-                        $('#modal-powierzchnia_uzytkowa').val(data.powierzchnia_uzytkowa);
+                        $('#modal-powierzchnia_uzytkowa').val(data.powierzchnia_uzytkowa || '');
                         $('#modal-cena_m2').val(data.cena_m2);
                         $('#modal-cena_calkowita').val(data.cena_calkowita || '');
                         $('#modal-cena_z_dodatkami').val(data.cena_z_dodatkami || '');
@@ -827,6 +827,7 @@ class ResourceModal extends UJC_Admin_Page {
                             $cenaM2Field.val(''); // Clear value
                             $powierzchniaRow.hide();
                             $powierzchniaField.removeAttr('required');
+                            $powierzchniaField.val(''); // Clear value
                             break;
                             
                         case '<?php echo PropertyType::SERVICE_PREMISES->value; ?>':
@@ -943,7 +944,7 @@ class ResourceModal extends UJC_Admin_Page {
         return $this->sanitize_post_data([
             'rodzaj_nieruchomosci' => 'sanitize_text_field',
             'nr_lokalu' => 'sanitize_text_field',
-            'powierzchnia_uzytkowa' => 'floatval',
+            'powierzchnia_uzytkowa' => [$this, 'sanitize_nullable_float'],
             'cena_m2' => [$this, 'sanitize_nullable_float'],
             'cena_calkowita' => 'floatval',
             'cena_z_dodatkami' => 'floatval',
@@ -1153,7 +1154,7 @@ class ResourceModal extends UJC_Admin_Page {
             $resourceFormData = new ResourceFormData(
                 rodzaj_nieruchomosci: $propertyType,
                 nr_lokalu: $data['nr_lokalu'],
-                powierzchnia_uzytkowa: (float)$data['powierzchnia_uzytkowa'],
+                powierzchnia_uzytkowa: $data['powierzchnia_uzytkowa'],
                 cena_m2: $data['cena_m2'] !== null ? (float)$data['cena_m2'] : null,
                 cena_calkowita: (float)$data['cena_calkowita'],
                 cena_z_dodatkami: (float)$data['cena_z_dodatkami'],

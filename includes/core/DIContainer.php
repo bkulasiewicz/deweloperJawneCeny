@@ -21,7 +21,6 @@ class DIContainer {
         if (self::$container === null) {
             $startTime = microtime(true);
             self::$container = new Container();
-            Logger::info('DIContainer: Initializing DI Container');
 
             self::registerInfrastructure();
             self::registerDomain();

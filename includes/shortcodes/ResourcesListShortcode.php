@@ -346,7 +346,10 @@ class ResourcesListShortcode {
                 if ($resource->rodzaj_nieruchomosci === PropertyType::PARKING_SPACE->value) {
                     return '—';
                 }
-                return esc_html(number_format($resource->powierzchnia_uzytkowa, 2, ',', ' ')) . ' m²';
+                if ($resource->powierzchnia_uzytkowa !== null && $resource->powierzchnia_uzytkowa > 0) {
+                    return esc_html(number_format($resource->powierzchnia_uzytkowa, 2, ',', ' ')) . ' m²';
+                }
+                return '—';
                 
             case ResourceDto::FIELD_STATUS:
                 try {

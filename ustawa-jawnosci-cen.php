@@ -4,7 +4,7 @@
  * Plugin URI: https://www.deweloperjawneceny.pl/
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
  * Description (EN): Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.3.5
+ * Version: 4.3.18
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.8');
-define('VERSION', '4.3.5');
+define('VERSION', '4.3.18');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -206,7 +206,11 @@ class DeweloperJawneCeny {
         // Shortcodes
         require_once PLUGIN_DIR . 'includes/shortcodes/ResourcesListShortcode.php';
         require_once PLUGIN_DIR . 'includes/shortcodes/ShortcodeManager.php';
-        
+
+        // Logger - must be loaded before premium features that use DIContainer
+        require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
+        Logger::init();
+
         // Load premium features if available
         $premium_loader = PLUGIN_DIR . 'includes/premium/loader.php';
         if (file_exists($premium_loader)) {
@@ -302,7 +306,7 @@ class DeweloperJawneCeny {
 
         // Basic helpers needed for activation
         require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
-        Logger::info('Plugin Activation: Loading activation dependencies...');
+    
         require_once PLUGIN_DIR . 'includes/config/TableNames.php';
 
         // Enums needed by repositories

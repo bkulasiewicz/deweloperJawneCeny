@@ -42,7 +42,7 @@ class ResourceDto extends ModelDto {
     public int $investment_id;
     public PropertyType $rodzaj_nieruchomosci;
     public string $nr_lokalu;
-    public float $powierzchnia_uzytkowa;
+    public ?float $powierzchnia_uzytkowa;
     public ResourceStatus $status;
     
     public ?string $property_part_title;
@@ -75,7 +75,7 @@ class ResourceDto extends ModelDto {
         int $investment_id,
         PropertyType $rodzaj_nieruchomosci,
         string $nr_lokalu,
-        float $powierzchnia_uzytkowa,
+        ?float $powierzchnia_uzytkowa,
         ResourceStatus $status,
         ?string $property_part_title = null,
         ?string $property_part_designation = null,
@@ -130,7 +130,7 @@ class ResourceDto extends ModelDto {
             (int)($data[self::FIELD_INVESTMENT_ID] ?? 1),
             PropertyType::from($data[self::FIELD_RODZAJ_NIERUCHOMOSCI] ?? ''),
             $data[self::FIELD_NR_LOKALU] ?? '',
-            (float)($data[self::FIELD_POWIERZCHNIA_UZYTKOWA] ?? 0),
+            isset($data[self::FIELD_POWIERZCHNIA_UZYTKOWA]) ? (float)$data[self::FIELD_POWIERZCHNIA_UZYTKOWA] : null,
             ResourceStatus::from($data[self::FIELD_STATUS] ?? ''),
             $data[self::FIELD_PROPERTY_PART_TITLE] ?? null,
             $data[self::FIELD_PROPERTY_PART_DESIGNATION] ?? null,

@@ -13,7 +13,7 @@ class PresentableResource {
     public readonly int $id;
     public readonly string $rodzaj_nieruchomosci;
     public readonly string $nr_lokalu;
-    public readonly float $powierzchnia_uzytkowa;
+    public readonly ?float $powierzchnia_uzytkowa;
     public readonly string $status;
     public readonly ?float $cena_m2;
     public readonly float $cena_calkowita;
@@ -25,7 +25,7 @@ class PresentableResource {
         int $id,
         string $rodzaj_nieruchomosci,
         string $nr_lokalu,
-        float $powierzchnia_uzytkowa,
+        ?float $powierzchnia_uzytkowa,
         string $status,
         ?float $cena_m2,
         float $cena_calkowita,

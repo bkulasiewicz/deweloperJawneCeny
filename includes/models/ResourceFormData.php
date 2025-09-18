@@ -12,7 +12,7 @@ class ResourceFormData {
     
     public readonly PropertyType $rodzaj_nieruchomosci;
     public readonly string $nr_lokalu;
-    public readonly float $powierzchnia_uzytkowa;
+    public readonly ?float $powierzchnia_uzytkowa;
     public readonly ?float $cena_m2;
     public readonly float $cena_calkowita;
     public readonly float $cena_z_dodatkami;
@@ -33,7 +33,7 @@ class ResourceFormData {
     public function __construct(
         PropertyType $rodzaj_nieruchomosci,
         string $nr_lokalu,
-        float $powierzchnia_uzytkowa,
+        ?float $powierzchnia_uzytkowa,
         ?float $cena_m2,
         float $cena_calkowita,
         float $cena_z_dodatkami,

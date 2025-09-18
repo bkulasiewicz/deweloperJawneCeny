@@ -17,7 +17,7 @@ class ResourceItem {
         $cena_calkowita = ($resource->cena_calkowita > 0) ? number_format($resource->cena_calkowita, 2, ',', ' ') . ' zł' : '—';
         $cena_z_dodatkami = ($resource->cena_z_dodatkami > 0) ? number_format($resource->cena_z_dodatkami, 2, ',', ' ') . ' zł' : '—';
         $cena_m2 = ($resource->cena_m2 !== null && $resource->cena_m2 > 0) ? number_format($resource->cena_m2, 2, ',', ' ') . ' zł' : '—';
-        $powierzchnia = number_format($resource->powierzchnia_uzytkowa, 2, ',', ' ') . ' m²';
+        $powierzchnia = ($resource->powierzchnia_uzytkowa !== null && $resource->powierzchnia_uzytkowa > 0) ? number_format($resource->powierzchnia_uzytkowa, 2, ',', ' ') . ' m²' : '—';
         
         // Daty już sformatowane w GetAllResourcesUseCase
         $data_zmiany = $resource->data_zmiany;

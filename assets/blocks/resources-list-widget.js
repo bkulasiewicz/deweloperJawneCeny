@@ -158,6 +158,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function formatPrice(price) {
+        // Handle NULL, undefined, NaN, or empty values
+        if (price === null || price === undefined || price === '' || isNaN(parseFloat(price))) {
+            return '—';
+        }
+
         return parseFloat(price).toLocaleString('pl-PL', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
