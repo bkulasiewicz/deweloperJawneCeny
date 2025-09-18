@@ -114,7 +114,7 @@ class PublicationHistoryRepository {
     /**
      * Create publication history table using PublicationHistoryDto field constants
      */
-    public function createTable(string $currentDbVersion): bool {
+    public function createTable(?string $currentDbVersion = null): bool {
         global $wpdb;
         $table = TableNames::getPublicationHistory();
         $charset_collate = $wpdb->get_charset_collate();

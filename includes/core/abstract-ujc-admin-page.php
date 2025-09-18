@@ -62,22 +62,6 @@ abstract class UJC_Admin_Page {
         return true;
     }
     
-    /**
-     * Sanitizacja danych POST
-     */
-    protected function sanitize_post_data($fields = []) {
-        $data = [];
-        foreach ($fields as $field => $sanitize_callback) {
-            $value = $_POST[$field] ?? '';
-            // Wywołaj funkcję sanitizacji
-            if (is_callable($sanitize_callback)) {
-                $data[$field] = call_user_func($sanitize_callback, $value);
-            } else {
-                $data[$field] = sanitize_text_field($value);
-            }
-        }
-        return $data;
-    }
     
     /**
      * Abstrakcyjna metoda renderowania - musi być zaimplementowana

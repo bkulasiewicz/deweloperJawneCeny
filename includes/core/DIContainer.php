@@ -44,10 +44,6 @@ class DIContainer {
             self::init();
         }
 
-        // Only log in debug mode to reduce performance impact
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            Logger::info("DIContainer: Getting service: {$abstract}");
-        }
 
         return self::$container->get($abstract);
     }
@@ -80,7 +76,6 @@ class DIContainer {
      */
     private static function registerInfrastructure() {
         $c = self::$container;
-        Logger::info('DIContainer: Registering Infrastructure layer');
 
         // Wszystkie repositories jako singletony - jedna instancja w całej aplikacji
         $c->singleton(ResourceRepository::class);
@@ -95,8 +90,6 @@ class DIContainer {
         if (class_exists('ExternalCronRepository')) {
             $c->singleton(ExternalCronRepository::class);
         }
-
-        Logger::info('DIContainer: Infrastructure layer registered (7 repositories + premium)');
     }
 
     /**
@@ -105,7 +98,6 @@ class DIContainer {
      */
     private static function registerDomain() {
         $c = self::$container;
-        Logger::info('DIContainer: Registering Domain layer');
 
         // Resource Use Cases
         $c->bind(GetAllResourcesUseCase::class, function() use ($c) {
@@ -117,7 +109,8 @@ class DIContainer {
 
         $c->bind(GetResourcesForFrontendUseCase::class, function() use ($c) {
             return new GetResourcesForFrontendUseCase(
-                $c->get(ResourceRepository::class)
+                $c->get(ResourceRepository::class),
+                $c->get(PriceHistoryRepository::class)
             );
         });
 
@@ -232,7 +225,8 @@ class DIContainer {
             return new CreateDaneGovSubmissionFilesUseCase(
                 $c->get(XMLFormatter::class),
                 $c->get(FileManager::class),
-                $c->get(DeveloperRepository::class)
+                $c->get(DeveloperRepository::class),
+                $c->get(XmlResourceRepository::class)
             );
         });
 
@@ -252,6 +246,10 @@ class DIContainer {
                 $c->get(UpdateResourceUseCase::class),
                 $c->get(GetResourceByIdUseCase::class)
             );
+        });
+
+        $c->bind(ResetDatabaseUseCase::class, function() use ($c) {
+            return new ResetDatabaseUseCase();
         });
 
         // Premium Use Cases (conditional loading)
@@ -279,23 +277,31 @@ class DIContainer {
 
         if (class_exists('RegisterExternalCronUseCase')) {
             $c->bind(RegisterExternalCronUseCase::class, function() use ($c) {
-                return new RegisterExternalCronUseCase();
+                return new RegisterExternalCronUseCase(
+                    $c->get(ExternalCronRepository::class),
+                    $c->get(DeveloperRepository::class),
+                    $c->get(InvestmentRepository::class),
+                    $c->get(ResourceRepository::class)
+                );
             });
         }
 
         if (class_exists('UnregisterExternalCronUseCase')) {
             $c->bind(UnregisterExternalCronUseCase::class, function() use ($c) {
-                return new UnregisterExternalCronUseCase();
+                return new UnregisterExternalCronUseCase(
+                    $c->get(ExternalCronRepository::class)
+                );
             });
         }
 
         if (class_exists('UpdateExternalCronScheduleUseCase')) {
             $c->bind(UpdateExternalCronScheduleUseCase::class, function() use ($c) {
-                return new UpdateExternalCronScheduleUseCase();
+                return new UpdateExternalCronScheduleUseCase(
+                    $c->get(ExternalCronRepository::class)
+                );
             });
         }
 
-        Logger::info('DIContainer: Domain layer registered (20+ Use Cases + premium)');
     }
 
     /**
@@ -304,7 +310,6 @@ class DIContainer {
      */
     private static function registerApplication() {
         $c = self::$container;
-        Logger::info('DIContainer: Registering Application layer');
 
         // Services jako singletony
         $c->singleton(FileManager::class);
@@ -342,6 +347,7 @@ class DIContainer {
         });
 
         $c->singleton(ShortcodeManager::class);
+        $c->singleton(BlocksManager::class);
 
         // Premium controllers (conditional loading)
         if (class_exists('ExternalCronController')) {
@@ -364,7 +370,6 @@ class DIContainer {
             });
         }
 
-        Logger::info('DIContainer: Application layer registered (5 services + controllers + premium)');
     }
 
     /**
@@ -373,20 +378,30 @@ class DIContainer {
      */
     private static function registerPresentation() {
         $c = self::$container;
-        Logger::info('DIContainer: Registering Presentation layer');
 
         // Admin Pages - LAZY LOADING (tworzone tylko gdy potrzebne)
         $c->bind(ResourcesPage::class, function() use ($c) {
             return new ResourcesPage(
                 $c->get(GetAllResourcesUseCase::class),
                 $c->get(ResourceModal::class),
-                $c->get(InvestmentModal::class)
+                $c->get(InvestmentModal::class),
+                $c->get(DeveloperRepository::class),
+                $c->get(InvestmentRepository::class),
+                $c->get(HistoryModal::class)
+            );
+        });
+
+        $c->bind(CsvFilesSection::class, function() use ($c) {
+            return new CsvFilesSection(
+                $c->get(XmlResourceRepository::class)
             );
         });
 
         $c->bind(PublicationPage::class, function() use ($c) {
             return new PublicationPage(
-                $c->get(GetPublicationHistoryUseCase::class)
+                $c->get(GetPublicationHistoryUseCase::class),
+                $c->get(CsvFilesSection::class),
+                $c->get(GenerateFilesUseCase::class)
             );
         });
 
@@ -404,7 +419,8 @@ class DIContainer {
                 $c->get(ResourceRepository::class),
                 $c->get(GenerateFilesUseCase::class),
                 $c->get(AutomationTile::class),
-                $c->get(HistoryTile::class)
+                $c->get(HistoryTile::class),
+                $c->get(DevConsoleTile::class)
             );
         });
 
@@ -428,13 +444,14 @@ class DIContainer {
         });
 
         $c->bind(HistoryTile::class, function() use ($c) {
-            return new HistoryTile();
+            return new HistoryTile(
+                $c->get(GetPublicationHistoryUseCase::class)
+            );
         });
 
         $c->bind(FrontendManagementPage::class, function() use ($c) {
             return new FrontendManagementPage();
         });
 
-        Logger::info('DIContainer: Presentation layer registered (7 pages/components, modals via DI)');
     }
 }

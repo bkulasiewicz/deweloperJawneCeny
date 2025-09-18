@@ -9,11 +9,11 @@ if (!defined('ABSPATH')) {
  * Shows list of generated CSV files with download links
  */
 class CsvFilesSection {
-    
+
     private $xmlResourceRepo;
-    
-    public function __construct() {
-        $this->xmlResourceRepo = new XmlResourceRepository();
+
+    public function __construct(XmlResourceRepository $xmlResourceRepository) {
+        $this->xmlResourceRepo = $xmlResourceRepository;
     }
     
     /**

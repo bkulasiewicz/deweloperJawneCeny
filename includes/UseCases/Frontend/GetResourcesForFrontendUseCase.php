@@ -13,10 +13,12 @@ class GetResourcesForFrontendUseCase {
     private $resourceRepository;
     private $priceHistoryRepository;
 
-    public function __construct(ResourceRepository $resourceRepository) {
+    public function __construct(
+        ResourceRepository $resourceRepository,
+        PriceHistoryRepository $priceHistoryRepository
+    ) {
         $this->resourceRepository = $resourceRepository;
-        // TODO: Dodać PriceHistoryRepository jako parametr w następnej fazie
-        $this->priceHistoryRepository = new PriceHistoryRepository();
+        $this->priceHistoryRepository = $priceHistoryRepository;
     }
     
     /**

@@ -38,16 +38,16 @@ class ResourceRepository {
     public function readById($id) {
         $table = TableNames::getResources();
         global $wpdb;
-        
+
         $data = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM `{$table}` WHERE " . ResourceDto::FIELD_ID . " = %d", 
+            "SELECT * FROM `{$table}` WHERE " . ResourceDto::FIELD_ID . " = %d",
             $id
         ), ARRAY_A);
-        
+
         if (!$data) {
             return null;
         }
-        
+
         return ResourceDto::databaseToModel($data);
     }
     
@@ -105,7 +105,7 @@ class ResourceRepository {
     /**
      * Create resources table using ResourceDto field constants
      */
-    public function createTable(string $currentDbVersion): bool {
+    public function createTable(?string $currentDbVersion = null): bool {
         global $wpdb;
         $table = TableNames::getResources();
         $charset_collate = $wpdb->get_charset_collate();

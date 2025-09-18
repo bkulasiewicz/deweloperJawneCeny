@@ -63,10 +63,13 @@ class UpdateResourceUseCase {
     
     
     private function createResourceDto(ResourceFormData $formData, int $resource_id): ResourceDto {
-        // Get existing resource for date comparison
+        // Get existing resource for date comparison and PDF handling
         $existingResource = $this->repository->readById($resource_id);
         $currentDate = DateHelper::currentDatetime();
-        
+
+        // Handle PDF field changes
+        $pdfValue = $this->resolvePdfValue($formData->floor_plan_pdf, $existingResource?->floor_plan_pdf);
+
         return new ResourceDto(
             id: 0, // ID will be set by repository->update()
             investment_id: 1, // Default investment_id for compatibility
@@ -113,7 +116,7 @@ class UpdateResourceUseCase {
             room_count: $formData->room_count,
             additional_description: $formData->additional_description,
             garden_area: $formData->garden_area,
-            floor_plan_pdf: $formData->floor_plan_pdf
+            floor_plan_pdf: $pdfValue
         );
     }
     
@@ -168,5 +171,22 @@ class UpdateResourceUseCase {
             
             $this->price_history_repo->save($priceHistoryDto);
         }
+    }
+
+    private function resolvePdfValue(?string $newPdf, ?string $currentPdf): ?string {
+        // Check if field was not changed
+        if ($newPdf === '##NO_CHANGE##') {
+            // Field was not set - keep current value
+            return $currentPdf;
+        }
+
+        // Field was set - check if value changed
+        if ($currentPdf !== $newPdf) {
+            // Values are different - use new value (may be null for removal)
+            return $newPdf;
+        }
+
+        // Values are identical - keep current
+        return $currentPdf;
     }
 }

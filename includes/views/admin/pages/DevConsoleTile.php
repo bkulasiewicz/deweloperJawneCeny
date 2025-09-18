@@ -151,7 +151,7 @@ class DevConsoleTile {
     /**
      * Renderuje kafelek DEV Console
      */
-    public static function render_console_tile() {
+    public function render_console_tile() {
         if (!self::is_available()) {
             return '';
         }

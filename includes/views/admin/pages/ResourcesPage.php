@@ -12,30 +12,35 @@ class ResourcesPage {
     private $getAllResourcesUseCase;
     private $resourceModal;
     private $investmentModal;
+    private $developerRepository;
+    private $investmentRepository;
+    private $historyModal;
 
     public function __construct(
         GetAllResourcesUseCase $getAllResourcesUseCase,
         ResourceModal $resourceModal,
-        InvestmentModal $investmentModal
+        InvestmentModal $investmentModal,
+        DeveloperRepository $developerRepository,
+        InvestmentRepository $investmentRepository,
+        HistoryModal $historyModal
     ) {
         Logger::info('UJC: ResourcesPage constructor started with DI');
 
         $this->getAllResourcesUseCase = $getAllResourcesUseCase;
         $this->resourceModal = $resourceModal;
         $this->investmentModal = $investmentModal;
+        $this->developerRepository = $developerRepository;
+        $this->investmentRepository = $investmentRepository;
+        $this->historyModal = $historyModal;
 
-        // Dodaj AJAX handlers
-        add_action('wp_ajax_ujc_import_resources', [$this, 'ajax_import_resources']);
+        // AJAX handlers - CSV import feature removed
 
         Logger::info('UJC: ResourcesPage initialized with DI successfully');
     }
     
     public function render() {
-        $developerRepository = DIContainer::get(DeveloperRepository::class);
-        $investmentRepository = DIContainer::get(InvestmentRepository::class);
-
-        $developer = $developerRepository->read();
-        $investment = $investmentRepository->read();
+        $developer = $this->developerRepository->read();
+        $investment = $this->investmentRepository->read();
         
         // Sprawdź czy dane dostawcy są wypełnione
         if (!$developer) {
@@ -119,8 +124,6 @@ class ResourcesPage {
                 <?php $this->render_resources_list(); ?>
             </div>
             
-            <!-- Hidden file input for import -->
-            <input type="file" id="ujc-import-file" accept=".csv" style="display: none;">
             
             <!-- Renderuj modale -->
             <?php 
@@ -139,59 +142,7 @@ class ResourcesPage {
                     location.reload();
                 };
                 
-                // Import functionality
-                window.openImportDialog = function() {
-                    $('#ujc-import-file').click();
-                };
-                
-                $('#ujc-import-file').on('change', function(e) {
-                    const file = e.target.files[0];
-                    if (!file) return;
-                    
-                    // Sprawdź format pliku - tylko CSV
-                    if (!file.type.includes('csv') && !file.name.toLowerCase().endsWith('.csv')) {
-                        alert('❌ Obsługiwany tylko format CSV');
-                        return;
-                    }
-                    
-                    // Pokaż progress
-                    const originalHtml = $('#resources-list').html();
-                    $('#resources-list').html('<div class="ujc-resource-item">⏳ Importowanie pliku: ' + file.name + '...</div>');
-                    
-                    // Przygotuj FormData
-                    const formData = new FormData();
-                    formData.append('action', 'ujc_import_resources');
-                    formData.append('nonce', '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>');
-                    formData.append('import_file', file);
-                    
-                    // Wyślij plik
-                    $.ajax({
-                        url: typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl,
-                        type: 'POST',
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        timeout: 60000, // 60 sekund
-                        success: function(response) {
-                            if (response.success) {
-                                alert('✅ Importowano ' + (response.data.imported || 0) + ' zasobów!');
-                                location.reload();
-                            } else {
-                                alert('❌ Błąd importu: ' + (response.data || 'Nieznany błąd'));
-                                $('#resources-list').html(originalHtml);
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Import error:', error);
-                            alert('❌ Błąd połączenia podczas importu');
-                            $('#resources-list').html(originalHtml);
-                        },
-                        complete: function() {
-                            // Wyczyść input
-                            $('#ujc-import-file').val('');
-                        }
-                    });
-                });
+                // CSV import functionality removed
             });
             </script>
         </div>
@@ -223,13 +174,6 @@ class ResourcesPage {
             ?>
             <div class="ujc-no-resources">
                 <p>Brak zasobów. Kliknij "Dodaj Zasób" aby rozpocząć.</p>
-                <p style="margin-top: 15px; font-size: 14px; color: #666;">
-                    Możesz również zaimportować zasoby z pliku CSV. Import pozwoli Ci szybko dodać wiele nieruchomości jednocześnie.
-                </p>
-                <button type="button" class="button button-secondary" onclick="openImportDialog()" style="margin-top: 10px; display: none; align-items: center; gap: 5px;">
-                    <span class="dashicons dashicons-upload" style="font-size: 16px; line-height: 1;"></span>
-                    <span>Importuj z CSV</span>
-                </button>
             </div>
             <?php
             return;
@@ -241,25 +185,5 @@ class ResourcesPage {
             echo ResourceItem::render_item_html($resource);
         }
         Logger::info("ResourcesPage::render_resources_list - PHP rendering completed successfully");
-    }
-    
-    
-    public function ajax_import_resources() {
-        check_ajax_referer('ujc_admin_nonce', 'nonce');
-
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error('Brak uprawnień');
-        }
-
-        try {
-            $importResourcesUseCase = DIContainer::get(ImportResourcesUseCase::class);
-            $result = $importResourcesUseCase->execute($_FILES['import_file']);
-
-            wp_send_json_success($result);
-
-        } catch (Exception $e) {
-            Logger::error('UJC Import Error: ' . $e->getMessage());
-            wp_send_json_error($e->getMessage());
-        }
     }
 }

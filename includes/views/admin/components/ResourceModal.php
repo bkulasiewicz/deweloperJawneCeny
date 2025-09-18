@@ -115,11 +115,11 @@ class ResourceModal extends UJC_Admin_Page {
                             <table class="form-table">
                                 <tr id="floor-field-row" style="display: none;">
                                     <th><label for="modal-floor_number">Piętro (opcjonalne)</label></th>
-                                    <td><input type="number" id="modal-floor_number" name="floor_number" class="regular-text" min="0" placeholder="np. 2"></td>
+                                    <td><input type="number" id="modal-floor_number" name="floor_number" class="regular-text" value="" placeholder="np. 2"></td>
                                 </tr>
                                 <tr id="rooms-field-row" style="display: none;">
                                     <th><label for="modal-room_count">Liczba pokoi (opcjonalne)</label></th>
-                                    <td><input type="number" id="modal-room_count" name="room_count" class="regular-text" min="0" placeholder="np. 3"></td>
+                                    <td><input type="number" id="modal-room_count" name="room_count" class="regular-text" value="" placeholder="np. 3"></td>
                                 </tr>
                                 <tr id="description-field-row" style="display: none;">
                                     <th><label for="modal-additional_description">Dodatkowy opis (opcjonalne)</label></th>
@@ -127,7 +127,7 @@ class ResourceModal extends UJC_Admin_Page {
                                 </tr>
                                 <tr id="garden-field-row" style="display: none;">
                                     <th><label for="modal-garden_area">Ogród [m²] (opcjonalne)</label></th>
-                                    <td><input type="number" id="modal-garden_area" name="garden_area" step="0.01" min="0" class="regular-text" placeholder="np. 25.5"> m²</td>
+                                    <td><input type="number" id="modal-garden_area" name="garden_area" step="0.01" class="regular-text" value="" placeholder="np. 25.5"> m²</td>
                                 </tr>
                                 <tr id="floor-plan-field-row" style="display: none;">
                                     <th><label for="modal-floor_plan_pdf" id="floor-plan-label">Plan mieszkania (PDF) (opcjonalne)</label></th>
@@ -393,6 +393,8 @@ class ResourceModal extends UJC_Admin_Page {
                         $('#resource-id').val('');
                         $('#resource-modal-form')[0].reset();
                         $('#modal-delete-btn').hide(); // Ukryj przycisk usuń w trybie dodawania
+                        $('#current-floor-plan').hide(); // Hide existing file section
+                        $('#modal-floor_plan_pdf').show().prop('disabled', false); // Show and enable file input for new resource
                     } else if (mode === 'edit' && resourceId) {
                         $('#modal-title').text('Edytuj Zasób');
                         $('#modal-submit-btn').text('Zapisz Zmiany');
@@ -496,17 +498,19 @@ class ResourceModal extends UJC_Admin_Page {
                         }
                         
                         // Load marketing fields
-                        $('#modal-floor_number').val(data.floor_number || '');
-                        $('#modal-room_count').val(data.room_count || '');
-                        $('#modal-additional_description').val(data.additional_description || '');
-                        $('#modal-garden_area').val(data.garden_area || '');
+                        $('#modal-floor_number').val(data.floor_number ?? '');
+                        $('#modal-room_count').val(data.room_count ?? '');
+                        $('#modal-additional_description').val(data.additional_description ?? '');
+                        $('#modal-garden_area').val(data.garden_area ?? '');
                         
                         // Handle floor plan PDF if exists
                         if (data.floor_plan_pdf) {
                             $('#current-floor-plan').show();
                             $('#current-floor-plan-name').text(data.floor_plan_pdf);
+                            $('#modal-floor_plan_pdf').hide().prop('disabled', true); // Hide and disable file input when file exists
                         } else {
                             $('#current-floor-plan').hide();
+                            $('#modal-floor_plan_pdf').show().prop('disabled', false); // Show and enable file input when no file
                         }
                         
                         // Przelicz cenę finalną
@@ -884,18 +888,17 @@ class ResourceModal extends UJC_Admin_Page {
                 if (confirm('Czy na pewno chcesz usunąć aktualny plik planu mieszkania?')) {
                     $('#current-floor-plan').hide();
                     $('#current-floor-plan-name').text('');
-                    // Clear the file input
-                    $('#modal-floor_plan_pdf').val('');
+                    $('#modal-floor_plan_pdf').val('').show().prop('disabled', false); // Show and enable file input after removal
                     // Set a hidden flag to indicate file should be removed
-                    if (!$('#remove-floor-plan-flag').length) {
-                        $('#resource-modal-form').append('<input type="hidden" id="remove-floor-plan-flag" name="remove_floor_plan" value="1">');
+                    if (!$('#shouldRemovePdfFloorPlan-flag').length) {
+                        $('#resource-modal-form').append('<input type="hidden" id="shouldRemovePdfFloorPlan-flag" name="shouldRemovePdfFloorPlan" value="true">');
                     }
                 }
             });
             
             // Clear removal flag when new file is selected
             $('#modal-floor_plan_pdf').on('change', function() {
-                $('#remove-floor-plan-flag').remove();
+                $('#shouldRemovePdfFloorPlan-flag').remove();
             });
             
             // Initialize all functionality
@@ -906,6 +909,36 @@ class ResourceModal extends UJC_Admin_Page {
         <?php
     }
     
+    /**
+     * Sanitize POST data with debug logging for marketing fields
+     */
+    protected function sanitize_post_data($fields = []) {
+        $data = [];
+        foreach ($fields as $field => $sanitize_callback) {
+            $value = $_POST[$field] ?? '';
+
+            // Debug logging for marketing fields
+            if (in_array($field, ['floor_number', 'room_count', 'garden_area'])) {
+                Logger::info("UJC DEBUG: Field '$field' - Raw POST value: " . var_export($value, true));
+                Logger::info("UJC DEBUG: Field '$field' - isset(\$_POST['$field']): " . (isset($_POST[$field]) ? 'true' : 'false'));
+                Logger::info("UJC DEBUG: Field '$field' - is_callable check: " . (is_callable($sanitize_callback) ? 'true' : 'false'));
+            }
+
+            // Call sanitization function
+            if (is_callable($sanitize_callback)) {
+                $data[$field] = call_user_func($sanitize_callback, $value);
+            } else {
+                $data[$field] = sanitize_text_field($value);
+            }
+
+            // Debug logging for marketing fields after sanitization
+            if (in_array($field, ['floor_number', 'room_count', 'garden_area'])) {
+                Logger::info("UJC DEBUG: Field '$field' - After sanitization: " . var_export($data[$field], true));
+            }
+        }
+        return $data;
+    }
+
     private function sanitize_resource_data() {
         return $this->sanitize_post_data([
             'rodzaj_nieruchomosci' => 'sanitize_text_field',
@@ -938,15 +971,14 @@ class ResourceModal extends UJC_Admin_Page {
             'floor_number' => [$this, 'sanitize_nullable_int'],
             'room_count' => [$this, 'sanitize_nullable_int'],
             'additional_description' => 'sanitize_textarea_field',
-            'garden_area' => [$this, 'sanitize_nullable_float'],
-            'floor_plan_pdf' => 'sanitize_text_field'
+            'garden_area' => [$this, 'sanitize_nullable_float']
         ]);
     }
     
     private function sanitize_nullable_float($value) {
         Logger::info('UJC: sanitize_nullable_float called with value: ' . var_export($value, true));
         // If empty string or whitespace, return null
-        if (empty($value) || trim($value) === '') {
+        if ($value === '' || $value === null || trim($value) === '') {
             Logger::info('UJC: sanitize_nullable_float returning null for empty value');
             return null;
         }
@@ -958,12 +990,24 @@ class ResourceModal extends UJC_Admin_Page {
     private function sanitize_nullable_int($value) {
         Logger::info('UJC: sanitize_nullable_int called with value: ' . var_export($value, true));
         // If empty string or whitespace, return null
-        if (empty($value) || trim($value) === '') {
+        if ($value === '' || $value === null || trim($value) === '') {
             Logger::info('UJC: sanitize_nullable_int returning null for empty value');
             return null;
         }
         $result = intval($value);
         Logger::info('UJC: sanitize_nullable_int returning: ' . $result);
+        return $result;
+    }
+
+    private function sanitize_nullable_text($value) {
+        Logger::info('UJC: sanitize_nullable_text called with value: ' . var_export($value, true));
+        // If empty string or whitespace, return null
+        if (empty($value) || trim($value) === '') {
+            Logger::info('UJC: sanitize_nullable_text returning null for empty value');
+            return null;
+        }
+        $result = sanitize_text_field($value);
+        Logger::info('UJC: sanitize_nullable_text returning: ' . $result);
         return $result;
     }
     
@@ -1100,6 +1144,12 @@ class ResourceModal extends UJC_Admin_Page {
         Logger::info('UJC: createResourceFormData - Data for constructor: nr_lokalu=' . $data['nr_lokalu'] . ', powierzchnia=' . $data['powierzchnia_uzytkowa'] . ', cena_m2=' . ($data['cena_m2'] ?? 'NULL'));
         
         try {
+            // Debug logging before ResourceFormData creation
+            Logger::info("UJC DEBUG: Before ResourceFormData creation:");
+            Logger::info("UJC DEBUG: \$data['floor_number'] = " . var_export($data['floor_number'], true));
+            Logger::info("UJC DEBUG: \$data['room_count'] = " . var_export($data['room_count'], true));
+            Logger::info("UJC DEBUG: \$data['garden_area'] = " . var_export($data['garden_area'], true));
+
             $resourceFormData = new ResourceFormData(
                 rodzaj_nieruchomosci: $propertyType,
                 nr_lokalu: $data['nr_lokalu'],
@@ -1112,12 +1162,17 @@ class ResourceModal extends UJC_Admin_Page {
                 belonging_room: $components['belonging_room'],
                 usage_right: $components['usage_right'],
                 other_service: $components['other_service'],
-                floor_number: $data['floor_number'] === '' ? null : (int)$data['floor_number'],
-                room_count: $data['room_count'] === '' ? null : (int)$data['room_count'],
-                additional_description: $data['additional_description'] === '' ? null : $data['additional_description'],
-                garden_area: $data['garden_area'] === '' ? null : (float)$data['garden_area'],
-                floor_plan_pdf: $data['floor_plan_pdf'] === '' ? null : $data['floor_plan_pdf']
+                floor_number: $data['floor_number'] !== null ? (int)$data['floor_number'] : null,
+                room_count: $data['room_count'] !== null ? (int)$data['room_count'] : null,
+                additional_description: $data['additional_description'],
+                garden_area: $data['garden_area'] !== null ? (float)$data['garden_area'] : null,
+                floor_plan_pdf: ($data['floor_plan_pdf'] ?? null) === '' ? null : ($data['floor_plan_pdf'] ?? null)
             );
+
+            // Debug logging after ResourceFormData creation
+            Logger::info("UJC DEBUG: ResourceFormData created - floor_number: " . var_export($resourceFormData->floor_number, true));
+            Logger::info("UJC DEBUG: ResourceFormData created - room_count: " . var_export($resourceFormData->room_count, true));
+            Logger::info("UJC DEBUG: ResourceFormData created - garden_area: " . var_export($resourceFormData->garden_area, true));
             
             Logger::info('UJC: createResourceFormData - ResourceFormData object created successfully');
             return $resourceFormData;
@@ -1202,42 +1257,28 @@ class ResourceModal extends UJC_Admin_Page {
         
         try {
             $resource_id = intval($_POST['resource_id'] ?? 0);
-            
+
             if (!$resource_id) {
                 wp_send_json_error('Nieprawidłowy ID zasobu');
                 return;
             }
-            
+
             $data = $this->sanitize_resource_data();
-            
-            // Get old resource data first
-            $old_resource = $this->getResourceByIdUseCase->execute($resource_id);
-            
-            // Handle file removal if requested
-            if (isset($_POST['remove_floor_plan']) && $_POST['remove_floor_plan'] === '1') {
-                if ($old_resource && $old_resource->floor_plan_pdf) {
-                    $this->remove_old_pdf_file($old_resource->floor_plan_pdf);
-                }
+
+            // Handle PDF field in 3 scenarios
+            $shouldRemovePdf = ($_POST['shouldRemovePdfFloorPlan'] ?? 'false') === 'true';
+
+            if ($shouldRemovePdf) {
+                // Scenario 1: User wants to remove PDF file
                 $data['floor_plan_pdf'] = null;
-                Logger::info('UJC: ajax_update_resource - Floor plan PDF removed');
+            } elseif (isset($_FILES['floor_plan_pdf']) && $_FILES['floor_plan_pdf']['error'] === 0) {
+                // Scenario 2: New file uploaded
+                $data['floor_plan_pdf'] = $this->handle_pdf_upload();
             } else {
-                // Handle file upload if present
-                $uploaded_filename = $this->handle_pdf_upload();
-                if ($uploaded_filename) {
-                    // Remove old file if it exists
-                    if ($old_resource && $old_resource->floor_plan_pdf) {
-                        $this->remove_old_pdf_file($old_resource->floor_plan_pdf);
-                    }
-                    $data['floor_plan_pdf'] = $uploaded_filename;
-                    Logger::info('UJC: ajax_update_resource - PDF uploaded successfully: ' . $uploaded_filename);
-                } else {
-                    // Keep existing file if no new file uploaded and not marked for removal
-                    if ($old_resource && $old_resource->floor_plan_pdf) {
-                        $data['floor_plan_pdf'] = $old_resource->floor_plan_pdf;
-                    }
-                }
+                // Scenario 3: No changes - set marker for UseCase
+                $data['floor_plan_pdf'] = '##NO_CHANGE##';
             }
-            
+
             $formData = $this->createResourceFormData($data);
             $result = $this->updateResourceUseCase->execute($formData, $resource_id);
             
@@ -1290,7 +1331,7 @@ class ResourceModal extends UJC_Admin_Page {
         }
 
         $file = $_FILES['floor_plan_pdf'];
-        Logger::info('UJC: handle_pdf_upload - File upload detected: ' . print_r($file, true));
+        Logger::info('UJC: handle_pdf_upload - File upload detected: ' . $file['name'] . ' (' . $file['size'] . ' bytes)');
 
         // Check for upload errors
         if ($file['error'] !== UPLOAD_ERR_OK) {
@@ -1418,7 +1459,8 @@ class ResourceModal extends UJC_Admin_Page {
             }
         }
     }
-    
+
+
     public function render() {
         // Nie używane - to jest komponent modalny
     }

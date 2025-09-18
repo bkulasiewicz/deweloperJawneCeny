@@ -174,16 +174,29 @@ class Logger {
         if (!self::$initialized) {
             self::init();
         }
-        
+
+        // Initialize WordPress filesystem
+        if (!function_exists('WP_Filesystem')) {
+            require_once(ABSPATH . 'wp-admin/includes/file.php');
+        }
+        WP_Filesystem();
+        global $wp_filesystem;
+
         // Clear only current day's log
         $current_log_filename = self::getCurrentLogFileName();
         $current_log_path = WP_CONTENT_DIR . '/' . $current_log_filename;
-        
-        file_put_contents($current_log_path, '');
-        
+
+        // Use WordPress filesystem for security
+        if ($wp_filesystem) {
+            $wp_filesystem->put_contents($current_log_path, '');
+        } else {
+            // Fallback if filesystem not available
+            file_put_contents($current_log_path, '');
+        }
+
         // Update our internal reference
         self::$log_file = $current_log_path;
-        
+
         self::log('Logi za dzisiaj zostały wyczyszczone', 'INFO');
     }
 }

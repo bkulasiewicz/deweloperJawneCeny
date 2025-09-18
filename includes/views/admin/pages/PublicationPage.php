@@ -13,12 +13,16 @@ class PublicationPage {
     private $getPublicationHistoryUseCase;
     private $csvFilesSection;
 
-    public function __construct(GetPublicationHistoryUseCase $getPublicationHistoryUseCase) {
+    public function __construct(
+        GetPublicationHistoryUseCase $getPublicationHistoryUseCase,
+        CsvFilesSection $csvFilesSection,
+        GenerateFilesUseCase $generateFilesUseCase
+    ) {
         Logger::info('UJC: PublicationPage constructor started with DI');
 
-        $this->generateFilesUseCase = DIContainer::get(GenerateFilesUseCase::class);
+        $this->generateFilesUseCase = $generateFilesUseCase;
         $this->getPublicationHistoryUseCase = $getPublicationHistoryUseCase;
-        $this->csvFilesSection = new CsvFilesSection();
+        $this->csvFilesSection = $csvFilesSection;
 
         add_action('wp_ajax_ujc_publication_generate', [$this, 'ajax_generate_files']);
 

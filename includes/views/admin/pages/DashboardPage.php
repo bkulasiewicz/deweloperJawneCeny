@@ -15,14 +15,16 @@ class DashboardPage {
     private $generateFilesUseCase;
     private $automationTile;
     private $historyTile;
-    
+    private $devConsoleTile;
+
     public function __construct(
         DeveloperRepository $developerRepository,
         InvestmentRepository $investmentRepository,
         ResourceRepository $resourceRepository,
         GenerateFilesUseCase $generateFilesUseCase,
         AutomationTile $automationTile,
-        HistoryTile $historyTile
+        HistoryTile $historyTile,
+        DevConsoleTile $devConsoleTile
     ) {
         $this->developerRepository = $developerRepository;
         $this->investmentRepository = $investmentRepository;
@@ -30,6 +32,7 @@ class DashboardPage {
         $this->generateFilesUseCase = $generateFilesUseCase;
         $this->automationTile = $automationTile;
         $this->historyTile = $historyTile;
+        $this->devConsoleTile = $devConsoleTile;
         
         add_action('wp_ajax_ujc_manual_generation', [$this, 'ajax_manual_generation']);
         add_action('wp_ajax_download_logs', [$this, 'ajax_download_logs']);
@@ -117,7 +120,7 @@ class DashboardPage {
                 // Renderuj DEV Console jeśli dostępna
                 if (class_exists('DevConsoleTile')) {
                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Dev Console output contains safe inline JavaScript
-                    echo DevConsoleTile::render_console_tile();
+                    echo $this->devConsoleTile->render_console_tile();
                 }
                 ?>
             </div>

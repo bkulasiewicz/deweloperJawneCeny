@@ -73,7 +73,7 @@ class InvestmentRepository {
     /**
      * Create investment table using InvestmentDto field constants
      */
-    public function createTable(string $currentDbVersion): bool {
+    public function createTable(?string $currentDbVersion = null): bool {
         global $wpdb;
         $table = TableNames::getInvestmentInfo();
         $charset_collate = $wpdb->get_charset_collate();

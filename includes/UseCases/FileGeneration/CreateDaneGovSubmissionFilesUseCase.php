@@ -9,19 +9,22 @@ if (!defined('ABSPATH')) {
  * Handles validation, XML generation and file storage in one workflow
  */
 class CreateDaneGovSubmissionFilesUseCase {
-    
+
     private $xmlFormatter;
     private $fileManager;
     private $developerRepository;
-    
+    private $xmlResourceRepository;
+
     public function __construct(
         XMLFormatter $xmlFormatter,
         FileManager $fileManager,
-        DeveloperRepository $developerRepository
+        DeveloperRepository $developerRepository,
+        XmlResourceRepository $xmlResourceRepository
     ) {
         $this->xmlFormatter = $xmlFormatter;
         $this->fileManager = $fileManager;
         $this->developerRepository = $developerRepository;
+        $this->xmlResourceRepository = $xmlResourceRepository;
     }
     
     /**
@@ -60,8 +63,7 @@ class CreateDaneGovSubmissionFilesUseCase {
             
             // Pobierz wszystkie XML resources z bazy i dodaj do dataset
             Logger::info('CreateDaneGov: Loading all XML resources from database...');
-            $xmlResourceRepo = new XmlResourceRepository();
-            $allXmlResources = $xmlResourceRepo->readAll();
+            $allXmlResources = $this->xmlResourceRepository->readAll();
             Logger::info('CreateDaneGov: Found ' . count($allXmlResources) . ' XML resources in database');
             
             foreach ($allXmlResources as $xmlResource) {

@@ -15,11 +15,16 @@ class RegisterExternalCronUseCase {
     private $investmentRepository;
     private $resourceRepository;
     
-    public function __construct() {
-        $this->repository = new ExternalCronRepository();
-        $this->developerRepository = new DeveloperRepository();
-        $this->investmentRepository = new InvestmentRepository();
-        $this->resourceRepository = new ResourceRepository();
+    public function __construct(
+        ExternalCronRepository $repository,
+        DeveloperRepository $developerRepository,
+        InvestmentRepository $investmentRepository,
+        ResourceRepository $resourceRepository
+    ) {
+        $this->repository = $repository;
+        $this->developerRepository = $developerRepository;
+        $this->investmentRepository = $investmentRepository;
+        $this->resourceRepository = $resourceRepository;
     }
     
     /**
@@ -43,7 +48,7 @@ class RegisterExternalCronUseCase {
             
             // Get plugin version and license ID
             $plugin_version = defined('VERSION') ? VERSION : '2.0.10';
-            $license_id = 'NA9WQCIPYU';
+            $license_id = 'DJC8N5Q1WZ';
             
             // Create title with metadata: domain | version | license
             $title = $domain . ' | v' . $plugin_version . ' | ' . $license_id;

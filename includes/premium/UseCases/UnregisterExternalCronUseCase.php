@@ -12,8 +12,8 @@ class UnregisterExternalCronUseCase {
     
     private $repository;
     
-    public function __construct() {
-        $this->repository = new ExternalCronRepository();
+    public function __construct(ExternalCronRepository $repository) {
+        $this->repository = $repository;
     }
     
     /**

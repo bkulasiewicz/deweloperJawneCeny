@@ -113,6 +113,7 @@ class CSVFormatter {
             'Kod pocztowy adresu lokalu, w którym prowadzona jest sprzedaż',
             'Dodatkowe lokalizacje, w których prowadzona jest sprzedaż',
             'Sposób kontaktu nabywcy z deweloperem',
+            'Nazwa przedsięwzięcia deweloperskiego lub zadania inwestycyjnego',
             'Województwo lokalizacji przedsięwzięcia deweloperskiego lub zadania inwestycyjnego',
             'Powiat lokalizacji przedsięwzięcia deweloperskiego lub zadania inwestycyjnego',
             'Gmina lokalizacji przedsięwzięcia deweloperskiego lub zadania inwestycyjnego',
@@ -208,7 +209,8 @@ class CSVFormatter {
             
             $developer->dodatkowe_lokalizacje ?? '',
             $developer->sposob_kontaktu ?? '',
-            
+            $investment->name,
+
             // Project location
             $investment->proj_wojewodztwo,
             $investment->proj_powiat,
