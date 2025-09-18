@@ -111,6 +111,20 @@ class ResourceRepository {
         $charset_collate = $wpdb->get_charset_collate();
         
         if (UJC_Schema_Manager::tableExists($table)) {
+            $needsMigration = ($currentDbVersion === null) ||
+                              ($currentDbVersion !== null && version_compare($currentDbVersion, '1.8', '<'));
+
+            if ($needsMigration) {
+                Logger::info('ResourceRepository: Migrating usable_area to DEFAULT NULL');
+
+                $result = $wpdb->query("ALTER TABLE `{$table}` MODIFY COLUMN `usable_area` decimal(8,2) DEFAULT NULL");
+
+                if ($result === false) {
+                    Logger::error('ResourceRepository: Migration failed - ' . $wpdb->last_error);
+                    return false;
+                }
+            }
+
             return true;
         }
         
@@ -138,7 +152,7 @@ class ResourceRepository {
             " . ResourceDto::FIELD_INVESTMENT_ID . " int(11) NOT NULL DEFAULT 1,
             " . ResourceDto::FIELD_RODZAJ_NIERUCHOMOSCI . " enum({$propertyEnum}) NOT NULL,
             " . ResourceDto::FIELD_NR_LOKALU . " varchar(50) NOT NULL,
-            " . ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA . " decimal(8,2) NOT NULL,
+            " . ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA . " decimal(8,2) DEFAULT NULL,
             " . ResourceDto::FIELD_STATUS . " enum({$statusEnum}),
             
             " . ResourceDto::FIELD_PROPERTY_PART_TITLE . " varchar(100) DEFAULT NULL,

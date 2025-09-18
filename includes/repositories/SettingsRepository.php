@@ -37,6 +37,6 @@ class SettingsRepository {
      * Pobiera wersję bazy danych
      */
     public function getDbVersion() {
-        return get_option(self::DB_VERSION, DB_VERSION);
+        return get_option(self::DB_VERSION, null);
     }
 }

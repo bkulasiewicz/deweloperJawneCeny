@@ -15,7 +15,7 @@ class XmlResourceRepository {
     /**
      * Create table structure
      */
-    public function create(string $currentDbVersion = null) {
+    public function createTable(?string $currentDbVersion = null): bool {
         global $wpdb;
 
         if (UJC_Schema_Manager::tableExists($this->table_name)) {

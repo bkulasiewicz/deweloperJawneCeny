@@ -4,7 +4,7 @@
  * Plugin URI: https://www.deweloperjawneceny.pl/
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
  * Description (EN): Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.3.3
+ * Version: 4.3.5
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -26,8 +26,8 @@ if (!defined('ABSPATH')) {
 
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
-define('DB_VERSION', '1.7');
-define('VERSION', '4.3.3');
+define('DB_VERSION', '1.8');
+define('VERSION', '4.3.5');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -80,7 +80,6 @@ class DeweloperJawneCeny {
 
         // Helpers
         require_once PLUGIN_DIR . 'includes/helpers/PremiumHelper.php';
-        require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
 
         // DI Container - must be loaded before other classes
         require_once PLUGIN_DIR . 'includes/core/DIContainer.php';
@@ -114,9 +113,6 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/dto/PriceHistoryDto.php';
         require_once PLUGIN_DIR . 'includes/dto/SupplierDto.php';
         require_once PLUGIN_DIR . 'includes/dto/XmlResourceDto.php';
-        
-        // Helpers
-        require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
         
         // Services
         require_once PLUGIN_DIR . 'includes/services/DateHelper.php';
@@ -229,9 +225,6 @@ class DeweloperJawneCeny {
 
         // Initialize WordPress Filesystem
         WP_Filesystem();
-
-        // Initialize Logger
-        Logger::init();
     }
     
     
@@ -336,16 +329,36 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/repositories/PriceHistoryRepository.php';
         require_once PLUGIN_DIR . 'includes/repositories/PublicationHistoryRepository.php';
         require_once PLUGIN_DIR . 'includes/repositories/XmlResourceRepository.php';
+
+        // Initialize Logger - must be after DateHelper is loaded
+        Logger::init();
     }
 
     public function activate() {
-        // Load minimal dependencies needed for activation
-        $this->load_activationDependencies();
+        try {
+            // Load minimal dependencies needed for activation
+            $this->load_activationDependencies();
 
-        // Create database tables on activation
-        Logger::info('Plugin Activation: Creating database tables...');
-        UJC_Schema_Manager::create_tables();
-        Logger::info('Plugin Activation: Database tables created successfully');
+            Logger::info('Plugin Activation: Starting database schema creation/migration...');
+            $success = UJC_Schema_Manager::create_tables();
+
+            if (!$success) {
+                Logger::error('Plugin Activation: Database schema creation/migration failed');
+                throw new Exception('Database migration failed - check logs for details');
+            }
+
+            // Ustaw nową wersję TYLKO po pomyślnych migracjach
+            $settingsRepo = new SettingsRepository();
+            $settingsRepo->setDbVersion(DB_VERSION);
+
+            Logger::info('Plugin Activation: Successfully set DB version to ' . DB_VERSION);
+            Logger::info('Plugin Activation: Completed successfully');
+
+        } catch (Exception $e) {
+            Logger::error('Plugin Activation Error: ' . $e->getMessage());
+            Logger::error('Plugin Activation: Activation failed - plugin may not work correctly');
+            throw $e; // WordPress will show activation error
+        }
     }
     
     /**

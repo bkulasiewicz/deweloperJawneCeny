@@ -12,7 +12,7 @@ class UJC_Schema_Manager {
     /**
      * Tworzy wszystkie tabele wtyczki
      */
-    public static function create_tables() {
+    public static function create_tables(): bool {
         global $wpdb;
         
         Logger::info('UJC_Schema_Manager::create_tables() - START');
@@ -22,29 +22,27 @@ class UJC_Schema_Manager {
         
         // Jeden raz pobierz wersję dla wszystkich repositories
         $currentDbVersion = (new SettingsRepository())->getDbVersion();
-        Logger::info('UJC_Schema_Manager: Current DB version from SettingsRepository: ' . $currentDbVersion);
+        Logger::info('UJC_Schema_Manager: Current DB version from SettingsRepository: ' . ($currentDbVersion ?: 'NULL'));
         Logger::info('UJC_Schema_Manager: Expected DB_VERSION constant: ' . DB_VERSION);
         
-        // Przekaż wersję do wszystkich repositories
-        Logger::info('UJC_Schema_Manager: Creating DeveloperRepository table...');
-        (new DeveloperRepository())->createTable($currentDbVersion);
-        
-        Logger::info('UJC_Schema_Manager: Creating InvestmentRepository table...');
-        (new InvestmentRepository())->createTable($currentDbVersion);
-        
-        Logger::info('UJC_Schema_Manager: Creating ResourceRepository table...');
-        (new ResourceRepository())->createTable($currentDbVersion);
-        
-        Logger::info('UJC_Schema_Manager: Creating PriceHistoryRepository table...');
-        (new PriceHistoryRepository())->createTable($currentDbVersion);
-        
-        Logger::info('UJC_Schema_Manager: Creating PublicationHistoryRepository table...');
-        (new PublicationHistoryRepository())->createTable($currentDbVersion);
-        
-        Logger::info('UJC_Schema_Manager: Creating XmlResourceRepository table...');
-        (new XmlResourceRepository())->create($currentDbVersion);
-        
-        Logger::info('UJC_Schema_Manager::create_tables() - COMPLETED');
+        // Lista repositories do przetworzenia
+        $repositories = [
+            new DeveloperRepository(),
+            new InvestmentRepository(),
+            new ResourceRepository(),
+            new PriceHistoryRepository(),
+            new PublicationHistoryRepository(),
+            new XmlResourceRepository()
+        ];
+
+        // Przetwarzaj każde repository
+        foreach ($repositories as $repo) {
+            if (!$repo->createTable($currentDbVersion)) {
+                return false;
+            }
+        }
+
+        return true;
     }
     
     /**
