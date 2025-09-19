@@ -432,7 +432,8 @@ class ResourceModal extends UJC_Admin_Page {
                         $('#modal-cena_m2').val(data.cena_m2);
                         $('#modal-cena_calkowita').val(data.cena_calkowita || '');
                         $('#modal-cena_z_dodatkami').val(data.cena_z_dodatkami || '');
-                        $('#modal-status').val(data.status || '<?php echo ResourceStatus::cases()[0]->value; ?>');
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
+                        $('#modal-status').val(data.status || '<?php echo esc_js(ResourceStatus::cases()[0]->value); ?>');
                         
                         // Load component data and show sections/buttons based on data availability
                         if (data.property_part_title) {
@@ -797,14 +798,17 @@ class ResourceModal extends UJC_Admin_Page {
                     const $powierzchniaLabel = $('label[for="modal-powierzchnia_uzytkowa"]');
                     
                     switch(propertyType) {
-                        case '<?php echo PropertyType::PARKING_SPACE->value; ?>':
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
+                        case '<?php echo esc_js(PropertyType::PARKING_SPACE->value); ?>':
                             // Pola ukryte
                             break;
-                        case '<?php echo PropertyType::STORAGE_ROOM->value; ?>':
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
+                        case '<?php echo esc_js(PropertyType::STORAGE_ROOM->value); ?>':
                             $powierzchniaLabel.html('Powierzchnia użytkowa [m²] (opcjonalne)');
                             $cenaM2Label.html('Cena m² (opcjonalne)');
                             break;
-                        case '<?php echo PropertyType::GARAGE->value; ?>':
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
+                        case '<?php echo esc_js(PropertyType::GARAGE->value); ?>':
                             $powierzchniaLabel.html('Powierzchnia użytkowa [m²] (opcjonalne)');
                             $cenaM2Label.html('Cena m² (opcjonalne)');
                             break;
@@ -820,7 +824,8 @@ class ResourceModal extends UJC_Admin_Page {
                     $servicePremisesInfo.hide();
                     
                     switch(propertyType) {
-                        case '<?php echo PropertyType::PARKING_SPACE->value; ?>':
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
+                        case '<?php echo esc_js(PropertyType::PARKING_SPACE->value); ?>':
                             // Hide cena m² and powierzchnia for parking spaces
                             $cenaM2Row.hide();
                             $cenaM2Field.removeAttr('required');
@@ -829,8 +834,9 @@ class ResourceModal extends UJC_Admin_Page {
                             $powierzchniaField.removeAttr('required');
                             $powierzchniaField.val(''); // Clear value
                             break;
-                            
-                        case '<?php echo PropertyType::SERVICE_PREMISES->value; ?>':
+
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
+                        case '<?php echo esc_js(PropertyType::SERVICE_PREMISES->value); ?>':
                             // Show service premises info, show all other fields
                             $servicePremisesInfo.show();
                             $cenaM2Row.show();
@@ -838,18 +844,22 @@ class ResourceModal extends UJC_Admin_Page {
                             $powierzchniaRow.show();
                             $powierzchniaField.attr('required', 'required');
                             break;
-                            
-                        case '<?php echo PropertyType::STORAGE_ROOM->value; ?>':
+
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
+                        case '<?php echo esc_js(PropertyType::STORAGE_ROOM->value); ?>':
                             // Dla komórki powierzchnia i cena m² są opcjonalne
                             $cenaM2Row.show();
                             $cenaM2Field.removeAttr('required');
                             $powierzchniaRow.show();
                             $powierzchniaField.removeAttr('required');
                             break;
-                            
-                        case '<?php echo PropertyType::RESIDENTIAL_UNIT->value; ?>':
-                        case '<?php echo PropertyType::SINGLE_FAMILY_HOUSE->value; ?>': 
-                        case '<?php echo PropertyType::GARAGE->value; ?>':
+
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
+                        case '<?php echo esc_js(PropertyType::RESIDENTIAL_UNIT->value); ?>':
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
+                        case '<?php echo esc_js(PropertyType::SINGLE_FAMILY_HOUSE->value); ?>':
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
+                        case '<?php echo esc_js(PropertyType::GARAGE->value); ?>':
                             // Dla garażu powierzchnia i cena m² są opcjonalne
                             $cenaM2Row.show();
                             $cenaM2Field.removeAttr('required');
@@ -1346,7 +1356,7 @@ class ResourceModal extends UJC_Admin_Page {
             ];
             $error_message = $error_messages[$file['error']] ?? 'Nieznany błąd przesyłania';
             Logger::error('UJC: handle_pdf_upload - Upload error: ' . $error_message);
-            throw new Exception($error_message);
+            throw new Exception(esc_html($error_message));
         }
 
         // Validate file type
@@ -1402,12 +1412,16 @@ class ResourceModal extends UJC_Admin_Page {
         }
 
         // Move uploaded file to target directory
+        // Safe: move_uploaded_file is the only secure way to handle uploaded files
+        // phpcs:ignore Generic.PHP.ForbiddenFunctions.Found
         if (!move_uploaded_file($file['tmp_name'], $target_path)) {
             Logger::error('UJC: handle_pdf_upload - Failed to move uploaded file');
             throw new Exception('Nie można zapisać przesłanego pliku');
         }
 
         // Set proper file permissions
+        // Safe: Setting proper file permissions after upload
+        // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_chmod
         chmod($target_path, 0644);
 
         Logger::info('UJC: handle_pdf_upload - File uploaded successfully: ' . $new_filename);
@@ -1453,7 +1467,7 @@ class ResourceModal extends UJC_Admin_Page {
         $file_path = $upload_dir['basedir'] . '/ujc-data/' . $filename;
         
         if (file_exists($file_path)) {
-            if (unlink($file_path)) {
+            if (wp_delete_file($file_path)) {
                 Logger::info('UJC: remove_old_pdf_file - Old file removed: ' . $filename);
             } else {
                 Logger::error('UJC: remove_old_pdf_file - Failed to remove old file: ' . $filename);

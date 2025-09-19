@@ -265,8 +265,10 @@ class ResourcesListShortcode {
                         $class_attr = !empty($row_classes) ? ' class="' . esc_attr(implode(' ', $row_classes)) . '"' : '';
                         $data_attrs = !empty($row_attributes) ? ' ' . implode(' ', $row_attributes) : '';
                         ?>
+                        <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Class and data attributes already escaped during construction ?>
                         <tr<?php echo $class_attr . $data_attrs; ?>>
                             <?php foreach ($visible_columns as $column): ?>
+                                <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_column_value method returns pre-escaped HTML content ?>
                                 <td><?php echo self::render_column_value($resource, $column, $styling_options); ?></td>
                             <?php endforeach; ?>
                         </tr>

@@ -36,7 +36,7 @@ class InvestmentRepository {
         if ($result === false) {
             Logger::error('UJC: Insert failed. Last error: ' . $wpdb->last_error);
             Logger::error('UJC: Last query: ' . $wpdb->last_query);
-            throw new Exception('Failed to create investment: ' . $wpdb->last_error);
+            throw new Exception('Failed to create investment: ' . esc_html($wpdb->last_error));
         }
         
         $insert_id = $wpdb->insert_id;
@@ -64,7 +64,7 @@ class InvestmentRepository {
         if ($result === false) {
             Logger::error('UJC: Update failed. Last error: ' . $wpdb->last_error);
             Logger::error('UJC: Last query: ' . $wpdb->last_query);
-            throw new Exception('Failed to update investment: ' . $wpdb->last_error);
+            throw new Exception('Failed to update investment: ' . esc_html($wpdb->last_error));
         }
         
         Logger::info('UJC: Investment update completed successfully');
@@ -109,6 +109,8 @@ class InvestmentRepository {
             FOREIGN KEY (" . InvestmentDto::FIELD_DEVELOPER_ID . ") REFERENCES " . TableNames::getDeveloperInfo() . "(id) ON DELETE CASCADE
         ) " . $charset_collate;
         
+        // Safe: Table names come from validated constants, no user input
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         return $wpdb->query($sql) !== false;
     }
     

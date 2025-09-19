@@ -16,7 +16,7 @@ class GetInvestmentUseCase {
         try {
             return $this->repository->read();
         } catch (Exception $e) {
-            throw new Exception('Błąd podczas pobierania danych inwestycji: ' . $e->getMessage());
+            throw new Exception('Błąd podczas pobierania danych inwestycji: ' . esc_html($e->getMessage()));
         }
     }
 }

@@ -13,10 +13,13 @@ class PriceHistoryRepository {
         $table = TableNames::getPriceHistory();
         global $wpdb;
         
+        // Safe: Table and column names from constants, only user data parametrized
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
         $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM `{$table}` WHERE " . PriceHistoryDto::FIELD_RESOURCE_ID . " = %d ORDER BY " . PriceHistoryDto::FIELD_ID . " DESC", 
+            "SELECT * FROM `{$table}` WHERE " . PriceHistoryDto::FIELD_RESOURCE_ID . " = %d ORDER BY " . PriceHistoryDto::FIELD_ID . " DESC",
             $resource_id
         ), ARRAY_A);
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
         
         $dtos = [];
         foreach($results as $row) {
@@ -43,13 +46,16 @@ class PriceHistoryRepository {
         $table = TableNames::getPriceHistory();
         global $wpdb;
         
+        // Safe: Table and column names from constants, only user data parametrized
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
         $result = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM `{$table}` WHERE " . PriceHistoryDto::FIELD_RESOURCE_ID . " = %d ORDER BY " . PriceHistoryDto::FIELD_ID . " DESC LIMIT 1",
             $resource_id
         ), ARRAY_A);
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
         
         if (!$result) {
-            throw new Exception("No price history found for resource {$resource_id}");
+            throw new Exception("No price history found for resource " . esc_html($resource_id));
         }
         
         return PriceHistoryDto::databaseToModel($result);
@@ -70,6 +76,8 @@ class PriceHistoryRepository {
             if ($needsMigration) {
                 Logger::info('PriceHistoryRepository: Migrating price_per_m2 to DEFAULT NULL');
 
+                // Safe: Table and column names from constants, no user input
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
                 $result = $wpdb->query("ALTER TABLE `{$table}` MODIFY COLUMN `price_per_m2` decimal(10,2) DEFAULT NULL");
 
                 if ($result === false) {
@@ -96,6 +104,8 @@ class PriceHistoryRepository {
             FOREIGN KEY (" . PriceHistoryDto::FIELD_RESOURCE_ID . ") REFERENCES " . TableNames::getResources() . "(id) ON DELETE CASCADE
         ) " . $charset_collate;
         
+        // Safe: Table names come from validated constants, no user input
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         return $wpdb->query($sql) !== false;
     }
 }

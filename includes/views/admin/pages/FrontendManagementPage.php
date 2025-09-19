@@ -237,9 +237,8 @@ class FrontendManagementPage {
         
         echo '<div class="property-types-checkboxes">';
         foreach (PropertyType::cases() as $type) {
-            $checked = in_array($type->value, $selected_values) ? 'checked' : '';
             echo '<label>';
-            echo '<input type="checkbox" name="selected_types[]" value="' . esc_attr($type->value) . '" ' . $checked . '>';
+            echo '<input type="checkbox" name="selected_types[]" value="' . esc_attr($type->value) . '" ' . checked(in_array($type->value, $selected_values), true, false) . '>';
             echo '<span>' . esc_html($type->getDisplayText()) . '</span>';
             echo '</label><br>';
         }
@@ -275,11 +274,10 @@ class FrontendManagementPage {
         
         echo '<div class="visible-columns-checkboxes">';
         foreach ($available_columns as $column) {
-            $checked = in_array($column, $settings['visible_columns']) ? 'checked' : '';
             $display_name = $settings['column_names'][$column] ?? ucfirst($column);
-            
+
             echo '<label>';
-            echo '<input type="checkbox" name="visible_columns[]" value="' . esc_attr($column) . '" ' . $checked . '>';
+            echo '<input type="checkbox" name="visible_columns[]" value="' . esc_attr($column) . '" ' . checked(in_array($column, $settings['visible_columns']), true, false) . '>';
             echo '<span>' . esc_html($display_name) . '</span>';
             echo '</label><br>';
         }

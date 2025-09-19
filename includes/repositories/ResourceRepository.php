@@ -14,7 +14,8 @@ class ResourceRepository {
         global $wpdb;
         
         Logger::info("ResourceRepository::readAll - Table: $table");
-        
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
         $results = $wpdb->get_results("SELECT r.* FROM `{$table}` r ORDER BY r." . ResourceDto::FIELD_ID . " ASC", ARRAY_A);
         
         Logger::info("ResourceRepository::readAll - SQL Results count: " . count($results));
@@ -39,10 +40,12 @@ class ResourceRepository {
         $table = TableNames::getResources();
         global $wpdb;
 
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
         $data = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM `{$table}` WHERE " . ResourceDto::FIELD_ID . " = %d",
             $id
         ), ARRAY_A);
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
         if (!$data) {
             return null;
@@ -68,7 +71,7 @@ class ResourceRepository {
         if ($result === false) {
             Logger::error("ResourceRepository::create - Failed: " . $wpdb->last_error);
             Logger::error("ResourceRepository::create - Last query: " . $wpdb->last_query);
-            throw new Exception('Failed to create resource: ' . $wpdb->last_error);
+            throw new Exception('Failed to create resource: ' . esc_html($wpdb->last_error));
         }
         
         $insert_id = $wpdb->insert_id;
@@ -88,7 +91,7 @@ class ResourceRepository {
         $result = $wpdb->update($table, $data, ['id' => $id]);
         
         if ($result === false) {
-            throw new Exception('Failed to update resource: ' . $wpdb->last_error);
+            throw new Exception('Failed to update resource: ' . esc_html($wpdb->last_error));
         }
     }
     
@@ -183,7 +186,8 @@ class ResourceRepository {
             KEY " . ResourceDto::FIELD_STATUS . " (" . ResourceDto::FIELD_STATUS . "),
             FOREIGN KEY (" . ResourceDto::FIELD_INVESTMENT_ID . ") REFERENCES " . TableNames::getInvestmentInfo() . "(id) ON DELETE CASCADE
         ) " . $charset_collate;
-        
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- CREATE TABLE statement with field constants is safe
         return $wpdb->query($sql) !== false;
     }
     

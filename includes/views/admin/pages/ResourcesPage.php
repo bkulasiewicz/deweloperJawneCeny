@@ -102,7 +102,7 @@ class ResourcesPage {
             
             <!-- Przycisk informacji o inwestycji -->
             <div style="margin: 20px 0;">
-                <button type="button" class="button" onclick="openInvestmentModal(<?php echo $investment->id; ?>)" style="display: flex; align-items: center; gap: 5px;">
+                <button type="button" class="button" onclick="openInvestmentModal(<?php echo esc_attr($investment->id); ?>)" style="display: flex; align-items: center; gap: 5px;">
                     <span class="dashicons dashicons-info" style="font-size: 16px; line-height: 1;"></span>
                     <span>Dane Inwestycji</span>
                 </button>

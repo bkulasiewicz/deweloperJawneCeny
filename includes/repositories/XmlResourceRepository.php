@@ -35,6 +35,7 @@ class XmlResourceRepository {
             UNIQUE KEY `unique_daily_publication` (`" . XmlResourceDto::FIELD_DATA_DATE . "`)
         ) $charset_collate;";
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- CREATE TABLE statement with field constants is safe
         return $wpdb->query($sql) !== false;
     }
     
@@ -65,11 +66,13 @@ class XmlResourceRepository {
     public function readAll(): array {
         global $wpdb;
         
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
         $results = $wpdb->get_results(
             "SELECT * FROM `{$this->table_name}`
              ORDER BY `" . XmlResourceDto::FIELD_DATA_DATE . "` ASC",
             ARRAY_A
         );
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
         
         if ($results === null) {
             return [];
@@ -92,10 +95,12 @@ class XmlResourceRepository {
     public function readById(int $id): ?XmlResourceDto {
         global $wpdb;
         
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
         $result = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM `{$this->table_name}` WHERE `" . XmlResourceDto::FIELD_ID . "` = %d",
             $id
         ), ARRAY_A);
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
         
         if ($result === null) {
             return null;

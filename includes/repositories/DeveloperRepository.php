@@ -85,7 +85,8 @@ class DeveloperRepository {
             " . SupplierDto::FIELD_SPOSOB_KONTAKTU . " text,
             PRIMARY KEY (" . SupplierDto::FIELD_ID . ")
         ) " . $charset_collate;
-        
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- CREATE TABLE statement with field constants is safe
         return $wpdb->query($sql) !== false;
     }
 }

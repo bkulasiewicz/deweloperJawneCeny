@@ -26,7 +26,7 @@ class GetPriceHistoryUseCase {
             
             return $result;
         } catch (Exception $e) {
-            throw new Exception('Błąd podczas pobierania historii cen: ' . $e->getMessage());
+            throw new Exception('Błąd podczas pobierania historii cen: ' . esc_html($e->getMessage()));
         }
     }
 }

@@ -89,7 +89,7 @@ class AddXmlResourceUseCase {
         // Generate unique identifier with timestamp and random component
         $formatted_date = gmdate('Ymd', strtotime($data_date));
         $timestamp = gmdate('His'); // HHMMSS for uniqueness
-        $random = sprintf('%03d', mt_rand(0, 999)); // 3-digit random
+        $random = sprintf('%03d', wp_rand(0, 999)); // 3-digit random
         
         $base = "dew{$nip}{$formatted_date}{$timestamp}{$random}";
         

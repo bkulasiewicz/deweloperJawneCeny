@@ -1,28 +1,28 @@
 === Deweloper Jawne Ceny ===
 Contributors: deweloperjawneceny
 Donate link: https://www.deweloperjawneceny.pl/
-Tags: real-estate, pricing, compliance, data-export, xml, csv, dane-gov-pl, nieruchomosci
+Tags: jawnosc, ceny, mieszkania, deweloper, nieruchomosci, ustawa, dane-gov-pl, oferty, katalog, automatyzacja, budownictwo
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.3.2
+Stable tag: 4.3.24
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości.
+Automatyzacja jawnych cen mieszkań dla deweloperów nieruchomości - generowanie danych zgodnie z polską ustawą o jawności cen do portalu dane.gov.pl.
 
-Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law.
+Automates transparent housing prices for real estate developers - generates data compliant with Polish price transparency law for dane.gov.pl portal.
 
 == Description ==
 
-**Deweloper Jawne Ceny** to wtyczka WordPress stworzona specjalnie dla polskich deweloperów nieruchomości, którzy muszą wypełniać obowiązki wynikające z Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego.
+**Deweloper Jawne Ceny** to wtyczka WordPress stworzona specjalnie dla polskich deweloperów nieruchomości, którzy muszą wypełniać obowiązki jawności cen mieszkań wynikające z Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego. Wtyczka automatyzuje proces publikacji jawnych cen nieruchomości w formacie wymaganym przez portal dane.gov.pl.
 
 = Główne funkcje =
 
 * **Zarządzanie danymi dewelopera** - przechowywanie informacji o firmie deweloperskiej
 * **Katalog inwestycji** - zarządzanie projektami mieszkaniowymi  
-* **Cenniki mieszkań** - wprowadzanie i aktualizacja cen poszczególnych lokali
-* **Automatyczne generowanie plików** - tworzenie plików XML i CSV zgodnych z wymogami portalu dane.gov.pl
+* **Cenniki mieszkań** - wprowadzanie i aktualizacja jawnych cen poszczególnych lokali
+* **Automatyczne generowanie plików** - tworzenie plików XML i CSV z jawnymi cenami zgodnych z wymogami portalu dane.gov.pl
 * **Historia publikacji** - śledzenie wszystkich publikacji danych
 * **Publiczne linki** - automatyczne udostępnianie plików dla organów państwowych
 * **Wyświetlanie na stronie** - podstawowe opcje prezentacji lokali dla klientów
@@ -137,6 +137,12 @@ If you need help with configuration or have questions, use the contact form avai
 * Użytkownik ponosi pełną odpowiedzialność za poprawność wprowadzanych danych
 * Autor wtyczki nie ponosi odpowiedzialności za ewentualne kary lub sankcje wynikające z nieprawidłowego użycia
 * Użytkownik zobowiązany jest do regularnego sprawdzania i aktualizowania danych zgodnie z aktualnymi przepisami
+
+**Wyłączenie odpowiedzialności twórcy:**
+* Deweloperjawneceny.pl dokłada wszelkich starań w zakresie starannej implementacji wtyczki
+* Twórca wtyczki nie ponosi odpowiedzialności za błędy w kodzie, niepoprawności względem ustawy lub nieprawidłowe działanie narzędzia
+* Deweloperjawneceny.pl dostarcza jedynie narzędzie - pełna odpowiedzialność za sposób użytkowania i rezultaty działania spoczywa na osobie używającej wtyczki
+* Brak gwarancji poprawnego działania, zgodności z przepisami lub przydatności do określonego celu
 
 **Stabilność i dostępność:**
 * Wtyczka jest hostowana na serwerze użytkownika - stabilność zależy od dostawcy hostingu

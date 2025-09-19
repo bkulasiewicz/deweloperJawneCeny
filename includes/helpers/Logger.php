@@ -39,7 +39,8 @@ class Logger {
         
         // Create log file if it doesn't exist
         if (!file_exists(self::$log_file)) {
-            touch(self::$log_file);
+            wp_mkdir_p(dirname(self::$log_file));
+            file_put_contents(self::$log_file, '');
         }
         
         // Clean old log files only once per day
@@ -73,7 +74,7 @@ class Logger {
             $old_file = WP_CONTENT_DIR . '/ujc-debug-' . $old_date . '.log';
             
             if (file_exists($old_file)) {
-                @unlink($old_file);
+                wp_delete_file($old_file);
             }
         }
     }
@@ -98,7 +99,8 @@ class Logger {
             
             // Create new log file if it doesn't exist
             if (!file_exists(self::$log_file)) {
-                touch(self::$log_file);
+                wp_mkdir_p(dirname(self::$log_file));
+                file_put_contents(self::$log_file, '');
             }
         }
         

@@ -44,12 +44,14 @@ class PublicationHistoryRepository {
     public function getHistory($limit = 50) {
         global $wpdb;
         
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
         $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM `{$this->table_name}` 
-             ORDER BY " . PublicationHistoryDto::FIELD_TIMESTAMP . " DESC 
+            "SELECT * FROM `{$this->table_name}`
+             ORDER BY " . PublicationHistoryDto::FIELD_TIMESTAMP . " DESC
              LIMIT %d",
             $limit
         ), ARRAY_A);
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
         
         if ($results === null) {
             return [];
@@ -85,9 +87,11 @@ class PublicationHistoryRepository {
     public function getLastEntry() {
         global $wpdb;
         
-        $result = $wpdb->get_row($wpdb->prepare("SELECT * FROM `{$this->table_name}` 
-                  ORDER BY " . PublicationHistoryDto::FIELD_TIMESTAMP . " DESC 
+        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
+        $result = $wpdb->get_row($wpdb->prepare("SELECT * FROM `{$this->table_name}`
+                  ORDER BY " . PublicationHistoryDto::FIELD_TIMESTAMP . " DESC
                   LIMIT %d", 1), ARRAY_A);
+        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
         
         return $result ? PublicationHistoryDto::databaseToModel($result) : null;
     }
@@ -102,10 +106,12 @@ class PublicationHistoryRepository {
         global $wpdb;
         
         if ($status) {
+            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
             return (int) $wpdb->get_var($wpdb->prepare(
                 "SELECT COUNT(*) FROM `{$this->table_name}` WHERE " . PublicationHistoryDto::FIELD_STATUS . " = %s",
                 $status
             ));
+            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
         } else {
             return (int) $wpdb->get_var("SELECT COUNT(*) FROM `{$this->table_name}`");
         }
@@ -134,7 +140,8 @@ class PublicationHistoryRepository {
             KEY " . PublicationHistoryDto::FIELD_TIMESTAMP . " (" . PublicationHistoryDto::FIELD_TIMESTAMP . "),
             KEY " . PublicationHistoryDto::FIELD_STATUS . " (" . PublicationHistoryDto::FIELD_STATUS . ")
         ) " . $charset_collate;
-        
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- CREATE TABLE statement with field constants is safe
         return $wpdb->query($sql) !== false;
     }
 }
