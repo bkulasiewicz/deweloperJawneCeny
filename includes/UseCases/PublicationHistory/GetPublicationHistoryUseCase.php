@@ -23,18 +23,14 @@ class GetPublicationHistoryUseCase {
      */
     public function execute(int $limit = 50): array {
         try {
-            Logger::info("GetPublicationHistoryUseCase: Requesting {$limit} entries");
             $history = $this->repository->getHistory($limit);
             
             $count = count($history);
-            Logger::info("GetPublicationHistoryUseCase: Repository returned {$count} DTO entries");
             
             if (empty($history)) {
-                Logger::info("GetPublicationHistoryUseCase: No history entries found, returning empty array");
                 return [];
             }
             
-            Logger::success("GetPublicationHistoryUseCase: Successfully retrieved {$count} DTOs from repository");
             
             return $history;
             

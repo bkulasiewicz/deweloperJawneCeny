@@ -24,7 +24,6 @@ class ResourcesPage {
         InvestmentRepository $investmentRepository,
         HistoryModal $historyModal
     ) {
-        Logger::info('UJC: ResourcesPage constructor started with DI');
 
         $this->getAllResourcesUseCase = $getAllResourcesUseCase;
         $this->resourceModal = $resourceModal;
@@ -35,7 +34,6 @@ class ResourcesPage {
 
         // AJAX handlers - CSV import feature removed
 
-        Logger::info('UJC: ResourcesPage initialized with DI successfully');
     }
     
     public function render() {
@@ -153,12 +151,9 @@ class ResourcesPage {
      * Renderuje listę zasobów bezpośrednio w PHP
      */
     private function render_resources_list() {
-        Logger::info("ResourcesPage::render_resources_list - Starting PHP rendering");
         
         try {
-            Logger::info("ResourcesPage::render_resources_list - Calling getAllResourcesUseCase->execute()");
-            $resources = $this->getAllResourcesUseCase->execute();
-            Logger::info("ResourcesPage::render_resources_list - Got " . count($resources) . " resources from UseCase");
+                $resources = $this->getAllResourcesUseCase->execute();
         } catch (Exception $e) {
             Logger::error("ResourcesPage::render_resources_list - Exception: " . $e->getMessage());
             ?>
@@ -179,11 +174,9 @@ class ResourcesPage {
             return;
         }
         
-        Logger::info("ResourcesPage::render_resources_list - Rendering " . count($resources) . " resource items");
         foreach ($resources as $resource) {
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Resource item output contains safe onclick attributes
             echo ResourceItem::render_item_html($resource);
         }
-        Logger::info("ResourcesPage::render_resources_list - PHP rendering completed successfully");
     }
 }

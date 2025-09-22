@@ -121,14 +121,15 @@ class CSVFormatter {
             'Ulica lokalizacji przedsięwzięcia deweloperskiego lub zadania inwestycyjnego',
             'Nr nieruchomości lokalizacji przedsięwzięcia deweloperskiego lub zadania inwestycyjnego',
             'Kod pocztowy lokalizacji przedsięwzięcia deweloperskiego lub zadania inwestycyjnego',
-            'Rodzaj nieruchomości: lokal mieszkalny, dom jednorodzinny ',
-            'Nr lokalu lub domu jednorodzinnego nadany przez dewelopera',
-            'Cena m 2 powierzchni użytkowej lokalu mieszkalnego / domu jednorodzinnego [zł]',
-            'Data od której obowiązuje cena m 2 powierzchni użytkowej lokalu mieszkalnego / domu jednorodzinnego',
-            'Cena lokalu mieszkalnego lub domu jednorodzinnego będących przedmiotem umowy stanowiąca iloczyn ceny m2 oraz powierzchni [zł]',
-            'Data od której obowiązuje cena lokalu mieszkalnego lub domu jednorodzinnego będących przedmiotem umowy stanowiąca iloczyn ceny m2 oraz powierzchni',
-            'Cena lokalu mieszkalnego lub domu jednorodzinnego uwzględniająca cenę lokalu stanowiącą iloczyn powierzchni oraz metrażu i innych składowych ceny, o których mowa w art. 19a ust. 1 pkt 1), 2) lub 3) [zł]',
-            'Data od której obowiązuje cena lokalu mieszkalnego lub domu jednorodzinnego uwzględniająca cenę lokalu stanowiącą iloczyn powierzchni oraz metrażu i innych składowych ceny, o których mowa w art. 19a ust. 1 pkt 1), 2) lub 3)'
+            'Rodzaj nieruchomości',
+            'Nr produktu nadany przez dewelopera',
+            'Powierzchnia użytkowa [m2]',
+            'Cena brutto/m2 powierzchni użytkowej produktu [zł]',
+            'Data od której obowiązuje cena brutto/m2 powierzchni użytkowej produktu',
+            'Cena brutto produktu będącego przedmiotem umowy stanowiąca iloczyn ceny m2 oraz powierzchni użytkowej [zł]',
+            'Data od której obowiązuje cena brutto produktu będącego przedmiotem umowy stanowiąca iloczyn ceny m2 oraz powierzchni użytkowej',
+            'Cena brutto produktu uwzględniająca cenę produktu stanowiącą iloczyn powierzchni użytkowej oraz metrażu i innych składowych ceny, o których mowa w art. 19a ust. 1 pkt 1), 2) lub 3) [zł]',
+            'Data od której obowiązuje cena brutto produktu uwzględniająca cenę produktu stanowiącą iloczyn powierzchni użytkowej oraz metrażu i innych składowych ceny, o których mowa w art. 19a ust. 1 pkt 1), 2) lub 3)'
         ];
         
         // Dynamic component headers based on detected components
@@ -223,6 +224,7 @@ class CSVFormatter {
             // Property - use current prices from history
             $resource->rodzaj_nieruchomosci->getDisplayText(),
             $resource->nr_lokalu,
+            $resource->powierzchnia_uzytkowa ?? '',
             $prices->cena_m2 ?? '',
             DateHelper::formatForCsv($prices->data_zmiany),
             

@@ -26,7 +26,6 @@ class AdminController {
         // Initialize all admin pages immediately to ensure AJAX handlers are registered
         $this->initializeAdminPages();
 
-        Logger::info('AdminController: Initialized all admin pages');
     }
 
     /**
@@ -48,7 +47,6 @@ class AdminController {
         $this->publicationPage = DIContainer::get(PublicationPage::class);
         $this->frontendManagementPage = DIContainer::get(FrontendManagementPage::class);
 
-        Logger::info('AdminController: All admin pages initialized with AJAX handlers');
     }
 
     /**
@@ -112,7 +110,6 @@ class AdminController {
             [$this, 'renderFrontendManagementPage']
         );
 
-        Logger::info('AdminController: Admin menu registered');
     }
 
     /**
@@ -133,7 +130,6 @@ class AdminController {
             ]
         ]);
 
-        Logger::info('AdminController: Admin assets enqueued for hook: ' . $hook);
     }
 
     /**

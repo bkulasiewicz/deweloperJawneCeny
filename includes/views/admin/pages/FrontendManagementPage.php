@@ -11,13 +11,11 @@ if (!defined('ABSPATH')) {
 class FrontendManagementPage {
     
     public function __construct() {
-        Logger::info('FrontendManagementPage constructor started');
         
         // Add AJAX handlers  
         add_action('wp_ajax_ujc_reset_frontend_settings', [$this, 'ajax_reset_settings']);
         add_action('wp_ajax_ujc_preview_shortcode', [$this, 'ajax_preview_shortcode']);
         
-        Logger::info('FrontendManagementPage constructor completed');
     }
     
     /**

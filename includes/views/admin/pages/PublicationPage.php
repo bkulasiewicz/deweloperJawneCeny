@@ -18,7 +18,6 @@ class PublicationPage {
         CsvFilesSection $csvFilesSection,
         GenerateFilesUseCase $generateFilesUseCase
     ) {
-        Logger::info('UJC: PublicationPage constructor started with DI');
 
         $this->generateFilesUseCase = $generateFilesUseCase;
         $this->getPublicationHistoryUseCase = $getPublicationHistoryUseCase;
@@ -26,7 +25,6 @@ class PublicationPage {
 
         add_action('wp_ajax_ujc_publication_generate', [$this, 'ajax_generate_files']);
 
-        Logger::info('UJC: PublicationPage initialized with DI successfully');
     }
     
     public function ajax_generate_files() {

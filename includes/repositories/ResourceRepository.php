@@ -13,12 +13,10 @@ class ResourceRepository {
         $table = TableNames::getResources();
         global $wpdb;
         
-        Logger::info("ResourceRepository::readAll - Table: $table");
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
         $results = $wpdb->get_results("SELECT r.* FROM `{$table}` r ORDER BY r." . ResourceDto::FIELD_ID . " ASC", ARRAY_A);
         
-        Logger::info("ResourceRepository::readAll - SQL Results count: " . count($results));
         if ($wpdb->last_error) {
             Logger::error("ResourceRepository::readAll - SQL Error: " . $wpdb->last_error);
         }
@@ -28,7 +26,6 @@ class ResourceRepository {
             $dtos[] = ResourceDto::databaseToModel($row);
         }
         
-        Logger::info("ResourceRepository::readAll - DTOs count: " . count($dtos));
         
         return $dtos;
     }
@@ -61,10 +58,8 @@ class ResourceRepository {
         $table = TableNames::getResources();
         global $wpdb;
         
-        Logger::info("ResourceRepository::create - Table: $table");
         
         $data = $dto->modelToDatabase();
-        Logger::info("ResourceRepository::create - Data: " . json_encode($data));
         
         $result = $wpdb->insert($table, $data);
         
@@ -75,7 +70,6 @@ class ResourceRepository {
         }
         
         $insert_id = $wpdb->insert_id;
-        Logger::info("ResourceRepository::create - Success, inserted ID: " . $insert_id);
         
         return $insert_id;
     }

@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name: Deweloper Jawne Ceny
- * Plugin URI: https://www.deweloperjawneceny.pl/
+ * Plugin URI: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
  * Description (EN): Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.4.0
+ * Version: 4.4.6
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.8');
-define('VERSION', '4.4.0');
+define('VERSION', '4.4.6');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -40,26 +40,25 @@ class DeweloperJawneCeny {
     }
     
     private function __construct() {
+        require_once PLUGIN_DIR . 'includes/services/DateHelper.php';
+        require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
+        Logger::init();
+
+
         register_activation_hook(__FILE__, [$this, 'activate']);
         register_deactivation_hook(__FILE__, [$this, 'deactivate']);
-        
+    
         add_action('plugins_loaded', [$this, 'init']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
         add_action('init', [$this, 'handle_file_requests']);
+
 
     }
     
     public function init() {
         $this->load_dependencies();
 
-        // Log plugin activation with version information
-        Logger::info(sprintf(
-            'Plugin Activation: Deweloper Jawne Ceny v%s activated on WordPress %s with PHP %s',
-            VERSION,
-            get_bloginfo('version'),
-            PHP_VERSION
-        ));
     }
     
     private function load_dependencies() {
@@ -207,10 +206,7 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/shortcodes/ResourcesListShortcode.php';
         require_once PLUGIN_DIR . 'includes/shortcodes/ShortcodeManager.php';
 
-        // Logger - must be loaded before premium features that use DIContainer
-        require_once PLUGIN_DIR . 'includes/helpers/Logger.php';
-        Logger::init();
-
+      
         // Load premium features if available
         $premium_loader = PLUGIN_DIR . 'includes/premium/loader.php';
         if (file_exists($premium_loader)) {
@@ -356,8 +352,14 @@ class DeweloperJawneCeny {
             $settingsRepo->setDbVersion(DB_VERSION);
 
             Logger::info('Plugin Activation: Successfully set DB version to ' . DB_VERSION);
-            Logger::info('Plugin Activation: Completed successfully');
 
+            // Log plugin activation with version information
+            Logger::info(sprintf(
+                'Plugin Activation: Deweloper Jawne Ceny v%s activated on WordPress %s with PHP %s',
+                VERSION,
+                get_bloginfo('version'),
+                PHP_VERSION
+            ));
         } catch (Exception $e) {
             Logger::error('Plugin Activation Error: ' . $e->getMessage());
             Logger::error('Plugin Activation: Activation failed - plugin may not work correctly');
