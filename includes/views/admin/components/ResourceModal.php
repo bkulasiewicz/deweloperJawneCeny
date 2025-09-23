@@ -54,63 +54,86 @@ class ResourceModal extends UJC_Admin_Page {
                     <input type="hidden" id="modal-action" name="modal_action" value="add">
                     
                     <div class="ujc-modal-body">
-                        <table class="form-table">
-                            <tr>
-                                <th><label for="modal-rodzaj_nieruchomosci">Rodzaj zasobu *</label></th>
-                                <td>
-                                    <select id="modal-rodzaj_nieruchomosci" name="rodzaj_nieruchomosci" required>
-                                        <?php foreach (PropertyType::cases() as $type): ?>
-                                            <option value="<?php echo esc_attr($type->value); ?>" <?php echo $type === PropertyType::RESIDENTIAL_UNIT ? 'selected' : ''; ?>>
-                                                <?php echo esc_html($type->getDisplayText()); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <div id="service-premises-info" style="display: none; margin-top: 8px; font-size: 14px; color: #555;">
-                                        Lokale usługowe nie są raportowane do ministerstwa
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th><label for="modal-nr_lokalu">Identyfikator *</label></th>
-                                <td><input type="text" id="modal-nr_lokalu" name="nr_lokalu" required class="regular-text" placeholder="np. A1, MP-15, KL-2, G3"></td>
-                            </tr>
-                            <tr>
-                                <th><label for="modal-powierzchnia_uzytkowa">Powierzchnia użytkowa [m²] *</label></th>
-                                <td>
-                                    <input type="number" id="modal-powierzchnia_uzytkowa" name="powierzchnia_uzytkowa" required step="0.01" min="0" class="regular-text" value=""> m²
-                                </td>
-                            </tr>
-                            <tr>
-                                <th><label for="modal-cena_m2">Cena m² *</label></th>
-                                <td>
-                                    <input type="number" id="modal-cena_m2" name="cena_m2" required step="0.01" min="0" class="regular-text"> zł
-                                    <p class="description">Cena za metr kwadratowy powierzchni użytkowej</p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th><label for="modal-cena_calkowita">Cena Całkowita</label></th>
-                                <td>
-                                    <input type="number" id="modal-cena_calkowita" name="cena_calkowita" step="0.01" min="0" class="regular-text"> zł
-                                </td>
-                            </tr>
-                            <tr>
-                                <th><label for="modal-status">Status *</label></th>
-                                <td>
-                                    <select id="modal-status" name="status" required>
-                                        <?php foreach (ResourceStatus::cases() as $status): ?>
-                                            <option value="<?php echo esc_attr($status->value); ?>">
-                                                <?php echo esc_html($status->getDisplayText()); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </td>
-                            </tr>
-                        </table>
-                        
-                        <!-- Marketing Fields Section - shown conditionally -->
-                        <div id="marketing-fields-section" style="display: none; margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f0f8ff;">
-                            <h3>Informacje dodatkowe</h3>
-                            <p class="description">Pola nieobowiązkowe - nie są raportowane do ministerstwa</p>
+                        <div class="modal-columns">
+                            <!-- Lewa kolumna - Dane podstawowe i cenowe -->
+                            <div class="modal-column-left">
+                                <h3 style="margin-top: 0;">Dane podstawowe</h3>
+                                <table class="form-table">
+                                    <tr>
+                                        <th><label for="modal-rodzaj_nieruchomosci">Rodzaj zasobu *</label></th>
+                                        <td>
+                                            <select id="modal-rodzaj_nieruchomosci" name="rodzaj_nieruchomosci" required>
+                                                <?php foreach (PropertyType::cases() as $type): ?>
+                                                    <option value="<?php echo esc_attr($type->value); ?>" <?php echo $type === PropertyType::RESIDENTIAL_UNIT ? 'selected' : ''; ?>>
+                                                        <?php echo esc_html($type->getDisplayText()); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div id="service-premises-info" style="display: none; margin-top: 8px; font-size: 14px; color: #555;">
+                                                Lokale usługowe nie są raportowane do ministerstwa
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><label for="modal-status">Status *</label></th>
+                                        <td>
+                                            <select id="modal-status" name="status" required>
+                                                <?php foreach (ResourceStatus::cases() as $status): ?>
+                                                    <option value="<?php echo esc_attr($status->value); ?>">
+                                                        <?php echo esc_html($status->getDisplayText()); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><label for="modal-nr_lokalu">Identyfikator *</label></th>
+                                        <td><input type="text" id="modal-nr_lokalu" name="nr_lokalu" required class="regular-text" placeholder="np. A1, MP-15, KL-2, G3"></td>
+                                    </tr>
+                                    <tr>
+                                        <th><label for="modal-powierzchnia_uzytkowa">Powierzchnia użytkowa [m²] *</label></th>
+                                        <td>
+                                            <input type="number" id="modal-powierzchnia_uzytkowa" name="powierzchnia_uzytkowa" required step="0.01" min="0" class="regular-text" value=""> m²
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><label for="modal-cena_m2">Cena m² *</label></th>
+                                        <td>
+                                            <input type="number" id="modal-cena_m2" name="cena_m2" required step="0.01" min="0" class="regular-text"> zł
+                                            <p class="description">Cena za metr kwadratowy powierzchni użytkowej</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th><label for="modal-cena_calkowita">Cena Całkowita</label></th>
+                                        <td>
+                                            <input type="number" id="modal-cena_calkowita" name="cena_calkowita" step="0.01" min="0" class="regular-text"> zł
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <!-- Cena finalna na dole lewej kolumny -->
+                                <div id="final-price-section" style="margin-top: 20px;">
+                                    <h3>Cena finalna</h3>
+                                    <table class="form-table">
+                                        <tr>
+                                            <th><label for="modal-cena_z_dodatkami">Cena uwzględniająca inne składowe</label></th>
+                                            <td>
+                                                <input type="number" id="modal-cena_z_dodatkami" name="cena_z_dodatkami" step="0.01" min="0" class="regular-text" readonly> zł
+                                                <p class="description">Cena końcowa uwzględniająca wszystkie składowe zgodnie z art. 19a ust. 1 (opcjonalne)</p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Prawa kolumna - Informacje dodatkowe -->
+                            <div class="modal-column-right">
+                                <h3 style="margin-top: 0;">Informacje dodatkowe</h3>
+
+                                <!-- Marketing Fields Section - shown conditionally -->
+                                <div id="marketing-fields-section" style="display: none; margin-top: 0px; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f0f8ff;">
+                                    <h4>Pola marketingowe</h4>
+                                    <p class="description">Pola nieobowiązkowe - nie są raportowane do ministerstwa</p>
                             
                             <table class="form-table">
                                 <tr id="floor-field-row" style="display: none;">
@@ -141,160 +164,148 @@ class ResourceModal extends UJC_Admin_Page {
                                     </td>
                                 </tr>
                             </table>
-                        </div>
-                        
-                        <!-- Dynamic component sections based on investment configuration -->
-                        
-                        <!-- Component add buttons -->
-                        <div id="component-buttons" style="margin-top: 20px;">
-                            <button type="button" id="add-property-part-btn" class="component-add-btn">
-                                + Część nieruchomości będąca przedmiotem umowy
-                            </button>
-                            <button type="button" id="add-belonging-room-btn" class="component-add-btn">
-                                + Pomieszczenie przynależne
-                            </button>
-                            <button type="button" id="add-usage-rights-btn" class="component-add-btn">
-                                + Prawa niezbędne do korzystania z lokalu lub domu
-                            </button>
-                            <button type="button" id="add-other-services-btn" class="component-add-btn">
-                                + Inne świadczenia pieniężne na rzecz dewelopera
-                            </button>
-                        </div>
-                        
-                        <!-- Części nieruchomości będące przedmiotem umowy -->
-                        <div id="property-parts-section" class="component-section" style="display: none; margin-top: 20px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <h3 style="margin: 0;">Część nieruchomości będąca przedmiotem umowy</h3>
-                                <button type="button" class="remove-section-btn" data-section="property-parts" style="background: #0073aa; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
-                                    Usuń
-                                </button>
+                                </div>
+
+                                <!-- Dynamic component sections based on investment configuration -->
+
+                                <!-- Component add buttons -->
+                                <div id="component-buttons" style="margin-top: 20px;">
+                                    <button type="button" id="add-property-part-btn" class="component-add-btn">
+                                        + Część nieruchomości będąca przedmiotem umowy
+                                    </button>
+                                    <button type="button" id="add-belonging-room-btn" class="component-add-btn">
+                                        + Pomieszczenie przynależne
+                                    </button>
+                                    <button type="button" id="add-usage-rights-btn" class="component-add-btn">
+                                        + Prawa niezbędne do korzystania z lokalu lub domu
+                                    </button>
+                                    <button type="button" id="add-other-services-btn" class="component-add-btn">
+                                        + Inne świadczenia pieniężne na rzecz dewelopera
+                                    </button>
+                                </div>
+
+                                <!-- Części nieruchomości będące przedmiotem umowy -->
+                                <div id="property-parts-section" class="component-section" style="display: none; margin-top: 20px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <h3 style="margin: 0;">Część nieruchomości będąca przedmiotem umowy</h3>
+                                        <button type="button" class="remove-section-btn" data-section="property-parts" style="background: #0073aa; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                                            Usuń
+                                        </button>
+                                    </div>
+                                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                                        <table class="form-table">
+                                            <tr>
+                                                <th><label for="property-part-title">Rodzaj części *</label></th>
+                                                <td>
+                                                    <input type="text" id="property-part-title" name="property_part_title" class="regular-text"
+                                                           placeholder="np. Miejsce postojowe">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th><label for="property-part-designation">Oznaczenie</label></th>
+                                                <td>
+                                                    <input type="text" id="property-part-designation" name="property_part_designation" class="regular-text"
+                                                           placeholder="np. MP-15">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th><label for="property-part-price">Cena części</label></th>
+                                                <td>
+                                                    <input type="number" id="property-part-price" name="property_part_price" step="0.01" min="0" class="regular-text"> zł
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Pomieszczenia przynależne -->
+                                <div id="belonging-rooms-section" class="component-section" style="display: none; margin-top: 20px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <h3 style="margin: 0;">Pomieszczenie przynależne</h3>
+                                        <button type="button" class="remove-section-btn" data-section="belonging-rooms" style="background: #0073aa; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                                            Usuń
+                                        </button>
+                                    </div>
+                                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                                        <table class="form-table">
+                                            <tr>
+                                                <th><label for="belonging-room-title">Rodzaj pomieszczenia *</label></th>
+                                                <td>
+                                                    <input type="text" id="belonging-room-title" name="belonging_room_title" class="regular-text"
+                                                           placeholder="np. Komórka lokatorska">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th><label for="belonging-room-designation">Oznaczenie</label></th>
+                                                <td>
+                                                    <input type="text" id="belonging-room-designation" name="belonging_room_designation" class="regular-text"
+                                                           placeholder="np. KL-2">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th><label for="belonging-room-price">Cena pomieszczenia</label></th>
+                                                <td>
+                                                    <input type="number" id="belonging-room-price" name="belonging_room_price" step="0.01" min="0" class="regular-text"> zł
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Prawa niezbędne do korzystania z lokalu/domu -->
+                                <div id="usage-rights-section" class="component-section" style="display: none; margin-top: 20px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <h3 style="margin: 0;">Prawa niezbędne do korzystania z lokalu lub domu</h3>
+                                        <button type="button" class="remove-section-btn" data-section="usage-rights" style="background: #0073aa; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                                            Usuń
+                                        </button>
+                                    </div>
+                                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                                        <table class="form-table">
+                                            <tr>
+                                                <th><label for="usage-rights-title">Opis praw *</label></th>
+                                                <td>
+                                                    <textarea id="usage-rights-title" name="usage_right_title" class="regular-text" rows="3"
+                                                              placeholder="Opisz prawa niezbędne do korzystania z lokalu/domu"></textarea>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th><label for="usage-rights-price">Wartość praw</label></th>
+                                                <td>
+                                                    <input type="number" id="usage-rights-price" name="usage_right_price" step="0.01" min="0" class="regular-text"> zł
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- Inne świadczenia pieniężne na rzecz dewelopera -->
+                                <div id="other-services-section" class="component-section" style="display: none; margin-top: 20px;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                        <h3 style="margin: 0;">Inne świadczenia pieniężne na rzecz dewelopera</h3>
+                                        <button type="button" class="remove-section-btn" data-section="other-services" style="background: #0073aa; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                                            Usuń
+                                        </button>
+                                    </div>
+                                    <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
+                                        <table class="form-table">
+                                            <tr>
+                                                <th><label for="other-services-title">Opis świadczeń *</label></th>
+                                                <td>
+                                                    <textarea id="other-services-title" name="other_service_title" class="regular-text" rows="3"
+                                                              placeholder="Opisz inne świadczenia pieniężne"></textarea>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th><label for="other-services-price">Wartość świadczeń</label></th>
+                                                <td>
+                                                    <input type="number" id="other-services-price" name="other_service_price" step="0.01" min="0" class="regular-text"> zł
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
-                            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
-                                <table class="form-table">
-                                    <tr>
-                                        <th><label for="property-part-title">Rodzaj części *</label></th>
-                                        <td>
-                                            <input type="text" id="property-part-title" name="property_part_title" class="regular-text" 
-                                                   placeholder="np. Miejsce postojowe">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th><label for="property-part-designation">Oznaczenie</label></th>
-                                        <td>
-                                            <input type="text" id="property-part-designation" name="property_part_designation" class="regular-text" 
-                                                   placeholder="np. MP-15">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th><label for="property-part-price">Cena części</label></th>
-                                        <td>
-                                            <input type="number" id="property-part-price" name="property_part_price" step="0.01" min="0" class="regular-text"> zł
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <!-- Pomieszczenia przynależne -->
-                        <div id="belonging-rooms-section" class="component-section" style="display: none; margin-top: 20px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <h3 style="margin: 0;">Pomieszczenie przynależne</h3>
-                                <button type="button" class="remove-section-btn" data-section="belonging-rooms" style="background: #0073aa; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
-                                    Usuń
-                                </button>
-                            </div>
-                            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
-                                <table class="form-table">
-                                    <tr>
-                                        <th><label for="belonging-room-title">Rodzaj pomieszczenia *</label></th>
-                                        <td>
-                                            <input type="text" id="belonging-room-title" name="belonging_room_title" class="regular-text" 
-                                                   placeholder="np. Komórka lokatorska">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th><label for="belonging-room-designation">Oznaczenie</label></th>
-                                        <td>
-                                            <input type="text" id="belonging-room-designation" name="belonging_room_designation" class="regular-text" 
-                                                   placeholder="np. KL-2">
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th><label for="belonging-room-price">Cena pomieszczenia</label></th>
-                                        <td>
-                                            <input type="number" id="belonging-room-price" name="belonging_room_price" step="0.01" min="0" class="regular-text"> zł
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <!-- Prawa niezbędne do korzystania z lokalu/domu -->
-                        <div id="usage-rights-section" class="component-section" style="display: none; margin-top: 20px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <h3 style="margin: 0;">Prawa niezbędne do korzystania z lokalu lub domu</h3>
-                                <button type="button" class="remove-section-btn" data-section="usage-rights" style="background: #0073aa; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
-                                    Usuń
-                                </button>
-                            </div>
-                            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
-                                <table class="form-table">
-                                    <tr>
-                                        <th><label for="usage-rights-title">Opis praw *</label></th>
-                                        <td>
-                                            <textarea id="usage-rights-title" name="usage_right_title" class="regular-text" rows="3" 
-                                                      placeholder="Opisz prawa niezbędne do korzystania z lokalu/domu"></textarea>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th><label for="usage-rights-price">Wartość praw</label></th>
-                                        <td>
-                                            <input type="number" id="usage-rights-price" name="usage_right_price" step="0.01" min="0" class="regular-text"> zł
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <!-- Inne świadczenia pieniężne na rzecz dewelopera -->
-                        <div id="other-services-section" class="component-section" style="display: none; margin-top: 20px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                                <h3 style="margin: 0;">Inne świadczenia pieniężne na rzecz dewelopera</h3>
-                                <button type="button" class="remove-section-btn" data-section="other-services" style="background: #0073aa; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
-                                    Usuń
-                                </button>
-                            </div>
-                            <div style="padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9;">
-                                <table class="form-table">
-                                    <tr>
-                                        <th><label for="other-services-title">Opis świadczeń *</label></th>
-                                        <td>
-                                            <textarea id="other-services-title" name="other_service_title" class="regular-text" rows="3" 
-                                                      placeholder="Opisz inne świadczenia pieniężne"></textarea>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th><label for="other-services-price">Wartość świadczeń</label></th>
-                                        <td>
-                                            <input type="number" id="other-services-price" name="other_service_price" step="0.01" min="0" class="regular-text"> zł
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <!-- Cena uwzględniająca inne składowe -->
-                        <div id="final-price-section" style="margin-top: 20px;">
-                            <h3>Cena finalna</h3>
-                            <table class="form-table">
-                                <tr>
-                                    <th><label for="modal-cena_z_dodatkami">Cena uwzględniająca inne składowe</label></th>
-                                    <td>
-                                        <input type="number" id="modal-cena_z_dodatkami" name="cena_z_dodatkami" step="0.01" min="0" class="regular-text" readonly> zł
-                                        <p class="description">Cena końcowa uwzględniająca wszystkie składowe zgodnie z art. 19a ust. 1 (opcjonalne)</p>
-                                    </td>
-                                </tr>
-                            </table>
                         </div>
                     </div>
                     
@@ -339,14 +350,6 @@ class ResourceModal extends UJC_Admin_Page {
                 $('#garden-field-row').toggle(investmentConfig.show_garden_field);
                 $('#floor-plan-field-row').toggle(investmentConfig.show_floor_plan_field);
                 
-                console.log('Marketing fields toggled:', {
-                    sectionVisible: hasAnyMarketingField,
-                    floor: investmentConfig.show_floor_field,
-                    rooms: investmentConfig.show_rooms_field,
-                    description: investmentConfig.show_description_field,
-                    garden: investmentConfig.show_garden_field,
-                    floorPlan: investmentConfig.show_floor_plan_field
-                });
             }
             
             // Załaduj konfigurację inwestycji
@@ -372,7 +375,6 @@ class ResourceModal extends UJC_Admin_Page {
                         // Final price section is always visible now
                         $('#final-price-section').show();
                         
-                        console.log('Investment config loaded:', config);
                         window.investmentConfig = config; // Store globally for later use
                     } else {
                         console.error('Error loading investment configuration:', response.data);
@@ -408,6 +410,11 @@ class ResourceModal extends UJC_Admin_Page {
                     
                     $('#ujc-resource-modal').show();
                     setupAutoCalculations();
+
+                    // For add mode, apply property type logic with default value
+                    if (mode === 'add') {
+                        applyPropertyTypeLogic($('#modal-rodzaj_nieruchomosci').val());
+                    }
                 });
             };
             
@@ -415,17 +422,14 @@ class ResourceModal extends UJC_Admin_Page {
             function loadResourceData(resourceId) {
                 const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : ($('#ujc-nonce').length ? $('#ujc-nonce').val() : '');
                 
-                console.log('Loading resource data for ID:', resourceId, 'nonce:', nonce);
                 
                 $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, {
                     action: 'ujc_get_resource',
                     resource_id: resourceId,
                     nonce: nonce
                 }, function(response) {
-                    console.log('Resource data response:', response);
                     if (response.success) {
                         const data = response.data;
-                        console.log('Populating form with data:', data);
                         $('#modal-rodzaj_nieruchomosci').val(data.rodzaj_nieruchomosci);
                         $('#modal-nr_lokalu').val(data.nr_lokalu);
                         $('#modal-powierzchnia_uzytkowa').val(data.powierzchnia_uzytkowa || '');
@@ -516,6 +520,9 @@ class ResourceModal extends UJC_Admin_Page {
                         
                         // Przelicz cenę finalną
                         calculateFinalPrice();
+
+                        // Apply property type logic after loading data
+                        applyPropertyTypeLogic(data.rodzaj_nieruchomosci);
                     } else {
                         console.error('Error loading resource data:', response.data);
                         alert('❌ Błąd ładowania danych zasobu: ' + (response.data || 'Nieznany błąd'));
@@ -784,115 +791,89 @@ class ResourceModal extends UJC_Admin_Page {
                 });
             }
             
-            // Dynamic form fields based on property type
-            function setupPropertyTypeLogic() {
-                const $propertyType = $('#modal-rodzaj_nieruchomosci');
+            // Property type field visibility and validation logic
+            function applyPropertyTypeLogic(propertyType) {
                 const $cenaM2Field = $('#modal-cena_m2');
                 const $cenaM2Row = $cenaM2Field.closest('tr');
                 const $servicePremisesInfo = $('#service-premises-info');
                 const $powierzchniaField = $('#modal-powierzchnia_uzytkowa');
                 const $powierzchniaRow = $powierzchniaField.closest('tr');
-                
-                function updateFieldLabels(propertyType) {
-                    const $cenaM2Label = $('label[for="modal-cena_m2"]');
-                    const $powierzchniaLabel = $('label[for="modal-powierzchnia_uzytkowa"]');
-                    
-                    switch(propertyType) {
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
-                        case '<?php echo esc_js(PropertyType::PARKING_SPACE->value); ?>':
-                            // Pola ukryte
-                            break;
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
-                        case '<?php echo esc_js(PropertyType::STORAGE_ROOM->value); ?>':
-                            $powierzchniaLabel.html('Powierzchnia użytkowa [m²] (opcjonalne)');
-                            $cenaM2Label.html('Cena m² (opcjonalne)');
-                            break;
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
-                        case '<?php echo esc_js(PropertyType::GARAGE->value); ?>':
-                            $powierzchniaLabel.html('Powierzchnia użytkowa [m²] (opcjonalne)');
-                            $cenaM2Label.html('Cena m² (opcjonalne)');
-                            break;
-                        default: // residential_unit, service_premises, single_family_house
-                            $powierzchniaLabel.html('Powierzchnia użytkowa [m²] *');
-                            $cenaM2Label.html('Cena m² *');
-                            break;
-                    }
+
+                // Hide service premises info by default
+                $servicePremisesInfo.hide();
+
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- All PropertyType enum values are safe
+                switch(propertyType) {
+                    case '<?php echo esc_js(PropertyType::PARKING_SPACE->value); ?>':
+                        // Hide cena m² and powierzchnia for parking spaces
+                        $cenaM2Row.hide();
+                        $cenaM2Field.removeAttr('required');
+                        $cenaM2Field.val(''); // Clear value
+                        $powierzchniaRow.hide();
+                        $powierzchniaField.removeAttr('required');
+                        $powierzchniaField.val(''); // Clear value
+                        // Labels: Pola ukryte - no label updates needed
+                        break;
+
+                    case '<?php echo esc_js(PropertyType::SERVICE_PREMISES->value); ?>':
+                        // Show service premises info, show all other fields
+                        $servicePremisesInfo.show();
+                        $cenaM2Row.show();
+                        $cenaM2Field.attr('required', 'required');
+                        $powierzchniaRow.show();
+                        $powierzchniaField.attr('required', 'required');
+                        // Labels: default (required)
+                        $('label[for="modal-powierzchnia_uzytkowa"]').html('Powierzchnia użytkowa [m²] *');
+                        $('label[for="modal-cena_m2"]').html('Cena m² *');
+                        break;
+
+                    case '<?php echo esc_js(PropertyType::STORAGE_ROOM->value); ?>':
+                        // Dla komórki powierzchnia i cena m² są opcjonalne
+                        $cenaM2Row.show();
+                        $cenaM2Field.removeAttr('required');
+                        $powierzchniaRow.show();
+                        $powierzchniaField.removeAttr('required');
+                        // Labels: optional
+                        $('label[for="modal-powierzchnia_uzytkowa"]').html('Powierzchnia użytkowa [m²] (opcjonalne)');
+                        $('label[for="modal-cena_m2"]').html('Cena m² (opcjonalne)');
+                        break;
+
+                    case '<?php echo esc_js(PropertyType::RESIDENTIAL_UNIT->value); ?>':
+                    case '<?php echo esc_js(PropertyType::SINGLE_FAMILY_HOUSE->value); ?>':
+                        // Show and require all fields for residential properties
+                        $cenaM2Row.show();
+                        $cenaM2Field.attr('required', 'required');
+                        $powierzchniaRow.show();
+                        $powierzchniaField.attr('required', 'required');
+                        // Labels: default (required)
+                        $('label[for="modal-powierzchnia_uzytkowa"]').html('Powierzchnia użytkowa [m²] *');
+                        $('label[for="modal-cena_m2"]').html('Cena m² *');
+                        break;
+
+                    case '<?php echo esc_js(PropertyType::GARAGE->value); ?>':
+                        // Dla garażu powierzchnia i cena m² są opcjonalne
+                        $cenaM2Row.show();
+                        $cenaM2Field.removeAttr('required');
+                        $powierzchniaRow.show();
+                        $powierzchniaField.removeAttr('required');
+                        // Labels: optional
+                        $('label[for="modal-powierzchnia_uzytkowa"]').html('Powierzchnia użytkowa [m²] (opcjonalne)');
+                        $('label[for="modal-cena_m2"]').html('Cena m² (opcjonalne)');
+                        break;
+
+                    default:
+                        // Show and require all fields for residential properties
+                        $cenaM2Row.show();
+                        $cenaM2Field.attr('required', 'required');
+                        $powierzchniaRow.show();
+                        $powierzchniaField.attr('required', 'required');
+                        // Labels: default (required)
+                        $('label[for="modal-powierzchnia_uzytkowa"]').html('Powierzchnia użytkowa [m²] *');
+                        $('label[for="modal-cena_m2"]').html('Cena m² *');
+                        break;
                 }
-                
-                function toggleFieldsByPropertyType(propertyType) {
-                    // Hide service premises info by default
-                    $servicePremisesInfo.hide();
-                    
-                    switch(propertyType) {
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
-                        case '<?php echo esc_js(PropertyType::PARKING_SPACE->value); ?>':
-                            // Hide cena m² and powierzchnia for parking spaces
-                            $cenaM2Row.hide();
-                            $cenaM2Field.removeAttr('required');
-                            $cenaM2Field.val(''); // Clear value
-                            $powierzchniaRow.hide();
-                            $powierzchniaField.removeAttr('required');
-                            $powierzchniaField.val(''); // Clear value
-                            break;
-
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
-                        case '<?php echo esc_js(PropertyType::SERVICE_PREMISES->value); ?>':
-                            // Show service premises info, show all other fields
-                            $servicePremisesInfo.show();
-                            $cenaM2Row.show();
-                            $cenaM2Field.attr('required', 'required');
-                            $powierzchniaRow.show();
-                            $powierzchniaField.attr('required', 'required');
-                            break;
-
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
-                        case '<?php echo esc_js(PropertyType::STORAGE_ROOM->value); ?>':
-                            // Dla komórki powierzchnia i cena m² są opcjonalne
-                            $cenaM2Row.show();
-                            $cenaM2Field.removeAttr('required');
-                            $powierzchniaRow.show();
-                            $powierzchniaField.removeAttr('required');
-                            break;
-
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
-                        case '<?php echo esc_js(PropertyType::RESIDENTIAL_UNIT->value); ?>':
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
-                        case '<?php echo esc_js(PropertyType::SINGLE_FAMILY_HOUSE->value); ?>':
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Enum constant value is safe
-                        case '<?php echo esc_js(PropertyType::GARAGE->value); ?>':
-                            // Dla garażu powierzchnia i cena m² są opcjonalne
-                            $cenaM2Row.show();
-                            $cenaM2Field.removeAttr('required');
-                            $powierzchniaRow.show();
-                            $powierzchniaField.removeAttr('required');
-                            break;
-                            
-                        default:
-                            // Show and require all fields for residential properties
-                            $cenaM2Row.show();
-                            $cenaM2Field.attr('required', 'required');
-                            $powierzchniaRow.show();
-                            $powierzchniaField.attr('required', 'required');
-                            break;
-                    }
-                }
-                
-                // Handle property type change
-                $propertyType.on('change', function() {
-                    const selectedType = $(this).val();
-                    toggleFieldsByPropertyType(selectedType);
-                    updateFieldLabels(selectedType);
-                    
-                    // Also toggle marketing fields based on property type
-                    if (window.investmentConfig) {
-                        toggleMarketingFields(window.investmentConfig);
-                    }
-                });
-                
-                // Initialize on modal open
-                toggleFieldsByPropertyType($propertyType.val());
-                updateFieldLabels($propertyType.val());
             }
+
             
             // Handle floor plan file removal
             $('#remove-floor-plan').on('click', function() {
@@ -914,9 +895,60 @@ class ResourceModal extends UJC_Admin_Page {
             
             // Initialize all functionality
             setupAutoCalculations();
-            setupPropertyTypeLogic();
+
+            // Setup property type change event handler
+            $('#modal-rodzaj_nieruchomosci').on('change', function() {
+                const selectedType = $(this).val();
+                applyPropertyTypeLogic(selectedType);
+
+                // Also toggle marketing fields based on property type
+                if (window.investmentConfig) {
+                    toggleMarketingFields(window.investmentConfig);
+                }
+            });
         });
         </script>
+
+        <!-- CSS styles for two-column layout -->
+        <style>
+        /* Two-column layout styles */
+        .modal-columns {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .modal-column-left,
+        .modal-column-right {
+            flex: 1;
+        }
+
+        .modal-column-left {
+            border-right: 1px solid #e1e1e1;
+            padding-right: 25px;
+        }
+
+        /* Adjust modal width for two columns */
+        #ujc-resource-modal .ujc-modal-content {
+            max-width: 1200px;
+            width: 95%;
+        }
+
+        /* Responsive behavior */
+        @media (max-width: 768px) {
+            .modal-columns {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .modal-column-left {
+                border-right: none;
+                padding-right: 0;
+                border-bottom: 1px solid #e1e1e1;
+                padding-bottom: 20px;
+            }
+        }
+        </style>
         <?php
     }
     
@@ -928,12 +960,6 @@ class ResourceModal extends UJC_Admin_Page {
         foreach ($fields as $field => $sanitize_callback) {
             $value = $_POST[$field] ?? '';
 
-            // Debug logging for marketing fields
-            if (in_array($field, ['floor_number', 'room_count', 'garden_area'])) {
-                Logger::info("UJC DEBUG: Field '$field' - Raw POST value: " . var_export($value, true));
-                Logger::info("UJC DEBUG: Field '$field' - isset(\$_POST['$field']): " . (isset($_POST[$field]) ? 'true' : 'false'));
-                Logger::info("UJC DEBUG: Field '$field' - is_callable check: " . (is_callable($sanitize_callback) ? 'true' : 'false'));
-            }
 
             // Call sanitization function
             if (is_callable($sanitize_callback)) {
@@ -942,10 +968,6 @@ class ResourceModal extends UJC_Admin_Page {
                 $data[$field] = sanitize_text_field($value);
             }
 
-            // Debug logging for marketing fields after sanitization
-            if (in_array($field, ['floor_number', 'room_count', 'garden_area'])) {
-                Logger::info("UJC DEBUG: Field '$field' - After sanitization: " . var_export($data[$field], true));
-            }
         }
         return $data;
     }
@@ -1155,11 +1177,6 @@ class ResourceModal extends UJC_Admin_Page {
         Logger::info('UJC: createResourceFormData - Data for constructor: nr_lokalu=' . $data['nr_lokalu'] . ', powierzchnia=' . $data['powierzchnia_uzytkowa'] . ', cena_m2=' . ($data['cena_m2'] ?? 'NULL'));
         
         try {
-            // Debug logging before ResourceFormData creation
-            Logger::info("UJC DEBUG: Before ResourceFormData creation:");
-            Logger::info("UJC DEBUG: \$data['floor_number'] = " . var_export($data['floor_number'], true));
-            Logger::info("UJC DEBUG: \$data['room_count'] = " . var_export($data['room_count'], true));
-            Logger::info("UJC DEBUG: \$data['garden_area'] = " . var_export($data['garden_area'], true));
 
             $resourceFormData = new ResourceFormData(
                 rodzaj_nieruchomosci: $propertyType,
@@ -1180,10 +1197,6 @@ class ResourceModal extends UJC_Admin_Page {
                 floor_plan_pdf: ($data['floor_plan_pdf'] ?? null) === '' ? null : ($data['floor_plan_pdf'] ?? null)
             );
 
-            // Debug logging after ResourceFormData creation
-            Logger::info("UJC DEBUG: ResourceFormData created - floor_number: " . var_export($resourceFormData->floor_number, true));
-            Logger::info("UJC DEBUG: ResourceFormData created - room_count: " . var_export($resourceFormData->room_count, true));
-            Logger::info("UJC DEBUG: ResourceFormData created - garden_area: " . var_export($resourceFormData->garden_area, true));
             
             Logger::info('UJC: createResourceFormData - ResourceFormData object created successfully');
             return $resourceFormData;
@@ -1207,7 +1220,6 @@ class ResourceModal extends UJC_Admin_Page {
         
         try {
             $data = $this->sanitize_resource_data();
-            Logger::info('UJC: ajax_save_resource - data sanitized: ' . print_r($data, true));
             
             // Handle file upload if present
             $uploaded_filename = $this->handle_pdf_upload();
@@ -1220,7 +1232,6 @@ class ResourceModal extends UJC_Admin_Page {
             Logger::info('UJC: ajax_save_resource - formData created successfully');
             
             $result = $this->createResourceUseCase->execute($formData);
-            Logger::info('UJC: ajax_save_resource - usecase executed, result: ' . print_r($result, true));
             
             if ($result->isSuccess) {
                 wp_send_json_success($result->message);
@@ -1247,7 +1258,6 @@ class ResourceModal extends UJC_Admin_Page {
             Logger::info('UJC: Loading resource ID: ' . $resource_id);
             
             $resource = $this->getResourceByIdUseCase->execute($resource_id);
-            Logger::info('UJC: Resource data retrieved: ' . print_r($resource, true));
             
             if ($resource) {
                 wp_send_json_success($resource);

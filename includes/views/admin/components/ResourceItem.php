@@ -26,7 +26,7 @@ class ResourceItem {
         // Status badge - semantic CSS classes
         $status_class = match($resource->status) {
             'Dostępny' => 'ujc-status-available',
-            'Zarezerwowany' => 'ujc-status-reserved', 
+            'Zarezerwowany' => 'ujc-status-reserved',
             'Sprzedany' => 'ujc-status-sold',
             default => 'ujc-status-available'
         };
@@ -143,21 +143,25 @@ class ResourceItem {
         .ujc-resource-pricing {
             flex: 1;
             display: flex;
-            gap: 40px;
             align-items: center;
             padding: 0 20px;
+            min-width: 0; /* Allow flex shrinking */
         }
-        
+
         .ujc-price-main {
+            flex: 0 0 140px;
             display: flex;
             flex-direction: column;
             gap: 2px;
+            min-width: 120px;
         }
-        
+
         .ujc-price-secondary {
+            flex: 0 0 140px;
             display: flex;
             flex-direction: column;
             gap: 2px;
+            min-width: 120px;
         }
         
         .ujc-price-label {
@@ -198,6 +202,7 @@ class ResourceItem {
         .ujc-status-badge.ujc-status-reserved {
             background: #fff3cd;
             color: #856404;
+            border: 1px solid #ffeaa7;
         }
         
         .ujc-status-badge.ujc-status-sold {

@@ -19,7 +19,7 @@ enum ResourceStatus: string {
     public function getDisplayText(): string {
         return match($this) {
             self::AVAILABLE => 'Dostępny',
-            self::RESERVED => 'Rezerwacja',
+            self::RESERVED => 'Zarezerwowany',
             self::SOLD => 'Sprzedany',
         };
     }
