@@ -115,7 +115,7 @@ wp plugin status ustawa-jawnosci-cen
 4. `AutomatedGenerator` manages automation (scheduling, history, status)
 5. Files are stored in `/wp-content/uploads/ujc-data/`
 6. Price changes are tracked in history table
-7. Public data can be displayed via shortcode `[ujc_public_data]`
+7. Public data can be displayed via shortcode `[resources_list]` or Gutenberg block `jawne-ceny/resources-list`
 
 ## Important Constants
 
@@ -138,9 +138,12 @@ Key actions:
 - `ujc_generate_files` - Cron hook for automated generation
 - Admin menu added at priority 10
 
-## Shortcode [resources_list]
+## Frontend Display Options
 
-The plugin provides a powerful `[resources_list]` shortcode for displaying property listings on frontend pages with full customization options.
+The plugin provides two powerful ways to display property listings on frontend pages with full customization options:
+
+### 1. Shortcode `[resources_list]`
+Advanced shortcode for developers and power users with parameter-based configuration.
 
 ### Basic Usage
 ```
@@ -259,8 +262,50 @@ Will display: Price | Unit Number | Area
 
 ```
 [resources_list columns="nr_lokalu:Lokal,powierzchnia_uzytkowa:Powierzchnia,cena_calkowita:Cena"]
-```  
+```
 Will display: Unit Number | Area | Price
+
+### 2. Gutenberg Block `jawne-ceny/resources-list`
+Visual block editor for WordPress with full customization interface.
+
+#### Features:
+- **Visual Configuration**: All settings available through WordPress block editor sidebar
+- **Property Type Selection**: Checkboxes for all available property types
+- **Column Management**:
+  - Visual column selection with checkboxes
+  - Custom column names with text inputs
+  - Automatic ordering based on selection
+- **Advanced Styling**:
+  - Color pickers for all table elements (headers, text, hover)
+  - Font family selection for headers and content
+  - Button customization (Historia Cen, Karta Lokalu)
+- **Interactive Features**:
+  - Clickable rows with custom URL configuration
+  - Price history modal
+  - Floor plan downloads
+
+#### Usage:
+1. Add block "Lista Zasobów" to any post/page
+2. Configure options in the block sidebar:
+   - **Property Types**: Select which types to display
+   - **Visible Columns**: Choose and rename columns
+   - **Styling**: Customize colors and fonts
+   - **Interactive Features**: Set up clickable rows and button texts
+
+#### Block Attributes:
+The block supports all the same features as the shortcode through a user-friendly interface:
+- `selectedTypes` - Array of property types to display
+- `visibleColumns` - Array of column fields to show
+- `columnNames` - Object mapping custom column names
+- `headerBgColor`, `textColor`, etc. - Styling options
+- `detailPageUrl` - URL for clickable rows
+- `historiaBtnText`, `kartaBtnText` - Custom button texts
+
+#### Technical Implementation:
+- Uses `ResourceTableRenderer` for consistent output with shortcode
+- Leverages `GetResourcesForFrontendUseCase` for filtered data
+- Shares CSS and JavaScript assets with shortcode
+- Full attribute validation and fallback handling
 
 ## Deployment
 

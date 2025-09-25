@@ -22,14 +22,33 @@ class BlocksManager {
             register_block_type('jawne-ceny/resources-list', [
                 'render_callback' => [ResourcesListBlock::class, 'render']
             ]);
+
+            register_block_type('jawne-ceny/resources-filters', [
+                'render_callback' => [ResourcesFiltersBlock::class, 'render']
+            ]);
         }
     }
     
     public function enqueue_editor_assets() {
+        // Load compact color picker component first
+        wp_enqueue_script(
+            'compact-color-picker-js',
+            PLUGIN_URL . 'assets/blocks/compact-color-picker.js',
+            ['wp-element', 'wp-components'],
+            VERSION
+        );
+
         wp_enqueue_script(
             'resources-list-block-js',
             PLUGIN_URL . 'assets/blocks/resources-list-block.js',
-            ['wp-blocks', 'wp-element'],
+            ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'compact-color-picker-js'],
+            VERSION
+        );
+
+        wp_enqueue_script(
+            'resources-filters-block-js',
+            PLUGIN_URL . 'assets/blocks/resources-filters-block.js',
+            ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'compact-color-picker-js'],
             VERSION
         );
     }
@@ -41,11 +60,34 @@ class BlocksManager {
             [],
             VERSION
         );
-        
+
+        wp_enqueue_style(
+            'resources-filters-block-css',
+            PLUGIN_URL . 'assets/blocks/resources-filters-block.css',
+            [],
+            VERSION
+        );
+
         wp_enqueue_script(
             'resources-list-widget-js',
             PLUGIN_URL . 'assets/blocks/resources-list-widget.js',
             [],
+            VERSION,
+            true
+        );
+
+        wp_enqueue_script(
+            'frontend-filters-widget-js',
+            PLUGIN_URL . 'assets/frontend-filters-widget.js',
+            [],
+            VERSION,
+            true
+        );
+
+        wp_enqueue_script(
+            'frontend-table-sorting-js',
+            PLUGIN_URL . 'assets/frontend-table-sorting.js',
+            ['jquery'],
             VERSION,
             true
         );

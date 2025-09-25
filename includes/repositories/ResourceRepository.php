@@ -184,5 +184,148 @@ class ResourceRepository {
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- CREATE TABLE statement with field constants is safe
         return $wpdb->query($sql) !== false;
     }
-    
+
+    /**
+     * Get all resources with filtering and sorting
+     */
+    public function readAllWithFiltersAndSort(FilterCriteria $filters = null, SortOptions $sort = null): array {
+        $table = TableNames::getResources();
+        $priceTable = TableNames::getPriceHistory();
+        global $wpdb;
+
+        // Build base query
+        $sql = "SELECT r.*";
+
+        // Add price fields if needed for sorting
+        if ($sort && $sort->requiresPriceJoin()) {
+            $sql .= ", p." . PriceHistoryDto::FIELD_CENA_CALKOWITA . " as total_price";
+        }
+
+        $sql .= " FROM `{$table}` r";
+
+        // Join price history if needed for filtering or sorting by price
+        $needsPriceJoin = ($filters && ($filters->priceMin !== null || $filters->priceMax !== null)) ||
+                         ($sort && $sort->requiresPriceJoin());
+
+        if ($needsPriceJoin) {
+            $sql .= " LEFT JOIN (
+                SELECT " . PriceHistoryDto::FIELD_RESOURCE_ID . ",
+                       " . PriceHistoryDto::FIELD_CENA_CALKOWITA . "
+                FROM `{$priceTable}` p1
+                WHERE p1." . PriceHistoryDto::FIELD_ID . " = (
+                    SELECT MAX(p2." . PriceHistoryDto::FIELD_ID . ")
+                    FROM `{$priceTable}` p2
+                    WHERE p2." . PriceHistoryDto::FIELD_RESOURCE_ID . " = p1." . PriceHistoryDto::FIELD_RESOURCE_ID . "
+                )
+            ) p ON r." . ResourceDto::FIELD_ID . " = p." . PriceHistoryDto::FIELD_RESOURCE_ID;
+        }
+
+        // Build WHERE clause
+        $whereConditions = [];
+        $prepareValues = [];
+
+        if ($filters && $filters->hasFilters()) {
+            // Price range filter
+            if ($filters->priceMin !== null) {
+                $whereConditions[] = "p." . PriceHistoryDto::FIELD_CENA_CALKOWITA . " >= %f";
+                $prepareValues[] = $filters->priceMin;
+            }
+
+            if ($filters->priceMax !== null) {
+                $whereConditions[] = "p." . PriceHistoryDto::FIELD_CENA_CALKOWITA . " <= %f";
+                $prepareValues[] = $filters->priceMax;
+            }
+
+            // Area range filter
+            if ($filters->areaMin !== null) {
+                $whereConditions[] = "r." . ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA . " >= %f";
+                $prepareValues[] = $filters->areaMin;
+            }
+
+            if ($filters->areaMax !== null) {
+                $whereConditions[] = "r." . ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA . " <= %f";
+                $prepareValues[] = $filters->areaMax;
+            }
+
+            // Status filter
+            if (!empty($filters->statusFilter)) {
+                $statusPlaceholders = implode(',', array_fill(0, count($filters->statusFilter), '%s'));
+                $whereConditions[] = "r." . ResourceDto::FIELD_STATUS . " IN ({$statusPlaceholders})";
+                $prepareValues = array_merge($prepareValues, $filters->statusFilter);
+            }
+
+            // Floor filter
+            if (!empty($filters->floorFilter)) {
+                $floorPlaceholders = implode(',', array_fill(0, count($filters->floorFilter), '%d'));
+                $whereConditions[] = "r." . ResourceDto::FIELD_FLOOR_NUMBER . " IN ({$floorPlaceholders})";
+                $prepareValues = array_merge($prepareValues, $filters->floorFilter);
+            }
+
+            // Rooms filter
+            if (!empty($filters->roomsFilter)) {
+                $roomsPlaceholders = implode(',', array_fill(0, count($filters->roomsFilter), '%d'));
+                $whereConditions[] = "r." . ResourceDto::FIELD_ROOM_COUNT . " IN ({$roomsPlaceholders})";
+                $prepareValues = array_merge($prepareValues, $filters->roomsFilter);
+            }
+
+            // Property types filter
+            if (!empty($filters->propertyTypes)) {
+                $typePlaceholders = implode(',', array_fill(0, count($filters->propertyTypes), '%s'));
+                $whereConditions[] = "r." . ResourceDto::FIELD_RODZAJ_NIERUCHOMOSCI . " IN ({$typePlaceholders})";
+                $prepareValues = array_merge($prepareValues, $filters->propertyTypes);
+            }
+
+            // Unit number filter
+            if (!empty($filters->unitNumberFilter)) {
+                $unitPlaceholders = implode(',', array_fill(0, count($filters->unitNumberFilter), '%s'));
+                $whereConditions[] = "r." . ResourceDto::FIELD_NR_LOKALU . " IN ({$unitPlaceholders})";
+                $prepareValues = array_merge($prepareValues, $filters->unitNumberFilter);
+            }
+        }
+
+        // Add WHERE clause if needed
+        if (!empty($whereConditions)) {
+            $sql .= " WHERE " . implode(' AND ', $whereConditions);
+        }
+
+        // Add ORDER BY clause
+        if ($sort && $sort->sortBy) {
+            $orderField = $sort->getSqlFieldName();
+            if ($orderField) {
+                if ($sort->requiresPriceJoin()) {
+                    $sql .= " ORDER BY total_price " . $sort->sortOrder;
+                } else {
+                    $sql .= " ORDER BY r." . $orderField . " " . $sort->sortOrder;
+                }
+            }
+        } else {
+            // Default ordering
+            $sql .= " ORDER BY r." . ResourceDto::FIELD_ID . " ASC";
+        }
+
+        Logger::info("ResourceRepository::readAllWithFiltersAndSort - SQL: " . $sql);
+        Logger::info("ResourceRepository::readAllWithFiltersAndSort - Prepare values: " . print_r($prepareValues, true));
+
+        // Execute query
+        if (!empty($prepareValues)) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Dynamic SQL is built safely with constants and prepared values
+            $results = $wpdb->get_results($wpdb->prepare($sql, $prepareValues), ARRAY_A);
+        } else {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL is built safely with constants
+            $results = $wpdb->get_results($sql, ARRAY_A);
+        }
+
+        if ($wpdb->last_error) {
+            Logger::error("ResourceRepository::readAllWithFiltersAndSort - SQL Error: " . $wpdb->last_error);
+        }
+
+        $dtos = [];
+        foreach($results as $row) {
+            $dtos[] = ResourceDto::databaseToModel($row);
+        }
+
+        Logger::info("ResourceRepository::readAllWithFiltersAndSort - Found " . count($dtos) . " resources");
+        return $dtos;
+    }
+
 }

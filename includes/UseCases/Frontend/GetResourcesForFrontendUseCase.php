@@ -22,28 +22,40 @@ class GetResourcesForFrontendUseCase {
     }
     
     /**
-     * Execute - get resources filtered by property types
+     * Execute - get resources with filtering and sorting
      */
-    public function execute(array $propertyTypes = []): array {
+    public function execute(array $propertyTypes = [], FilterCriteria $filters = null, SortOptions $sort = null): array {
         Logger::info("GetResourcesForFrontendUseCase::execute - Starting with " . count($propertyTypes) . " property types");
-        
-        // Get all resources from repository
-        $resources = $this->resourceRepository->readAll();
-        Logger::info("GetResourcesForFrontendUseCase::execute - Got " . count($resources) . " total resources");
-        
+
+        // Build filters including property types
+        $combinedFilters = $filters ?: new FilterCriteria();
+        if (!empty($propertyTypes)) {
+            // Convert PropertyType enums to strings for filtering
+            $typeStrings = array_map(function($type) {
+                return $type instanceof PropertyType ? $type->value : $type;
+            }, $propertyTypes);
+
+            $combinedFilters = new FilterCriteria(
+                $combinedFilters->priceMin,
+                $combinedFilters->priceMax,
+                $combinedFilters->areaMin,
+                $combinedFilters->areaMax,
+                $combinedFilters->statusFilter,
+                $combinedFilters->floorFilter,
+                $combinedFilters->roomsFilter,
+                $typeStrings
+            );
+        }
+
+        // Get filtered and sorted resources from repository
+        $resources = $this->resourceRepository->readAllWithFiltersAndSort($combinedFilters, $sort);
+        Logger::info("GetResourcesForFrontendUseCase::execute - Got " . count($resources) . " filtered resources");
+
         $result = [];
-        
+
         foreach ($resources as $resource) {
             try {
                 Logger::info("GetResourcesForFrontendUseCase::execute - Processing resource ID: " . $resource->id);
-                
-                // Filter by property types if specified
-                if (!empty($propertyTypes)) {
-                    if (!in_array($resource->rodzaj_nieruchomosci, $propertyTypes)) {
-                        Logger::info("GetResourcesForFrontendUseCase::execute - Resource ID " . $resource->id . " filtered out by type");
-                        continue;
-                    }
-                }
                 
                 // Get current prices
                 $currentPrices = $this->priceHistoryRepository->getCurrentPricesForResource($resource->id);
