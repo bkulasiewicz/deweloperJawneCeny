@@ -919,8 +919,8 @@
                             label: 'Margin kontenera',
                             value: attributes.containerMargin,
                             onChange: (value) => setAttributes({ containerMargin: value }),
-                            placeholder: '20px 0',
-                            help: 'Format: "top right bottom left" lub "vertical horizontal"'
+                            placeholder: '20px 10px',
+                            help: 'Format: "top right bottom left" lub "vertical horizontal" - wymagane jednostki CSS (px, em, rem)'
                         }),
 
                         el('hr'),

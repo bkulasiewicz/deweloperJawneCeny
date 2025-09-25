@@ -4,7 +4,7 @@
  * Plugin URI: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
  * Description (EN): Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.4.6
+ * Version: 4.4.36
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.8');
-define('VERSION', '4.4.6');
+define('VERSION', '4.4.36');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -79,6 +79,7 @@ class DeweloperJawneCeny {
 
         // Helpers
         require_once PLUGIN_DIR . 'includes/helpers/PremiumHelper.php';
+        require_once PLUGIN_DIR . 'includes/helpers/ResourceTableRenderer.php';
 
         // DI Container - must be loaded before other classes
         require_once PLUGIN_DIR . 'includes/core/DIContainer.php';
@@ -101,6 +102,8 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/models/OtherServiceFormData.php';
         require_once PLUGIN_DIR . 'includes/models/PresentableResource.php';
         require_once PLUGIN_DIR . 'includes/models/ShortcodeResource.php';
+        require_once PLUGIN_DIR . 'includes/models/FilterCriteria.php';
+        require_once PLUGIN_DIR . 'includes/models/SortOptions.php';
         require_once PLUGIN_DIR . 'includes/models/FileData.php';
         require_once PLUGIN_DIR . 'includes/models/FileGenerationResult.php';
         
@@ -200,6 +203,7 @@ class DeweloperJawneCeny {
         
         // Blocks
         require_once PLUGIN_DIR . 'includes/blocks/ResourcesListBlock.php';
+        require_once PLUGIN_DIR . 'includes/blocks/ResourcesFiltersBlock.php';
         require_once PLUGIN_DIR . 'includes/blocks/BlocksManager.php';
         
         // Shortcodes

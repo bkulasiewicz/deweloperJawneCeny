@@ -3,7 +3,8 @@
 /* Container classes */
 .resources-list-block,
 .ujc-shortcode-resources-list {
-    margin: var(--container-margin, 20px 0);
+    margin: var(--container-margin, 20px 0) !important;
+    box-sizing: border-box;
 }
 
 /* Base table structure */
@@ -16,15 +17,22 @@
 
 .resources-table th,
 .resources-table td {
-    padding: var(--table-padding, 12px 15px);
+    padding: var(--table-padding, 12px 15px) !important;
     text-align: left;
 }
 
 /* Table styling with CSS variables */
 .resources-table th {
     background-color: var(--header-bg-color, #f9f9f9);
-    color: var(--header-text-color, #333333);
+    color: var(--header-text-color, #333333) !important;
     font-family: var(--header-font-family, inherit);
+}
+
+/* Ensure header text color works with sortable headers and overrides WordPress styles */
+.resources-list-block .resources-table th,
+.ujc-shortcode-resources-list .resources-table th,
+.resources-table th.sortable-header {
+    color: var(--header-text-color, #333333) !important;
 }
 
 .resources-table td {
@@ -274,7 +282,7 @@
 
     .resources-table th,
     .resources-table td {
-        padding: 8px 10px;
+        padding: var(--table-padding, 12px 15px) !important;
     }
 
     .resources-table th:nth-child(2),
@@ -286,7 +294,7 @@
 @media (max-width: 480px) {
     .resources-table th,
     .resources-table td {
-        padding: var(--small-mobile-padding, 6px 8px);
+        padding: var(--table-padding, 12px 15px) !important;
         font-size: 0.8em;
     }
 
