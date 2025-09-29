@@ -32,30 +32,12 @@ class ComposerStaticInit8dd63bc7b5d5fc2a9c9232efa52368ee
         ),
         'DeweloperJawneCeny\\' => 
         array (
-            0 => __DIR__ . '/../../..' . '/includes',
+            0 => __DIR__ . '/../..' . '/',
         ),
     );
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
-        'Psr\\Container\\ContainerExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerExceptionInterface.php',
-        'Psr\\Container\\ContainerInterface' => __DIR__ . '/..' . '/psr/container/src/ContainerInterface.php',
-        'Psr\\Container\\NotFoundExceptionInterface' => __DIR__ . '/..' . '/psr/container/src/NotFoundExceptionInterface.php',
-        'lucatume\\DI52\\App' => __DIR__ . '/..' . '/lucatume/di52/src/App.php',
-        'lucatume\\DI52\\Builders\\BuilderInterface' => __DIR__ . '/..' . '/lucatume/di52/src/Builders/BuilderInterface.php',
-        'lucatume\\DI52\\Builders\\CallableBuilder' => __DIR__ . '/..' . '/lucatume/di52/src/Builders/CallableBuilder.php',
-        'lucatume\\DI52\\Builders\\ClassBuilder' => __DIR__ . '/..' . '/lucatume/di52/src/Builders/ClassBuilder.php',
-        'lucatume\\DI52\\Builders\\ClosureBuilder' => __DIR__ . '/..' . '/lucatume/di52/src/Builders/ClosureBuilder.php',
-        'lucatume\\DI52\\Builders\\Factory' => __DIR__ . '/..' . '/lucatume/di52/src/Builders/Factory.php',
-        'lucatume\\DI52\\Builders\\Parameter' => __DIR__ . '/..' . '/lucatume/di52/src/Builders/Parameter.php',
-        'lucatume\\DI52\\Builders\\ReinitializableBuilderInterface' => __DIR__ . '/..' . '/lucatume/di52/src/Builders/ReinitializableBuilderInterface.php',
-        'lucatume\\DI52\\Builders\\Resolver' => __DIR__ . '/..' . '/lucatume/di52/src/Builders/Resolver.php',
-        'lucatume\\DI52\\Builders\\ValueBuilder' => __DIR__ . '/..' . '/lucatume/di52/src/Builders/ValueBuilder.php',
-        'lucatume\\DI52\\Container' => __DIR__ . '/..' . '/lucatume/di52/src/Container.php',
-        'lucatume\\DI52\\ContainerException' => __DIR__ . '/..' . '/lucatume/di52/src/ContainerException.php',
-        'lucatume\\DI52\\NestedParseError' => __DIR__ . '/..' . '/lucatume/di52/src/NestedParseError.php',
-        'lucatume\\DI52\\NotFoundException' => __DIR__ . '/..' . '/lucatume/di52/src/NotFoundException.php',
-        'lucatume\\DI52\\ServiceProvider' => __DIR__ . '/..' . '/lucatume/di52/src/ServiceProvider.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

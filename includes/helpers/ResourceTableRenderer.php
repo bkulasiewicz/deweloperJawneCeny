@@ -162,8 +162,6 @@ class ResourceTableRenderer {
         </div>
 
         <?php
-        // Enqueue JavaScript for modals and interactions
-        self::enqueueTableAssets(!empty($detail_page_url), $enable_frontend_sorting);
 
         return ob_get_clean();
     }
@@ -333,7 +331,7 @@ class ResourceTableRenderer {
 
             // Marketing fields
             case ResourceDto::FIELD_FLOOR_NUMBER:
-                return $resource->floor_number ? esc_html($resource->floor_number) : '—';
+                return ($resource->floor_number !== null && $resource->floor_number !== '') ? esc_html($resource->floor_number) : '—';
 
             case ResourceDto::FIELD_ROOM_COUNT:
                 return $resource->room_count ? esc_html($resource->room_count) : '—';
@@ -442,49 +440,4 @@ class ResourceTableRenderer {
         <?php
     }
 
-    /**
-     * Enqueue necessary JavaScript and CSS assets
-     */
-    private static function enqueueTableAssets(bool $has_clickable_rows = false, bool $enable_frontend_sorting = false): void {
-        // Always enqueue the resources widget JavaScript for modal functionality
-        wp_enqueue_script(
-            'ujc-resources-widget',
-            plugins_url('assets/blocks/resources-list-widget.js', dirname(dirname(__DIR__)) . '/ustawa-jawnosci-cen.php'),
-            ['jquery'],
-            VERSION,
-            true
-        );
-
-        wp_localize_script('ujc-resources-widget', 'resourcesListAjax', [
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('resources_list_nonce'),
-            'strings' => [
-                'loading' => 'Ładowanie...',
-                'error' => 'Wystąpił błąd podczas ładowania historii cen.',
-                'no_history' => 'Brak historii cen dla tego zasobu.'
-            ]
-        ]);
-
-        // Enqueue clickable rows JavaScript if needed
-        if ($has_clickable_rows) {
-            wp_enqueue_script(
-                'ujc-clickable-rows',
-                plugins_url('assets/frontend-clickable-rows.js', dirname(dirname(__DIR__)) . '/ustawa-jawnosci-cen.php'),
-                ['jquery'],
-                '1.0.1',
-                true
-            );
-        }
-
-        // Enqueue frontend sorting JavaScript if needed
-        if ($enable_frontend_sorting) {
-            wp_enqueue_script(
-                'ujc-frontend-sorting',
-                plugins_url('assets/frontend-table-sorting.js', dirname(dirname(__DIR__)) . '/ustawa-jawnosci-cen.php'),
-                ['jquery'],
-                VERSION,
-                true
-            );
-        }
-    }
 }

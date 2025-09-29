@@ -23,7 +23,16 @@ class Logger {
     private static function getCurrentLogFileName() {
         return 'ujc-debug-' . DateHelper::getCurrentDateYmd() . '.log';
     }
-    
+
+    /**
+     * Get proper log directory path according to WordPress standards
+     * Uses uploads directory as required by WordPress guidelines
+     */
+    private static function getLogDirectory() {
+        $upload_dir = wp_upload_dir();
+        return $upload_dir['basedir'] . '/ujc-data/logs';
+    }
+
     /**
      * Initialize logger with dedicated log file
      */
@@ -34,12 +43,13 @@ class Logger {
         
         // Set log file with current date
         $log_filename = self::getCurrentLogFileName();
-        self::$log_file = WP_CONTENT_DIR . '/' . $log_filename;
+        $log_dir = self::getLogDirectory();
+        wp_mkdir_p($log_dir);
+        self::$log_file = $log_dir . '/' . $log_filename;
         self::$initialized = true;
         
         // Create log file if it doesn't exist
         if (!file_exists(self::$log_file)) {
-            wp_mkdir_p(dirname(self::$log_file));
             file_put_contents(self::$log_file, '');
         }
         
@@ -71,7 +81,7 @@ class Logger {
         for ($i = self::LOG_RETENTION_DAYS + 1; $i <= 10; $i++) {
             $old_timestamp = time() - ($i * 86400);
             $old_date = wp_date('Y-m-d', $old_timestamp);
-            $old_file = WP_CONTENT_DIR . '/ujc-debug-' . $old_date . '.log';
+            $old_file = self::getLogDirectory() . '/ujc-debug-' . $old_date . '.log';
             
             if (file_exists($old_file)) {
                 wp_delete_file($old_file);
@@ -92,7 +102,7 @@ class Logger {
         
         // Check if we need to rotate to today's log file (lazy rotation)
         $current_log_filename = self::getCurrentLogFileName();
-        $expected_path = WP_CONTENT_DIR . '/' . $current_log_filename;
+        $expected_path = self::getLogDirectory() . '/' . $current_log_filename;
         
         if (self::$log_file !== $expected_path) {
             self::$log_file = $expected_path;
@@ -160,7 +170,7 @@ class Logger {
         
         // Ensure we're reading from current day's log
         $current_log_filename = self::getCurrentLogFileName();
-        $current_log_path = WP_CONTENT_DIR . '/' . $current_log_filename;
+        $current_log_path = self::getLogDirectory() . '/' . $current_log_filename;
         
         if (file_exists($current_log_path) && is_readable($current_log_path)) {
             return file_get_contents($current_log_path);
@@ -186,7 +196,7 @@ class Logger {
 
         // Clear only current day's log
         $current_log_filename = self::getCurrentLogFileName();
-        $current_log_path = WP_CONTENT_DIR . '/' . $current_log_filename;
+        $current_log_path = self::getLogDirectory() . '/' . $current_log_filename;
 
         // Use WordPress filesystem for security
         if ($wp_filesystem) {

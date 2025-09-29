@@ -4,7 +4,9 @@
       "Bash(zip:*)",
       "Bash(cp:*)",
       "Bash(rm:*)",
-      "Read(//var/folders/vj/8_15b20n5qxdrd2797c4g0b80000gn/T/TemporaryItems/NSIRD_screencaptureui_phHrte/**)"
+      "Read(//var/folders/vj/8_15b20n5qxdrd2797c4g0b80000gn/T/TemporaryItems/NSIRD_screencaptureui_phHrte/**)",
+      "Bash(php -l:*)",
+      "WebSearch"
     ],
     "additionalDirectories": [
       "/Users/bartoszkulasiewicz/Desktop"

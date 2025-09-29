@@ -62,6 +62,13 @@ class BlocksManager {
         );
 
         wp_enqueue_style(
+            'resource-cards-css',
+            PLUGIN_URL . 'assets/blocks/resource-cards.css',
+            [],
+            VERSION
+        );
+
+        wp_enqueue_style(
             'resources-filters-block-css',
             PLUGIN_URL . 'assets/blocks/resources-filters-block.css',
             [],
@@ -91,7 +98,15 @@ class BlocksManager {
             VERSION,
             true
         );
-        
+
+        wp_enqueue_script(
+            'ujc-clickable-rows',
+            PLUGIN_URL . 'assets/frontend-clickable-rows.js',
+            ['jquery'],
+            '1.0.1',
+            true
+        );
+
         wp_localize_script('resources-list-widget-js', 'resourcesListAjax', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('resources_list_nonce'),

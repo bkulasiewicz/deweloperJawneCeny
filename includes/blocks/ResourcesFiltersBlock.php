@@ -40,44 +40,69 @@ class ResourcesFiltersBlock {
         $defaults = [
             'filterGroups' => [
                 [
-                    'id' => 'price_300_500',
-                    'enabled' => false,
-                    'label' => 'Cena 300.000 - 500.000 PLN',
-                    'field' => 'total_price',
-                    'filterType' => 'range',
-                    'conditions' => [
-                        'min' => 300000,
-                        'max' => 500000
-                    ]
+                    'type' => 'section',
+                    'id' => 'section_floor',
+                    'title' => 'Wybierz piętro:'
                 ],
                 [
-                    'id' => 'area_above_60',
-                    'enabled' => false,
-                    'label' => 'Powierzchnia powyżej 60m²',
-                    'field' => 'usable_area',
-                    'filterType' => 'min',
-                    'conditions' => [
-                        'min' => 60
-                    ]
-                ],
-                [
-                    'id' => 'rooms_2_3',
-                    'enabled' => false,
-                    'label' => '2-3 pokoje',
-                    'field' => 'room_count',
-                    'filterType' => 'list',
-                    'conditions' => [
-                        'values' => ['2', '3']
-                    ]
-                ],
-                [
-                    'id' => 'ground_floor',
-                    'enabled' => false,
+                    'type' => 'filter',
+                    'id' => 'floor_ground',
+                    'enabled' => true,
                     'label' => 'Parter',
                     'field' => 'floor_number',
                     'filterType' => 'exact',
                     'conditions' => [
                         'value' => '0'
+                    ]
+                ],
+                [
+                    'type' => 'filter',
+                    'id' => 'floor_1',
+                    'enabled' => true,
+                    'label' => 'Piętro 1',
+                    'field' => 'floor_number',
+                    'filterType' => 'exact',
+                    'conditions' => [
+                        'value' => '1'
+                    ]
+                ],
+                [
+                    'type' => 'filter',
+                    'id' => 'floor_2',
+                    'enabled' => true,
+                    'label' => 'Piętro 2',
+                    'field' => 'floor_number',
+                    'filterType' => 'exact',
+                    'conditions' => [
+                        'value' => '2'
+                    ]
+                ],
+                [
+                    'type' => 'section',
+                    'id' => 'section_area',
+                    'title' => 'Metraż:'
+                ],
+                [
+                    'type' => 'filter',
+                    'id' => 'area_40_50',
+                    'enabled' => true,
+                    'label' => '40-50m²',
+                    'field' => 'usable_area',
+                    'filterType' => 'range',
+                    'conditions' => [
+                        'min' => 40,
+                        'max' => 50
+                    ]
+                ],
+                [
+                    'type' => 'filter',
+                    'id' => 'area_above_50',
+                    'enabled' => true,
+                    'label' => 'pow. 50m²',
+                    'field' => 'usable_area',
+                    'filterType' => 'min',
+                    'conditions' => [
+                        'min' => 50
                     ]
                 ]
             ],
@@ -96,7 +121,30 @@ class ResourcesFiltersBlock {
             'contentFontFamily' => 'inherit',
             'applyBtnText' => 'Zastosuj filtry',
             'clearBtnText' => 'Wyczyść',
-            'widgetTitle' => 'Filtry'
+            'widgetTitle' => '',
+
+            // Advanced Spacing Defaults
+            'filtersGap' => '16px',
+            'filtersContainerGap' => '12px',
+            'actionsGap' => '12px',
+
+            // Margins and Paddings Defaults
+            'actionsPaddingTop' => '16px',
+            'titlePaddingBottom' => '8px',
+            'titleMarginBottom' => '16px',
+
+            // Advanced Button Options Defaults
+            'buttonFontWeight' => '500',
+            'buttonTransition' => 'all 0.2s ease',
+            'buttonHoverTransform' => 'translateY(-1px)',
+
+            // Focus States Defaults
+            'focusOutlineColor' => '#007cba',
+            'focusOutlineWidth' => '2px',
+            'focusOutlineOffset' => '2px',
+
+            // Typography - Filter Text Font Size
+            'filterTextFontSize' => '0.95em'
         ];
 
         // Merge with defaults and validate
@@ -121,7 +169,7 @@ class ResourcesFiltersBlock {
         $html = '<div class="resources-filters-widget" style="' . $inline_styles . '">';
 
         // Add title if provided
-        if (!empty($attributes['widgetTitle']) && $attributes['widgetTitle'] !== 'Filtry') {
+        if (!empty($attributes['widgetTitle'])) {
             $html .= '<h3>' . esc_html($attributes['widgetTitle']) . '</h3>';
         }
         $html .= '<form id="resources-filters-form" method="get">';
@@ -285,6 +333,29 @@ class ResourcesFiltersBlock {
         $styles[] = '--section-title-border-color: ' . esc_attr($attributes['sectionTitleBorderColor'] ?? '#f0f0f1');
         $styles[] = '--filter-group-border-color: ' . esc_attr($attributes['filterGroupBorderColor'] ?? '#f0f0f1');
         $styles[] = '--actions-border-color: ' . esc_attr($attributes['actionsBorderColor'] ?? '#f0f0f1');
+
+        // Advanced Spacing Variables
+        $styles[] = '--filters-gap: ' . esc_attr($attributes['filtersGap'] ?? '16px');
+        $styles[] = '--filters-container-gap: ' . esc_attr($attributes['filtersContainerGap'] ?? '12px');
+        $styles[] = '--actions-gap: ' . esc_attr($attributes['actionsGap'] ?? '12px');
+
+        // Margins and Paddings Variables
+        $styles[] = '--actions-padding-top: ' . esc_attr($attributes['actionsPaddingTop'] ?? '16px');
+        $styles[] = '--title-padding-bottom: ' . esc_attr($attributes['titlePaddingBottom'] ?? '8px');
+        $styles[] = '--title-margin-bottom: ' . esc_attr($attributes['titleMarginBottom'] ?? '16px');
+
+        // Advanced Button Options Variables
+        $styles[] = '--button-font-weight: ' . esc_attr($attributes['buttonFontWeight'] ?? '500');
+        $styles[] = '--button-transition: ' . esc_attr($attributes['buttonTransition'] ?? 'all 0.2s ease');
+        $styles[] = '--button-hover-transform: ' . esc_attr($attributes['buttonHoverTransform'] ?? 'translateY(-1px)');
+
+        // Focus States Variables
+        $styles[] = '--focus-outline-color: ' . esc_attr($attributes['focusOutlineColor'] ?? '#007cba');
+        $styles[] = '--focus-outline-width: ' . esc_attr($attributes['focusOutlineWidth'] ?? '2px');
+        $styles[] = '--focus-outline-offset: ' . esc_attr($attributes['focusOutlineOffset'] ?? '2px');
+
+        // Typography - Filter Text Font Size
+        $styles[] = '--filter-text-font-size: ' . esc_attr($attributes['filterTextFontSize'] ?? '0.95em');
 
         return implode('; ', $styles);
     }

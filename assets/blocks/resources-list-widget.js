@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // Price History Modal functionality
-    document.querySelectorAll('.ujc-historia-btn').forEach(function(button) {
+    document.querySelectorAll('.ujc-historia-btn, .historia-btn').forEach(function(button) {
         // Skip if already has event listener
         if (button.hasAttribute('data-ujc-history-initialized')) {
             return;
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Floor Plan Download functionality
-    document.querySelectorAll('.download-floorplan-btn').forEach(function(button) {
+    document.querySelectorAll('.download-floorplan-btn, .floor-plan-btn').forEach(function(button) {
         // Skip if already has event listener
         if (button.hasAttribute('data-ujc-download-initialized')) {
             return;

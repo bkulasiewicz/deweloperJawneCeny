@@ -10,24 +10,24 @@
 }
 
 .resources-filters-widget h3 {
-    margin: 0 0 16px 0;
+    margin: 0 0 var(--title-margin-bottom, 16px) 0;
     font-size: var(--widget-title-font-size, 1.2em);
     color: var(--header-text-color, #333);
     font-family: var(--header-font-family, inherit);
     border-bottom: 2px solid var(--widget-title-border-color, #f0f0f1);
-    padding-bottom: 8px;
+    padding-bottom: var(--title-padding-bottom, 8px);
 }
 
 /* Form Styles */
 #resources-filters-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--filters-gap, 16px);
 }
 
 .filters-container {
     display: grid;
-    gap: 12px;
+    gap: var(--filters-container-gap, 12px);
 }
 
 /* Filter Group Styles */
@@ -75,9 +75,9 @@
 /* Actions Styles */
 .filters-actions {
     display: flex;
-    gap: 12px;
+    gap: var(--actions-gap, 12px);
     justify-content: flex-start;
-    padding-top: 16px;
+    padding-top: var(--actions-padding-top, 16px);
     border-top: 1px solid var(--actions-border-color, #f0f0f1);
 }
 
@@ -87,9 +87,9 @@
     border: none;
     border-radius: var(--button-border-radius, 5px);
     font-size: var(--button-font-size, 0.95em);
-    font-weight: 500;
+    font-weight: var(--button-font-weight, 500);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: var(--button-transition, all 0.2s ease);
     text-decoration: none;
     display: inline-block;
 }
@@ -102,7 +102,7 @@
 .apply-filters-btn:hover {
     background-color: #005a87; /* fallback */
     background-color: color-mix(in srgb, var(--apply-btn-bg-color, #007cba) 80%, black 20%);
-    transform: translateY(-1px);
+    transform: var(--button-hover-transform, translateY(-1px));
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -211,20 +211,20 @@
 
 /* Focus and Accessibility */
 .filter-checkbox:focus {
-    outline: 2px solid var(--apply-btn-bg-color, #007cba);
-    outline-offset: 2px;
+    outline: var(--focus-outline-width, 2px) solid var(--focus-outline-color, #007cba);
+    outline-offset: var(--focus-outline-offset, 2px);
 }
 
 .filter-label:focus-within {
-    outline: 1px solid var(--apply-btn-bg-color, #007cba);
-    outline-offset: 2px;
+    outline: 1px solid var(--focus-outline-color, #007cba);
+    outline-offset: var(--focus-outline-offset, 2px);
     border-radius: 3px;
 }
 
 .apply-filters-btn:focus,
 .clear-filters-btn:focus {
-    outline: 2px solid var(--apply-btn-bg-color, #007cba);
-    outline-offset: 2px;
+    outline: var(--focus-outline-width, 2px) solid var(--focus-outline-color, #007cba);
+    outline-offset: var(--focus-outline-offset, 2px);
 }
 
 /* Active States */

@@ -4,7 +4,7 @@
  * Plugin URI: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
  * Description (EN): Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.4.36
+ * Version: 4.5.7
  * Requires at least: 5.0
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -27,7 +27,7 @@ if (!defined('ABSPATH')) {
 define('PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PLUGIN_URL', plugin_dir_url(__FILE__));
 define('DB_VERSION', '1.8');
-define('VERSION', '4.4.36');
+define('VERSION', '4.5.7');
 
 class DeweloperJawneCeny {
     private static $instance = null;
@@ -79,7 +79,6 @@ class DeweloperJawneCeny {
 
         // Helpers
         require_once PLUGIN_DIR . 'includes/helpers/PremiumHelper.php';
-        require_once PLUGIN_DIR . 'includes/helpers/ResourceTableRenderer.php';
 
         // DI Container - must be loaded before other classes
         require_once PLUGIN_DIR . 'includes/core/DIContainer.php';
@@ -121,7 +120,9 @@ class DeweloperJawneCeny {
         require_once PLUGIN_DIR . 'includes/services/CSVFormatter.php';
         require_once PLUGIN_DIR . 'includes/services/XMLFormatter.php';
         require_once PLUGIN_DIR . 'includes/services/FileManager.php';
-        
+        require_once PLUGIN_DIR . 'includes/helpers/ResourceTableRenderer.php';
+        require_once PLUGIN_DIR . 'includes/helpers/ResourceCardRenderer.php';
+
         // DTOs that depend on services
         require_once PLUGIN_DIR . 'includes/dto/PublicationHistoryDto.php';
         require_once PLUGIN_DIR . 'includes/models/PresentablePriceHistory.php';
@@ -192,11 +193,11 @@ class DeweloperJawneCeny {
         
         // Views - Admin Pages
         require_once PLUGIN_DIR . 'includes/views/admin/pages/DashboardPage.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/pages/SupplierDataPage.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/supplier-data/SupplierDataPage.php';
         require_once PLUGIN_DIR . 'includes/views/admin/pages/ResourcesPage.php';
         require_once PLUGIN_DIR . 'includes/views/admin/pages/PublicationPage.php';
         require_once PLUGIN_DIR . 'includes/views/admin/pages/DevConsoleTile.php';
-        require_once PLUGIN_DIR . 'includes/views/admin/pages/FrontendManagementPage.php';
+        require_once PLUGIN_DIR . 'includes/views/admin/frontend-management/FrontendManagementPage.php';
 
         // Controllers
         require_once PLUGIN_DIR . 'includes/controllers/AdminController.php';

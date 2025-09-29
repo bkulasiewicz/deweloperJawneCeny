@@ -129,6 +129,46 @@
                 default: 'inherit'
             },
 
+            // Display Mode Options
+            displayMode: {
+                type: 'string',
+                default: 'table' // 'table' | 'cards'
+            },
+
+            // Card-specific Options
+            cardsPerRow: {
+                type: 'number',
+                default: 3
+            },
+            cardGap: {
+                type: 'string',
+                default: '20px'
+            },
+            cardBgColor: {
+                type: 'string',
+                default: '#ffffff'
+            },
+            cardBorderColor: {
+                type: 'string',
+                default: '#e1e5e9'
+            },
+            cardBorderRadius: {
+                type: 'string',
+                default: '8px'
+            },
+            cardPadding: {
+                type: 'string',
+                default: '16px'
+            },
+            cardShadow: {
+                type: 'string',
+                default: '0 2px 4px rgba(0,0,0,0.1)'
+            },
+            cardHoverShadow: {
+                type: 'string',
+                default: '0 4px 12px rgba(0,0,0,0.15)'
+            },
+
             // Interactive options
             detailPageUrl: {
                 type: 'string',
@@ -510,10 +550,86 @@
                 // Inspector Controls (sidebar panel)
                 el(InspectorControls, {},
 
+                    // Display Mode Panel - FIRST
+                    el(PanelBody, {
+                        title: 'Sposób wyświetlania',
+                        initialOpen: true
+                    },
+                        el(SelectControl, {
+                            label: 'Widok',
+                            value: attributes.displayMode,
+                            options: [
+                                { label: 'Tabela', value: 'table' },
+                                { label: 'Kafelki', value: 'cards' }
+                            ],
+                            onChange: (value) => setAttributes({ displayMode: value })
+                        }),
+
+                        // Conditional Card Settings - only show when cards mode is selected
+                        attributes.displayMode === 'cards' && el(Fragment, {},
+                            el('hr', { style: { margin: '16px 0' } }),
+                            el('h4', { style: { margin: '0 0 12px', fontSize: '14px' } }, 'Ustawienia kafelków'),
+
+                            el(SelectControl, {
+                                label: 'Kafelków na rząd',
+                                value: attributes.cardsPerRow,
+                                options: [
+                                    { label: '2 kolumny', value: 2 },
+                                    { label: '3 kolumny', value: 3 },
+                                    { label: '4 kolumny', value: 4 }
+                                ],
+                                onChange: (value) => setAttributes({ cardsPerRow: parseInt(value) })
+                            }),
+
+                            el(TextControl, {
+                                label: 'Odstęp między kafelkami',
+                                value: attributes.cardGap,
+                                onChange: (value) => setAttributes({ cardGap: value }),
+                                placeholder: '20px'
+                            }),
+
+                            el('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '12px' } },
+                                CompactColorPicker('cardBgColor', 'Tło kafelka', attributes.cardBgColor, (color) => setAttributes({ cardBgColor: color })),
+                                CompactColorPicker('cardBorderColor', 'Kolor ramki', attributes.cardBorderColor, (color) => setAttributes({ cardBorderColor: color }))
+                            ),
+
+                            el('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginTop: '8px' } },
+                                el(TextControl, {
+                                    label: 'Zaokrąglenie rogów',
+                                    value: attributes.cardBorderRadius,
+                                    onChange: (value) => setAttributes({ cardBorderRadius: value }),
+                                    placeholder: '8px'
+                                }),
+                                el(TextControl, {
+                                    label: 'Padding kafelka',
+                                    value: attributes.cardPadding,
+                                    onChange: (value) => setAttributes({ cardPadding: value }),
+                                    placeholder: '16px'
+                                })
+                            ),
+
+                            el(TextControl, {
+                                label: 'Cień kafelka',
+                                value: attributes.cardShadow,
+                                onChange: (value) => setAttributes({ cardShadow: value }),
+                                placeholder: '0 2px 4px rgba(0,0,0,0.1)',
+                                help: 'CSS box-shadow dla kafelka'
+                            }),
+
+                            el(TextControl, {
+                                label: 'Cień po hover',
+                                value: attributes.cardHoverShadow,
+                                onChange: (value) => setAttributes({ cardHoverShadow: value }),
+                                placeholder: '0 4px 12px rgba(0,0,0,0.15)',
+                                help: 'CSS box-shadow po najechaniu myszką'
+                            })
+                        )
+                    ),
+
                     // Property Types Panel
                     el(PanelBody, {
                         title: 'Typy nieruchomości',
-                        initialOpen: true
+                        initialOpen: false
                     },
                         Object.entries(PROPERTY_TYPES).map(([value, label]) =>
                             el(CheckboxControl, {
@@ -1040,21 +1156,6 @@
                             placeholder: '0.875em'
                         }),
 
-                        el('hr'),
-                        el('h4', { style: { margin: '16px 0 8px' } }, 'Paddingi responsive'),
-                        el(TextControl, {
-                            label: 'Padding komórek mobile',
-                            value: attributes.mobilePadding,
-                            onChange: (value) => setAttributes({ mobilePadding: value }),
-                            placeholder: '8px 10px'
-                        }),
-                        el(TextControl, {
-                            label: 'Padding komórek małe mobile',
-                            value: attributes.smallMobilePadding,
-                            onChange: (value) => setAttributes({ smallMobilePadding: value }),
-                            placeholder: '6px 8px',
-                            help: 'Dla ekranów poniżej 480px'
-                        })
                     ),
 
 
@@ -1100,16 +1201,16 @@
                             placeholder: '0 4px 8px rgba(0,0,0,0.1)',
                             help: 'Box-shadow dla przycisków po najechaniu'
                         }),
-
                         el('hr'),
                         el('h4', { style: { margin: '16px 0 8px' } }, 'Ramki przycisków'),
                         el(TextControl, {
                             label: 'Grubość ramki',
                             value: attributes.buttonBorderWidth,
                             onChange: (value) => setAttributes({ buttonBorderWidth: value }),
-                            placeholder: '1px'
+                            placeholder: '0px'
                         }),
                         CompactColorPicker('buttonBorderColor', 'Kolor ramki', attributes.buttonBorderColor, (color) => setAttributes({ buttonBorderColor: color }))
+
                     ),
 
 
@@ -1132,7 +1233,7 @@
                             fontSize: '24px',
                             marginBottom: '8px'
                         }
-                    }, '📋'),
+                    }, attributes.displayMode === 'cards' ? '🎴' : '📋'),
                     el('h3', {
                         style: {
                             margin: '0 0 8px',
@@ -1146,7 +1247,10 @@
                             color: '#999',
                             fontSize: '14px'
                         }
-                    }, 'Spersonalizowana tabela z nieruchomościami'),
+                    }, attributes.displayMode === 'cards' ?
+                        'Spersonalizowane kafelki z nieruchomościami' :
+                        'Spersonalizowana tabela z nieruchomościami'
+                    ),
 
                     // Configuration summary
                     el('div', {
@@ -1161,18 +1265,30 @@
                         }
                     },
                         el('div', { style: { marginBottom: '4px' } },
+                            attributes.displayMode === 'cards' ? '🎴' : '📋',
+                            ' Widok: ',
+                            attributes.displayMode === 'cards' ? 'Kafelki' : 'Tabela'
+                        ),
+                        el('div', { style: { marginBottom: '4px' } },
                             '🏠 Typy: ', attributes.selectedTypes.length,
                             attributes.selectedTypes.length === 1 ? ' typ' : ' typy'
                         ),
                         el('div', { style: { marginBottom: '4px' } },
-                            '📊 Kolumny: ', attributes.visibleColumns.length,
-                            attributes.visibleColumns.length === 1 ? ' kolumna' : ' kolumn'
+                            '📊 Pola: ', attributes.visibleColumns.length,
+                            attributes.visibleColumns.length === 1 ? ' pole' : ' pól'
+                        ),
+                        attributes.displayMode === 'cards' && el('div', { style: { marginBottom: '4px' } },
+                            '📐 Layout: ', attributes.cardsPerRow, ' kafelki na rząd'
                         ),
                         el('div', {},
                             '🎨 Kolory: ',
-                            attributes.headerBgColor !== '#f9f9f9' ||
-                            attributes.headerTextColor !== '#333333' ||
-                            attributes.textColor !== '#333333' ? 'Spersonalizowane' : 'Domyślne'
+                            (attributes.displayMode === 'table' ?
+                                (attributes.headerBgColor !== '#f9f9f9' ||
+                                 attributes.headerTextColor !== '#333333' ||
+                                 attributes.textColor !== '#333333') :
+                                (attributes.cardBgColor !== '#ffffff' ||
+                                 attributes.cardBorderColor !== '#e1e5e9' ||
+                                 attributes.textColor !== '#333333')) ? 'Spersonalizowane' : 'Domyślne'
                         )
                     )
                 )

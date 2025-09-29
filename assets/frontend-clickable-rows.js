@@ -1,17 +1,17 @@
 /**
- * Frontend JavaScript for clickable rows in resources_list shortcode
- * Handles row clicks with fallback for popup blockers
+ * Frontend JavaScript for clickable rows and cards in resources list
+ * Handles row/card clicks with fallback for popup blockers
  */
 (function() {
     'use strict';
 
-    function initClickableRows() {
-        // Find all clickable rows with improved selector
-        const clickableRows = document.querySelectorAll('.clickable-row[data-detail-url]');
+    function initClickableElements() {
+        // Find all clickable rows and cards with improved selector
+        const clickableElements = document.querySelectorAll('.clickable-row[data-detail-url], .clickable-card[data-detail-url]');
 
-        clickableRows.forEach(function(row) {
-            row.addEventListener('click', function(e) {
-                // Don't trigger row click if clicking on buttons or links
+        clickableElements.forEach(function(element) {
+            element.addEventListener('click', function(e) {
+                // Don't trigger click if clicking on buttons or links
                 if (e.target.tagName === 'BUTTON' ||
                     e.target.closest('button') ||
                     e.target.tagName === 'A' ||
@@ -43,24 +43,24 @@
                 // }
             });
 
-            // Add visual feedback for clickable rows
-            row.style.cursor = 'pointer';
+            // Add visual feedback for clickable elements
+            element.style.cursor = 'pointer';
         });
     }
 
     // Initialize when DOM is ready
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initClickableRows);
+        document.addEventListener('DOMContentLoaded', initClickableElements);
     } else {
         // DOM already loaded
-        initClickableRows();
+        initClickableElements();
     }
 
     // Also try to initialize on window load as backup
     window.addEventListener('load', function() {
         // Only run if not already initialized
-        if (document.querySelectorAll('.clickable-row[data-detail-url]').length > 0) {
-            initClickableRows();
+        if (document.querySelectorAll('.clickable-row[data-detail-url], .clickable-card[data-detail-url]').length > 0) {
+            initClickableElements();
         }
     });
 

@@ -41,27 +41,27 @@ mkdir -p "${BUILD_DIR}"
 
 echo "📦 Building Premium version..."
 # Build Premium version (full codebase)
-PREMIUM_DIR="${BUILD_DIR}/Deweloper Jawne Ceny"
+PREMIUM_DIR="${BUILD_DIR}/deweloper-jawne-ceny"
 mkdir -p "${PREMIUM_DIR}"
 
 # Copy all files except build directory
-rsync -av --exclude='build' --exclude='.git' "${SCRIPT_DIR}/" "${PREMIUM_DIR}/"
+rsync -av --exclude='build' --exclude='.git' --exclude='.claude' --exclude='.DS_Store' --exclude='**/.gitignore' "${SCRIPT_DIR}/" "${PREMIUM_DIR}/"
 
 # Cleanup premium temp
 rm -f "${PREMIUM_DIR}/deploy.sh" "${PREMIUM_DIR}/test.sh"
 
 # Create premium ZIP with proper folder structure
 cd "${BUILD_DIR}"
-zip -r "DeweloperJawneCeny-premium-${VERSION}.zip" "Deweloper Jawne Ceny" -x "*.DS_Store"
-rm -rf "Deweloper Jawne Ceny"
+zip -r "DeweloperJawneCeny-premium-${VERSION}.zip" "deweloper-jawne-ceny" -x "*.DS_Store"
+rm -rf "deweloper-jawne-ceny"
 
 echo "📦 Building Freemium version..."
 # Build Freemium version (no premium folder)
-FREEMIUM_DIR="${BUILD_DIR}/Deweloper Jawne Ceny"
+FREEMIUM_DIR="${BUILD_DIR}/deweloper-jawne-ceny"
 mkdir -p "${FREEMIUM_DIR}"
 
 # Copy all files except build directory and premium folder
-rsync -av --exclude='build' --exclude='.git' --exclude='includes/premium' "${SCRIPT_DIR}/" "${FREEMIUM_DIR}/"
+rsync -av --exclude='build' --exclude='.git' --exclude='includes/premium' --exclude='.claude' --exclude='.DS_Store' --exclude='**/.gitignore' "${SCRIPT_DIR}/" "${FREEMIUM_DIR}/"
 
 # Update plugin header for freemium
 sed -i.bak 's/Plugin Name: DeweloperJawneCeny/Plugin Name: Deweloper Jawne Ceny - Free/' "${FREEMIUM_DIR}/ustawa-jawnosci-cen.php"
@@ -72,8 +72,8 @@ rm -f "${FREEMIUM_DIR}/deploy.sh" "${FREEMIUM_DIR}/test.sh" "${FREEMIUM_DIR}/"*.
 
 # Create freemium ZIP with proper folder structure
 cd "${BUILD_DIR}"
-zip -r "DeweloperJawneCeny-Free-${VERSION}.zip" "Deweloper Jawne Ceny" -x "*.DS_Store"
-rm -rf "Deweloper Jawne Ceny"
+zip -r "DeweloperJawneCeny-Free-${VERSION}.zip" "deweloper-jawne-ceny" -x "*.DS_Store"
+rm -rf "deweloper-jawne-ceny"
 
 echo "✅ Build completed successfully!"
 echo "📁 Premium version: ${BUILD_DIR}/DeweloperJawneCeny-premium-${VERSION}.zip"

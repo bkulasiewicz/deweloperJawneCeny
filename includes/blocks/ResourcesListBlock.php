@@ -59,16 +59,38 @@ class ResourcesListBlock {
         // Prepare styling options
         $styling_options = self::buildStylingOptions($parsed_attributes);
 
-        // Use ResourceTableRenderer for consistent output
-        return ResourceTableRenderer::renderTable(
-            $resources,
-            $ordered_columns,
-            $column_names,
-            $styling_options,
-            $parsed_attributes['detailPageUrl'],
-            'resources-list-block',  // Different container class for block
-            $parsed_attributes['enableFrontendSorting']
-        );
+        // Choose renderer based on display mode
+        if ($parsed_attributes['displayMode'] === 'cards') {
+            // Use ResourceCardRenderer for card layout
+            return ResourceCardRenderer::renderCardGrid(
+                $resources,
+                $ordered_columns,
+                $column_names,
+                $styling_options,
+                [
+                    'cardsPerRow' => $parsed_attributes['cardsPerRow'],
+                    'detailPageUrl' => $parsed_attributes['detailPageUrl'],
+                    'cardBgColor' => $parsed_attributes['cardBgColor'],
+                    'cardBorderColor' => $parsed_attributes['cardBorderColor'],
+                    'cardPadding' => $parsed_attributes['cardPadding'],
+                    'cardBorderRadius' => $parsed_attributes['cardBorderRadius'],
+                    'cardShadow' => $parsed_attributes['cardShadow'],
+                    'cardHoverShadow' => $parsed_attributes['cardHoverShadow'],
+                    'cardGap' => $parsed_attributes['cardGap']
+                ]
+            );
+        } else {
+            // Use ResourceTableRenderer for table layout (default)
+            return ResourceTableRenderer::renderTable(
+                $resources,
+                $ordered_columns,
+                $column_names,
+                $styling_options,
+                $parsed_attributes['detailPageUrl'],
+                'resources-list-block',  // Different container class for block
+                $parsed_attributes['enableFrontendSorting']
+            );
+        }
     }
 
     /**
@@ -119,6 +141,19 @@ class ResourcesListBlock {
             'enableFrontendFilters' => false,
             'enableFrontendSorting' => false,
             'readFiltersFromUrl' => false,
+
+            // Display Mode Options
+            'displayMode' => 'table', // 'table' | 'cards'
+
+            // Card-specific Options
+            'cardsPerRow' => 3,
+            'cardGap' => '20px',
+            'cardBgColor' => '#ffffff',
+            'cardBorderColor' => '#e1e5e9',
+            'cardBorderRadius' => '8px',
+            'cardPadding' => '16px',
+            'cardShadow' => '0 2px 4px rgba(0,0,0,0.1)',
+            'cardHoverShadow' => '0 4px 12px rgba(0,0,0,0.15)',
 
             // Layout & Spacing Options (Priority 1)
             'containerMargin' => '20px 0',

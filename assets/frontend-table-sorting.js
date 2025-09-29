@@ -28,8 +28,12 @@ function initTableSorting(table) {
         // Add sort indicator container
         const sortIndicator = document.createElement('span');
         sortIndicator.className = 'sort-indicator';
-        sortIndicator.innerHTML = '↕';
+        sortIndicator.innerHTML = '▲▼';
+        sortIndicator.style.cssText = 'position: absolute; bottom: 4px; right: 6px; font-size: 11px; font-weight: bold; line-height: 1; color: #666;';
         header.appendChild(sortIndicator);
+
+        // Make header relative positioned for absolute indicator
+        header.style.position = 'relative';
 
         header.addEventListener('click', function() {
             const sortKey = header.getAttribute('data-sort-key');
@@ -72,10 +76,19 @@ function updateSortIndicators(table, activeSortKey, direction) {
         const sortKey = header.getAttribute('data-sort-key');
 
         const isActive = (sortKey === activeSortKey && direction !== 'none');
-        const arrows = { asc: '↑', desc: '↓', none: '↕' };
+        const arrows = { asc: '▲', desc: '▼', none: '▲▼' };
 
         indicator.innerHTML = arrows[isActive ? direction : 'none'];
         indicator.classList.toggle('active', isActive);
+
+        // Update styling based on state
+        if (isActive) {
+            indicator.style.color = '#333';
+            indicator.style.fontSize = '12px';
+        } else {
+            indicator.style.color = '#666';
+            indicator.style.fontSize = '11px';
+        }
     });
 }
 

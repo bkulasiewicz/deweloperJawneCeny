@@ -20,131 +20,33 @@ class SupplierDataPage extends UJC_Admin_Page {
         $this->getDeveloperInfoUseCase = $getDeveloperInfoUseCase;
 
         add_action('wp_ajax_ujc_save_developer', [$this, 'ajax_save_developer']);
-        add_action('admin_head', [$this, 'add_custom_styles']);
+      //  add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
 
         parent::__construct();
     }
-    
-    
-    public function add_custom_styles() {
-        ?>
-        <style>
-        .ujc-form-section {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .ujc-form-section h3 {
-            margin: 0 0 15px 0;
-            padding: 0 0 10px 0;
-            border-bottom: 2px solid #0073aa;
-            color: #0073aa;
-            font-size: 16px;
-        }
-        
-        .ujc-form-grid {
-            display: grid;
-            gap: 20px;
-            grid-template-columns: 1fr 1fr;
-        }
-        
-        .ujc-form-grid-3 {
-            display: grid;
-            gap: 15px;
-            grid-template-columns: 1fr 1fr 1fr;
-        }
-        
-        .ujc-form-field {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .ujc-form-field label {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: #333;
-        }
-        
-        .ujc-form-field input,
-        .ujc-form-field select,
-        .ujc-form-field textarea {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .ujc-form-field input:focus,
-        .ujc-form-field select:focus,
-        .ujc-form-field textarea:focus {
-            border-color: #0073aa;
-            box-shadow: 0 0 0 2px rgba(0,115,170,0.1);
-            outline: none;
-        }
-        
-        .required {
-            color: #d63638;
-        }
-        
-        .ujc-copy-address {
-            background: #f0f6fc;
-            padding: 15px;
-            border-radius: 6px;
-            border-left: 4px solid #0073aa;
-            margin-bottom: 15px;
-        }
-        
-        .ujc-readonly-section {
-            background: #f9f9f9;
-            border: 1px solid #e1e1e1;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .ujc-readonly-section h3 {
-            margin: 0 0 15px 0;
-            color: #0073aa;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 8px;
-        }
-        
-        .ujc-readonly-grid {
-            display: grid;
-            gap: 10px 30px;
-            grid-template-columns: 1fr 1fr 1fr;
-        }
-        
-        .ujc-readonly-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .ujc-readonly-item strong {
-            color: #666;
-            font-size: 12px;
-            text-transform: uppercase;
-            margin-bottom: 3px;
-        }
-        
-        .ujc-readonly-item span {
-            color: #333;
-            font-weight: 500;
-        }
-        
-        @media (max-width: 768px) {
-            .ujc-form-grid,
-            .ujc-form-grid-3,
-            .ujc-readonly-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        </style>
-        <?php
+
+    public function enqueue_assets() {
+        $viewPath = PLUGIN_URL . 'includes/views/admin/supplier-data/';
+
+        wp_enqueue_style(
+            'supplier-data-page',
+            $viewPath . 'SupplierDataPage.css',
+            [],
+            VERSION
+        );
+
+        wp_enqueue_script(
+            'supplier-data-page',
+            $viewPath . 'SupplierDataPage.js',
+            ['jquery'],
+            VERSION,
+            true
+        );
+
+        wp_localize_script('supplier-data-page', 'supplierDataPageData', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('ujc_supplier_nonce')
+        ]);
     }
     
     public function ajax_save_developer() {
@@ -514,54 +416,6 @@ class SupplierDataPage extends UJC_Admin_Page {
                 </form>
                 
                 </div>
-            
-            <script>
-            jQuery(document).ready(function($) {
-                $('#edit-developer-btn').on('click', function() {
-                    $('#developer-readonly').hide();
-                    $('#developer-form-container').show();
-                });
-                
-                $('#cancel-edit-btn').on('click', function() {
-                    $('#developer-form-container').hide();
-                    $('#developer-readonly').show();
-                });
-                
-                $('#copy-address-btn').on('click', function() {
-                    $('#sprzed_wojewodztwo').val($('#siedz_wojewodztwo').val());
-                    $('#sprzed_powiat').val($('#siedz_powiat').val());
-                    $('#sprzed_gmina').val($('#siedz_gmina').val());
-                    $('#sprzed_miejscowosc').val($('#siedz_miejscowosc').val());
-                    $('#sprzed_ulica').val($('#siedz_ulica').val());
-                    $('#sprzed_nr').val($('#siedz_nr').val());
-                    $('#sprzed_lokal').val($('#siedz_lokal').val());
-                    $('#sprzed_kod').val($('#siedz_kod').val());
-                });
-                
-                $('#developer-form').on('submit', function(e) {
-                    e.preventDefault();
-                    
-                    var $button = $(this).find('input[type="submit"]');
-                    var originalValue = $button.val();
-                    $button.val('⏳ Zapisywanie...').prop('disabled', true);
-                    
-                    const formData = $('#developer-form').serialize() + '&action=ujc_save_developer&nonce=' + $('input[name="nonce"]').val();
-                    
-                    $.post(ajaxurl, formData, function(response) {
-                        if (response.success) {
-                            alert('✅ ' + response.data);
-                            location.reload();
-                        } else {
-                            alert('❌ ' + response.data);
-                        }
-                        $button.val(originalValue).prop('disabled', false);
-                    }).fail(function(xhr, status, error) {
-                        alert('❌ Błąd połączenia: ' + error);
-                        $button.val(originalValue).prop('disabled', false);
-                    });
-                });
-            });
-            </script>
         </div>
         <?php
     }

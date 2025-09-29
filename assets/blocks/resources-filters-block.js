@@ -38,48 +38,69 @@
                 type: 'array',
                 default: [
                     {
-                        type: 'filter',
-                        id: 'price_300_500',
-                        enabled: false,
-                        label: 'Cena 300.000 - 500.000 PLN',
-                        field: 'total_price',
-                        filterType: 'range',
-                        conditions: {
-                            min: 300000,
-                            max: 500000
-                        }
+                        type: 'section',
+                        id: 'section_floor',
+                        title: 'Wybierz piętro:'
                     },
                     {
                         type: 'filter',
-                        id: 'area_above_60',
-                        enabled: false,
-                        label: 'Powierzchnia powyżej 60m²',
-                        field: 'usable_area',
-                        filterType: 'min',
-                        conditions: {
-                            min: 60
-                        }
-                    },
-                    {
-                        type: 'filter',
-                        id: 'rooms_2_3',
-                        enabled: false,
-                        label: '2-3 pokoje',
-                        field: 'room_count',
-                        filterType: 'list',
-                        conditions: {
-                            values: ['2', '3']
-                        }
-                    },
-                    {
-                        type: 'filter',
-                        id: 'ground_floor',
-                        enabled: false,
+                        id: 'floor_ground',
+                        enabled: true,
                         label: 'Parter',
                         field: 'floor_number',
                         filterType: 'exact',
                         conditions: {
                             value: '0'
+                        }
+                    },
+                    {
+                        type: 'filter',
+                        id: 'floor_1',
+                        enabled: true,
+                        label: 'Piętro 1',
+                        field: 'floor_number',
+                        filterType: 'exact',
+                        conditions: {
+                            value: '1'
+                        }
+                    },
+                    {
+                        type: 'filter',
+                        id: 'floor_2',
+                        enabled: true,
+                        label: 'Piętro 2',
+                        field: 'floor_number',
+                        filterType: 'exact',
+                        conditions: {
+                            value: '2'
+                        }
+                    },
+                    {
+                        type: 'section',
+                        id: 'section_area',
+                        title: 'Metraż:'
+                    },
+                    {
+                        type: 'filter',
+                        id: 'area_40_50',
+                        enabled: true,
+                        label: '40-50m²',
+                        field: 'usable_area',
+                        filterType: 'range',
+                        conditions: {
+                            min: 40,
+                            max: 50
+                        }
+                    },
+                    {
+                        type: 'filter',
+                        id: 'area_above_50',
+                        enabled: true,
+                        label: 'pow. 50m²',
+                        field: 'usable_area',
+                        filterType: 'min',
+                        conditions: {
+                            min: 50
                         }
                     }
                 ]
@@ -146,7 +167,7 @@
             },
             widgetTitle: {
                 type: 'string',
-                default: 'Filtry'
+                default: ''
             },
 
             // Layout & Spacing Options (Priority 1) - only working ones
@@ -201,6 +222,68 @@
             actionsBorderColor: {
                 type: 'string',
                 default: '#f0f0f1'
+            },
+
+            // Advanced Spacing Attributes
+            filtersGap: {
+                type: 'string',
+                default: '16px'
+            },
+            filtersContainerGap: {
+                type: 'string',
+                default: '12px'
+            },
+            actionsGap: {
+                type: 'string',
+                default: '12px'
+            },
+
+            // Margins and Paddings Attributes
+            actionsPaddingTop: {
+                type: 'string',
+                default: '16px'
+            },
+            titlePaddingBottom: {
+                type: 'string',
+                default: '8px'
+            },
+            titleMarginBottom: {
+                type: 'string',
+                default: '16px'
+            },
+
+            // Advanced Button Options Attributes
+            buttonFontWeight: {
+                type: 'string',
+                default: '500'
+            },
+            buttonTransition: {
+                type: 'string',
+                default: 'all 0.2s ease'
+            },
+            buttonHoverTransform: {
+                type: 'string',
+                default: 'translateY(-1px)'
+            },
+
+            // Focus States Attributes
+            focusOutlineColor: {
+                type: 'string',
+                default: '#007cba'
+            },
+            focusOutlineWidth: {
+                type: 'string',
+                default: '2px'
+            },
+            focusOutlineOffset: {
+                type: 'string',
+                default: '2px'
+            },
+
+            // Typography - Filter Text Font Size
+            filterTextFontSize: {
+                type: 'string',
+                default: '0.95em'
             }
         },
 
@@ -276,11 +359,36 @@
             return el(Fragment, {},
                 el(InspectorControls, {},
                     el(PanelBody, {
-                        title: 'Instrukcje',
+                        title: 'Instrukcje konfiguracji',
                         initialOpen: true
                     },
                         el('p', {}, 'Skonfiguruj filtry, które będą dostępne dla użytkowników. Admin definiuje warunki filtrowania, a użytkownicy mogą tylko zaznaczać checkboxy.'),
-                        el('p', { style: { fontSize: '12px', color: '#666' } }, 'Pamiętaj: Aby filtry działały, dodaj do strony również blok "Lista Zasobów" z włączoną opcją czytania filtrów z URL.')
+
+                        el('div', { style: { backgroundColor: '#fff3cd', padding: '12px', borderRadius: '4px', marginBottom: '12px', border: '1px solid #ffeaa7' } },
+                            el('h4', { style: { margin: '0 0 8px', color: '#856404' } }, '⚠️ Ważne: Konfiguracja połączenia z listą zasobów'),
+                            el('p', { style: { margin: '0 0 8px', fontSize: '13px', color: '#856404' } }, 'Aby filtry działały, musisz dodać do tej samej strony blok "Lista Zasobów" i włączyć w nim opcję:'),
+                            el('p', { style: { margin: '0 0 8px', fontSize: '14px', fontWeight: 'bold', color: '#856404', backgroundColor: '#fff', padding: '4px 8px', borderRadius: '3px' } }, '"Czytaj filtry z URL" - w ustawieniach bloku Lista Zasobów'),
+                            el('p', { style: { margin: '0', fontSize: '12px', color: '#856404' } }, 'Bez tej opcji filtry nie będą wpływać na wyświetlaną listę mieszkań/zasobów.')
+                        ),
+
+                        el('div', { style: { backgroundColor: '#d1ecf1', padding: '12px', borderRadius: '4px', marginBottom: '12px', border: '1px solid #bee5eb' } },
+                            el('h4', { style: { margin: '0 0 8px', color: '#0c5460' } }, '📋 Instrukcja krok po kroku:'),
+                            el('ol', { style: { margin: '0', paddingLeft: '20px', fontSize: '13px', color: '#0c5460' } },
+                                el('li', {}, 'Skonfiguruj filtry w tym bloku (domyślnie: piętro i metraż)'),
+                                el('li', {}, 'Dodaj blok "Lista Zasobów" do tej samej strony'),
+                                el('li', {}, 'W bloku "Lista Zasobów" włącz opcję "Czytaj filtry z URL"'),
+                                el('li', {}, 'Zapisz stronę - filtry będą działać!')
+                            )
+                        ),
+
+                        el('div', { style: { backgroundColor: '#f8d7da', padding: '12px', borderRadius: '4px', border: '1px solid #f5c6cb' } },
+                            el('h4', { style: { margin: '0 0 8px', color: '#721c24' } }, '🔧 Rozwiązywanie problemów:'),
+                            el('ul', { style: { margin: '0', paddingLeft: '20px', fontSize: '12px', color: '#721c24' } },
+                                el('li', {}, 'Filtry nie działają? Sprawdź czy "Czytaj filtry z URL" jest włączone'),
+                                el('li', {}, 'Lista nie filtruje? Upewnij się, że oba bloki są na tej samej stronie'),
+                                el('li', {}, 'Brak danych? Sprawdź czy masz dodane zasoby w panelu administracyjnym')
+                            )
+                        )
                     ),
 
                     // Filter groups and sections panels
@@ -565,6 +673,12 @@
                             label: 'Rozmiar czcionki przycisków',
                             value: attributes.buttonFontSize,
                             onChange: (value) => setAttributes({ buttonFontSize: value }),
+                            placeholder: '0.95em'
+                        }),
+                        el(TextControl, {
+                            label: 'Rozmiar czcionki filtrów',
+                            value: attributes.filterTextFontSize,
+                            onChange: (value) => setAttributes({ filterTextFontSize: value }),
                             placeholder: '0.95em'
                         })
                     ),

@@ -1,11 +1,11 @@
 === Deweloper Jawne Ceny ===
 Contributors: deweloperjawneceny
-Donate link: https://www.deweloperjawneceny.pl/
+Donate link: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
 Tags: jawnosc, ceny, mieszkania, deweloper, nieruchomosci, ustawa, dane-gov-pl, oferty, katalog, automatyzacja, budownictwo
 Requires at least: 5.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.3.24
+Stable tag: 4.5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,7 +57,7 @@ Wtyczka zapewnia pełną zgodność z polskimi przepisami dotyczącymi jawności
 
 = Wsparcie =
 
-Jeśli potrzebujesz pomocy z konfiguracją lub masz pytania, skorzystaj z formularza kontaktowego dostępnego na naszej stronie [www.deweloperjawneceny.pl](https://www.deweloperjawneceny.pl/).
+Jeśli potrzebujesz pomocy z konfiguracją lub masz pytania, skorzystaj z formularza kontaktowego dostępnego na naszej stronie [www.deweloperjawneceny.pl](https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion).
 
 == Description (English) ==
 
@@ -103,7 +103,7 @@ The plugin ensures full compliance with Polish regulations regarding real estate
 
 = Support =
 
-If you need help with configuration or have questions, use the contact form available on our website [www.deweloperjawneceny.pl](https://www.deweloperjawneceny.pl/).
+If you need help with configuration or have questions, use the contact form available on our website [www.deweloperjawneceny.pl](https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion).
 
 == Installation ==
 
@@ -167,7 +167,7 @@ Tak, po wygenerowaniu plików są one automatycznie dostępne pod publicznymi ad
 
 Wersja darmowa wymaga ręcznego generowania plików poprzez kliknięcie przycisku "Generuj manualnie" w panelu administracyjnym. 
 
-Funkcje automatycznego publikowania danych (zaplanowane generowanie plików, automatyczne aktualizacje) są dostępne w wersji premium - więcej informacji na www.deweloperjawneceny.pl.
+Funkcje automatycznego publikowania danych (zaplanowane generowanie plików, automatyczne aktualizacje) są dostępne w wersji premium - więcej informacji na https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion.
 
 = Gdzie znajdę wygenerowane pliki? =
 
