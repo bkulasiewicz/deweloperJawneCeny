@@ -20,20 +20,20 @@ class ShortcodeGeneratorPage {
     }
 
     public function enqueue_assets() {
-        $viewPath = PLUGIN_URL . 'includes/views/admin/shortcode-generator/';
+        $viewPath = JAWNECENY_PLUGIN_URL . 'includes/views/admin/shortcode-generator/';
 
         wp_enqueue_style(
             'shortcode-generator-page',
             $viewPath . 'ShortcodeGeneratorPage.css',
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
 
         wp_enqueue_script(
             'shortcode-generator-page',
             $viewPath . 'ShortcodeGeneratorPage.js',
             ['jquery'],
-            VERSION,
+            JAWNECENY_VERSION,
             true
         );
 

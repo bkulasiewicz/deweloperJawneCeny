@@ -29,13 +29,13 @@ class PublicationPage {
     }
 
     public function enqueue_assets() {
-        $viewPath = PLUGIN_URL . 'includes/views/admin/pages/publication-page/';
+        $viewPath = JAWNECENY_PLUGIN_URL . 'includes/views/admin/pages/publication-page/';
 
         wp_enqueue_script(
             'publication-page',
             $viewPath . 'PublicationPage.js',
             ['jquery'],
-            VERSION,
+            JAWNECENY_VERSION,
             true
         );
 
@@ -43,7 +43,7 @@ class PublicationPage {
             'publication-page',
             $viewPath . 'PublicationPage.css',
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
     }
 

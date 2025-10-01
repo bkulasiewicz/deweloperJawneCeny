@@ -32,20 +32,20 @@ class InvestmentModal extends JawneCeny_AdminPage {
     }
 
     public function enqueue_assets() {
-        $viewPath = PLUGIN_URL . 'includes/views/admin/components/investment-modal/';
+        $viewPath = JAWNECENY_PLUGIN_URL . 'includes/views/admin/components/investment-modal/';
 
         wp_enqueue_style(
             'investment-modal',
             $viewPath . 'InvestmentModal.css',
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
 
         wp_enqueue_script(
             'investment-modal',
             $viewPath . 'InvestmentModal.js',
             ['jquery'],
-            VERSION,
+            JAWNECENY_VERSION,
             true
         );
 

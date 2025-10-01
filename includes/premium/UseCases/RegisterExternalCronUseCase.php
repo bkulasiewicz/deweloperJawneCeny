@@ -47,7 +47,7 @@ class RegisterExternalCronUseCase {
             $domain = wp_parse_url($site_url, PHP_URL_HOST);
             
             // Get plugin version and license ID
-            $plugin_version = defined('VERSION') ? VERSION : '2.0.10';
+            $plugin_version = defined('JAWNECENY_VERSION') ? JAWNECENY_VERSION : '2.0.10';
             $license_id = 'DJC8N5Q1WZ';
             
             // Create title with metadata: domain | version | license

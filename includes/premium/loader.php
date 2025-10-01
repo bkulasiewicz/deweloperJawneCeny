@@ -29,7 +29,7 @@ DIContainer::get(ExternalCronController::class);
 DIContainer::get(WpCronFallbackController::class);
 
 // Register deactivation hook for premium cleanup
-register_deactivation_hook(PLUGIN_DIR . 'ustawa-jawnosci-cen.php', function() {
+register_deactivation_hook(JAWNECENY_PLUGIN_DIR . 'ustawa-jawnosci-cen.php', function() {
     try {
         // Clean up External Cron
         $unregisterUseCase = DIContainer::get(UnregisterExternalCronUseCase::class);

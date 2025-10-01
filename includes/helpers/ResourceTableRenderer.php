@@ -99,9 +99,9 @@ class ResourceTableRenderer {
         // Ensure CSS is loaded
         wp_enqueue_style(
             'ujc-resources-list-css',
-            PLUGIN_URL . 'assets/blocks/resources-list-block.css',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-block.css',
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
 
         // Generate dynamic CSS

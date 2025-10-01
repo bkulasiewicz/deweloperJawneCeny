@@ -42,13 +42,13 @@ class ResourcesPage extends JawneCeny_AdminPage {
     }
 
     public function enqueue_assets() {
-        $viewPath = PLUGIN_URL . 'includes/views/admin/pages/resources-page/';
+        $viewPath = JAWNECENY_PLUGIN_URL . 'includes/views/admin/pages/resources-page/';
 
         wp_enqueue_script(
             'resources-page',
             $viewPath . 'ResourcesPage.js',
             ['jquery'],
-            VERSION,
+            JAWNECENY_VERSION,
             true
         );
     }

@@ -116,8 +116,8 @@ class AdminController {
      * Enqueue admin CSS and JavaScript assets
      */
     public function enqueueAdminAssets($hook) {
-        wp_enqueue_script('ujc-admin-js', PLUGIN_URL . 'assets/admin.js', ['jquery'], VERSION, true);
-        wp_enqueue_style('ujc-admin-css', PLUGIN_URL . 'assets/admin.css', [], VERSION);
+        wp_enqueue_script('ujc-admin-js', JAWNECENY_PLUGIN_URL . 'assets/admin.js', ['jquery'], JAWNECENY_VERSION, true);
+        wp_enqueue_style('ujc-admin-css', JAWNECENY_PLUGIN_URL . 'assets/admin.css', [], JAWNECENY_VERSION);
 
         wp_localize_script('ujc-admin-js', 'ujc_ajax', [
             'ajax_url' => admin_url('admin-ajax.php'),

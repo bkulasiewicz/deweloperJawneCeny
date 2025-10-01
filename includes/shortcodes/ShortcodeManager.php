@@ -40,9 +40,9 @@ class ShortcodeManager {
     public function enqueue_shortcode_assets() {
         wp_enqueue_style(
             'ujc-shortcode-resources-list-css',
-            PLUGIN_URL . 'assets/blocks/resources-list-block.css',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-block.css',
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
 
         // Set priority to ensure CSS loads early
@@ -50,9 +50,9 @@ class ShortcodeManager {
 
         wp_enqueue_script(
             'ujc-shortcode-resources-list-js',
-            PLUGIN_URL . 'assets/blocks/resources-list-widget.js',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-widget.js',
             ['jquery'],
-            VERSION,
+            JAWNECENY_VERSION,
             true
         );
 

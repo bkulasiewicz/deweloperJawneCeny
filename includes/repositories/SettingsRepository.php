@@ -8,7 +8,7 @@ class SettingsRepository {
 
     const LAST_GENERATION_STATUS = 'jawneceny_last_generation_status';
     const LAST_GENERATION_TIME = 'jawneceny_last_generation_time';
-    const DB_VERSION = 'jawneceny_db_version';
+    const JAWNECENY_DB_VERSION = 'jawneceny_db_version';
     
     /**
      * Zapisuje status ostatniej generacji
@@ -30,13 +30,13 @@ class SettingsRepository {
      * Ustawia wersję bazy danych
      */
     public function setDbVersion($version) {
-        return update_option(self::DB_VERSION, $version);
+        return update_option(self::JAWNECENY_DB_VERSION, $version);
     }
     
     /**
      * Pobiera wersję bazy danych
      */
     public function getDbVersion() {
-        return get_option(self::DB_VERSION, null);
+        return get_option(self::JAWNECENY_DB_VERSION, null);
     }
 }

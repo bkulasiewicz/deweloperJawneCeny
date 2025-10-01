@@ -23,7 +23,7 @@ class JawneCeny_SchemaManager {
         // Jeden raz pobierz wersję dla wszystkich repositories
         $currentDbVersion = (new SettingsRepository())->getDbVersion();
         Logger::info('UJC_Schema_Manager: Current DB version from SettingsRepository: ' . ($currentDbVersion ?: 'NULL'));
-        Logger::info('UJC_Schema_Manager: Expected DB_VERSION constant: ' . DB_VERSION);
+        Logger::info('UJC_Schema_Manager: Expected JAWNECENY_DB_VERSION constant: ' . JAWNECENY_DB_VERSION);
         
         // Lista repositories do przetworzenia
         $repositories = [

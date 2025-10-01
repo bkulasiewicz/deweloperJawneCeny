@@ -14,13 +14,13 @@ class ResourceItem {
     }
 
     public function enqueue_assets() {
-        $viewPath = PLUGIN_URL . 'includes/views/admin/components/resource-item/';
+        $viewPath = JAWNECENY_PLUGIN_URL . 'includes/views/admin/components/resource-item/';
 
         wp_enqueue_style(
             'resource-item',
             $viewPath . 'ResourceItem.css',
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
     }
     

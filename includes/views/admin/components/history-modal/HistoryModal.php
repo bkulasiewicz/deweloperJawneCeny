@@ -21,20 +21,20 @@ class HistoryModal {
      * Enqueue JavaScript and CSS assets
      */
     public function enqueue_assets() {
-        $viewPath = PLUGIN_URL . 'includes/views/admin/components/history-modal/';
+        $viewPath = JAWNECENY_PLUGIN_URL . 'includes/views/admin/components/history-modal/';
 
         wp_enqueue_style(
             'history-modal',
             $viewPath . 'HistoryModal.css',
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
 
         wp_enqueue_script(
             'history-modal',
             $viewPath . 'HistoryModal.js',
             ['jquery'],
-            VERSION,
+            JAWNECENY_VERSION,
             true
         );
 

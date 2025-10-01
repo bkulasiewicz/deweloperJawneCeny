@@ -33,75 +33,75 @@ class BlocksManager {
         // Load compact color picker component first
         wp_enqueue_script(
             'compact-color-picker-js',
-            PLUGIN_URL . 'assets/blocks/compact-color-picker.js',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/compact-color-picker.js',
             ['wp-element', 'wp-components'],
-            VERSION
+            JAWNECENY_VERSION
         );
 
         wp_enqueue_script(
             'resources-list-block-js',
-            PLUGIN_URL . 'assets/blocks/resources-list-block.js',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-block.js',
             ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'compact-color-picker-js'],
-            VERSION
+            JAWNECENY_VERSION
         );
 
         wp_enqueue_script(
             'resources-filters-block-js',
-            PLUGIN_URL . 'assets/blocks/resources-filters-block.js',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-filters-block.js',
             ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'compact-color-picker-js'],
-            VERSION
+            JAWNECENY_VERSION
         );
     }
     
     public function enqueue_frontend_assets() {
         wp_enqueue_style(
             'resources-list-block-css',
-            PLUGIN_URL . 'assets/blocks/resources-list-block.css',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-block.css',
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
 
         wp_enqueue_style(
             'resource-cards-css',
-            PLUGIN_URL . 'assets/blocks/resource-cards.css',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resource-cards.css',
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
 
         wp_enqueue_style(
             'resources-filters-block-css',
-            PLUGIN_URL . 'assets/blocks/resources-filters-block.css',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-filters-block.css',
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
 
         wp_enqueue_script(
             'resources-list-widget-js',
-            PLUGIN_URL . 'assets/blocks/resources-list-widget.js',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-widget.js',
             [],
-            VERSION,
+            JAWNECENY_VERSION,
             true
         );
 
         wp_enqueue_script(
             'frontend-filters-widget-js',
-            PLUGIN_URL . 'assets/frontend-filters-widget.js',
+            JAWNECENY_PLUGIN_URL . 'assets/frontend-filters-widget.js',
             [],
-            VERSION,
+            JAWNECENY_VERSION,
             true
         );
 
         wp_enqueue_script(
             'frontend-table-sorting-js',
-            PLUGIN_URL . 'assets/frontend-table-sorting.js',
+            JAWNECENY_PLUGIN_URL . 'assets/frontend-table-sorting.js',
             ['jquery'],
-            VERSION,
+            JAWNECENY_VERSION,
             true
         );
 
         wp_enqueue_script(
             'ujc-clickable-rows',
-            PLUGIN_URL . 'assets/frontend-clickable-rows.js',
+            JAWNECENY_PLUGIN_URL . 'assets/frontend-clickable-rows.js',
             ['jquery'],
             '1.0.1',
             true

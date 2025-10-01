@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 class PremiumHelper {
     
     public static function is_premium() {
-        return file_exists(PLUGIN_DIR . 'includes/premium/');
+        return file_exists(JAWNECENY_PLUGIN_DIR . 'includes/premium/');
     }
     
     public static function get_upgrade_message() {

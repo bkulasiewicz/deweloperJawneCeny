@@ -25,7 +25,7 @@ class CsvFilesSection {
             'ujc-csv-files-section',
             plugins_url('CsvFilesSection.css', __FILE__),
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
     }
 

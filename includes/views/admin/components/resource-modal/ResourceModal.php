@@ -36,20 +36,20 @@ class ResourceModal extends JawneCeny_AdminPage {
     }
 
     public function enqueue_assets() {
-        $viewPath = PLUGIN_URL . 'includes/views/admin/components/resource-modal/';
+        $viewPath = JAWNECENY_PLUGIN_URL . 'includes/views/admin/components/resource-modal/';
 
         wp_enqueue_style(
             'resource-modal',
             $viewPath . 'ResourceModal.css',
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
 
         wp_enqueue_script(
             'resource-modal',
             $viewPath . 'ResourceModal.js',
             ['jquery'],
-            VERSION,
+            JAWNECENY_VERSION,
             true
         );
 

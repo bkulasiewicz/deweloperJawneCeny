@@ -26,20 +26,20 @@ class SupplierDataPage extends JawneCeny_AdminPage {
     }
 
     public function enqueue_assets() {
-        $viewPath = PLUGIN_URL . 'includes/views/admin/supplier-data/';
+        $viewPath = JAWNECENY_PLUGIN_URL . 'includes/views/admin/supplier-data/';
 
         wp_enqueue_style(
             'supplier-data-page',
             $viewPath . 'SupplierDataPage.css',
             [],
-            VERSION
+            JAWNECENY_VERSION
         );
 
         wp_enqueue_script(
             'supplier-data-page',
             $viewPath . 'SupplierDataPage.js',
             ['jquery'],
-            VERSION,
+            JAWNECENY_VERSION,
             true
         );
 

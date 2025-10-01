@@ -373,7 +373,7 @@ class ResourceCardRenderer {
             'ujc-resources-widget',
             plugins_url('assets/blocks/resources-list-widget.js', dirname(dirname(__DIR__)) . '/ustawa-jawnosci-cen.php'),
             ['jquery'],
-            VERSION,
+            JAWNECENY_VERSION,
             true
         );
 
