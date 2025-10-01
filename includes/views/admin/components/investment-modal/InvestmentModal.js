@@ -29,7 +29,7 @@ jQuery(document).ready(function($) {
         console.log('Loading investment data, investmentId:', investmentId, 'nonce:', nonce);
 
         const requestData = {
-            action: 'ujc_get_investment',
+            action: 'jawneceny_get_investment',
             nonce: nonce
         };
 
@@ -154,7 +154,7 @@ jQuery(document).ready(function($) {
         }
 
         const requestData = {
-            action: 'ujc_update_investment',
+            action: 'jawneceny_update_investment',
             nonce: nonce,
             name: $('#edit-investment-name').val(),
             proj_wojewodztwo: $('#edit-proj-wojewodztwo').val(),

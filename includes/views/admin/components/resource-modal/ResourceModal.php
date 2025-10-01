@@ -26,10 +26,10 @@ class ResourceModal extends JawneCeny_AdminPage {
         $this->getResourceByIdUseCase = $getResourceByIdUseCase;
         $this->deleteResourceUseCase = $deleteResourceUseCase;
         
-        add_action('wp_ajax_ujc_save_resource', [$this, 'ajax_save_resource']);
-        add_action('wp_ajax_ujc_get_resource', [$this, 'ajax_get_resource']);
-        add_action('wp_ajax_ujc_update_resource', [$this, 'ajax_update_resource']);
-        add_action('wp_ajax_ujc_delete_resource', [$this, 'ajax_delete_resource']);
+        add_action('wp_ajax_jawneceny_save_resource', [$this, 'ajax_save_resource']);
+        add_action('wp_ajax_jawneceny_get_resource', [$this, 'ajax_get_resource']);
+        add_action('wp_ajax_jawneceny_update_resource', [$this, 'ajax_update_resource']);
+        add_action('wp_ajax_jawneceny_delete_resource', [$this, 'ajax_delete_resource']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
 
         parent::__construct();

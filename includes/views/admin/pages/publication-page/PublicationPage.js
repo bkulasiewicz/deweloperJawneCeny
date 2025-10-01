@@ -12,7 +12,7 @@ function generateFiles() {
     const nonce = ujc_ajax.nonce;
 
     jQuery.post(ujc_ajax.ajax_url, {
-        action: 'ujc_publication_generate',
+        action: 'jawneceny_publication_generate',
         nonce: nonce
     }, function(response) {
         if (response.success) {

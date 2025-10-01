@@ -13,7 +13,7 @@ class HistoryModal {
 
     public function __construct(GetPriceHistoryUseCase $getPriceHistoryUseCase) {
         $this->getPriceHistoryUseCase = $getPriceHistoryUseCase;
-        add_action('wp_ajax_ujc_get_resource_history', [$this, 'ajax_get_resource_history']);
+        add_action('wp_ajax_jawneceny_get_resource_history', [$this, 'ajax_get_resource_history']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
     }
 

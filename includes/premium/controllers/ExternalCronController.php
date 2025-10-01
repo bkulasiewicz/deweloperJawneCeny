@@ -29,7 +29,7 @@ class ExternalCronController {
         $this->registerExternalCronUseCase = $registerExternalCronUseCase;
         $this->unregisterExternalCronUseCase = $unregisterExternalCronUseCase;
         add_action('rest_api_init', [$this, 'register_rest_endpoint']);
-        add_action('wp_ajax_ujc_update_external_cron_schedule', [$this, 'ajax_update_schedule']);
+        add_action('wp_ajax_jawneceny_update_external_cron_schedule', [$this, 'ajax_update_schedule']);
     }
     
     /**

@@ -23,9 +23,9 @@ class InvestmentModal extends JawneCeny_AdminPage {
         $this->updateInvestmentUseCase = $updateInvestmentUseCase;
         $this->getInvestmentUseCase = $getInvestmentUseCase;
         
-        add_action('wp_ajax_ujc_get_investment', [$this, 'ajax_get_investment']);
-        add_action('wp_ajax_ujc_update_investment', [$this, 'ajax_update_investment']);
-        add_action('wp_ajax_ujc_log_debug', [$this, 'ajax_log_debug']);
+        add_action('wp_ajax_jawneceny_get_investment', [$this, 'ajax_get_investment']);
+        add_action('wp_ajax_jawneceny_update_investment', [$this, 'ajax_update_investment']);
+        add_action('wp_ajax_jawneceny_log_debug', [$this, 'ajax_log_debug']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
 
         parent::__construct();

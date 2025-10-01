@@ -22,7 +22,7 @@ window.showResourceHistory = function(resourceId) {
 
         // Załaduj dane
         $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, {
-            action: 'ujc_get_resource_history',
+            action: 'jawneceny_get_resource_history',
             resource_id: resourceId,
             nonce: historyModalData.nonce
         }, function(response) {

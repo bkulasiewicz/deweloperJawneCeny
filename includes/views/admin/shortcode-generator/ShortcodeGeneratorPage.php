@@ -13,8 +13,8 @@ class ShortcodeGeneratorPage {
     public function __construct() {
 
         // Add AJAX handlers
-        add_action('wp_ajax_ujc_reset_frontend_settings', [$this, 'ajax_reset_settings']);
-        add_action('wp_ajax_ujc_preview_shortcode', [$this, 'ajax_preview_shortcode']);
+        add_action('wp_ajax_jawneceny_reset_frontend_settings', [$this, 'ajax_reset_settings']);
+        add_action('wp_ajax_jawneceny_preview_shortcode', [$this, 'ajax_preview_shortcode']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
 
     }

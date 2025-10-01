@@ -32,7 +32,7 @@ jQuery(document).ready(function($) {
         const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : ($('#ujc-nonce').length ? $('#ujc-nonce').val() : '');
 
         return $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, {
-            action: 'ujc_get_investment',
+            action: 'jawneceny_get_investment',
             nonce: nonce
         }).done(function(response) {
             if (response.success) {
@@ -99,7 +99,7 @@ jQuery(document).ready(function($) {
 
 
         $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, {
-            action: 'ujc_get_resource',
+            action: 'jawneceny_get_resource',
             resource_id: resourceId,
             nonce: nonce
         }, function(response) {
@@ -267,7 +267,7 @@ jQuery(document).ready(function($) {
         $deleteBtn.text('Usuwanie...').prop('disabled', true);
 
         $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, {
-            action: 'ujc_delete_resource',
+            action: 'jawneceny_delete_resource',
             resource_id: resourceId,
             nonce: nonce
         }, function(response) {
@@ -377,7 +377,7 @@ jQuery(document).ready(function($) {
         e.preventDefault();
 
         const mode = $('#modal-action').val();
-        const action = mode === 'edit' ? 'ujc_update_resource' : 'ujc_save_resource';
+        const action = mode === 'edit' ? 'jawneceny_update_resource' : 'jawneceny_save_resource';
 
         // Create FormData to handle file uploads
         const formData = new FormData(this);

@@ -34,8 +34,8 @@ class DashboardPage {
         $this->historyTile = $historyTile;
         $this->devConsoleTile = $devConsoleTile;
         
-        add_action('wp_ajax_ujc_manual_generation', [$this, 'ajax_manual_generation']);
-        add_action('wp_ajax_download_logs', [$this, 'ajax_download_logs']);
+        add_action('wp_ajax_jawneceny_manual_generation', [$this, 'ajax_manual_generation']);
+        add_action('wp_ajax_jawneceny_download_logs', [$this, 'ajax_download_logs']);
     }
     
     public function ajax_manual_generation() {
@@ -153,7 +153,7 @@ class DashboardPage {
                 const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
                 
                 jQuery.post(ajaxurl, {
-                    action: 'ujc_manual_generation',
+                    action: 'jawneceny_manual_generation',
                     nonce: nonce
                 }, function(response) {
                     if (response.success) {
@@ -176,7 +176,7 @@ class DashboardPage {
                 const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
                 
                 jQuery.post(ajaxurl, {
-                    action: 'download_logs',
+                    action: 'jawneceny_download_logs',
                     nonce: nonce
                 }, function(response) {
                     if (response.success) {

@@ -134,7 +134,7 @@ jQuery(document).ready(function($) {
             const shortcodeText = $('#generated-shortcode').text();
 
             const formData = {
-                action: 'ujc_preview_shortcode',
+                action: 'jawneceny_preview_shortcode',
                 nonce: $('[name="nonce"]').val(),
                 shortcode: shortcodeText
             };
@@ -269,7 +269,7 @@ jQuery(document).ready(function($) {
         $resetBtn.text('Resetowanie...').prop('disabled', true);
 
         $.post(shortcodeGeneratorPageData.ajaxurl, {
-            action: 'ujc_reset_frontend_settings',
+            action: 'jawneceny_reset_frontend_settings',
             nonce: $('[name="nonce"]').val()
         }, function(response) {
             if (response.success) {

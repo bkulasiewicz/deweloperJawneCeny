@@ -5,7 +5,7 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         
         var formData = $(this).serialize();
-        formData += '&action=ujc_save_developer';
+        formData += '&action=jawneceny_save_developer';
         
         var $submit = $(this).find('input[type="submit"]');
         var originalText = $submit.val();

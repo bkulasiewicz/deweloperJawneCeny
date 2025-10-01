@@ -19,7 +19,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
         $this->saveDeveloperInfoUseCase = $saveDeveloperInfoUseCase;
         $this->getDeveloperInfoUseCase = $getDeveloperInfoUseCase;
 
-        add_action('wp_ajax_ujc_save_developer', [$this, 'ajax_save_developer']);
+        add_action('wp_ajax_jawneceny_save_developer', [$this, 'ajax_save_developer']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
 
         parent::__construct();

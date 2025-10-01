@@ -13,8 +13,8 @@ class BlocksManager {
         add_action('admin_enqueue_scripts', [$this, 'enqueue_frontend_assets']);
         
         // AJAX endpoints
-        add_action('wp_ajax_get_resource_price_history', [$this, 'ajax_get_price_history']);
-        add_action('wp_ajax_nopriv_get_resource_price_history', [$this, 'ajax_get_price_history']);
+        add_action('wp_ajax_jawneceny_get_price_history', [$this, 'ajax_get_price_history']);
+        add_action('wp_ajax_nopriv_jawneceny_get_price_history', [$this, 'ajax_get_price_history']);
     }
     
     public function register_blocks() {

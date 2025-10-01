@@ -14,7 +14,7 @@ function toggleExternalCron(enable) {
         document.getElementById('external-cron-schedule-select').value : '24hour';
 
     jQuery.post(ajaxurl, {
-        action: 'ujc_toggle_external_cron',
+        action: 'jawneceny_toggle_external_cron',
         enable: enable,
         schedule: schedule,
         nonce: nonce

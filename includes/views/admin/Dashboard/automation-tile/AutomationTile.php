@@ -24,7 +24,7 @@ class AutomationTile {
         $this->toggleExternalCronUseCase = $toggleExternalCronUseCase;
 
         if ($this->toggleExternalCronUseCase) {
-            add_action('wp_ajax_ujc_toggle_external_cron', [$this, 'ajax_toggle_external_cron']);
+            add_action('wp_ajax_jawneceny_toggle_external_cron', [$this, 'ajax_toggle_external_cron']);
         }
 
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);

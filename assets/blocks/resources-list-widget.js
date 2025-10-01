@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 body: new URLSearchParams({
-                    action: 'get_resource_price_history',
+                    action: 'jawneceny_get_price_history',
                     resource_id: resourceId,
                     nonce: resourcesListAjax.nonce
                 })

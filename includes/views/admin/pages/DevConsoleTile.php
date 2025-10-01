@@ -16,9 +16,9 @@ class DevConsoleTile {
         $this->resetDatabaseUseCase = $resetDatabaseUseCase;
         // Inicjalizuj tylko w trybie deweloperskim
         if (defined('WP_DEBUG') && WP_DEBUG) {
-            add_action('wp_ajax_ujc_dev_clear_table', [$this, 'ajax_clear_table']);
-            add_action('wp_ajax_dev_trigger_fallback', [$this, 'ajax_trigger_fallback']);
-            add_action('wp_ajax_ujc_dev_clear_logs', [$this, 'ajax_clear_logs']);
+            add_action('wp_ajax_jawneceny_dev_clear_table', [$this, 'ajax_clear_table']);
+            add_action('wp_ajax_jawneceny_dev_trigger_fallback', [$this, 'ajax_trigger_fallback']);
+            add_action('wp_ajax_jawneceny_dev_clear_logs', [$this, 'ajax_clear_logs']);
             }
     }
     
@@ -216,7 +216,7 @@ class DevConsoleTile {
             const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
             
             jQuery.post(ajaxurl, {
-                action: 'dev_trigger_fallback',
+                action: 'jawneceny_dev_trigger_fallback',
                 nonce: nonce
             }, function(response) {
                 if (response.success) {
@@ -237,7 +237,7 @@ class DevConsoleTile {
             const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
             
             jQuery.post(ajaxurl, {
-                action: 'ujc_dev_clear_logs',
+                action: 'jawneceny_dev_clear_logs',
                 nonce: nonce
             }, function(response) {
                 if (response.success) {
@@ -266,7 +266,7 @@ class DevConsoleTile {
             const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
             
             jQuery.post(ajaxurl, {
-                action: 'ujc_dev_clear_table',
+                action: 'jawneceny_dev_clear_table',
                 table_type: type,
                 nonce: nonce
             }, function(response) {

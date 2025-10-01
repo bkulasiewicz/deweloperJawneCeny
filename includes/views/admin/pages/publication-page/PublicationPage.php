@@ -23,7 +23,7 @@ class PublicationPage {
         $this->getPublicationHistoryUseCase = $getPublicationHistoryUseCase;
         $this->csvFilesSection = $csvFilesSection;
 
-        add_action('wp_ajax_ujc_publication_generate', [$this, 'ajax_generate_files']);
+        add_action('wp_ajax_jawneceny_publication_generate', [$this, 'ajax_generate_files']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
 
     }
