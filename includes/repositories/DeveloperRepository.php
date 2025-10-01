@@ -10,10 +10,10 @@ class DeveloperRepository {
      * Get developer data
      */
     public function read(): ?SupplierDto {
-        $table = TableNames::getDeveloperInfo();        
+        $table = TableNames::getDeveloperInfo();
         global $wpdb;
-        $data = $wpdb->get_row("SELECT * FROM `{$table}` LIMIT 1", ARRAY_A);
-        
+        $data = $wpdb->get_row($wpdb->prepare("SELECT * FROM %i LIMIT 1", $table), ARRAY_A);
+
         return $data ? SupplierDto::databaseToModel($data) : null;
     }
     
@@ -49,44 +49,76 @@ class DeveloperRepository {
         if (UJC_Schema_Manager::tableExists($table)) {
             return true;
         }
-        
-        $sql = "CREATE TABLE `{$table}` (
-            " . SupplierDto::FIELD_ID . " int(11) NOT NULL AUTO_INCREMENT,
-            " . SupplierDto::FIELD_NAZWA . " varchar(255) NOT NULL,
-            " . SupplierDto::FIELD_FORMA_PRAWNA . " varchar(100),
-            " . SupplierDto::FIELD_NR_KRS . " varchar(20),
-            " . SupplierDto::FIELD_NR_CEIDG . " varchar(20),
-            " . SupplierDto::FIELD_NR_NIP . " varchar(15),
-            " . SupplierDto::FIELD_NR_REGON . " varchar(20),
-            " . SupplierDto::FIELD_TELEFON . " varchar(20),
-            " . SupplierDto::FIELD_EMAIL . " varchar(100),
-            " . SupplierDto::FIELD_FAX . " varchar(20),
-            " . SupplierDto::FIELD_STRONA_WWW . " varchar(255),
-            
-            " . SupplierDto::FIELD_SIEDZ_WOJEWODZTWO . " varchar(50),
-            " . SupplierDto::FIELD_SIEDZ_POWIAT . " varchar(50),
-            " . SupplierDto::FIELD_SIEDZ_GMINA . " varchar(50),
-            " . SupplierDto::FIELD_SIEDZ_MIEJSCOWOSC . " varchar(50),
-            " . SupplierDto::FIELD_SIEDZ_ULICA . " varchar(100),
-            " . SupplierDto::FIELD_SIEDZ_NR . " varchar(20),
-            " . SupplierDto::FIELD_SIEDZ_LOKAL . " varchar(20),
-            " . SupplierDto::FIELD_SIEDZ_KOD . " varchar(10),
-            
-            " . SupplierDto::FIELD_SPRZED_WOJEWODZTWO . " varchar(50),
-            " . SupplierDto::FIELD_SPRZED_POWIAT . " varchar(50),
-            " . SupplierDto::FIELD_SPRZED_GMINA . " varchar(50),
-            " . SupplierDto::FIELD_SPRZED_MIEJSCOWOSC . " varchar(50),
-            " . SupplierDto::FIELD_SPRZED_ULICA . " varchar(100),
-            " . SupplierDto::FIELD_SPRZED_NR . " varchar(20),
-            " . SupplierDto::FIELD_SPRZED_LOKAL . " varchar(20),
-            " . SupplierDto::FIELD_SPRZED_KOD . " varchar(10),
-            
-            " . SupplierDto::FIELD_DODATKOWE_LOKALIZACJE . " text,
-            " . SupplierDto::FIELD_SPOSOB_KONTAKTU . " text,
-            PRIMARY KEY (" . SupplierDto::FIELD_ID . ")
-        ) " . $charset_collate;
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- CREATE TABLE statement with field constants is safe
+        $sql = $wpdb->prepare(
+            "CREATE TABLE %i (
+                %i int(11) NOT NULL AUTO_INCREMENT,
+                %i varchar(255) NOT NULL,
+                %i varchar(100),
+                %i varchar(20),
+                %i varchar(20),
+                %i varchar(15),
+                %i varchar(20),
+                %i varchar(20),
+                %i varchar(100),
+                %i varchar(20),
+                %i varchar(255),
+
+                %i varchar(50),
+                %i varchar(50),
+                %i varchar(50),
+                %i varchar(50),
+                %i varchar(100),
+                %i varchar(20),
+                %i varchar(20),
+                %i varchar(10),
+
+                %i varchar(50),
+                %i varchar(50),
+                %i varchar(50),
+                %i varchar(50),
+                %i varchar(100),
+                %i varchar(20),
+                %i varchar(20),
+                %i varchar(10),
+
+                %i text,
+                %i text,
+                PRIMARY KEY (%i)
+            ) " . $charset_collate,
+            $table,
+            SupplierDto::FIELD_ID,
+            SupplierDto::FIELD_NAZWA,
+            SupplierDto::FIELD_FORMA_PRAWNA,
+            SupplierDto::FIELD_NR_KRS,
+            SupplierDto::FIELD_NR_CEIDG,
+            SupplierDto::FIELD_NR_NIP,
+            SupplierDto::FIELD_NR_REGON,
+            SupplierDto::FIELD_TELEFON,
+            SupplierDto::FIELD_EMAIL,
+            SupplierDto::FIELD_FAX,
+            SupplierDto::FIELD_STRONA_WWW,
+            SupplierDto::FIELD_SIEDZ_WOJEWODZTWO,
+            SupplierDto::FIELD_SIEDZ_POWIAT,
+            SupplierDto::FIELD_SIEDZ_GMINA,
+            SupplierDto::FIELD_SIEDZ_MIEJSCOWOSC,
+            SupplierDto::FIELD_SIEDZ_ULICA,
+            SupplierDto::FIELD_SIEDZ_NR,
+            SupplierDto::FIELD_SIEDZ_LOKAL,
+            SupplierDto::FIELD_SIEDZ_KOD,
+            SupplierDto::FIELD_SPRZED_WOJEWODZTWO,
+            SupplierDto::FIELD_SPRZED_POWIAT,
+            SupplierDto::FIELD_SPRZED_GMINA,
+            SupplierDto::FIELD_SPRZED_MIEJSCOWOSC,
+            SupplierDto::FIELD_SPRZED_ULICA,
+            SupplierDto::FIELD_SPRZED_NR,
+            SupplierDto::FIELD_SPRZED_LOKAL,
+            SupplierDto::FIELD_SPRZED_KOD,
+            SupplierDto::FIELD_DODATKOWE_LOKALIZACJE,
+            SupplierDto::FIELD_SPOSOB_KONTAKTU,
+            SupplierDto::FIELD_ID
+        );
+
         return $wpdb->query($sql) !== false;
     }
 }

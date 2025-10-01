@@ -10,10 +10,10 @@ class InvestmentRepository {
      * Get investment data as model
      */
     public function read(): ?InvestmentDto {
-        $table = TableNames::getInvestmentInfo();        
+        $table = TableNames::getInvestmentInfo();
         global $wpdb;
-        $data = $wpdb->get_row("SELECT * FROM `{$table}` LIMIT 1", ARRAY_A);
-        
+        $data = $wpdb->get_row($wpdb->prepare("SELECT * FROM %i LIMIT 1", $table), ARRAY_A);
+
         return $data ? InvestmentDto::databaseToModel($data) : null;
     }
     
@@ -81,36 +81,61 @@ class InvestmentRepository {
         if (UJC_Schema_Manager::tableExists($table)) {
             return true;
         }
-        
-        $sql = "CREATE TABLE `{$table}` (
-            " . InvestmentDto::FIELD_ID . " int(11) NOT NULL AUTO_INCREMENT,
-            " . InvestmentDto::FIELD_DEVELOPER_ID . " int(11) NOT NULL DEFAULT 1,
-            " . InvestmentDto::FIELD_NAME . " varchar(255) NOT NULL,
-            " . InvestmentDto::FIELD_PROJ_WOJEWODZTWO . " varchar(50) NOT NULL,
-            " . InvestmentDto::FIELD_PROJ_POWIAT . " varchar(50),
-            " . InvestmentDto::FIELD_PROJ_GMINA . " varchar(50),
-            " . InvestmentDto::FIELD_PROJ_MIEJSCOWOSC . " varchar(50) NOT NULL,
-            " . InvestmentDto::FIELD_PROJ_ULICA . " varchar(100),
-            " . InvestmentDto::FIELD_PROJ_NR . " varchar(20),
-            " . InvestmentDto::FIELD_PROJ_KOD . " varchar(10),
-            
-            " . InvestmentDto::FIELD_HAS_PROPERTY_PARTS . " tinyint(1) DEFAULT 0,
-            " . InvestmentDto::FIELD_HAS_BELONGING_ROOMS . " tinyint(1) DEFAULT 0,
-            " . InvestmentDto::FIELD_HAS_USAGE_RIGHTS . " tinyint(1) DEFAULT 0,
-            " . InvestmentDto::FIELD_HAS_OTHER_SERVICES . " tinyint(1) DEFAULT 0,
-            
-            " . InvestmentDto::FIELD_SHOW_FLOOR_FIELD . " tinyint(1) DEFAULT 0,
-            " . InvestmentDto::FIELD_SHOW_ROOMS_FIELD . " tinyint(1) DEFAULT 0,
-            " . InvestmentDto::FIELD_SHOW_DESCRIPTION_FIELD . " tinyint(1) DEFAULT 0,
-            " . InvestmentDto::FIELD_SHOW_GARDEN_FIELD . " tinyint(1) DEFAULT 0,
-            " . InvestmentDto::FIELD_SHOW_FLOOR_PLAN_FIELD . " tinyint(1) DEFAULT 0,
-            
-            PRIMARY KEY (" . InvestmentDto::FIELD_ID . "),
-            FOREIGN KEY (" . InvestmentDto::FIELD_DEVELOPER_ID . ") REFERENCES " . TableNames::getDeveloperInfo() . "(id) ON DELETE CASCADE
-        ) " . $charset_collate;
-        
-        // Safe: Table names come from validated constants, no user input
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+        $developerTable = TableNames::getDeveloperInfo();
+
+        $sql = $wpdb->prepare(
+            "CREATE TABLE %i (
+                %i int(11) NOT NULL AUTO_INCREMENT,
+                %i int(11) NOT NULL DEFAULT 1,
+                %i varchar(255) NOT NULL,
+                %i varchar(50) NOT NULL,
+                %i varchar(50),
+                %i varchar(50),
+                %i varchar(50) NOT NULL,
+                %i varchar(100),
+                %i varchar(20),
+                %i varchar(10),
+
+                %i tinyint(1) DEFAULT 0,
+                %i tinyint(1) DEFAULT 0,
+                %i tinyint(1) DEFAULT 0,
+                %i tinyint(1) DEFAULT 0,
+
+                %i tinyint(1) DEFAULT 0,
+                %i tinyint(1) DEFAULT 0,
+                %i tinyint(1) DEFAULT 0,
+                %i tinyint(1) DEFAULT 0,
+                %i tinyint(1) DEFAULT 0,
+
+                PRIMARY KEY (%i),
+                FOREIGN KEY (%i) REFERENCES %i(id) ON DELETE CASCADE
+            ) " . $charset_collate,
+            $table,
+            InvestmentDto::FIELD_ID,
+            InvestmentDto::FIELD_DEVELOPER_ID,
+            InvestmentDto::FIELD_NAME,
+            InvestmentDto::FIELD_PROJ_WOJEWODZTWO,
+            InvestmentDto::FIELD_PROJ_POWIAT,
+            InvestmentDto::FIELD_PROJ_GMINA,
+            InvestmentDto::FIELD_PROJ_MIEJSCOWOSC,
+            InvestmentDto::FIELD_PROJ_ULICA,
+            InvestmentDto::FIELD_PROJ_NR,
+            InvestmentDto::FIELD_PROJ_KOD,
+            InvestmentDto::FIELD_HAS_PROPERTY_PARTS,
+            InvestmentDto::FIELD_HAS_BELONGING_ROOMS,
+            InvestmentDto::FIELD_HAS_USAGE_RIGHTS,
+            InvestmentDto::FIELD_HAS_OTHER_SERVICES,
+            InvestmentDto::FIELD_SHOW_FLOOR_FIELD,
+            InvestmentDto::FIELD_SHOW_ROOMS_FIELD,
+            InvestmentDto::FIELD_SHOW_DESCRIPTION_FIELD,
+            InvestmentDto::FIELD_SHOW_GARDEN_FIELD,
+            InvestmentDto::FIELD_SHOW_FLOOR_PLAN_FIELD,
+            InvestmentDto::FIELD_ID,
+            InvestmentDto::FIELD_DEVELOPER_ID,
+            $developerTable
+        );
+
         return $wpdb->query($sql) !== false;
     }
     

@@ -12,21 +12,23 @@ class ResourceRepository {
     public function readAll() {
         $table = TableNames::getResources();
         global $wpdb;
-        
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
-        $results = $wpdb->get_results("SELECT r.* FROM `{$table}` r ORDER BY r." . ResourceDto::FIELD_ID . " ASC", ARRAY_A);
-        
+        $results = $wpdb->get_results($wpdb->prepare(
+            "SELECT r.* FROM %i r ORDER BY r.%i ASC",
+            $table,
+            ResourceDto::FIELD_ID
+        ), ARRAY_A);
+
         if ($wpdb->last_error) {
             Logger::error("ResourceRepository::readAll - SQL Error: " . $wpdb->last_error);
         }
-        
+
         $dtos = [];
         foreach($results as $row) {
             $dtos[] = ResourceDto::databaseToModel($row);
         }
-        
-        
+
+
         return $dtos;
     }
     
@@ -37,12 +39,12 @@ class ResourceRepository {
         $table = TableNames::getResources();
         global $wpdb;
 
-        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
         $data = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM `{$table}` WHERE " . ResourceDto::FIELD_ID . " = %d",
+            "SELECT * FROM %i WHERE %i = %d",
+            $table,
+            ResourceDto::FIELD_ID,
             $id
         ), ARRAY_A);
-        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
         if (!$data) {
             return null;
@@ -114,7 +116,11 @@ class ResourceRepository {
             if ($needsMigration) {
                 Logger::info('ResourceRepository: Migrating usable_area to DEFAULT NULL');
 
-                $result = $wpdb->query("ALTER TABLE `{$table}` MODIFY COLUMN `usable_area` decimal(8,2) DEFAULT NULL");
+                $result = $wpdb->query($wpdb->prepare(
+                    "ALTER TABLE %i MODIFY COLUMN %i decimal(8,2) DEFAULT NULL",
+                    $table,
+                    ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA
+                ));
 
                 if ($result === false) {
                     Logger::error('ResourceRepository: Migration failed - ' . $wpdb->last_error);
@@ -143,45 +149,78 @@ class ResourceRepository {
         
         $propertyEnum = "'" . implode("', '", $propertyTypes) . "'";
         $statusEnum = "'" . implode("', '", $statusTypes) . "'";
-        
-        $sql = "CREATE TABLE IF NOT EXISTS `{$table}` (
-            " . ResourceDto::FIELD_ID . " int(11) NOT NULL AUTO_INCREMENT,
-            " . ResourceDto::FIELD_INVESTMENT_ID . " int(11) NOT NULL DEFAULT 1,
-            " . ResourceDto::FIELD_RODZAJ_NIERUCHOMOSCI . " enum({$propertyEnum}) NOT NULL,
-            " . ResourceDto::FIELD_NR_LOKALU . " varchar(50) NOT NULL,
-            " . ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA . " decimal(8,2) DEFAULT NULL,
-            " . ResourceDto::FIELD_STATUS . " enum({$statusEnum}),
-            
-            " . ResourceDto::FIELD_PROPERTY_PART_TITLE . " varchar(100) DEFAULT NULL,
-            " . ResourceDto::FIELD_PROPERTY_PART_DESIGNATION . " varchar(50) DEFAULT NULL,
-            " . ResourceDto::FIELD_PROPERTY_PART_PRICE . " decimal(10,2) DEFAULT NULL,
-            " . ResourceDto::FIELD_PROPERTY_PART_PRICE_DATE . " datetime DEFAULT NULL,
-            
-            " . ResourceDto::FIELD_BELONGING_ROOM_TITLE . " varchar(100) DEFAULT NULL,
-            " . ResourceDto::FIELD_BELONGING_ROOM_DESIGNATION . " varchar(50) DEFAULT NULL,
-            " . ResourceDto::FIELD_BELONGING_ROOM_PRICE . " decimal(10,2) DEFAULT NULL,
-            " . ResourceDto::FIELD_BELONGING_ROOM_PRICE_DATE . " datetime DEFAULT NULL,
-            
-            " . ResourceDto::FIELD_USAGE_RIGHT_TITLE . " text DEFAULT NULL,
-            " . ResourceDto::FIELD_USAGE_RIGHT_PRICE . " decimal(10,2) DEFAULT NULL,
-            " . ResourceDto::FIELD_USAGE_RIGHT_PRICE_DATE . " datetime DEFAULT NULL,
-            
-            " . ResourceDto::FIELD_OTHER_SERVICE_TITLE . " text DEFAULT NULL,
-            " . ResourceDto::FIELD_OTHER_SERVICE_PRICE . " decimal(10,2) DEFAULT NULL,
-            " . ResourceDto::FIELD_OTHER_SERVICE_PRICE_DATE . " datetime DEFAULT NULL,
-            
-            " . ResourceDto::FIELD_FLOOR_NUMBER . " int(11) DEFAULT NULL,
-            " . ResourceDto::FIELD_ROOM_COUNT . " int(11) DEFAULT NULL,
-            " . ResourceDto::FIELD_ADDITIONAL_DESCRIPTION . " text DEFAULT NULL,
-            " . ResourceDto::FIELD_GARDEN_AREA . " decimal(8,2) DEFAULT NULL,
-            " . ResourceDto::FIELD_FLOOR_PLAN_PDF . " varchar(255) DEFAULT NULL,
-            
-            PRIMARY KEY (" . ResourceDto::FIELD_ID . "),
-            KEY " . ResourceDto::FIELD_STATUS . " (" . ResourceDto::FIELD_STATUS . "),
-            FOREIGN KEY (" . ResourceDto::FIELD_INVESTMENT_ID . ") REFERENCES " . TableNames::getInvestmentInfo() . "(id) ON DELETE CASCADE
-        ) " . $charset_collate;
+        $investmentTable = TableNames::getInvestmentInfo();
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- CREATE TABLE statement with field constants is safe
+        $sql = $wpdb->prepare(
+            "CREATE TABLE IF NOT EXISTS %i (
+                %i int(11) NOT NULL AUTO_INCREMENT,
+                %i int(11) NOT NULL DEFAULT 1,
+                %i enum({$propertyEnum}) NOT NULL,
+                %i varchar(50) NOT NULL,
+                %i decimal(8,2) DEFAULT NULL,
+                %i enum({$statusEnum}),
+
+                %i varchar(100) DEFAULT NULL,
+                %i varchar(50) DEFAULT NULL,
+                %i decimal(10,2) DEFAULT NULL,
+                %i datetime DEFAULT NULL,
+
+                %i varchar(100) DEFAULT NULL,
+                %i varchar(50) DEFAULT NULL,
+                %i decimal(10,2) DEFAULT NULL,
+                %i datetime DEFAULT NULL,
+
+                %i text DEFAULT NULL,
+                %i decimal(10,2) DEFAULT NULL,
+                %i datetime DEFAULT NULL,
+
+                %i text DEFAULT NULL,
+                %i decimal(10,2) DEFAULT NULL,
+                %i datetime DEFAULT NULL,
+
+                %i int(11) DEFAULT NULL,
+                %i int(11) DEFAULT NULL,
+                %i text DEFAULT NULL,
+                %i decimal(8,2) DEFAULT NULL,
+                %i varchar(255) DEFAULT NULL,
+
+                PRIMARY KEY (%i),
+                KEY %i (%i),
+                FOREIGN KEY (%i) REFERENCES %i(id) ON DELETE CASCADE
+            ) " . $charset_collate,
+            $table,
+            ResourceDto::FIELD_ID,
+            ResourceDto::FIELD_INVESTMENT_ID,
+            ResourceDto::FIELD_RODZAJ_NIERUCHOMOSCI,
+            ResourceDto::FIELD_NR_LOKALU,
+            ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA,
+            ResourceDto::FIELD_STATUS,
+            ResourceDto::FIELD_PROPERTY_PART_TITLE,
+            ResourceDto::FIELD_PROPERTY_PART_DESIGNATION,
+            ResourceDto::FIELD_PROPERTY_PART_PRICE,
+            ResourceDto::FIELD_PROPERTY_PART_PRICE_DATE,
+            ResourceDto::FIELD_BELONGING_ROOM_TITLE,
+            ResourceDto::FIELD_BELONGING_ROOM_DESIGNATION,
+            ResourceDto::FIELD_BELONGING_ROOM_PRICE,
+            ResourceDto::FIELD_BELONGING_ROOM_PRICE_DATE,
+            ResourceDto::FIELD_USAGE_RIGHT_TITLE,
+            ResourceDto::FIELD_USAGE_RIGHT_PRICE,
+            ResourceDto::FIELD_USAGE_RIGHT_PRICE_DATE,
+            ResourceDto::FIELD_OTHER_SERVICE_TITLE,
+            ResourceDto::FIELD_OTHER_SERVICE_PRICE,
+            ResourceDto::FIELD_OTHER_SERVICE_PRICE_DATE,
+            ResourceDto::FIELD_FLOOR_NUMBER,
+            ResourceDto::FIELD_ROOM_COUNT,
+            ResourceDto::FIELD_ADDITIONAL_DESCRIPTION,
+            ResourceDto::FIELD_GARDEN_AREA,
+            ResourceDto::FIELD_FLOOR_PLAN_PDF,
+            ResourceDto::FIELD_ID,
+            ResourceDto::FIELD_STATUS,
+            ResourceDto::FIELD_STATUS,
+            ResourceDto::FIELD_INVESTMENT_ID,
+            $investmentTable
+        );
+
         return $wpdb->query($sql) !== false;
     }
 
@@ -198,7 +237,7 @@ class ResourceRepository {
 
         // Add price fields if needed for sorting
         if ($sort && $sort->requiresPriceJoin()) {
-            $sql .= ", p." . PriceHistoryDto::FIELD_CENA_CALKOWITA . " as total_price";
+            $sql .= ", p.total_price as total_price";
         }
 
         $sql .= " FROM `{$table}` r";
@@ -209,15 +248,15 @@ class ResourceRepository {
 
         if ($needsPriceJoin) {
             $sql .= " LEFT JOIN (
-                SELECT " . PriceHistoryDto::FIELD_RESOURCE_ID . ",
-                       " . PriceHistoryDto::FIELD_CENA_CALKOWITA . "
+                SELECT resource_id,
+                       total_price
                 FROM `{$priceTable}` p1
-                WHERE p1." . PriceHistoryDto::FIELD_ID . " = (
-                    SELECT MAX(p2." . PriceHistoryDto::FIELD_ID . ")
+                WHERE p1.id = (
+                    SELECT MAX(p2.id)
                     FROM `{$priceTable}` p2
-                    WHERE p2." . PriceHistoryDto::FIELD_RESOURCE_ID . " = p1." . PriceHistoryDto::FIELD_RESOURCE_ID . "
+                    WHERE p2.resource_id = p1.resource_id
                 )
-            ) p ON r." . ResourceDto::FIELD_ID . " = p." . PriceHistoryDto::FIELD_RESOURCE_ID;
+            ) p ON r.id = p.resource_id";
         }
 
         // Build WHERE clause
@@ -227,58 +266,58 @@ class ResourceRepository {
         if ($filters && $filters->hasFilters()) {
             // Price range filter
             if ($filters->priceMin !== null) {
-                $whereConditions[] = "p." . PriceHistoryDto::FIELD_CENA_CALKOWITA . " >= %f";
+                $whereConditions[] = "p.total_price >= %f";
                 $prepareValues[] = $filters->priceMin;
             }
 
             if ($filters->priceMax !== null) {
-                $whereConditions[] = "p." . PriceHistoryDto::FIELD_CENA_CALKOWITA . " <= %f";
+                $whereConditions[] = "p.total_price <= %f";
                 $prepareValues[] = $filters->priceMax;
             }
 
             // Area range filter
             if ($filters->areaMin !== null) {
-                $whereConditions[] = "r." . ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA . " >= %f";
+                $whereConditions[] = "r.usable_area >= %f";
                 $prepareValues[] = $filters->areaMin;
             }
 
             if ($filters->areaMax !== null) {
-                $whereConditions[] = "r." . ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA . " <= %f";
+                $whereConditions[] = "r.usable_area <= %f";
                 $prepareValues[] = $filters->areaMax;
             }
 
             // Status filter
             if (!empty($filters->statusFilter)) {
                 $statusPlaceholders = implode(',', array_fill(0, count($filters->statusFilter), '%s'));
-                $whereConditions[] = "r." . ResourceDto::FIELD_STATUS . " IN ({$statusPlaceholders})";
+                $whereConditions[] = "r.status IN ({$statusPlaceholders})";
                 $prepareValues = array_merge($prepareValues, $filters->statusFilter);
             }
 
             // Floor filter
             if (!empty($filters->floorFilter)) {
                 $floorPlaceholders = implode(',', array_fill(0, count($filters->floorFilter), '%d'));
-                $whereConditions[] = "r." . ResourceDto::FIELD_FLOOR_NUMBER . " IN ({$floorPlaceholders})";
+                $whereConditions[] = "r.floor_number IN ({$floorPlaceholders})";
                 $prepareValues = array_merge($prepareValues, $filters->floorFilter);
             }
 
             // Rooms filter
             if (!empty($filters->roomsFilter)) {
                 $roomsPlaceholders = implode(',', array_fill(0, count($filters->roomsFilter), '%d'));
-                $whereConditions[] = "r." . ResourceDto::FIELD_ROOM_COUNT . " IN ({$roomsPlaceholders})";
+                $whereConditions[] = "r.room_count IN ({$roomsPlaceholders})";
                 $prepareValues = array_merge($prepareValues, $filters->roomsFilter);
             }
 
             // Property types filter
             if (!empty($filters->propertyTypes)) {
                 $typePlaceholders = implode(',', array_fill(0, count($filters->propertyTypes), '%s'));
-                $whereConditions[] = "r." . ResourceDto::FIELD_RODZAJ_NIERUCHOMOSCI . " IN ({$typePlaceholders})";
+                $whereConditions[] = "r.property_type IN ({$typePlaceholders})";
                 $prepareValues = array_merge($prepareValues, $filters->propertyTypes);
             }
 
             // Unit number filter
             if (!empty($filters->unitNumberFilter)) {
                 $unitPlaceholders = implode(',', array_fill(0, count($filters->unitNumberFilter), '%s'));
-                $whereConditions[] = "r." . ResourceDto::FIELD_NR_LOKALU . " IN ({$unitPlaceholders})";
+                $whereConditions[] = "r.unit_number IN ({$unitPlaceholders})";
                 $prepareValues = array_merge($prepareValues, $filters->unitNumberFilter);
             }
         }
@@ -300,7 +339,7 @@ class ResourceRepository {
             }
         } else {
             // Default ordering
-            $sql .= " ORDER BY r." . ResourceDto::FIELD_ID . " ASC";
+            $sql .= " ORDER BY r.id ASC";
         }
 
         Logger::info("ResourceRepository::readAllWithFiltersAndSort - SQL: " . $sql);
@@ -308,10 +347,8 @@ class ResourceRepository {
 
         // Execute query
         if (!empty($prepareValues)) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Dynamic SQL is built safely with constants and prepared values
             $results = $wpdb->get_results($wpdb->prepare($sql, $prepareValues), ARRAY_A);
         } else {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL is built safely with constants
             $results = $wpdb->get_results($sql, ARRAY_A);
         }
 

@@ -5,7 +5,8 @@ if (!defined('ABSPATH')) {
 }
 
 class PublicationHistoryDto extends ModelDto {
-    
+
+    public const FIELD_ID = 'id';
     public const FIELD_TIMESTAMP = 'timestamp';
     public const FIELD_STATUS = 'status';
     public const FIELD_MESSAGE = 'message';

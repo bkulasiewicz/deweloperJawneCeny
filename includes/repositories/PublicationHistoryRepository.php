@@ -37,83 +37,86 @@ class PublicationHistoryRepository {
     
     /**
      * Get publication history with limit
-     * 
+     *
      * @param int $limit Number of records to retrieve
      * @return PublicationHistoryDto[] Array of history entries
      */
     public function getHistory($limit = 50) {
         global $wpdb;
-        
-        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
+
         $results = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM `{$this->table_name}`
-             ORDER BY " . PublicationHistoryDto::FIELD_TIMESTAMP . " DESC
+            "SELECT * FROM %i
+             ORDER BY %i DESC
              LIMIT %d",
+            $this->table_name,
+            PublicationHistoryDto::FIELD_TIMESTAMP,
             $limit
         ), ARRAY_A);
-        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
-        
+
         if ($results === null) {
             return [];
         }
-        
+
         // Convert database rows to DTO objects
         $dtos = [];
         foreach ($results ?: [] as $row) {
             $dtos[] = PublicationHistoryDto::databaseToModel($row);
         }
-        
+
         return $dtos;
     }
     
     /**
      * Clear all history entries
-     * 
+     *
      * @return bool Success status
      */
     public function clearHistory() {
         global $wpdb;
-        
-        $result = $wpdb->query("TRUNCATE TABLE `{$this->table_name}`");
-        
+
+        $result = $wpdb->query($wpdb->prepare("TRUNCATE TABLE %i", $this->table_name));
+
         return $result !== false;
     }
     
     /**
      * Get last entry from history
-     * 
+     *
      * @return PublicationHistoryDto|null Last history entry or null if empty
      */
     public function getLastEntry() {
         global $wpdb;
-        
-        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
-        $result = $wpdb->get_row($wpdb->prepare("SELECT * FROM `{$this->table_name}`
-                  ORDER BY " . PublicationHistoryDto::FIELD_TIMESTAMP . " DESC
-                  LIMIT %d", 1), ARRAY_A);
-        // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
-        
+
+        $result = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM %i
+             ORDER BY %i DESC
+             LIMIT %d",
+            $this->table_name,
+            PublicationHistoryDto::FIELD_TIMESTAMP,
+            1
+        ), ARRAY_A);
+
         return $result ? PublicationHistoryDto::databaseToModel($result) : null;
     }
     
     /**
      * Count history entries by status
-     * 
+     *
      * @param string|null $status Filter by status (optional)
      * @return int Number of entries
      */
     public function countEntries($status = null) {
         global $wpdb;
-        
+
         if ($status) {
-            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- Field name constants are safe static strings
             return (int) $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM `{$this->table_name}` WHERE " . PublicationHistoryDto::FIELD_STATUS . " = %s",
+                "SELECT COUNT(*) FROM %i WHERE %i = %s",
+                $this->table_name,
+                PublicationHistoryDto::FIELD_STATUS,
                 $status
             ));
-            // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
         } else {
-            return (int) $wpdb->get_var("SELECT COUNT(*) FROM `{$this->table_name}`");
+            return (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %i", $this->table_name));
         }
     }
     
@@ -124,24 +127,36 @@ class PublicationHistoryRepository {
         global $wpdb;
         $table = TableNames::getPublicationHistory();
         $charset_collate = $wpdb->get_charset_collate();
-        
+
         if (UJC_Schema_Manager::tableExists($table)) {
             return true;
         }
-        
-        $sql = "CREATE TABLE `{$table}` (
-            id int(11) NOT NULL AUTO_INCREMENT,
-            " . PublicationHistoryDto::FIELD_TIMESTAMP . " datetime NOT NULL,
-            " . PublicationHistoryDto::FIELD_STATUS . " varchar(20) NOT NULL,
-            " . PublicationHistoryDto::FIELD_MESSAGE . " text,
-            " . PublicationHistoryDto::FIELD_TRIGGER_TYPE . " varchar(20) NOT NULL,
-            
-            PRIMARY KEY (id),
-            KEY " . PublicationHistoryDto::FIELD_TIMESTAMP . " (" . PublicationHistoryDto::FIELD_TIMESTAMP . "),
-            KEY " . PublicationHistoryDto::FIELD_STATUS . " (" . PublicationHistoryDto::FIELD_STATUS . ")
-        ) " . $charset_collate;
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- CREATE TABLE statement with field constants is safe
+        $sql = $wpdb->prepare(
+            "CREATE TABLE %i (
+                %i int(11) NOT NULL AUTO_INCREMENT,
+                %i datetime NOT NULL,
+                %i varchar(20) NOT NULL,
+                %i text,
+                %i varchar(20) NOT NULL,
+
+                PRIMARY KEY (%i),
+                KEY %i (%i),
+                KEY %i (%i)
+            ) " . $charset_collate,
+            $table,
+            PublicationHistoryDto::FIELD_ID,
+            PublicationHistoryDto::FIELD_TIMESTAMP,
+            PublicationHistoryDto::FIELD_STATUS,
+            PublicationHistoryDto::FIELD_MESSAGE,
+            PublicationHistoryDto::FIELD_TRIGGER_TYPE,
+            PublicationHistoryDto::FIELD_ID,
+            PublicationHistoryDto::FIELD_TIMESTAMP,
+            PublicationHistoryDto::FIELD_TIMESTAMP,
+            PublicationHistoryDto::FIELD_STATUS,
+            PublicationHistoryDto::FIELD_STATUS
+        );
+
         return $wpdb->query($sql) !== false;
     }
 }
