@@ -1,0 +1,37 @@
+/* Two-column layout styles */
+.modal-columns {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.modal-column-left,
+.modal-column-right {
+    flex: 1;
+}
+
+.modal-column-left {
+    border-right: 1px solid #e1e1e1;
+    padding-right: 25px;
+}
+
+/* Adjust modal width for two columns */
+#ujc-resource-modal .ujc-modal-content {
+    max-width: 1200px;
+    width: 95%;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+    .modal-columns {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .modal-column-left {
+        border-right: none;
+        padding-right: 0;
+        border-bottom: 1px solid #e1e1e1;
+        padding-bottom: 20px;
+    }
+}

@@ -15,7 +15,7 @@ class AdminController {
     private $supplierDataPage;
     private $resourcesPage;
     private $publicationPage;
-    private $frontendManagementPage;
+    private $shortcodeGeneratorPage;
     private $devConsoleTile;
 
     public function __construct() {
@@ -45,7 +45,7 @@ class AdminController {
         $this->supplierDataPage = DIContainer::get(SupplierDataPage::class);
         $this->resourcesPage = DIContainer::get(ResourcesPage::class);
         $this->publicationPage = DIContainer::get(PublicationPage::class);
-        $this->frontendManagementPage = DIContainer::get(FrontendManagementPage::class);
+        $this->shortcodeGeneratorPage = DIContainer::get(ShortcodeGeneratorPage::class);
 
     }
 
@@ -103,11 +103,11 @@ class AdminController {
 
         add_submenu_page(
             'ujc-dashboard',
-            'Warstwa Frontendowa',
-            'Warstwa Frontendowa',
+            'Generator Shortcode',
+            'Generator Shortcode',
             'manage_options',
-            'ujc-frontend-management',
-            [$this, 'renderFrontendManagementPage']
+            'ujc-shortcode-generator',
+            [$this, 'renderShortcodeGeneratorPage']
         );
 
     }
@@ -151,8 +151,8 @@ class AdminController {
         $this->publicationPage->render();
     }
 
-    public function renderFrontendManagementPage() {
-        $this->frontendManagementPage->render();
+    public function renderShortcodeGeneratorPage() {
+        $this->shortcodeGeneratorPage->render();
     }
 
 }

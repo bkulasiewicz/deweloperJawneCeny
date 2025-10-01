@@ -26,8 +26,34 @@ class AutomationTile {
         if ($this->toggleExternalCronUseCase) {
             add_action('wp_ajax_ujc_toggle_external_cron', [$this, 'ajax_toggle_external_cron']);
         }
+
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
     }
     
+    /**
+     * Enqueue JavaScript and CSS assets
+     */
+    public function enqueue_assets() {
+        // Only enqueue on admin pages where this component is used
+        $screen = get_current_screen();
+        if (!$screen || $screen->id !== 'toplevel_page_ujc-dashboard') {
+            return;
+        }
+
+        wp_enqueue_script(
+            'ujc-automation-tile',
+            plugins_url('automation-tile/AutomationTile.js', __FILE__),
+            ['jquery'],
+            '1.0.0',
+            true
+        );
+
+        // Localize script with nonce for AJAX calls
+        wp_localize_script('ujc-automation-tile', 'ujc_automation_ajax', [
+            'nonce' => wp_create_nonce('ujc_admin_nonce')
+        ]);
+    }
+
     /**
      * Render the complete automation tile
      */
@@ -108,40 +134,6 @@ class AutomationTile {
                 </div>
             <?php endif; ?>
         </div>
-        
-        <script>
-        function toggleExternalCron(enable) {
-            const button = document.getElementById('external-cron-toggle-btn');
-            const originalText = button.textContent;
-            button.textContent = enable ? '⏳ Włączanie...' : '⏳ Wyłączanie...';
-            button.disabled = true;
-            
-            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
-            const schedule = document.getElementById('external-cron-schedule-select') ? 
-                document.getElementById('external-cron-schedule-select').value : '24hour';
-            
-            jQuery.post(ajaxurl, {
-                action: 'ujc_toggle_external_cron',
-                enable: enable,
-                schedule: schedule,
-                nonce: nonce
-            }, function(response) {
-                if (response.success) {
-                    alert('✅ ' + response.data);
-                    location.reload();
-                } else {
-                    alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
-                    button.textContent = originalText;
-                    button.disabled = false;
-                }
-            }).fail(function(xhr, status, error) {
-                console.error('Toggle External Cron AJAX Error:', xhr, status, error);
-                alert('❌ Błąd połączenia: ' + error);
-                button.textContent = originalText;
-                button.disabled = false;
-            });
-        }
-        </script>
         <?php
     }
     

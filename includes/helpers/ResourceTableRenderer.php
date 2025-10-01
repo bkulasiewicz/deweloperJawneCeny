@@ -105,7 +105,7 @@ class ResourceTableRenderer {
         );
 
         // Generate dynamic CSS
-        self::renderDynamicCSS($styling_options, !empty($detail_page_url));
+        self::addDynamicCSS($styling_options, !empty($detail_page_url));
 
         ?>
         <div class="<?php echo esc_attr($container_class); ?>">
@@ -358,86 +358,85 @@ class ResourceTableRenderer {
     }
 
     /**
-     * Render CSS variables for styling
+     * Add dynamic CSS using WordPress wp_add_inline_style
      */
-    public static function renderDynamicCSS(array $styling_options, bool $has_clickable_rows = false): void {
-        ?>
-        <style>
+    public static function addDynamicCSS(array $styling_options, bool $has_clickable_rows = false): void {
+        $css = "
         /* CSS Custom Properties for resource table styling */
         :root {
-            --header-bg-color: <?php echo esc_attr($styling_options['header_bg_color'] ?? '#f9f9f9'); ?>;
-            --header-text-color: <?php echo esc_attr($styling_options['header_text_color'] ?? '#333333'); ?>;
-            --text-color: <?php echo esc_attr($styling_options['text_color'] ?? '#333333'); ?>;
-            --hover-bg-color: <?php echo esc_attr($styling_options['hover_bg_color'] ?? '#f5f5f5'); ?>;
-            --header-font-family: <?php echo esc_attr($styling_options['header_font_family'] ?? 'inherit'); ?>;
-            --content-font-family: <?php echo esc_attr($styling_options['content_font_family'] ?? 'inherit'); ?>;
-            --historia-btn-bg-color: <?php echo esc_attr($styling_options['historia_btn_bg_color'] ?? '#007cba'); ?>;
-            --historia-btn-text-color: <?php echo esc_attr($styling_options['historia_btn_text_color'] ?? '#ffffff'); ?>;
-            --karta-btn-bg-color: <?php echo esc_attr($styling_options['karta_btn_bg_color'] ?? '#007cba'); ?>;
-            --karta-btn-text-color: <?php echo esc_attr($styling_options['karta_btn_text_color'] ?? '#ffffff'); ?>;
-            --status-available-bg: <?php echo esc_attr($styling_options['status_available_bg_color'] ?? '#28a745'); ?>;
-            --status-available-color: <?php echo esc_attr($styling_options['status_available_text_color'] ?? '#ffffff'); ?>;
-            --status-sold-bg: <?php echo esc_attr($styling_options['status_sold_bg_color'] ?? '#dc3545'); ?>;
-            --status-sold-color: <?php echo esc_attr($styling_options['status_sold_text_color'] ?? '#ffffff'); ?>;
-            --status-reserved-bg: <?php echo esc_attr($styling_options['status_reserved_bg_color'] ?? '#ffc107'); ?>;
-            --status-reserved-color: <?php echo esc_attr($styling_options['status_reserved_text_color'] ?? '#000000'); ?>;
-            --status-font-size: <?php echo esc_attr($styling_options['status_font_size'] ?? '0.875em'); ?>;
-            --status-padding: <?php echo esc_attr($styling_options['status_padding'] ?? '4px 8px'); ?>;
-            --status-border-radius: <?php echo esc_attr($styling_options['status_border_radius'] ?? '4px'); ?>;
-            --status-font-weight: <?php echo esc_attr($styling_options['status_font_weight'] ?? 'normal'); ?>;
+            --header-bg-color: " . esc_attr($styling_options['header_bg_color'] ?? '#f9f9f9') . ";
+            --header-text-color: " . esc_attr($styling_options['header_text_color'] ?? '#333333') . ";
+            --text-color: " . esc_attr($styling_options['text_color'] ?? '#333333') . ";
+            --hover-bg-color: " . esc_attr($styling_options['hover_bg_color'] ?? '#f5f5f5') . ";
+            --header-font-family: " . esc_attr($styling_options['header_font_family'] ?? 'inherit') . ";
+            --content-font-family: " . esc_attr($styling_options['content_font_family'] ?? 'inherit') . ";
+            --historia-btn-bg-color: " . esc_attr($styling_options['historia_btn_bg_color'] ?? '#007cba') . ";
+            --historia-btn-text-color: " . esc_attr($styling_options['historia_btn_text_color'] ?? '#ffffff') . ";
+            --karta-btn-bg-color: " . esc_attr($styling_options['karta_btn_bg_color'] ?? '#007cba') . ";
+            --karta-btn-text-color: " . esc_attr($styling_options['karta_btn_text_color'] ?? '#ffffff') . ";
+            --status-available-bg: " . esc_attr($styling_options['status_available_bg_color'] ?? '#28a745') . ";
+            --status-available-color: " . esc_attr($styling_options['status_available_text_color'] ?? '#ffffff') . ";
+            --status-sold-bg: " . esc_attr($styling_options['status_sold_bg_color'] ?? '#dc3545') . ";
+            --status-sold-color: " . esc_attr($styling_options['status_sold_text_color'] ?? '#ffffff') . ";
+            --status-reserved-bg: " . esc_attr($styling_options['status_reserved_bg_color'] ?? '#ffc107') . ";
+            --status-reserved-color: " . esc_attr($styling_options['status_reserved_text_color'] ?? '#000000') . ";
+            --status-font-size: " . esc_attr($styling_options['status_font_size'] ?? '0.875em') . ";
+            --status-padding: " . esc_attr($styling_options['status_padding'] ?? '4px 8px') . ";
+            --status-border-radius: " . esc_attr($styling_options['status_border_radius'] ?? '4px') . ";
+            --status-font-weight: " . esc_attr($styling_options['status_font_weight'] ?? 'normal') . ";
 
             /* Layout & Spacing (Priority 1) */
-            --container-margin: <?php echo esc_attr($styling_options['container_margin'] ?? '20px 0'); ?>;
-            --table-padding: <?php echo esc_attr($styling_options['table_padding'] ?? '12px 15px'); ?>;
-            --button-padding: <?php echo esc_attr($styling_options['button_padding'] ?? '6px 12px'); ?>;
-            --button-border-radius: <?php echo esc_attr($styling_options['button_border_radius'] ?? '4px'); ?>;
-            --button-font-size: <?php echo esc_attr($styling_options['button_font_size'] ?? '0.875em'); ?>;
+            --container-margin: " . esc_attr($styling_options['container_margin'] ?? '20px 0') . ";
+            --table-padding: " . esc_attr($styling_options['table_padding'] ?? '12px 15px') . ";
+            --button-padding: " . esc_attr($styling_options['button_padding'] ?? '6px 12px') . ";
+            --button-border-radius: " . esc_attr($styling_options['button_border_radius'] ?? '4px') . ";
+            --button-font-size: " . esc_attr($styling_options['button_font_size'] ?? '0.875em') . ";
 
             /* Modal Options (Priority 1) */
-            --modal-overlay-color: <?php echo esc_attr($styling_options['modal_overlay_color'] ?? 'rgba(0, 0, 0, 0.5)'); ?>;
-            --modal-background-color: <?php echo esc_attr($styling_options['modal_background_color'] ?? '#ffffff'); ?>;
-            --modal-border-radius: <?php echo esc_attr($styling_options['modal_border_radius'] ?? '8px'); ?>;
-            --modal-max-width: <?php echo esc_attr($styling_options['modal_max_width'] ?? '600px'); ?>;
-            --modal-padding: <?php echo esc_attr($styling_options['modal_padding'] ?? '20px'); ?>;
+            --modal-overlay-color: " . esc_attr($styling_options['modal_overlay_color'] ?? 'rgba(0, 0, 0, 0.5)') . ";
+            --modal-background-color: " . esc_attr($styling_options['modal_background_color'] ?? '#ffffff') . ";
+            --modal-border-radius: " . esc_attr($styling_options['modal_border_radius'] ?? '8px') . ";
+            --modal-max-width: " . esc_attr($styling_options['modal_max_width'] ?? '600px') . ";
+            --modal-padding: " . esc_attr($styling_options['modal_padding'] ?? '20px') . ";
 
             /* Advanced Responsive Options (Priority 2) */
-            --mobile-breakpoint: <?php echo esc_attr($styling_options['mobile_breakpoint'] ?? '768px'); ?>;
-            --tablet-breakpoint: <?php echo esc_attr($styling_options['tablet_breakpoint'] ?? '1024px'); ?>;
-            --mobile-table-font-size: <?php echo esc_attr($styling_options['mobile_table_font_size'] ?? '0.875em'); ?>;
-            --mobile-padding: <?php echo esc_attr($styling_options['mobile_padding'] ?? '8px 10px'); ?>;
-            --small-mobile-padding: <?php echo esc_attr($styling_options['small_mobile_padding'] ?? '6px 8px'); ?>;
+            --mobile-breakpoint: " . esc_attr($styling_options['mobile_breakpoint'] ?? '768px') . ";
+            --tablet-breakpoint: " . esc_attr($styling_options['tablet_breakpoint'] ?? '1024px') . ";
+            --mobile-table-font-size: " . esc_attr($styling_options['mobile_table_font_size'] ?? '0.875em') . ";
+            --mobile-padding: " . esc_attr($styling_options['mobile_padding'] ?? '8px 10px') . ";
+            --small-mobile-padding: " . esc_attr($styling_options['small_mobile_padding'] ?? '6px 8px') . ";
 
             /* Advanced Table Behavior (Priority 2) */
-            --table-min-width: <?php echo esc_attr($styling_options['table_min_width'] ?? '600px'); ?>;
-            --striped-rows-bg-color: <?php echo esc_attr($styling_options['striped_rows_bg_color'] ?? '#f8f9fa'); ?>;
-            --table-border-color: <?php echo esc_attr($styling_options['table_border_color'] ?? '#dee2e6'); ?>;
-            --table-border-width: <?php echo esc_attr($styling_options['table_border_width'] ?? '1px'); ?>;
+            --table-min-width: " . esc_attr($styling_options['table_min_width'] ?? '600px') . ";
+            --striped-rows-bg-color: " . esc_attr($styling_options['striped_rows_bg_color'] ?? '#f8f9fa') . ";
+            --table-border-color: " . esc_attr($styling_options['table_border_color'] ?? '#dee2e6') . ";
+            --table-border-width: " . esc_attr($styling_options['table_border_width'] ?? '1px') . ";
 
             /* Advanced Button Options (Priority 2) */
-            --button-font-weight: <?php echo esc_attr($styling_options['button_font_weight'] ?? 'normal'); ?>;
-            --button-transition: <?php echo esc_attr($styling_options['button_transition'] ?? 'all 0.2s ease'); ?>;
-            --button-hover-transform: <?php echo esc_attr($styling_options['button_hover_transform'] ?? 'none'); ?>;
-            --button-hover-box-shadow: <?php echo esc_attr($styling_options['button_hover_box_shadow'] ?? 'none'); ?>;
-            --button-border-width: <?php echo esc_attr($styling_options['button_border_width'] ?? '0'); ?>;
-            --button-border-color: <?php echo esc_attr($styling_options['button_border_color'] ?? 'transparent'); ?>;
+            --button-font-weight: " . esc_attr($styling_options['button_font_weight'] ?? 'normal') . ";
+            --button-transition: " . esc_attr($styling_options['button_transition'] ?? 'all 0.2s ease') . ";
+            --button-hover-transform: " . esc_attr($styling_options['button_hover_transform'] ?? 'none') . ";
+            --button-hover-box-shadow: " . esc_attr($styling_options['button_hover_box_shadow'] ?? 'none') . ";
+            --button-border-width: " . esc_attr($styling_options['button_border_width'] ?? '0') . ";
+            --button-border-color: " . esc_attr($styling_options['button_border_color'] ?? 'transparent') . ";
 
             /* Accessibility & Focus States (Priority 2) */
-            --focus-outline-color: <?php echo esc_attr($styling_options['focus_outline_color'] ?? '#007cba'); ?>;
-            --focus-outline-width: <?php echo esc_attr($styling_options['focus_outline_width'] ?? '2px'); ?>;
-            --focus-outline-offset: <?php echo esc_attr($styling_options['focus_outline_offset'] ?? '2px'); ?>;
-            --high-contrast-bg-color: <?php echo esc_attr($styling_options['high_contrast_bg_color'] ?? '#000000'); ?>;
-            --high-contrast-text-color: <?php echo esc_attr($styling_options['high_contrast_text_color'] ?? '#ffffff'); ?>;
+            --focus-outline-color: " . esc_attr($styling_options['focus_outline_color'] ?? '#007cba') . ";
+            --focus-outline-width: " . esc_attr($styling_options['focus_outline_width'] ?? '2px') . ";
+            --focus-outline-offset: " . esc_attr($styling_options['focus_outline_offset'] ?? '2px') . ";
+            --high-contrast-bg-color: " . esc_attr($styling_options['high_contrast_bg_color'] ?? '#000000') . ";
+            --high-contrast-text-color: " . esc_attr($styling_options['high_contrast_text_color'] ?? '#ffffff') . ";
 
             /* Advanced Modal Options (Priority 2) */
-            --modal-animation-duration: <?php echo esc_attr($styling_options['modal_animation_duration'] ?? '0.3s'); ?>;
-            --modal-box-shadow: <?php echo esc_attr($styling_options['modal_box_shadow'] ?? '0 10px 30px rgba(0,0,0,0.3)'); ?>;
-            --modal-header-border-color: <?php echo esc_attr($styling_options['modal_header_border_color'] ?? '#dee2e6'); ?>;
-            --modal-close-btn-color: <?php echo esc_attr($styling_options['modal_close_btn_color'] ?? '#666666'); ?>;
-            --modal-close-btn-hover-color: <?php echo esc_attr($styling_options['modal_close_btn_hover_color'] ?? '#000000'); ?>;
-            --modal-z-index: <?php echo esc_attr($styling_options['modal_z_index'] ?? '10000'); ?>;
-        }
-        </style>
-        <?php
+            --modal-animation-duration: " . esc_attr($styling_options['modal_animation_duration'] ?? '0.3s') . ";
+            --modal-box-shadow: " . esc_attr($styling_options['modal_box_shadow'] ?? '0 10px 30px rgba(0,0,0,0.3)') . ";
+            --modal-header-border-color: " . esc_attr($styling_options['modal_header_border_color'] ?? '#dee2e6') . ";
+            --modal-close-btn-color: " . esc_attr($styling_options['modal_close_btn_color'] ?? '#666666') . ";
+            --modal-close-btn-hover-color: " . esc_attr($styling_options['modal_close_btn_hover_color'] ?? '#000000') . ";
+            --modal-z-index: " . esc_attr($styling_options['modal_z_index'] ?? '10000') . ";
+        }";
+
+        wp_add_inline_style('ujc-resources-list-css', $css);
     }
 
 }

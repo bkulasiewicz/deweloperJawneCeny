@@ -14,8 +14,21 @@ class CsvFilesSection {
 
     public function __construct(XmlResourceRepository $xmlResourceRepository) {
         $this->xmlResourceRepo = $xmlResourceRepository;
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
     }
     
+    /**
+     * Enqueue CSS assets
+     */
+    public function enqueue_assets() {
+        wp_enqueue_style(
+            'ujc-csv-files-section',
+            plugins_url('csv-files-section/CsvFilesSection.css', __FILE__),
+            [],
+            VERSION
+        );
+    }
+
     /**
      * Render CSV files section
      */
@@ -58,71 +71,6 @@ class CsvFilesSection {
                 </div>
             <?php endif; ?>
         </div>
-        
-        <style>
-        .ujc-csv-files-section {
-            background: #fff;
-            border: 1px solid #ccd0d4;
-            border-radius: 4px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .ujc-csv-files-section h3 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            color: #1d2327;
-        }
-        
-        .ujc-no-files {
-            text-align: center;
-            padding: 20px;
-            color: #646970;
-        }
-        
-        .ujc-csv-files-list {
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        .ujc-csv-file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f1;
-        }
-        
-        .ujc-csv-file-item:last-child {
-            border-bottom: none;
-        }
-        
-        .ujc-csv-file-info {
-            flex: 1;
-        }
-        
-        .ujc-csv-file-date {
-            font-size: 14px;
-            color: #1d2327;
-        }
-        
-        .ujc-csv-file-time {
-            color: #646970;
-            font-size: 12px;
-            margin-top: 2px;
-        }
-        
-        .ujc-csv-file-actions {
-            flex-shrink: 0;
-        }
-        
-        .ujc-csv-files-summary {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px solid #f0f0f1;
-            text-align: center;
-        }
-        </style>
         <?php
     }
     

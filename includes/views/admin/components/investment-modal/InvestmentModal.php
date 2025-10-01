@@ -26,11 +26,36 @@ class InvestmentModal extends UJC_Admin_Page {
         add_action('wp_ajax_ujc_get_investment', [$this, 'ajax_get_investment']);
         add_action('wp_ajax_ujc_update_investment', [$this, 'ajax_update_investment']);
         add_action('wp_ajax_ujc_log_debug', [$this, 'ajax_log_debug']);
-        
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
+
         parent::__construct();
     }
-    
-    
+
+    public function enqueue_assets() {
+        $viewPath = PLUGIN_URL . 'includes/views/admin/components/investment-modal/';
+
+        wp_enqueue_style(
+            'investment-modal',
+            $viewPath . 'InvestmentModal.css',
+            [],
+            VERSION
+        );
+
+        wp_enqueue_script(
+            'investment-modal',
+            $viewPath . 'InvestmentModal.js',
+            ['jquery'],
+            VERSION,
+            true
+        );
+
+        wp_localize_script('investment-modal', 'investmentModalData', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('ujc_admin_nonce')
+        ]);
+    }
+
+
     /**
      * Renderuje modal HTML
      */
@@ -258,348 +283,6 @@ class InvestmentModal extends UJC_Admin_Page {
                 </div>
             </div>
         </div>
-        
-        <!-- JavaScript dla modala inwestycji -->
-        <script>
-        jQuery(document).ready(function($) {
-            let currentInvestmentData = null;
-            
-            // Otwórz modal inwestycji
-            window.openInvestmentModal = function(investmentId = null) {
-                if (investmentId === null) {
-                    showCreateMode();
-                } else {
-                    loadInvestmentData(investmentId);
-                }
-                $('#ujc-investment-modal').show();
-            };
-            
-            // Pokaż tryb dodawania nowej inwestycji
-            function showCreateMode() {
-                currentInvestmentData = null;
-                $('#investment-edit-form')[0].reset();
-                $('#investment-view').hide();
-                $('#investment-edit').show();
-                $('#investment-modal-title').text('Dodaj Nową Inwestycję');
-                $('#save-investment-btn').text('Dodaj Inwestycję');
-                setEditMode();
-            }
-            
-            // Załaduj dane inwestycji
-            function loadInvestmentData(investmentId = null) {
-                const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : ($('#ujc-nonce').length ? $('#ujc-nonce').val() : '');
-                
-                console.log('Loading investment data, investmentId:', investmentId, 'nonce:', nonce);
-                
-                const requestData = {
-                    action: 'ujc_get_investment',
-                    nonce: nonce
-                };
-                
-                if (investmentId !== null) {
-                    requestData.investment_id = investmentId;
-                }
-                
-                $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, requestData, function(response) {
-                    if (response.success) {
-                        currentInvestmentData = response.data;
-                        populateViewData(response.data);
-                        populateEditForm(response.data);
-                        // Show in VIEW mode with unified form structure
-                        $('#investment-edit').show();
-                        $('#investment-view').hide();
-                        $('#investment-modal-title').text('Dane Inwestycji');
-                        $('#save-investment-btn').text('Zapisz zmiany');
-                        setViewMode();
-                    } else {
-                        alert('❌ Błąd ładowania danych inwestycji: ' + (response.data || 'Nieznany błąd'));
-                    }
-                }).fail(function(xhr, status, error) {
-                    alert('❌ Błąd połączenia: ' + error);
-                });
-            }
-            
-            // Wypełnij widok readonly
-            function populateViewData(data) {
-                $('#view-investment-name').text(data.name || '-');
-                $('#view-proj-wojewodztwo').text(data.proj_wojewodztwo || '-');
-                $('#view-proj-powiat').text(data.proj_powiat || '-');
-                $('#view-proj-gmina').text(data.proj_gmina || '-');
-                $('#view-proj-miejscowosc').text(data.proj_miejscowosc || '-');
-                $('#view-proj-ulica').text(data.proj_ulica || '-');
-                $('#view-proj-nr').text(data.proj_nr || '-');
-                $('#view-proj-kod').text(data.proj_kod || '-');
-                
-                // Komponenty - show Tak/Nie based on boolean values
-                $('#view-has_property_parts').text(data.has_property_parts == '1' ? 'Tak' : 'Nie');
-                $('#view-has_belonging_rooms').text(data.has_belonging_rooms == '1' ? 'Tak' : 'Nie');
-                $('#view-has_usage_rights').text(data.has_usage_rights == '1' ? 'Tak' : 'Nie');
-                $('#view-has_other_services').text(data.has_other_services == '1' ? 'Tak' : 'Nie');
-                
-                // Pola marketingowe - show Tak/Nie based on boolean values
-                $('#view-show_floor_field').text(data.show_floor_field == '1' ? 'Tak' : 'Nie');
-                $('#view-show_rooms_field').text(data.show_rooms_field == '1' ? 'Tak' : 'Nie');
-                $('#view-show_description_field').text(data.show_description_field == '1' ? 'Tak' : 'Nie');
-                $('#view-show_garden_field').text(data.show_garden_field == '1' ? 'Tak' : 'Nie');
-                $('#view-show_floor_plan_field').text(data.show_floor_plan_field == '1' ? 'Tak' : 'Nie');
-            }
-            
-            // Wypełnij formularz edycji
-            function populateEditForm(data) {
-                $('#edit-investment-name').val(data.name || '');
-                $('#edit-proj-wojewodztwo').val(data.proj_wojewodztwo || '');
-                $('#edit-proj-powiat').val(data.proj_powiat || '');
-                $('#edit-proj-gmina').val(data.proj_gmina || '');
-                $('#edit-proj-miejscowosc').val(data.proj_miejscowosc || '');
-                $('#edit-proj-ulica').val(data.proj_ulica || '');
-                $('#edit-proj-nr').val(data.proj_nr || '');
-                $('#edit-proj-kod').val(data.proj_kod || '');
-                
-                // Komponenty - set checkbox states
-                $('#edit-has_property_parts').prop('checked', data.has_property_parts == '1');
-                $('#edit-has_belonging_rooms').prop('checked', data.has_belonging_rooms == '1');
-                $('#edit-has_usage_rights').prop('checked', data.has_usage_rights == '1');
-                $('#edit-has_other_services').prop('checked', data.has_other_services == '1');
-                
-                // Pola marketingowe - set checkbox states
-                $('#edit-show_floor_field').prop('checked', data.show_floor_field == '1');
-                $('#edit-show_rooms_field').prop('checked', data.show_rooms_field == '1');
-                $('#edit-show_description_field').prop('checked', data.show_description_field == '1');
-                $('#edit-show_garden_field').prop('checked', data.show_garden_field == '1');
-                $('#edit-show_floor_plan_field').prop('checked', data.show_floor_plan_field == '1');
-            }
-            
-            // Przełącz na tryb edycji
-            $(document).off('click', '#edit-investment-btn').on('click', '#edit-investment-btn', function() {
-                if (currentInvestmentData) {
-                    $('#investment-modal-title').text('Edytuj Dane Inwestycji');
-                    setEditMode();
-                } else {
-                    alert('Brak danych do edycji');
-                }
-            });
-            
-            // Anuluj edycję - wróć do trybu VIEW
-            $(document).off('click', '#cancel-investment-edit').on('click', '#cancel-investment-edit', function() {
-                if (currentInvestmentData) {
-                    // Przywróć dane i wróć do trybu VIEW
-                    populateEditForm(currentInvestmentData);
-                    $('#investment-modal-title').text('Dane Inwestycji');
-                    setViewMode();
-                } else {
-                    // Tryb CREATE - zamknij modal
-                    closeInvestmentModal();
-                }
-            });
-            
-            // Zapisz zmiany
-            $(document).off('click', '#save-investment-btn').on('click', '#save-investment-btn', function() {
-                const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : ($('#ujc-nonce').length ? $('#ujc-nonce').val() : '');
-                const formData = $('#investment-edit-form').serialize() + '&action=ujc_update_investment&nonce=' + nonce;
-                
-                const $btn = $(this);
-                const originalText = $btn.text();
-                $btn.text('Zapisywanie...').prop('disabled', true);
-                
-                $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, formData, function(response) {
-                    if (response.success) {
-                        alert('✅ ' + response.data);
-                        if (currentInvestmentData === null) {
-                            // CREATE mode - po zapisie zamknij modal i odśwież stronę
-                            $('#ujc-investment-modal').hide();
-                            location.reload();
-                        } else {
-                            // EDIT mode - odśwież dane i wróć do trybu VIEW
-                            loadInvestmentData();
-                        }
-                    } else {
-                        alert('❌ ' + (response.data || 'Błąd podczas zapisywania'));
-                    }
-                }).fail(function(xhr, status, error) {
-                    alert('❌ Błąd połączenia: ' + error);
-                }).always(function() {
-                    $btn.text(originalText).prop('disabled', false);
-                });
-            });
-            
-            // Zamknij modal
-            function closeInvestmentModal() {
-                $('#ujc-investment-modal').hide();
-                $('#cancel-investment-edit').click(); // Reset do widoku
-            }
-            
-            $(document).off('click', '.ujc-modal-close').on('click', '.ujc-modal-close', closeInvestmentModal);
-            $(document).off('click', '.ujc-modal-cancel').on('click', '.ujc-modal-cancel', closeInvestmentModal);
-            
-            // Zamknij modal kliknięciem poza nim
-            $(document).off('click', '#ujc-investment-modal').on('click', '#ujc-investment-modal', function(e) {
-                if (e.target === this) {
-                    closeInvestmentModal();
-                }
-            });
-            
-            // Functions for setting VIEW and EDIT modes
-            window.setViewMode = function() {
-                console.log('Setting VIEW mode');
-                const modal = $('#ujc-investment-modal');
-                modal.removeClass('investment-edit-mode').addClass('investment-view-mode');
-                
-                // Disable all form elements
-                modal.find('input, textarea, select').prop('disabled', true);
-                
-                // Show VIEW mode buttons: Close, Edit
-                $('#investment-view-buttons').css('display', 'block');
-                $('#investment-edit-buttons').css('display', 'none');
-                $('.ujc-modal-close').show();
-            };
-            
-            window.setEditMode = function() {
-                console.log('Setting EDIT mode');
-                const modal = $('#ujc-investment-modal');
-                modal.removeClass('investment-view-mode').addClass('investment-edit-mode');
-                
-                // Enable all form elements
-                modal.find('input, textarea, select').prop('disabled', false);
-                
-                // Show EDIT mode buttons: Save, Cancel
-                $('#investment-view-buttons').css('display', 'none');
-                $('#investment-edit-buttons').css('display', 'block');
-                $('.ujc-modal-close').show();
-            };
-        });
-        </script>
-        
-        <!-- Stylowanie modala -->
-        <style>
-        .ujc-modal {
-            position: fixed;
-            z-index: 100000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        
-        .ujc-modal-content {
-            background-color: #fefefe;
-            margin: 3% auto;
-            padding: 0;
-            border: 1px solid #ccd0d4;
-            border-radius: 4px;
-            width: 95%;
-            max-width: 1200px;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .ujc-modal-header {
-            padding: 20px;
-            border-bottom: 1px solid #ccd0d4;
-            background: #f9f9f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .ujc-modal-header h2 {
-            margin: 0;
-            color: #23282d;
-        }
-        
-        .ujc-modal-close {
-            color: #666;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            line-height: 1;
-        }
-        
-        .ujc-modal-close:hover,
-        .ujc-modal-close:focus {
-            color: #d63638;
-        }
-        
-        .ujc-modal-body {
-            padding: 20px;
-        }
-        
-        .ujc-modal-footer {
-            padding: 20px;
-            border-top: 1px solid #ccd0d4;
-            background: #f9f9f9;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .ujc-modal-footer-left {
-            display: flex;
-            align-items: center;
-        }
-        
-        .ujc-modal-footer-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        /* 2-column layout */
-        .modal-columns {
-            display: flex;
-            gap: 30px;
-            align-items: flex-start;
-        }
-        
-        .modal-column-left,
-        .modal-column-right {
-            flex: 1;
-        }
-        
-        .modal-column-left {
-            border-right: 1px solid #e1e1e1;
-            padding-right: 25px;
-        }
-        
-        /* VIEW mode styles */
-        .investment-view-mode input,
-        .investment-view-mode textarea,
-        .investment-view-mode select {
-            background-color: #f9f9f9;
-            color: #666;
-            cursor: not-allowed;
-        }
-        
-        .investment-view-mode input[type="checkbox"] {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        /* EDIT mode styles (default) */
-        .investment-edit-mode input,
-        .investment-edit-mode textarea,
-        .investment-edit-mode select {
-            background-color: #fff;
-            color: #333;
-            cursor: auto;
-        }
-        
-        .investment-edit-mode input[type="checkbox"] {
-            opacity: 1;
-            cursor: pointer;
-        }
-        
-        /* Initial button visibility */
-        #investment-edit-buttons {
-            display: none;
-        }
-        
-        #investment-view-buttons {
-            display: block;
-        }
-        </style>
         <?php
     }
     

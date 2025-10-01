@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 /**
  * Strona zasobów
  */
-class ResourcesPage {
+class ResourcesPage extends UJC_Admin_Page {
 
     private $getAllResourcesUseCase;
     private $resourceModal;
@@ -15,6 +15,7 @@ class ResourcesPage {
     private $developerRepository;
     private $investmentRepository;
     private $historyModal;
+    private $resourceItem;
 
     public function __construct(
         GetAllResourcesUseCase $getAllResourcesUseCase,
@@ -22,7 +23,8 @@ class ResourcesPage {
         InvestmentModal $investmentModal,
         DeveloperRepository $developerRepository,
         InvestmentRepository $investmentRepository,
-        HistoryModal $historyModal
+        HistoryModal $historyModal,
+        ResourceItem $resourceItem
     ) {
 
         $this->getAllResourcesUseCase = $getAllResourcesUseCase;
@@ -31,11 +33,26 @@ class ResourcesPage {
         $this->developerRepository = $developerRepository;
         $this->investmentRepository = $investmentRepository;
         $this->historyModal = $historyModal;
+        $this->resourceItem = $resourceItem;
 
         // AJAX handlers - CSV import feature removed
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
 
+        parent::__construct();
     }
-    
+
+    public function enqueue_assets() {
+        $viewPath = PLUGIN_URL . 'includes/views/admin/pages/resources-page/';
+
+        wp_enqueue_script(
+            'resources-page',
+            $viewPath . 'ResourcesPage.js',
+            ['jquery'],
+            VERSION,
+            true
+        );
+    }
+
     public function render() {
         $developer = $this->developerRepository->read();
         $investment = $this->investmentRepository->read();
@@ -124,25 +141,12 @@ class ResourcesPage {
             
             
             <!-- Renderuj modale -->
-            <?php 
-            $resourceModal->render_modal(); 
+            <?php
+            $resourceModal->render_modal();
             $investmentModal->render_modal();
-            ResourceItem::render_item_styles();
+            // ResourceItem styles now loaded via enqueue_assets()
             ResourceItem::render_item_script();
-            HistoryModal::render_history_script();
             ?>
-            
-            
-            <script>
-            jQuery(document).ready(function($) {
-                // Lista renderowana w PHP - odświeżenie strony po zmianach
-                window.loadResourcesList = function() {
-                    location.reload();
-                };
-                
-                // CSV import functionality removed
-            });
-            </script>
         </div>
         <?php
     }

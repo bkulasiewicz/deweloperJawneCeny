@@ -20,7 +20,7 @@ class SupplierDataPage extends UJC_Admin_Page {
         $this->getDeveloperInfoUseCase = $getDeveloperInfoUseCase;
 
         add_action('wp_ajax_ujc_save_developer', [$this, 'ajax_save_developer']);
-      //  add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
 
         parent::__construct();
     }

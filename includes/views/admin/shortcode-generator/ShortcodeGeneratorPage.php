@@ -5,55 +5,55 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Frontend Management Admin Page
+ * Shortcode Generator Admin Page
  * Simple shortcode generator without backend storage
  */
-class FrontendManagementPage {
-    
+class ShortcodeGeneratorPage {
+
     public function __construct() {
 
         // Add AJAX handlers
         add_action('wp_ajax_ujc_reset_frontend_settings', [$this, 'ajax_reset_settings']);
         add_action('wp_ajax_ujc_preview_shortcode', [$this, 'ajax_preview_shortcode']);
-      //  add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
 
     }
 
     public function enqueue_assets() {
-        $viewPath = PLUGIN_URL . 'includes/views/admin/frontend-management/';
+        $viewPath = PLUGIN_URL . 'includes/views/admin/shortcode-generator/';
 
         wp_enqueue_style(
-            'frontend-management-page',
-            $viewPath . 'FrontendManagementPage.css',
+            'shortcode-generator-page',
+            $viewPath . 'ShortcodeGeneratorPage.css',
             [],
             VERSION
         );
 
         wp_enqueue_script(
-            'frontend-management-page',
-            $viewPath . 'FrontendManagementPage.js',
+            'shortcode-generator-page',
+            $viewPath . 'ShortcodeGeneratorPage.js',
             ['jquery'],
             VERSION,
             true
         );
 
-        wp_localize_script('frontend-management-page', 'frontendManagementPageData', [
+        wp_localize_script('shortcode-generator-page', 'shortcodeGeneratorPageData', [
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('ujc_frontend_nonce')
         ]);
     }
-    
+
     /**
-     * Render the frontend management page
+     * Render the shortcode generator page
      */
     public function render() {
         // Use default settings for display
         $settings = $this->getDefaultSettings();
-        
+
         ?>
-        <div class="wrap">
+        <div class="wrap shortcode-generator-page">
             <div class="page-header">
-                <h1>Warstwa Frontendowa</h1>
+                <h1>Generator Shortcode</h1>
                 <div class="page-actions">
                     <button type="button" class="button button-secondary" id="show-instructions">
                         <span class="dashicons dashicons-editor-help"></span>
@@ -636,6 +636,88 @@ class FrontendManagementPage {
             echo '</div>';
         }
         
+        echo '</div>';
+    }
+
+    /**
+     * Render status styling options
+     */
+    private function render_status_styling(array $settings) {
+        $status_options = [
+            'status_available_bg_color' => 'Tło "Dostępne"',
+            'status_available_text_color' => 'Tekst "Dostępne"',
+            'status_sold_bg_color' => 'Tło "Sprzedane"',
+            'status_sold_text_color' => 'Tekst "Sprzedane"',
+            'status_reserved_bg_color' => 'Tło "Zarezerwowane"',
+            'status_reserved_text_color' => 'Tekst "Zarezerwowane"'
+        ];
+
+        echo '<div class="status-styling-options">';
+        foreach ($status_options as $field => $label) {
+            $color_value = $settings[$field] ?? '#007cba';
+            echo '<div class="status-color-item">';
+            echo '<label for="' . esc_attr($field) . '">' . esc_html($label) . '</label>';
+            echo '<div class="color-input-wrapper">';
+            echo '<input type="color" id="' . esc_attr($field) . '" name="' . esc_attr($field) . '" value="' . esc_attr($color_value) . '" class="compact-color-input">';
+            echo '<span class="color-hex-display">' . esc_html(strtoupper($color_value)) . '</span>';
+            echo '</div>';
+            echo '</div>';
+        }
+        echo '</div>';
+    }
+
+    /**
+     * Render button styling options
+     */
+    private function render_button_styling(array $settings) {
+        echo '<div class="button-styling-options">';
+
+        // Historia button styling
+        echo '<div class="button-group">';
+        echo '<h5>Przycisk "Historia cen"</h5>';
+        echo '<div class="button-styling-row">';
+
+        echo '<div class="button-text-input">';
+        echo '<label for="historia_btn_text">Tekst przycisku</label>';
+        echo '<input type="text" id="historia_btn_text" name="historia_btn_text" value="' . esc_attr($settings['historia_btn_text'] ?? 'Historia') . '" class="regular-text">';
+        echo '</div>';
+
+        echo '<div class="button-color-inputs">';
+        echo '<label for="historia_btn_bg_color">Kolor tła</label>';
+        echo '<input type="color" id="historia_btn_bg_color" name="historia_btn_bg_color" value="' . esc_attr($settings['historia_btn_bg_color'] ?? '#007cba') . '">';
+        echo '</div>';
+
+        echo '<div class="button-color-inputs">';
+        echo '<label for="historia_btn_text_color">Kolor tekstu</label>';
+        echo '<input type="color" id="historia_btn_text_color" name="historia_btn_text_color" value="' . esc_attr($settings['historia_btn_text_color'] ?? '#ffffff') . '">';
+        echo '</div>';
+
+        echo '</div>';
+        echo '</div>';
+
+        // Karta button styling
+        echo '<div class="button-group">';
+        echo '<h5>Przycisk "Karta lokalu"</h5>';
+        echo '<div class="button-styling-row">';
+
+        echo '<div class="button-text-input">';
+        echo '<label for="karta_btn_text">Tekst przycisku</label>';
+        echo '<input type="text" id="karta_btn_text" name="karta_btn_text" value="' . esc_attr($settings['karta_btn_text'] ?? 'Karta lokalu') . '" class="regular-text">';
+        echo '</div>';
+
+        echo '<div class="button-color-inputs">';
+        echo '<label for="karta_btn_bg_color">Kolor tła</label>';
+        echo '<input type="color" id="karta_btn_bg_color" name="karta_btn_bg_color" value="' . esc_attr($settings['karta_btn_bg_color'] ?? '#007cba') . '">';
+        echo '</div>';
+
+        echo '<div class="button-color-inputs">';
+        echo '<label for="karta_btn_text_color">Kolor tekstu</label>';
+        echo '<input type="color" id="karta_btn_text_color" name="karta_btn_text_color" value="' . esc_attr($settings['karta_btn_text_color'] ?? '#ffffff') . '">';
+        echo '</div>';
+
+        echo '</div>';
+        echo '</div>';
+
         echo '</div>';
     }
 }

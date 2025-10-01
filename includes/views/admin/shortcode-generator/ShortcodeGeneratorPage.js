@@ -31,28 +31,23 @@ jQuery(document).ready(function($) {
         const headerFontFamily = $('#header-font-family').val();
         const contentFontFamily = $('#content-font-family').val();
 
-        // Status styling options
-        const statusDisplayStyle = $('#status-display-style').val();
-        const statusAvailableBgColor = $('#status-available-bg-color').val();
-        const statusAvailableTextColor = $('#status-available-text-color').val();
-        const statusSoldBgColor = $('#status-sold-bg-color').val();
-        const statusSoldTextColor = $('#status-sold-text-color').val();
-        const statusReservedBgColor = $('#status-reserved-bg-color').val();
-        const statusReservedTextColor = $('#status-reserved-text-color').val();
-        const statusFontSize = $('#status-font-size').val();
-        const statusPadding = $('#status-padding').val();
-        const statusBorderRadius = $('#status-border-radius').val();
-        const statusFontWeight = $('#status-font-weight').val();
+        // Status styling options (only elements that exist in HTML)
+        const statusAvailableBgColor = $('#status_available_bg_color').val();
+        const statusAvailableTextColor = $('#status_available_text_color').val();
+        const statusSoldBgColor = $('#status_sold_bg_color').val();
+        const statusSoldTextColor = $('#status_sold_text_color').val();
+        const statusReservedBgColor = $('#status_reserved_bg_color').val();
+        const statusReservedTextColor = $('#status_reserved_text_color').val();
 
         // Button styling options - Historia
-        const historiaBtnText = $('#historia-btn-text').val();
-        const historiaBtnBgColor = $('#historia-btn-bg-color').val();
-        const historiaBtnTextColor = $('#historia-btn-text-color').val();
+        const historiaBtnText = $('#historia_btn_text').val();
+        const historiaBtnBgColor = $('#historia_btn_bg_color').val();
+        const historiaBtnTextColor = $('#historia_btn_text_color').val();
 
         // Button styling options - Karta Lokalu
-        const kartaBtnText = $('#karta-btn-text').val();
-        const kartaBtnBgColor = $('#karta-btn-bg-color').val();
-        const kartaBtnTextColor = $('#karta-btn-text-color').val();
+        const kartaBtnText = $('#karta_btn_text').val();
+        const kartaBtnBgColor = $('#karta_btn_bg_color').val();
+        const kartaBtnTextColor = $('#karta_btn_text_color').val();
 
         let shortcode = '[resources_list';
 
@@ -78,9 +73,6 @@ jQuery(document).ready(function($) {
         shortcode += ' content_font_family="' + contentFontFamily + '"';
 
         // Add status styling parameters (only if set)
-        if (statusDisplayStyle) {
-            shortcode += ' status_display_style="' + statusDisplayStyle + '"';
-        }
         if (statusAvailableBgColor) {
             shortcode += ' status_available_bg_color="' + statusAvailableBgColor + '"';
         }
@@ -98,18 +90,6 @@ jQuery(document).ready(function($) {
         }
         if (statusReservedTextColor) {
             shortcode += ' status_reserved_text_color="' + statusReservedTextColor + '"';
-        }
-        if (statusFontSize) {
-            shortcode += ' status_font_size="' + statusFontSize + '"';
-        }
-        if (statusPadding) {
-            shortcode += ' status_padding="' + statusPadding + '"';
-        }
-        if (statusBorderRadius) {
-            shortcode += ' status_border_radius="' + statusBorderRadius + '"';
-        }
-        if (statusFontWeight) {
-            shortcode += ' status_font_weight="' + statusFontWeight + '"';
         }
 
         // Add button styling parameters - Historia
@@ -159,7 +139,7 @@ jQuery(document).ready(function($) {
                 shortcode: shortcodeText
             };
 
-            $.post(frontendManagementPageData.ajaxurl, formData)
+            $.post(shortcodeGeneratorPageData.ajaxurl, formData)
                 .done(function(response) {
                     $('#preview-loading').hide();
                     if (response.success) {
@@ -288,7 +268,7 @@ jQuery(document).ready(function($) {
         const originalText = $resetBtn.text();
         $resetBtn.text('Resetowanie...').prop('disabled', true);
 
-        $.post(frontendManagementPageData.ajaxurl, {
+        $.post(shortcodeGeneratorPageData.ajaxurl, {
             action: 'ujc_reset_frontend_settings',
             nonce: $('[name="nonce"]').val()
         }, function(response) {

@@ -21,12 +21,20 @@
     gap: 15px;
 }
 
-.ujc-form-row {
+.ujc-form-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.ujc-form-row,
+.ujc-form-field {
     display: flex;
     flex-direction: column;
 }
 
-.ujc-form-row label {
+.ujc-form-row label,
+.ujc-form-field label {
     font-weight: 600;
     color: #333;
     margin-bottom: 5px;
@@ -35,7 +43,10 @@
 
 .ujc-form-row input,
 .ujc-form-row select,
-.ujc-form-row textarea {
+.ujc-form-row textarea,
+.ujc-form-field input,
+.ujc-form-field select,
+.ujc-form-field textarea {
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -45,7 +56,10 @@
 
 .ujc-form-row input:focus,
 .ujc-form-row select:focus,
-.ujc-form-row textarea:focus {
+.ujc-form-row textarea:focus,
+.ujc-form-field input:focus,
+.ujc-form-field select:focus,
+.ujc-form-field textarea:focus {
     outline: none;
     border-color: #0073aa;
     box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.1);
@@ -140,8 +154,13 @@
     background: #3e9c43;
 }
 
+.ujc-copy-address {
+    margin-bottom: 15px;
+}
+
 @media (max-width: 768px) {
-    .ujc-form-grid {
+    .ujc-form-grid,
+    .ujc-form-grid-3 {
         grid-template-columns: 1fr;
     }
 

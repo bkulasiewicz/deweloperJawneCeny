@@ -340,6 +340,10 @@ class DIContainer {
             );
         });
 
+        $c->singleton(ResourceItem::class, function() use ($c) {
+            return new ResourceItem();
+        });
+
         // Controllers - Faza 4
         $c->singleton(AdminController::class, function() use ($c) {
             return new AdminController();
@@ -386,7 +390,8 @@ class DIContainer {
                 $c->get(InvestmentModal::class),
                 $c->get(DeveloperRepository::class),
                 $c->get(InvestmentRepository::class),
-                $c->get(HistoryModal::class)
+                $c->get(HistoryModal::class),
+                $c->get(ResourceItem::class)
             );
         });
 
@@ -448,8 +453,8 @@ class DIContainer {
             );
         });
 
-        $c->bind(FrontendManagementPage::class, function() use ($c) {
-            return new FrontendManagementPage();
+        $c->bind(ShortcodeGeneratorPage::class, function() use ($c) {
+            return new ShortcodeGeneratorPage();
         });
 
     }
