@@ -39,24 +39,24 @@ class ShortcodeManager {
      */
     public function enqueue_shortcode_assets() {
         wp_enqueue_style(
-            'ujc-shortcode-resources-list-css',
+            'jawneceny-shortcode-resources-list-css',
             JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-block.css',
             [],
             JAWNECENY_VERSION
         );
 
         // Set priority to ensure CSS loads early
-        wp_styles()->add_data('ujc-shortcode-resources-list-css', 'priority', 'high');
+        wp_styles()->add_data('jawneceny-shortcode-resources-list-css', 'priority', 'high');
 
         wp_enqueue_script(
-            'ujc-shortcode-resources-list-js',
+            'jawneceny-shortcode-resources-list-js',
             JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-widget.js',
             ['jquery'],
             JAWNECENY_VERSION,
             true
         );
 
-        wp_localize_script('ujc-shortcode-resources-list-js', 'resourcesListAjax', [
+        wp_localize_script('jawneceny-shortcode-resources-list-js', 'jawnecenyResourcesListAjax', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('resources_list_nonce'),
             'strings' => [

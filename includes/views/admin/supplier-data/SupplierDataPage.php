@@ -45,7 +45,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
 
         wp_localize_script('supplier-data-page', 'supplierDataPageData', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('ujc_supplier_nonce')
+            'nonce' => wp_create_nonce('jawneceny_supplier_nonce')
         ]);
     }
     
@@ -234,7 +234,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
             <?php endif; ?>
                 
                 <form id="developer-form" method="post">
-                    <?php wp_nonce_field('ujc_admin_nonce', 'nonce'); ?>
+                    <?php wp_nonce_field('jawneceny_admin_nonce', 'nonce'); ?>
                     
                     <!-- Dane podstawowe -->
                     <div class="ujc-form-section">

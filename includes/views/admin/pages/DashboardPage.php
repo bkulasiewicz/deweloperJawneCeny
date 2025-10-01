@@ -40,7 +40,7 @@ class DashboardPage {
     
     public function ajax_manual_generation() {
         try {
-            check_ajax_referer('ujc_admin_nonce', 'nonce');
+            check_ajax_referer('jawneceny_admin_nonce', 'nonce');
             if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
             
             $result = $this->generateFilesUseCase->execute(TriggerType::Manual);
@@ -56,7 +56,7 @@ class DashboardPage {
     }
     
     public function ajax_download_logs() {
-        check_ajax_referer('ujc_admin_nonce', 'nonce');
+        check_ajax_referer('jawneceny_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Brak uprawnień administratora');
@@ -150,7 +150,7 @@ class DashboardPage {
                 button.textContent = '⏳ Generowanie...';
                 button.disabled = true;
                 
-                const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
+                const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
                 
                 jQuery.post(ajaxurl, {
                     action: 'jawneceny_manual_generation',
@@ -173,7 +173,7 @@ class DashboardPage {
             }
             
             function downloadLogs() {
-                const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
+                const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
                 
                 jQuery.post(ajaxurl, {
                     action: 'jawneceny_download_logs',

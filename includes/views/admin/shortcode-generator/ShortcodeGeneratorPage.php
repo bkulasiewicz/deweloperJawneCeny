@@ -39,7 +39,7 @@ class ShortcodeGeneratorPage {
 
         wp_localize_script('shortcode-generator-page', 'shortcodeGeneratorPageData', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('ujc_frontend_nonce')
+            'nonce' => wp_create_nonce('jawneceny_frontend_nonce')
         ]);
     }
 
@@ -72,7 +72,7 @@ class ShortcodeGeneratorPage {
             </div>
             
             <form id="frontend-settings-form" method="post">
-                <?php wp_nonce_field('ujc_frontend_settings_nonce', 'nonce'); ?>
+                <?php wp_nonce_field('jawneceny_frontend_settings_nonce', 'nonce'); ?>
                 
                 <!-- Live Preview Section -->
                 <div class="postbox">
@@ -396,7 +396,7 @@ class ShortcodeGeneratorPage {
      * AJAX handler for resetting settings
      */
     public function ajax_reset_settings() {
-        check_ajax_referer('ujc_frontend_settings_nonce', 'nonce');
+        check_ajax_referer('jawneceny_frontend_settings_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Brak uprawnień');
@@ -413,7 +413,7 @@ class ShortcodeGeneratorPage {
      * AJAX handler for live preview using generated shortcode
      */
     public function ajax_preview_shortcode() {
-        check_ajax_referer('ujc_frontend_settings_nonce', 'nonce');
+        check_ajax_referer('jawneceny_frontend_settings_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Brak uprawnień');

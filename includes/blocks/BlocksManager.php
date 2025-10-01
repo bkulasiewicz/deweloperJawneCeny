@@ -100,14 +100,14 @@ class BlocksManager {
         );
 
         wp_enqueue_script(
-            'ujc-clickable-rows',
+            'jawneceny-clickable-rows',
             JAWNECENY_PLUGIN_URL . 'assets/frontend-clickable-rows.js',
             ['jquery'],
             '1.0.1',
             true
         );
 
-        wp_localize_script('resources-list-widget-js', 'resourcesListAjax', [
+        wp_localize_script('resources-list-widget-js', 'jawnecenyResourcesListAjax', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('resources_list_nonce'),
             'strings' => [

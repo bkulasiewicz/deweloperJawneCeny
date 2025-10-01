@@ -49,7 +49,7 @@ class PublicationPage {
 
     public function ajax_generate_files() {
         Logger::info('PUBLICATION PAGE: ajax_generate_files started');
-        check_ajax_referer('ujc_admin_nonce', 'nonce');
+        check_ajax_referer('jawneceny_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
 
         try {

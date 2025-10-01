@@ -39,7 +39,7 @@ class DevConsoleTile {
             return;
         }
         
-        check_ajax_referer('ujc_admin_nonce', 'nonce');
+        check_ajax_referer('jawneceny_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Brak uprawnień administratora');
@@ -95,7 +95,7 @@ class DevConsoleTile {
      * AJAX handler do czyszczenia logów UJC
      */
     public function ajax_clear_logs() {
-        check_ajax_referer('ujc_admin_nonce', 'nonce');
+        check_ajax_referer('jawneceny_admin_nonce', 'nonce');
         
         try {
             Logger::clearLogs();
@@ -115,7 +115,7 @@ class DevConsoleTile {
             return;
         }
         
-        check_ajax_referer('ujc_admin_nonce', 'nonce');
+        check_ajax_referer('jawneceny_admin_nonce', 'nonce');
         
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Brak uprawnień administratora');
@@ -213,7 +213,7 @@ class DevConsoleTile {
             button.textContent = '⏳ Uruchamianie fallback...';
             button.disabled = true;
             
-            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
+            const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
             
             jQuery.post(ajaxurl, {
                 action: 'jawneceny_dev_trigger_fallback',
@@ -234,7 +234,7 @@ class DevConsoleTile {
         }
 
         function clearLogs() {
-            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
+            const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
             
             jQuery.post(ajaxurl, {
                 action: 'jawneceny_dev_clear_logs',
@@ -263,7 +263,7 @@ class DevConsoleTile {
         }
 
         function clearTableData(type) {
-            const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('ujc_admin_nonce')); ?>';
+            const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
             
             jQuery.post(ajaxurl, {
                 action: 'jawneceny_dev_clear_table',

@@ -370,7 +370,7 @@ class ResourceCardRenderer {
     private static function enqueueCardAssets(bool $has_clickable_cards = false): void {
         // Always enqueue the resources widget JavaScript for modal functionality
         wp_enqueue_script(
-            'ujc-resources-widget',
+            'jawneceny-resources-widget',
             plugins_url('assets/blocks/resources-list-widget.js', dirname(dirname(__DIR__)) . '/ustawa-jawnosci-cen.php'),
             ['jquery'],
             JAWNECENY_VERSION,
@@ -378,7 +378,7 @@ class ResourceCardRenderer {
         );
 
         // Localize script with AJAX data
-        wp_localize_script('ujc-resources-widget', 'resourcesListAjax', [
+        wp_localize_script('jawneceny-resources-widget', 'jawnecenyResourcesListAjax', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('resources_list_nonce'),
             'strings' => [
@@ -391,7 +391,7 @@ class ResourceCardRenderer {
         // Enqueue clickable cards JavaScript if needed
         if ($has_clickable_cards) {
             wp_enqueue_script(
-                'ujc-clickable-rows',
+                'jawneceny-clickable-rows',
                 plugins_url('assets/frontend-clickable-rows.js', dirname(dirname(__DIR__)) . '/ustawa-jawnosci-cen.php'),
                 ['jquery'],
                 '1.0.1',

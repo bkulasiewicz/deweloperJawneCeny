@@ -21,7 +21,7 @@ window.showResourceHistory = function(resourceId) {
         $('body').append(modalHtml);
 
         // Załaduj dane
-        $.post(typeof ujc_ajax !== 'undefined' ? ujc_ajax.ajax_url : ajaxurl, {
+        $.post(typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.ajax_url : ajaxurl, {
             action: 'jawneceny_get_resource_history',
             resource_id: resourceId,
             nonce: historyModalData.nonce

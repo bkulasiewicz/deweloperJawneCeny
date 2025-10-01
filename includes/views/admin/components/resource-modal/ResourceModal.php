@@ -55,7 +55,7 @@ class ResourceModal extends JawneCeny_AdminPage {
 
         wp_localize_script('resource-modal', 'resourceModalData', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('ujc_admin_nonce'),
+            'nonce' => wp_create_nonce('jawneceny_admin_nonce'),
             'defaultStatus' => esc_js(ResourceStatus::cases()[0]->value),
             'propertyTypes' => [
                 'PARKING_SPACE' => esc_js(PropertyType::PARKING_SPACE->value),
@@ -83,7 +83,7 @@ class ResourceModal extends JawneCeny_AdminPage {
                 </div>
                 
                 <form id="resource-modal-form" method="post" enctype="multipart/form-data">
-                    <?php wp_nonce_field('ujc_admin_nonce', 'nonce'); ?>
+                    <?php wp_nonce_field('jawneceny_admin_nonce', 'nonce'); ?>
                     <input type="hidden" id="resource-id" name="resource_id" value="">
                     <input type="hidden" id="modal-action" name="modal_action" value="add">
                     

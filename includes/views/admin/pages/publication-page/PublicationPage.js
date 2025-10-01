@@ -9,9 +9,9 @@ function generateFiles() {
     button.textContent = '⏳ Generowanie...';
     button.disabled = true;
 
-    const nonce = ujc_ajax.nonce;
+    const nonce = jawneceny_ajax.nonce;
 
-    jQuery.post(ujc_ajax.ajax_url, {
+    jQuery.post(jawneceny_ajax.ajax_url, {
         action: 'jawneceny_publication_generate',
         nonce: nonce
     }, function(response) {

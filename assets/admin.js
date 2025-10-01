@@ -9,16 +9,16 @@ jQuery(document).ready(function($) {
         
         var $submit = $(this).find('input[type="submit"]');
         var originalText = $submit.val();
-        $submit.val(ujc_ajax.strings.saving).prop('disabled', true);
+        $submit.val(jawneceny_ajax.strings.saving).prop('disabled', true);
         
-        $.post(ujc_ajax.ajax_url, formData, function(response) {
+        $.post(jawneceny_ajax.ajax_url, formData, function(response) {
             if (response.success) {
-                showNotice('success', ujc_ajax.strings.saved);
+                showNotice('success', jawneceny_ajax.strings.saved);
             } else {
-                showNotice('error', response.data || ujc_ajax.strings.error);
+                showNotice('error', response.data || jawneceny_ajax.strings.error);
             }
         }).fail(function() {
-            showNotice('error', ujc_ajax.strings.error);
+            showNotice('error', jawneceny_ajax.strings.error);
         }).always(function() {
             $submit.val(originalText).prop('disabled', false);
         });

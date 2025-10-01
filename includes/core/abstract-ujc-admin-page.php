@@ -38,7 +38,7 @@ abstract class JawneCeny_AdminPage {
     /**
      * Weryfikacja nonce
      */
-    protected function verify_nonce($nonce_field = 'nonce', $nonce_action = 'ujc_admin_nonce') {
+    protected function verify_nonce($nonce_field = 'nonce', $nonce_action = 'jawneceny_admin_nonce') {
         Logger::info('UJC: verify_nonce called with field: ' . $nonce_field . ', action: ' . $nonce_action);
         Logger::info('UJC: POST data keys: ' . implode(', ', array_keys($_POST)));
         

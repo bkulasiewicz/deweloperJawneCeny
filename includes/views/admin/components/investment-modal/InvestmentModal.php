@@ -51,7 +51,7 @@ class InvestmentModal extends JawneCeny_AdminPage {
 
         wp_localize_script('investment-modal', 'investmentModalData', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('ujc_admin_nonce')
+            'nonce' => wp_create_nonce('jawneceny_admin_nonce')
         ]);
     }
 
@@ -167,7 +167,7 @@ class InvestmentModal extends JawneCeny_AdminPage {
                 <!-- Formularz edycji (ukryty) -->
                 <div id="investment-edit" class="ujc-modal-body" style="display: none;">
                     <form id="investment-edit-form" method="post">
-                        <?php wp_nonce_field('ujc_admin_nonce', 'nonce'); ?>
+                        <?php wp_nonce_field('jawneceny_admin_nonce', 'nonce'); ?>
                         
                         <div class="modal-columns">
                             <!-- Lewa kolumna - Formularz podstawowy -->

@@ -22,7 +22,7 @@ class CsvFilesSection {
      */
     public function enqueue_assets() {
         wp_enqueue_style(
-            'ujc-csv-files-section',
+            'jawneceny-csv-files-section',
             plugins_url('CsvFilesSection.css', __FILE__),
             [],
             JAWNECENY_VERSION

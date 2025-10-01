@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('history-content').style.display = 'none';
             
             // Make AJAX request
-            fetch(resourcesListAjax.ajax_url, {
+            fetch(jawnecenyResourcesListAjax.ajax_url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: new URLSearchParams({
                     action: 'jawneceny_get_price_history',
                     resource_id: resourceId,
-                    nonce: resourcesListAjax.nonce
+                    nonce: jawnecenyResourcesListAjax.nonce
                 })
             })
             .then(response => response.json())
@@ -44,14 +44,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     displayPriceHistory(data.data.history);
                 } else {
                     document.getElementById('history-content').innerHTML = 
-                        '<p class="error-message">' + resourcesListAjax.strings.error + '</p>';
+                        '<p class="error-message">' + jawnecenyResourcesListAjax.strings.error + '</p>';
                     document.getElementById('history-content').style.display = 'block';
                 }
             })
             .catch(error => {
                 document.getElementById('history-loading').style.display = 'none';
                 document.getElementById('history-content').innerHTML = 
-                    '<p class="error-message">' + resourcesListAjax.strings.error + '</p>';
+                    '<p class="error-message">' + jawnecenyResourcesListAjax.strings.error + '</p>';
                 document.getElementById('history-content').style.display = 'block';
             });
         });
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayPriceHistory(history) {
         if (!history || history.length === 0) {
             document.getElementById('history-content').innerHTML = 
-                '<p>' + resourcesListAjax.strings.no_history + '</p>';
+                '<p>' + jawnecenyResourcesListAjax.strings.no_history + '</p>';
             document.getElementById('history-content').style.display = 'block';
             return;
         }

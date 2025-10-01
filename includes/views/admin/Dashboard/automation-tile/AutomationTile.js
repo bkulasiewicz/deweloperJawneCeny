@@ -9,7 +9,7 @@ function toggleExternalCron(enable) {
     button.textContent = enable ? '⏳ Włączanie...' : '⏳ Wyłączanie...';
     button.disabled = true;
 
-    const nonce = typeof ujc_ajax !== 'undefined' ? ujc_ajax.nonce : ujc_automation_ajax.nonce;
+    const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : jawneceny_automation_ajax.nonce;
     const schedule = document.getElementById('external-cron-schedule-select') ?
         document.getElementById('external-cron-schedule-select').value : '24hour';
 

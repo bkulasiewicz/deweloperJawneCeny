@@ -41,7 +41,7 @@ class AutomationTile {
         }
 
         wp_enqueue_script(
-            'ujc-automation-tile',
+            'jawneceny-automation-tile',
             plugins_url('automation-tile/AutomationTile.js', __FILE__),
             ['jquery'],
             '1.0.0',
@@ -49,8 +49,8 @@ class AutomationTile {
         );
 
         // Localize script with nonce for AJAX calls
-        wp_localize_script('ujc-automation-tile', 'ujc_automation_ajax', [
-            'nonce' => wp_create_nonce('ujc_admin_nonce')
+        wp_localize_script('jawneceny-automation-tile', 'jawneceny_automation_ajax', [
+            'nonce' => wp_create_nonce('jawneceny_admin_nonce')
         ]);
     }
 
@@ -146,7 +146,7 @@ class AutomationTile {
             return;
         }
         
-        check_ajax_referer('ujc_admin_nonce', 'nonce');
+        check_ajax_referer('jawneceny_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
         
         // Proper boolean conversion - handle JavaScript boolean false correctly

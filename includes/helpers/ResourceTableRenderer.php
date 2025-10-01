@@ -98,7 +98,7 @@ class ResourceTableRenderer {
 
         // Ensure CSS is loaded
         wp_enqueue_style(
-            'ujc-resources-list-css',
+            'jawneceny-resources-list-css',
             JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-block.css',
             [],
             JAWNECENY_VERSION
@@ -436,7 +436,7 @@ class ResourceTableRenderer {
             --modal-z-index: " . esc_attr($styling_options['modal_z_index'] ?? '10000') . ";
         }";
 
-        wp_add_inline_style('ujc-resources-list-css', $css);
+        wp_add_inline_style('jawneceny-resources-list-css', $css);
     }
 
 }

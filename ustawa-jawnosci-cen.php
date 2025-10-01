@@ -4,7 +4,7 @@
  * Plugin URI: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
  * Description (EN): Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.5.30
+ * Version: 4.5.31
  * Requires at least: 6.2
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -234,12 +234,12 @@ class DeweloperJawneCeny {
     
     
     public function enqueue_frontend_scripts() {
-        wp_enqueue_style('ujc-frontend', JAWNECENY_PLUGIN_URL . 'assets/admin.css', [], JAWNECENY_VERSION);
-        wp_enqueue_style('ujc-resource-modal', JAWNECENY_PLUGIN_URL . 'assets/admin-resource-modal.css', [], JAWNECENY_VERSION);
-        
-        wp_enqueue_script('ujc-resources-list-widget', JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-widget.js', ['jquery'], JAWNECENY_VERSION, true);
-        
-        wp_localize_script('ujc-resources-list-widget', 'resourcesListAjax', [
+        wp_enqueue_style('jawneceny-frontend', JAWNECENY_PLUGIN_URL . 'assets/admin.css', [], JAWNECENY_VERSION);
+        wp_enqueue_style('jawneceny-resource-modal', JAWNECENY_PLUGIN_URL . 'assets/admin-resource-modal.css', [], JAWNECENY_VERSION);
+
+        wp_enqueue_script('jawneceny-resources-list-widget', JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-widget.js', ['jquery'], JAWNECENY_VERSION, true);
+
+        wp_localize_script('jawneceny-resources-list-widget', 'jawnecenyResourcesListAjax', [
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('resources_list_nonce'),
             'strings' => [

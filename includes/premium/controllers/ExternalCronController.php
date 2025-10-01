@@ -158,7 +158,7 @@ class ExternalCronController {
             wp_die('Brak uprawnień');
         }
         
-        check_ajax_referer('ujc_admin_nonce', 'nonce');
+        check_ajax_referer('jawneceny_admin_nonce', 'nonce');
         
         $schedule = sanitize_text_field($_POST['schedule'] ?? '24hour');
         
