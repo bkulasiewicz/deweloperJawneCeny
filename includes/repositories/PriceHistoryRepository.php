@@ -69,7 +69,7 @@ class PriceHistoryRepository {
         $table = TableNames::getPriceHistory();
         $charset_collate = $wpdb->get_charset_collate();
         
-        if (UJC_Schema_Manager::tableExists($table)) {
+        if (JawneCeny_SchemaManager::tableExists($table)) {
             $needsMigration = ($currentDbVersion === null) ||
                               ($currentDbVersion !== null && version_compare($currentDbVersion, '1.8', '<'));
 

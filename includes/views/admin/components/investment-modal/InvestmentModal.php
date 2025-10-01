@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
  * Komponent modalu dla inwestycji - Single Responsibility Principle
  * Odpowiada tylko za zarządzanie modalem wyświetlania/edycji danych inwestycji
  */
-class InvestmentModal extends UJC_Admin_Page {
+class InvestmentModal extends JawneCeny_AdminPage {
     
     private $createInvestmentUseCase;
     private $updateInvestmentUseCase;

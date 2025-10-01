@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
  * Abstrakcyjna klasa bazowa dla stron administracyjnych
  * Implementuje Single Responsibility Principle
  */
-abstract class UJC_Admin_Page {
+abstract class JawneCeny_AdminPage {
     
     protected $page_slug;
     protected $capabilities = 'manage_options';

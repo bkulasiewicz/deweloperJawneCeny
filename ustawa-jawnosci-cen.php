@@ -345,7 +345,7 @@ class DeweloperJawneCeny {
             $this->load_activationDependencies();
 
             Logger::info('Plugin Activation: Starting database schema creation/migration...');
-            $success = UJC_Schema_Manager::create_tables();
+            $success = JawneCeny_SchemaManager::create_tables();
 
             if (!$success) {
                 Logger::error('Plugin Activation: Database schema creation/migration failed');

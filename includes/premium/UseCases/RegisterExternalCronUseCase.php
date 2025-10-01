@@ -71,9 +71,9 @@ class RegisterExternalCronUseCase {
             
             if ($result['success']) {
                 // Save configuration locally
-                update_option('ujc_cronjoborg_job_id', $result['job_id']);
-                update_option('ujc_external_cron_enabled', true);
-                update_option('ujc_external_cron_schedule', $schedule);
+                update_option('jawneceny_cronjoborg_job_id', $result['job_id']);
+                update_option('jawneceny_external_cron_enabled', true);
+                update_option('jawneceny_external_cron_schedule', $schedule);
                 
                 // Disable WordPress cron
                 wp_clear_scheduled_hook('ujc_generate_files_cycle');

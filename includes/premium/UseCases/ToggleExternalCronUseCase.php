@@ -129,7 +129,7 @@ class ToggleExternalCronUseCase {
     public static function getStatus() {
         return [
             'enabled' => ExternalCronController::is_external_cron_enabled(),
-            'job_id' => get_option('ujc_cronjoborg_job_id'),
+            'job_id' => get_option('jawneceny_cronjoborg_job_id'),
             'endpoint' => get_site_url() . '/wp-json/ujc/v1/external-cron'
         ];
     }

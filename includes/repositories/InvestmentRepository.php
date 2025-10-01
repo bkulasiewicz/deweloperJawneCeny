@@ -78,7 +78,7 @@ class InvestmentRepository {
         $table = TableNames::getInvestmentInfo();
         $charset_collate = $wpdb->get_charset_collate();
         
-        if (UJC_Schema_Manager::tableExists($table)) {
+        if (JawneCeny_SchemaManager::tableExists($table)) {
             return true;
         }
 

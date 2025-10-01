@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) {
  * Komponent modalu dla zasobów - Single Responsibility Principle
  * Odpowiada tylko za zarządzanie modalem dodawania/edycji zasobów
  */
-class ResourceModal extends UJC_Admin_Page {
+class ResourceModal extends JawneCeny_AdminPage {
     
     private $createResourceUseCase;
     private $updateResourceUseCase;

@@ -184,7 +184,7 @@ class ExternalCronController {
      * Get current schedule
      */
     public function get_current_schedule() {
-        return get_option('ujc_external_cron_schedule', '24hour');
+        return get_option('jawneceny_external_cron_schedule', '24hour');
     }
     
     /**
@@ -212,7 +212,7 @@ class ExternalCronController {
      * Check if external cron is active
      */
     public static function is_external_cron_enabled() {
-        return get_option('ujc_external_cron_enabled') && get_option('ujc_cronjoborg_job_id');
+        return get_option('jawneceny_external_cron_enabled') && get_option('jawneceny_cronjoborg_job_id');
     }
     
     /**
@@ -221,8 +221,8 @@ class ExternalCronController {
     public static function get_status() {
         return [
             'enabled' => self::is_external_cron_enabled(),
-            'job_id' => get_option('ujc_cronjoborg_job_id'),
-            'schedule' => get_option('ujc_external_cron_schedule', '24hour'),
+            'job_id' => get_option('jawneceny_cronjoborg_job_id'),
+            'schedule' => get_option('jawneceny_external_cron_schedule', '24hour'),
             'endpoint' => get_site_url() . '/wp-json/ujc/v1/external-cron'
         ];
     }

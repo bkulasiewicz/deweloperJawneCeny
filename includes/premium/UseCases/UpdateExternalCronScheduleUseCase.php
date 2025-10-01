@@ -41,18 +41,18 @@ class UpdateExternalCronScheduleUseCase {
             }
             
             // Get job ID
-            $job_id = get_option('ujc_cronjoborg_job_id');
-            
+            $job_id = get_option('jawneceny_cronjoborg_job_id');
+
             // Get available schedules from repository
             $available_schedules = $this->repository->getAvailableSchedules();
-            
+
             // Update schedule via repository
             $schedule_config = $available_schedules[$schedule];
             $result = $this->repository->updateJobSchedule($job_id, $schedule_config);
-            
+
             if ($result['success']) {
                 // Save locally for reference
-                update_option('ujc_external_cron_schedule', $schedule);
+                update_option('jawneceny_external_cron_schedule', $schedule);
                 
                 return [
                     'success' => true,
@@ -94,7 +94,7 @@ class UpdateExternalCronScheduleUseCase {
         }
         
         // Check if job ID exists
-        $job_id = get_option('ujc_cronjoborg_job_id');
+        $job_id = get_option('jawneceny_cronjoborg_job_id');
         if (!$job_id) {
             $errors[] = 'Brak zarejestrowanego job ID w cron-job.org';
         }
@@ -122,14 +122,14 @@ class UpdateExternalCronScheduleUseCase {
      * @return array Current schedule information
      */
     public function getCurrentSchedule() {
-        $current_schedule = get_option('ujc_external_cron_schedule', '24hour');
+        $current_schedule = get_option('jawneceny_external_cron_schedule', '24hour');
         $available_schedules = $this->repository->getAvailableSchedules();
-        
+
         return [
             'current' => $current_schedule,
             'available' => $available_schedules,
             'current_text' => $available_schedules[$current_schedule]['interval_text'] ?? 'Nieznany',
-            'job_id' => get_option('ujc_cronjoborg_job_id'),
+            'job_id' => get_option('jawneceny_cronjoborg_job_id'),
             'enabled' => ExternalCronController::is_external_cron_enabled()
         ];
     }

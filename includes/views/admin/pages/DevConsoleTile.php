@@ -77,8 +77,8 @@ class DevConsoleTile {
                     break;
                     
                 case 'all':
-                    UJC_Schema_Manager::drop_tables();
-                    UJC_Schema_Manager::create_tables();
+                    JawneCeny_SchemaManager::drop_tables();
+                    JawneCeny_SchemaManager::create_tables();
                     wp_send_json_success('CAŁA BAZA ZOSTAŁA ZRESETOWANA!');
                     break;
                     

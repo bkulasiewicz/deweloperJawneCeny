@@ -23,7 +23,7 @@ class UnregisterExternalCronUseCase {
      */
     public function execute() {
         try {
-            $job_id = get_option('ujc_cronjoborg_job_id');
+            $job_id = get_option('jawneceny_cronjoborg_job_id');
             
             if (!$job_id) {
                 // Clean up local settings even if no job ID
@@ -70,9 +70,9 @@ class UnregisterExternalCronUseCase {
      * Clean up local WordPress options
      */
     private function cleanupLocalSettings() {
-        delete_option('ujc_cronjoborg_job_id');
-        delete_option('ujc_external_cron_enabled');
-        delete_option('ujc_external_cron_schedule');
+        delete_option('jawneceny_cronjoborg_job_id');
+        delete_option('jawneceny_external_cron_enabled');
+        delete_option('jawneceny_external_cron_schedule');
         
         // Clear any related transients
         delete_transient('ujc_cronjoborg_ips');

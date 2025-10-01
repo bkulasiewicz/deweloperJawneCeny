@@ -54,14 +54,14 @@ class Logger {
         }
         
         // Clean old log files only once per day
-        $last_cleanup = get_option('logger_last_cleanup', '');
+        $last_cleanup = get_option('jawneceny_logger_last_cleanup', '');
         $today = DateHelper::getCurrentDateYmd();
-        
+
         if ($last_cleanup !== $today) {
             try {
                 self::cleanOldLogFiles();
                 // Only update if cleanup succeeded
-                update_option('logger_last_cleanup', $today);
+                update_option('jawneceny_logger_last_cleanup', $today);
             } catch (Exception $e) {
                 // Log the error but don't update the cleanup date
                 // This ensures cleanup will be retried on next init

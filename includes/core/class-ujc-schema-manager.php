@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 /**
  * Zarządzanie schematem bazy danych
  */
-class UJC_Schema_Manager {
+class JawneCeny_SchemaManager {
     
     /**
      * Tworzy wszystkie tabele wtyczki

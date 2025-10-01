@@ -18,7 +18,7 @@ class XmlResourceRepository {
     public function createTable(?string $currentDbVersion = null): bool {
         global $wpdb;
 
-        if (UJC_Schema_Manager::tableExists($this->table_name)) {
+        if (JawneCeny_SchemaManager::tableExists($this->table_name)) {
             return true;
         }
 

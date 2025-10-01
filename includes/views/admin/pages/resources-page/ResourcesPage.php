@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 /**
  * Strona zasobów
  */
-class ResourcesPage extends UJC_Admin_Page {
+class ResourcesPage extends JawneCeny_AdminPage {
 
     private $getAllResourcesUseCase;
     private $resourceModal;

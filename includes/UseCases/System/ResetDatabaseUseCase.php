@@ -10,7 +10,7 @@ class ResetDatabaseUseCase {
      * Resetuje dane dewelopera
      */
     public function resetDeveloperData() {
-        UJC_Schema_Manager::reset_developer_table();
+        JawneCeny_SchemaManager::reset_developer_table();
         return 'Dane dewelopera zostały zresetowane';
     }
     
@@ -18,7 +18,7 @@ class ResetDatabaseUseCase {
      * Resetuje dane inwestycji
      */
     public function resetInvestmentData() {
-        UJC_Schema_Manager::reset_investment_table();
+        JawneCeny_SchemaManager::reset_investment_table();
         return 'Dane inwestycji zostały zresetowane';
     }
     
@@ -26,7 +26,7 @@ class ResetDatabaseUseCase {
      * Resetuje dane historii publikacji
      */
     public function resetPublicationHistoryData() {
-        UJC_Schema_Manager::reset_publication_history_table();
+        JawneCeny_SchemaManager::reset_publication_history_table();
         return 'Historia publikacji została zresetowana';
     }
     
@@ -34,7 +34,7 @@ class ResetDatabaseUseCase {
      * Resetuje dane XML Resource
      */
     public function resetXmlResourceData() {
-        UJC_Schema_Manager::reset_xml_resource_table();
+        JawneCeny_SchemaManager::reset_xml_resource_table();
         return 'Tabela XML Resources została zresetowana';
     }
     
@@ -42,7 +42,7 @@ class ResetDatabaseUseCase {
      * Resetuje wszystkie tabele z danymi
      */
     public function resetAllData() {
-        UJC_Schema_Manager::reset_resources_tables();
+        JawneCeny_SchemaManager::reset_resources_tables();
         return ['Wszystkie tabele zasobów zostały zresetowane'];
     }
 }
