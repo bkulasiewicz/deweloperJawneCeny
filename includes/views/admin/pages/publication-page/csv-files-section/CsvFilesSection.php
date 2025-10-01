@@ -23,7 +23,7 @@ class CsvFilesSection {
     public function enqueue_assets() {
         wp_enqueue_style(
             'ujc-csv-files-section',
-            plugins_url('csv-files-section/CsvFilesSection.css', __FILE__),
+            plugins_url('CsvFilesSection.css', __FILE__),
             [],
             VERSION
         );
