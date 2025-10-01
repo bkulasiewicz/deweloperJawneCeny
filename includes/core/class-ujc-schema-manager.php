@@ -50,18 +50,18 @@ class UJC_Schema_Manager {
      */
     public static function drop_tables() {
         global $wpdb;
-        
+
         $tables = [
             TableNames::getPriceHistory(),
             TableNames::getPublicationHistory(),
             TableNames::getXmlResource(),
-            TableNames::getResources(), 
+            TableNames::getResources(),
             TableNames::getInvestmentInfo(),
             TableNames::getDeveloperInfo()
         ];
-        
+
         foreach ($tables as $table) {
-            $wpdb->query("DROP TABLE IF EXISTS $table");
+            $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %i", $table));
         }
     }
     
@@ -71,7 +71,7 @@ class UJC_Schema_Manager {
      */
     public static function tableExists(string $table): bool {
         global $wpdb;
-        return $wpdb->get_var("SHOW TABLES LIKE '$table'") == $table;
+        return $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table)) == $table;
     }
     
     /**
@@ -79,7 +79,7 @@ class UJC_Schema_Manager {
      */
     public static function dropTable(string $table): bool {
         global $wpdb;
-        return $wpdb->query("DROP TABLE IF EXISTS `$table`") !== false;
+        return $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %i", $table)) !== false;
     }
     
     /**
@@ -104,23 +104,23 @@ class UJC_Schema_Manager {
     public static function reset_resources_tables() {
         global $wpdb;
         $charset_collate = $wpdb->get_charset_collate();
-        
+
         // Wyłącz sprawdzanie kluczy obcych
         $wpdb->query("SET FOREIGN_KEY_CHECKS=0");
-        
+
         $tables = [
             TableNames::getPriceHistory(),
             TableNames::getResources()
         ];
-        
+
         foreach ($tables as $table) {
-            $wpdb->query("DROP TABLE IF EXISTS $table");
+            $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS %i", $table));
         }
-        
+
         (new ResourceRepository())->createTable();
         (new PriceHistoryRepository())->createTable();
         self::create_foreign_keys($wpdb);
-        
+
         // Włącz z powrotem sprawdzanie kluczy obcych
         $wpdb->query("SET FOREIGN_KEY_CHECKS=1");
     }
