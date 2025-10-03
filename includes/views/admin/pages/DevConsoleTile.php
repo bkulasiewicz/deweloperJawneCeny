@@ -176,7 +176,7 @@ class DevConsoleTile {
                 <button type="button" class="button button-secondary" onclick="clearLogs()" style="margin: 5px;">
                     Wyczyść logi
                 </button>
-                <p><small>WP_DEBUG: <?php echo defined('WP_DEBUG') && WP_DEBUG ? 'ON' : 'OFF'; ?></small></p>
+                <p><small>WP_DEBUG: <?php echo esc_html(defined('WP_DEBUG') && WP_DEBUG ? 'ON' : 'OFF'); ?></small></p>
                 <?php endif; ?>
                 
                 <h3 style="margin-top: 20px;">Czyszczenie tabel:</h3>
@@ -206,7 +206,7 @@ class DevConsoleTile {
         
         <script>
         console.log('DEV Console script loaded');
-        console.log('WP_DEBUG status:', '<?php echo defined('WP_DEBUG') && WP_DEBUG ? 'ON' : 'OFF'; ?>');
+        console.log('WP_DEBUG status:', '<?php echo esc_js(defined('WP_DEBUG') && WP_DEBUG ? 'ON' : 'OFF'); ?>');
         
         
         function triggerFallback() {

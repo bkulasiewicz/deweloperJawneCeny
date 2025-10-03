@@ -123,7 +123,6 @@ class DashboardPage {
                 <?php
                 // Renderuj DEV Console jeśli dostępna
                 if (class_exists('DevConsoleTile')) {
-                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Dev Console output contains safe inline JavaScript
                     echo $this->devConsoleTile->render_console_tile();
                 }
                 ?>
