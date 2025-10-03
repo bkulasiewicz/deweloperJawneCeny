@@ -175,20 +175,6 @@ class ResourcesFiltersBlock {
             $html .= '<h3>' . esc_html($attributes['widgetTitle']) . '</h3>';
         }
         $html .= '<form id="resources-filters-form" method="get">';
-
-        // Preserve existing URL parameters (except filter ones)
-        foreach ($_GET as $key => $value) {
-            if (strpos($key, 'filter_') !== 0) {
-                if (is_array($value)) {
-                    foreach ($value as $v) {
-                        $html .= '<input type="hidden" name="' . esc_attr($key) . '[]" value="' . esc_attr($v) . '">';
-                    }
-                } else {
-                    $html .= '<input type="hidden" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '">';
-                }
-            }
-        }
-
         $html .= '<div class="filters-container">';
 
         foreach ($filterGroups as $group) {
