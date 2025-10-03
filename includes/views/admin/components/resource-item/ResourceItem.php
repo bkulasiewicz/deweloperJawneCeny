@@ -52,35 +52,35 @@ class ResourceItem {
             <div class=\"ujc-resource-item-row\">
                 <div class=\"ujc-resource-identity\">
                     <div class=\"ujc-resource-title\">
-                        <strong>{$resource->rodzaj_nieruchomosci}</strong>
-                        <span class=\"ujc-resource-number\">#{$resource->nr_lokalu}</span>
+                        <strong>" . esc_html($resource->rodzaj_nieruchomosci) . "</strong>
+                        <span class=\"ujc-resource-number\">#" . esc_html($resource->nr_lokalu) . "</span>
                     </div>
-                    <div class=\"ujc-resource-surface\">{$powierzchnia}</div>
+                    <div class=\"ujc-resource-surface\">" . esc_html($powierzchnia) . "</div>
                 </div>
-                
+
                 <div class=\"ujc-resource-pricing\">
                     <div class=\"ujc-price-main\">
                         <span class=\"ujc-price-label\">Cena m²:</span>
-                        <span class=\"ujc-price-value\">{$cena_m2}/m²</span>
+                        <span class=\"ujc-price-value\">" . esc_html($cena_m2) . "/m²</span>
                     </div>
                     <div class=\"ujc-price-secondary\">
                         <span class=\"ujc-price-label\">Cena lokalu:</span>
-                        <span class=\"ujc-price-value\">{$cena_calkowita}</span>
+                        <span class=\"ujc-price-value\">" . esc_html($cena_calkowita) . "</span>
                     </div>
                     <div class=\"ujc-price-secondary\">
                         <span class=\"ujc-price-label\">Cena pełna:</span>
-                        <span class=\"ujc-price-value\">{$cena_z_dodatkami}</span>
+                        <span class=\"ujc-price-value\">" . esc_html($cena_z_dodatkami) . "</span>
                     </div>
                 </div>
-                
+
                 <div class=\"ujc-resource-status\">
-                    <span class=\"ujc-status-badge {$status_class}\">{$resource->status}</span>
-                    <span class=\"ujc-date-info\" title=\"Data ostatniej aktualizacji cen\">Akt: {$data_zmiany}</span>
+                    <span class=\"ujc-status-badge " . esc_attr($status_class) . "\">" . esc_html($resource->status) . "</span>
+                    <span class=\"ujc-date-info\" title=\"Data ostatniej aktualizacji cen\">Akt: " . esc_html($data_zmiany) . "</span>
                 </div>
-                
+
                 <div class=\"ujc-resource-actions\">
-                    <button type=\"button\" class=\"button button-small\" onclick=\"showResourceHistory({$resource->id})\">Historia</button>
-                    <button type=\"button\" class=\"button button-small button-primary\" onclick=\"openResourceModal('edit', {$resource->id})\">Edytuj</button>
+                    <button type=\"button\" class=\"button button-small\" onclick=\"showResourceHistory(" . absint($resource->id) . ")\">Historia</button>
+                    <button type=\"button\" class=\"button button-small button-primary\" onclick=\"openResourceModal('edit', " . absint($resource->id) . ")\">Edytuj</button>
                 </div>
             </div>
         ";

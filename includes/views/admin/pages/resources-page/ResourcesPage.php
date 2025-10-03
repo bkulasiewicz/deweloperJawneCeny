@@ -183,7 +183,6 @@ class ResourcesPage extends JawneCeny_AdminPage {
         }
         
         foreach ($resources as $resource) {
-            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Resource item output contains safe onclick attributes
             echo ResourceItem::render_item_html($resource);
         }
     }
