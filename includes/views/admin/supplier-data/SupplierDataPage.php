@@ -412,7 +412,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
                     </div>
                     
                     <p class="submit">
-                        <input type="submit" class="button-primary" value="<?php echo $is_saved ? '💾 Zapisz zmiany' : '💾 Zapisz'; ?>">
+                        <input type="submit" class="button-primary" value="<?php echo esc_attr($is_saved ? '💾 Zapisz zmiany' : '💾 Zapisz'); ?>">
                         <?php if ($is_saved): ?>
                             <button type="button" id="cancel-edit-btn" class="button">❌ Anuluj</button>
                         <?php endif; ?>

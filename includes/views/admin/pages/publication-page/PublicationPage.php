@@ -169,13 +169,13 @@ class PublicationPage {
         }
 
         echo '<div class="status-details">';
-        echo '<p><strong>Plik XML:</strong> ' . ($status['xml_exists'] ? '✅ Istnieje' : '❌ Brak') .
-             ($status['xml_exists'] && !$status['xml_valid'] ? ' (niepoprawny format)' : '') . '</p>';
+        echo '<p><strong>Plik XML:</strong> ' . esc_html($status['xml_exists'] ? '✅ Istnieje' : '❌ Brak') .
+             esc_html($status['xml_exists'] && !$status['xml_valid'] ? ' (niepoprawny format)' : '') . '</p>';
 
-        echo '<p><strong>Plik MD5:</strong> ' . ($status['md5_exists'] ? '✅ Istnieje' : '❌ Brak') .
-             ($status['md5_exists'] && !$status['md5_valid'] ? ' (niepoprawny checksum)' : '') . '</p>';
+        echo '<p><strong>Plik MD5:</strong> ' . esc_html($status['md5_exists'] ? '✅ Istnieje' : '❌ Brak') .
+             esc_html($status['md5_exists'] && !$status['md5_valid'] ? ' (niepoprawny checksum)' : '') . '</p>';
 
-        echo '<p><strong>Dostępność URL:</strong> ' . ($status['urls_accessible'] ? '✅ Dostępne' : '❌ Niedostępne') . '</p>';
+        echo '<p><strong>Dostępność URL:</strong> ' . esc_html($status['urls_accessible'] ? '✅ Dostępne' : '❌ Niedostępne') . '</p>';
 
         if ($status['last_modified']) {
             echo '<p><strong>Ostatnia aktualizacja:</strong> ' . esc_html(DateHelper::formatTimestampForUser($status['last_modified'])) . '</p>';

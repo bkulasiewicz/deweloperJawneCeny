@@ -83,7 +83,7 @@ class ResourceCardRenderer {
         }
 
         // Build HTML using string concatenation (like renderColumnValue pattern)
-        $html = '<div class="resource-card' . $clickable_class . '"' . $clickable_attrs . '>';
+        $html = '<div class="resource-card' . esc_attr($clickable_class) . '"' . $clickable_attrs . '>';
         $html .= '<div class="card-header">';
         $html .= '<div class="card-title-area">';
         $html .= self::renderCardTitle($resource, $visible_columns, $column_names, $styling_options);

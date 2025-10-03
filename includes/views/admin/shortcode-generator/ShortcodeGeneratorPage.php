@@ -386,7 +386,7 @@ class ShortcodeGeneratorPage {
             $is_visible = in_array($column, $settings['visible_columns']);
             $display_name = $default_names[$column] ?? ucfirst($column);
             
-            echo '<div class="column-name-input" data-column="' . esc_attr($column) . '" style="' . ($is_visible ? '' : 'display: none;') . '">';
+            echo '<div class="column-name-input" data-column="' . esc_attr($column) . '" style="' . esc_attr($is_visible ? '' : 'display: none;') . '">';
             echo '<label for="dynamic_column_name_' . esc_attr($column) . '">Nazwa dla kolumny: <strong>' . esc_html($display_name) . '</strong></label>';
             echo '<input type="text" id="dynamic_column_name_' . esc_attr($column) . '" name="column_names[' . esc_attr($column) . ']" value="' . esc_attr($current_name) . '" class="regular-text" placeholder="Wprowadź własną nazwę">';
             echo '</div>';
@@ -607,7 +607,7 @@ class ShortcodeGeneratorPage {
             echo '<input type="checkbox" name="visible_columns[]" value="' . esc_attr($column) . '" id="column_' . esc_attr($column) . '"' . checked($is_checked, true, false) . ' class="column-checkbox">';
             echo '<label for="column_' . esc_attr($column) . '">' . esc_html($display_name) . '</label>';
             echo '</div>';
-            echo '<div class="column-name-section" style="' . ($is_checked ? '' : 'display: none;') . '">';
+            echo '<div class="column-name-section" style="' . esc_attr($is_checked ? '' : 'display: none;') . '">';
             echo '<input type="text" name="column_names[' . esc_attr($column) . ']" value="' . esc_attr($current_name) . '" placeholder="Nazwa kolumny" class="regular-text column-name-input" data-column="' . esc_attr($column) . '">';
             echo '</div>';
             echo '</div>';

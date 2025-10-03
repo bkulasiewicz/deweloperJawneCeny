@@ -96,9 +96,9 @@ class AutomationTile {
         $frequency_text = $available_schedules[$current_schedule]['interval_text'] ?? 'Nieznany';
         
         ?>
-        <p><strong>Status:</strong> 
-            <span style="color: <?php echo $external_cron_enabled ? '#007600' : '#d63638'; ?>;">
-                <?php echo $external_cron_enabled ? '✅ Aktywny' : '❌ Nieaktywny'; ?>
+        <p><strong>Status:</strong>
+            <span style="color: <?php echo esc_attr($external_cron_enabled ? '#007600' : '#d63638'); ?>;">
+                <?php echo esc_html($external_cron_enabled ? '✅ Aktywny' : '❌ Nieaktywny'); ?>
             </span>
         </p>
         
@@ -107,11 +107,11 @@ class AutomationTile {
         <?php endif; ?>
             
         <div style="margin-top: 15px;">
-            <button type="button" 
-                    class="button <?php echo $external_cron_enabled ? 'button-secondary' : 'button-primary'; ?>" 
-                    onclick="toggleExternalCron(<?php echo $external_cron_enabled ? 'false' : 'true'; ?>)"
+            <button type="button"
+                    class="button <?php echo esc_attr($external_cron_enabled ? 'button-secondary' : 'button-primary'); ?>"
+                    onclick="toggleExternalCron(<?php echo esc_attr($external_cron_enabled ? 'false' : 'true'); ?>)"
                     id="external-cron-toggle-btn">
-                <?php echo $external_cron_enabled ? '⏸️ Wyłącz External Cron' : '▶️ Włącz External Cron'; ?>
+                <?php echo esc_html($external_cron_enabled ? '⏸️ Wyłącz External Cron' : '▶️ Włącz External Cron'); ?>
             </button>
             
             <?php if (defined('WP_DEBUG') && WP_DEBUG): ?>
