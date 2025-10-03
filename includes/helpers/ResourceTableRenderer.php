@@ -125,19 +125,21 @@ class ResourceTableRenderer {
                     <?php foreach ($resources as $resource): ?>
                         <?php
                         $row_classes = [];
-                        $row_attributes = [];
 
                         // Make row clickable if detail_page_url is provided
                         if (!empty($detail_page_url)) {
                             $row_classes[] = 'clickable-row';
                             $detail_url = rtrim($detail_page_url, '/') . '/' . urlencode($resource->nr_lokalu);
-                            $row_attributes[] = 'data-detail-url="' . esc_attr($detail_url) . '"';
                         }
-
-                        $class_attr = !empty($row_classes) ? ' class="' . esc_attr(implode(' ', $row_classes)) . '"' : '';
-                        $data_attrs = !empty($row_attributes) ? ' ' . implode(' ', $row_attributes) : '';
                         ?>
-                        <tr<?php echo $class_attr . $data_attrs; ?>>
+                        <tr<?php
+                            if (!empty($row_classes)) {
+                                echo ' class="' . esc_attr(implode(' ', $row_classes)) . '"';
+                            }
+                            if (!empty($detail_page_url)) {
+                                echo ' data-detail-url="' . esc_attr($detail_url) . '"';
+                            }
+                        ?>>
                             <?php foreach ($visible_columns as $column): ?>
                                 <td<?php echo $enable_frontend_sorting ? self::getSortAttributes($resource, $column) : ''; ?>>
                                     <?php echo self::renderColumnValue($resource, $column, $styling_options); ?>
