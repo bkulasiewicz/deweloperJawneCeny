@@ -1,4 +1,7 @@
 <?php
+
+namespace JawneCeny;
+
 if (!defined('ABSPATH')) {
     exit;
 }

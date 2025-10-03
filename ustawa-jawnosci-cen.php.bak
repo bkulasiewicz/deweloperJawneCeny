@@ -4,7 +4,7 @@
  * Plugin URI: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
  * Description (EN): Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.5.31
+ * Version: 4.5.76
  * Requires at least: 6.2
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -22,7 +22,6 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-
 
 define('JAWNECENY_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('JAWNECENY_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -42,8 +41,6 @@ class DeweloperJawneCeny {
     private function __construct() {
         require_once JAWNECENY_PLUGIN_DIR . 'includes/services/DateHelper.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/helpers/Logger.php';
-        Logger::init();
-
 
         register_activation_hook(__FILE__, [$this, 'activate']);
         register_deactivation_hook(__FILE__, [$this, 'deactivate']);
@@ -57,6 +54,7 @@ class DeweloperJawneCeny {
     }
     
     public function init() {
+        JawneCeny\Logger::init();
         $this->load_dependencies();
 
     }
@@ -129,7 +127,6 @@ class DeweloperJawneCeny {
         
         // Core
         require_once JAWNECENY_PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
-        require_once JAWNECENY_PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
         
         
         // Repositories
@@ -219,7 +216,7 @@ class DeweloperJawneCeny {
         }
         
         // Initialize DI Container after all classes are loaded
-        DIContainer::init();
+        JawneCeny\DIContainer::init();
 
         // Initialize context-specific components
         if (is_admin()) {
@@ -259,7 +256,7 @@ class DeweloperJawneCeny {
             // Log file request details for debugging
             $file_exists = file_exists($filepath);
             $file_info = $file_exists ? sprintf('exists, size: %d bytes, modified: %s', filesize($filepath), gmdate('Y-m-d H:i:s', filemtime($filepath))) : 'does not exist';
-            Logger::info(sprintf('File Request: %s -> %s (%s)', $file, $filepath, $file_info));
+            JawneCeny\Logger::info(sprintf('File Request: %s -> %s (%s)', $file, $filepath, $file_info));
             
             $extension = pathinfo($file, PATHINFO_EXTENSION);
             $allowed_extensions = ['csv', 'xml', 'pdf'];
@@ -310,12 +307,14 @@ class DeweloperJawneCeny {
     
         require_once JAWNECENY_PLUGIN_DIR . 'includes/config/TableNames.php';
 
+        // Core classes needed for schema management
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
+
         // Enums needed by repositories
         require_once JAWNECENY_PLUGIN_DIR . 'includes/enums/PropertyType.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/enums/ResourceStatus.php';
 
-        // Core classes needed for schema management
-        require_once JAWNECENY_PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
+        // Repositories needed for table creation
         require_once JAWNECENY_PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
 
         // DTOs needed by repositories
@@ -335,8 +334,8 @@ class DeweloperJawneCeny {
         require_once JAWNECENY_PLUGIN_DIR . 'includes/repositories/PublicationHistoryRepository.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/repositories/XmlResourceRepository.php';
 
-        // Initialize Logger - must be after DateHelper is loaded
-        Logger::init();
+        // Initialize Logger - must be after DateHelper is loaded and all files loaded
+        JawneCeny\Logger::init();
     }
 
     public function activate() {
@@ -344,30 +343,30 @@ class DeweloperJawneCeny {
             // Load minimal dependencies needed for activation
             $this->load_activationDependencies();
 
-            Logger::info('Plugin Activation: Starting database schema creation/migration...');
-            $success = JawneCeny_SchemaManager::create_tables();
+            JawneCeny\Logger::info('Plugin Activation: Starting database schema creation/migration...');
+            $success = JawneCeny\JawneCeny_SchemaManager::create_tables();
 
             if (!$success) {
-                Logger::error('Plugin Activation: Database schema creation/migration failed');
+                JawneCeny\Logger::error('Plugin Activation: Database schema creation/migration failed');
                 throw new Exception('Database migration failed - check logs for details');
             }
 
             // Ustaw nową wersję TYLKO po pomyślnych migracjach
-            $settingsRepo = new SettingsRepository();
+            $settingsRepo = new JawneCeny\SettingsRepository();
             $settingsRepo->setDbVersion(JAWNECENY_DB_VERSION);
 
-            Logger::info('Plugin Activation: Successfully set DB version to ' . JAWNECENY_DB_VERSION);
+            JawneCeny\Logger::info('Plugin Activation: Successfully set DB version to ' . JAWNECENY_DB_VERSION);
 
             // Log plugin activation with version information
-            Logger::info(sprintf(
+            JawneCeny\Logger::info(sprintf(
                 'Plugin Activation: Deweloper Jawne Ceny v%s activated on WordPress %s with PHP %s',
                 JAWNECENY_VERSION,
                 get_bloginfo('version'),
                 PHP_VERSION
             ));
         } catch (Exception $e) {
-            Logger::error('Plugin Activation Error: ' . $e->getMessage());
-            Logger::error('Plugin Activation: Activation failed - plugin may not work correctly');
+            JawneCeny\Logger::error('Plugin Activation Error: ' . $e->getMessage());
+            JawneCeny\Logger::error('Plugin Activation: Activation failed - plugin may not work correctly');
             throw $e; // WordPress will show activation error
         }
     }
@@ -377,7 +376,7 @@ class DeweloperJawneCeny {
      */
     private function init_admin() {
         // Initialize WordPress admin interface through AdminController
-        DIContainer::get(AdminController::class);
+        JawneCeny\DIContainer::get(JawneCeny\AdminController::class);
     }
 
     /**
@@ -385,13 +384,13 @@ class DeweloperJawneCeny {
      */
     private function init_frontend() {
         // Initialize through DI Container
-        DIContainer::get(BlocksManager::class);
-        DIContainer::get(ShortcodeManager::class);
+        JawneCeny\DIContainer::get(JawneCeny\BlocksManager::class);
+        JawneCeny\DIContainer::get(JawneCeny\ShortcodeManager::class);
     }
 
     public function deactivate() {
         // Log plugin deactivation
-        Logger::info(sprintf(
+        JawneCeny\Logger::info(sprintf(
             'Plugin Deactivation: Deweloper Jawne Ceny v%s deactivated',
             JAWNECENY_VERSION
         ));

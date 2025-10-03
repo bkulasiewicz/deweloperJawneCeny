@@ -1,8 +1,18 @@
 <?php
 
+namespace JawneCeny;
+
 if (!defined('ABSPATH')) {
     exit;
 }
+
+use JawneCeny\SettingsRepository;
+use JawneCeny\DeveloperRepository;
+use JawneCeny\InvestmentRepository;
+use JawneCeny\ResourceRepository;
+use JawneCeny\PriceHistoryRepository;
+use JawneCeny\PublicationHistoryRepository;
+use JawneCeny\XmlResourceRepository;
 
 /**
  * Zarządzanie schematem bazy danych

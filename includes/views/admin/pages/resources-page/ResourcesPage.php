@@ -1,5 +1,9 @@
 <?php
 
+namespace JawneCeny;
+
+use JawneCeny_AdminPage;
+
 if (!defined('ABSPATH')) {
     exit;
 }

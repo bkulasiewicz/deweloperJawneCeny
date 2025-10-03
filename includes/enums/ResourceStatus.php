@@ -1,11 +1,13 @@
 <?php
 
+namespace JawneCeny;
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
 /**
- * Resource status enum with database keys  
+ * Resource status enum with database keys
  * Values are used as database storage keys
  */
 enum ResourceStatus: string {

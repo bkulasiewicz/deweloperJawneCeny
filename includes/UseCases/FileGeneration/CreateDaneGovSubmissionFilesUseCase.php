@@ -1,5 +1,7 @@
 <?php
 
+namespace JawneCeny;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -34,40 +36,30 @@ class CreateDaneGovSubmissionFilesUseCase {
      * @return array ['success' => bool, 'message' => string, 'files' => array|null, 'error' => string|null]
      */
     public function createSubmissionFiles($csv_url = null) {
-        Logger::info('CreateDaneGov: Starting XML/MD5 files creation with CSV URL: ' . ($csv_url ?? 'null'));
-        
         try {
             // KRYTYCZNA WALIDACJA - wszystko w jednym miejscu
-            Logger::info('CreateDaneGov: Starting validation...');
             $validation_result = $this->validateDataForSubmission($csv_url);
             if (!$validation_result['valid']) {
                 $error_msg = implode('. ', $validation_result['errors']);
-                Logger::error('CreateDaneGov: Validation FAILED: ' . $error_msg);
                 return [
                     'success' => false,
                     'error' => $error_msg
                 ];
             }
-            Logger::success('CreateDaneGov: Validation SUCCESS');
             
             // Pobierz zwalidowane dane
             $developer_data = $validation_result['data'];
-            Logger::info('CreateDaneGov: Developer data validated - Name: ' . ($developer_data['developer_name'] ?? 'unknown') . ', NIP: ' . ($developer_data['nip'] ?? 'unknown'));
             
             // Utwórz model danych z wszystkimi resources z bazy
-            Logger::info('CreateDaneGov: Creating dataset model from database resources...');
             $dataset = new DaneGovXmlDataset(
                 $developer_data['developer_name'],
                 $developer_data['nip']
             );
-            
+
             // Pobierz wszystkie XML resources z bazy i dodaj do dataset
-            Logger::info('CreateDaneGov: Loading all XML resources from database...');
             $allXmlResources = $this->xmlResourceRepository->readAll();
-            Logger::info('CreateDaneGov: Found ' . count($allXmlResources) . ' XML resources in database');
             
             foreach ($allXmlResources as $xmlResource) {
-                Logger::info('CreateDaneGov: Adding resource - ext_ident: ' . $xmlResource->ext_ident . ', URL: ' . $xmlResource->csv_url . ', date: ' . $xmlResource->data_date);
                 $dataset->addResource(
                     $developer_data['developer_name'],
                     $xmlResource->ext_ident,
@@ -75,28 +67,16 @@ class CreateDaneGovSubmissionFilesUseCase {
                     $xmlResource->data_date
                 );
             }
-            
-            Logger::info('CreateDaneGov: Dataset resources count after loading from database: ' . count($dataset->resources));
-            if (!empty($dataset->resources)) {
-                Logger::info('CreateDaneGov: First resource URL in dataset: ' . $dataset->resources[0]->url);
-                Logger::info('CreateDaneGov: Last resource URL in dataset: ' . end($dataset->resources)->url);
-            }
-            
+
             // Generuj XML - XMLFormatter TYLKO formatuje, NIE waliduje
-            Logger::info('CreateDaneGov: Generating XML content...');
-            $xmlContent = $this->xmlFormatter->formatDatasetToXML($dataset);
-            
+            $xmlFormatter = new XMLFormatter();
+            $xmlContent = $xmlFormatter->formatDatasetToXML($dataset);
+
             // Generate filename
             $filename = $this->fileManager->generateXMLFilename();
-            Logger::info('CreateDaneGov: Generated XML filename: ' . $filename);
-            
+
             // Save XML to file (with MD5)
-            Logger::info('CreateDaneGov: Saving XML and MD5 files...');
             $xml_result = $this->fileManager->saveXML($xmlContent, $filename);
-            
-            Logger::success('CreateDaneGov: Files saved successfully');
-            
-            Logger::success('CreateDaneGov: Returning SUCCESS response');
             
             return [
                 'success' => true,
@@ -106,8 +86,7 @@ class CreateDaneGovSubmissionFilesUseCase {
             
         } catch (Exception $e) {
             $error_msg = $this->getDetailedErrorMessage($e);
-            Logger::error('CreateDaneGov: EXCEPTION caught: ' . $error_msg);
-            
+
             return [
                 'success' => false,
                 'error' => $error_msg
@@ -123,15 +102,12 @@ class CreateDaneGovSubmissionFilesUseCase {
      * @return array ['valid' => bool, 'errors' => array, 'data' => array]
      */
     private function validateDataForSubmission($csv_url = null) {
-        Logger::info('CreateDaneGov: validateDataForSubmission started with CSV URL: ' . ($csv_url ?? 'null'));
         $errors = [];
         $validated_data = [];
-        
+
         // 1. WALIDACJA CSV URL - KRYTYCZNE
-        Logger::info('CreateDaneGov: Validating CSV URL...');
         if (empty($csv_url)) {
             $errors[] = 'URL pliku CSV jest wymagany dla generacji XML';
-            Logger::error('CreateDaneGov: CSV URL is empty');
         } else {
             // Walidacja formatu URL
             if (!filter_var($csv_url, FILTER_VALIDATE_URL)) {
