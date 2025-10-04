@@ -300,7 +300,7 @@ class InvestmentModal extends JawneCeny_AdminPage {
         }
         
         try {
-            $investmentId = isset($_POST['investment_id']) ? intval($_POST['investment_id']) : null;
+            $investmentId = isset($_POST['investment_id']) ? absint($_POST['investment_id']) : null;
             
             if ($investmentId !== null) {
                 // Pobierz konkretną inwestycję po ID (przyszłość - gdy będzie więcej inwestycji)
@@ -332,25 +332,26 @@ class InvestmentModal extends JawneCeny_AdminPage {
         }
         
         try {
-            $data = $this->sanitize_post_data([
-                'name' => 'sanitize_text_field',
-                'proj_wojewodztwo' => 'sanitize_text_field',
-                'proj_powiat' => 'sanitize_text_field',
-                'proj_gmina' => 'sanitize_text_field',
-                'proj_miejscowosc' => 'sanitize_text_field',
-                'proj_ulica' => 'sanitize_text_field',
-                'proj_nr' => 'sanitize_text_field',
-                'proj_kod' => 'sanitize_text_field',
-                'has_property_parts' => [$this, 'sanitize_checkbox'],
-                'has_belonging_rooms' => [$this, 'sanitize_checkbox'],
-                'has_usage_rights' => [$this, 'sanitize_checkbox'],
-                'has_other_services' => [$this, 'sanitize_checkbox'],
-                'show_floor_field' => [$this, 'sanitize_checkbox'],
-                'show_rooms_field' => [$this, 'sanitize_checkbox'],
-                'show_description_field' => [$this, 'sanitize_checkbox'],
-                'show_garden_field' => [$this, 'sanitize_checkbox'],
-                'show_floor_plan_field' => [$this, 'sanitize_checkbox']
-            ]);
+            // Direct sanitization - clear and compliant with WordPress.org guidelines
+            $data = [
+                'name' => sanitize_text_field($_POST['name'] ?? ''),
+                'proj_wojewodztwo' => sanitize_text_field($_POST['proj_wojewodztwo'] ?? ''),
+                'proj_powiat' => sanitize_text_field($_POST['proj_powiat'] ?? ''),
+                'proj_gmina' => sanitize_text_field($_POST['proj_gmina'] ?? ''),
+                'proj_miejscowosc' => sanitize_text_field($_POST['proj_miejscowosc'] ?? ''),
+                'proj_ulica' => sanitize_text_field($_POST['proj_ulica'] ?? ''),
+                'proj_nr' => sanitize_text_field($_POST['proj_nr'] ?? ''),
+                'proj_kod' => sanitize_text_field($_POST['proj_kod'] ?? ''),
+                'has_property_parts' => $this->sanitize_checkbox($_POST['has_property_parts'] ?? ''),
+                'has_belonging_rooms' => $this->sanitize_checkbox($_POST['has_belonging_rooms'] ?? ''),
+                'has_usage_rights' => $this->sanitize_checkbox($_POST['has_usage_rights'] ?? ''),
+                'has_other_services' => $this->sanitize_checkbox($_POST['has_other_services'] ?? ''),
+                'show_floor_field' => $this->sanitize_checkbox($_POST['show_floor_field'] ?? ''),
+                'show_rooms_field' => $this->sanitize_checkbox($_POST['show_rooms_field'] ?? ''),
+                'show_description_field' => $this->sanitize_checkbox($_POST['show_description_field'] ?? ''),
+                'show_garden_field' => $this->sanitize_checkbox($_POST['show_garden_field'] ?? ''),
+                'show_floor_plan_field' => $this->sanitize_checkbox($_POST['show_floor_plan_field'] ?? '')
+            ];
             
             $existingInvestment = $this->getInvestmentUseCase->execute();
             
@@ -414,24 +415,6 @@ class InvestmentModal extends JawneCeny_AdminPage {
         }
     }
     
-    /**
-     * Sanitize POST data
-     */
-    protected function sanitize_post_data($fields = []) {
-        $data = [];
-        foreach ($fields as $field => $sanitize_callback) {
-            $value = $_POST[$field] ?? '';
-
-            // Call sanitization function
-            if (is_callable($sanitize_callback)) {
-                $data[$field] = call_user_func($sanitize_callback, $value);
-            } else {
-                $data[$field] = sanitize_text_field($value);
-            }
-        }
-        return $data;
-    }
-
     public function sanitize_checkbox($value) {
         return isset($value) && $value ? true : false;
     }
