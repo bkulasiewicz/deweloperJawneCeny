@@ -149,7 +149,7 @@ class AutomationTile {
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
         
         // Proper boolean conversion - handle JavaScript boolean false correctly
-        $enable_raw = $_POST['enable'] ?? '';
+        $enable_raw = sanitize_text_field($_POST['enable'] ?? '');
         
         // JavaScript boolean false can be sent as string "false" or actual boolean false
         if ($enable_raw === false || $enable_raw === 'false' || $enable_raw === '0' || $enable_raw === 0) {

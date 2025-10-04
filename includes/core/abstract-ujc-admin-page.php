@@ -38,7 +38,7 @@ abstract class JawneCeny_AdminPage {
      * Weryfikacja nonce
      */
     protected function verify_nonce($nonce_field = 'nonce', $nonce_action = 'jawneceny_admin_nonce') {
-        $nonce = $_POST[$nonce_field] ?? '';
+        $nonce = sanitize_text_field(wp_unslash($_POST[$nonce_field] ?? ''));
 
         if (empty($nonce)) {
             return false;

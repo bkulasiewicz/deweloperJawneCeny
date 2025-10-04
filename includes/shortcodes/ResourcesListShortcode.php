@@ -33,7 +33,7 @@ class ResourcesListShortcode {
         // Default types - residential units only
         $default_types = PropertyType::RESIDENTIAL_UNIT->value;
 
-        Logger::info('Raw atts before shortcode_atts: ' . print_r($atts, true));
+        Logger::info('Raw atts before shortcode_atts: ' . esc_html(print_r($atts, true)));
 
         // Fix WordPress parsing issue - convert indexed array to associative
         if (isset($atts[0]) && is_string($atts[0])) {
@@ -44,7 +44,7 @@ class ResourcesListShortcode {
                 }
             }
             $atts = $fixed_atts;
-            Logger::info('Fixed atts from indexed array: ' . print_r($atts, true));
+            Logger::info('Fixed atts from indexed array: ' . esc_html(print_r($atts, true)));
         }
 
         $atts = shortcode_atts([
@@ -85,14 +85,14 @@ class ResourcesListShortcode {
             'enable_frontend_sorting' => 'false',
         ], $atts);
 
-        Logger::info('Processed atts after shortcode_atts: ' . print_r($atts, true));
+        Logger::info('Processed atts after shortcode_atts: ' . esc_html(print_r($atts, true)));
 
         // Debug: Check if styling parameters are present
         if (!empty($atts['status_display_style'])) {
-            Logger::info('Status styling enabled: ' . $atts['status_display_style']);
+            Logger::info('Status styling enabled: ' . esc_html($atts['status_display_style']));
         }
         if (!empty($atts['historia_btn_text'])) {
-            Logger::info('Historia button text: ' . $atts['historia_btn_text']);
+            Logger::info('Historia button text: ' . esc_html($atts['historia_btn_text']));
         }
 
         try {

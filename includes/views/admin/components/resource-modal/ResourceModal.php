@@ -363,64 +363,44 @@ class ResourceModal extends JawneCeny_AdminPage {
         <?php
     }
     
-    /**
-     * Sanitize POST data with debug logging for marketing fields
-     */
-    protected function sanitize_post_data($fields = []) {
-        $data = [];
-        foreach ($fields as $field => $sanitize_callback) {
-            $value = $_POST[$field] ?? '';
-
-
-            // Call sanitization function
-            if (is_callable($sanitize_callback)) {
-                $data[$field] = call_user_func($sanitize_callback, $value);
-            } else {
-                $data[$field] = sanitize_text_field($value);
-            }
-
-        }
-        return $data;
-    }
-
     private function sanitize_resource_data() {
-        return $this->sanitize_post_data([
-            'rodzaj_nieruchomosci' => 'sanitize_text_field',
-            'nr_lokalu' => 'sanitize_text_field',
-            'powierzchnia_uzytkowa' => [$this, 'sanitize_nullable_float'],
-            'cena_m2' => [$this, 'sanitize_nullable_float'],
-            'cena_calkowita' => 'floatval',
-            'cena_z_dodatkami' => 'floatval',
-            'status' => 'sanitize_text_field',
-            'extra_type' => 'sanitize_text_field',
-            'extra_oznaczenie' => 'sanitize_text_field',
-            'extra_cena' => 'floatval',
-            
+        return [
+            'rodzaj_nieruchomosci' => sanitize_text_field($_POST['rodzaj_nieruchomosci'] ?? ''),
+            'nr_lokalu' => sanitize_text_field($_POST['nr_lokalu'] ?? ''),
+            'powierzchnia_uzytkowa' => $this->sanitize_nullable_float($_POST['powierzchnia_uzytkowa'] ?? ''),
+            'cena_m2' => $this->sanitize_nullable_float($_POST['cena_m2'] ?? ''),
+            'cena_calkowita' => floatval($_POST['cena_calkowita'] ?? 0),
+            'cena_z_dodatkami' => floatval($_POST['cena_z_dodatkami'] ?? 0),
+            'status' => sanitize_text_field($_POST['status'] ?? ''),
+            'extra_type' => sanitize_text_field($_POST['extra_type'] ?? ''),
+            'extra_oznaczenie' => sanitize_text_field($_POST['extra_oznaczenie'] ?? ''),
+            'extra_cena' => floatval($_POST['extra_cena'] ?? 0),
+
             // Component fields
-            'property_part_title' => 'sanitize_text_field',
-            'property_part_designation' => 'sanitize_text_field',
-            'property_part_price' => [$this, 'sanitize_nullable_float'],
-            
-            'belonging_room_title' => 'sanitize_text_field',
-            'belonging_room_designation' => 'sanitize_text_field',
-            'belonging_room_price' => [$this, 'sanitize_nullable_float'],
-            
-            'usage_right_title' => 'sanitize_textarea_field',
-            'usage_right_price' => [$this, 'sanitize_nullable_float'],
-            
-            'other_service_title' => 'sanitize_textarea_field',
-            'other_service_price' => [$this, 'sanitize_nullable_float'],
-            
+            'property_part_title' => sanitize_text_field($_POST['property_part_title'] ?? ''),
+            'property_part_designation' => sanitize_text_field($_POST['property_part_designation'] ?? ''),
+            'property_part_price' => $this->sanitize_nullable_float($_POST['property_part_price'] ?? ''),
+
+            'belonging_room_title' => sanitize_text_field($_POST['belonging_room_title'] ?? ''),
+            'belonging_room_designation' => sanitize_text_field($_POST['belonging_room_designation'] ?? ''),
+            'belonging_room_price' => $this->sanitize_nullable_float($_POST['belonging_room_price'] ?? ''),
+
+            'usage_right_title' => sanitize_textarea_field($_POST['usage_right_title'] ?? ''),
+            'usage_right_price' => $this->sanitize_nullable_float($_POST['usage_right_price'] ?? ''),
+
+            'other_service_title' => sanitize_textarea_field($_POST['other_service_title'] ?? ''),
+            'other_service_price' => $this->sanitize_nullable_float($_POST['other_service_price'] ?? ''),
+
             // Marketing fields
-            'floor_number' => [$this, 'sanitize_nullable_int'],
-            'room_count' => [$this, 'sanitize_nullable_int'],
-            'additional_description' => 'sanitize_textarea_field',
-            'garden_area' => [$this, 'sanitize_nullable_float']
-        ]);
+            'floor_number' => $this->sanitize_nullable_int($_POST['floor_number'] ?? ''),
+            'room_count' => $this->sanitize_nullable_int($_POST['room_count'] ?? ''),
+            'additional_description' => sanitize_textarea_field($_POST['additional_description'] ?? ''),
+            'garden_area' => $this->sanitize_nullable_float($_POST['garden_area'] ?? '')
+        ];
     }
     
     private function sanitize_nullable_float($value) {
-        Logger::info('UJC: sanitize_nullable_float called with value: ' . var_export($value, true));
+        Logger::info('UJC: sanitize_nullable_float called with value: ' . esc_html(var_export($value, true)));
         // If empty string or whitespace, return null
         if ($value === '' || $value === null || trim($value) === '') {
             Logger::info('UJC: sanitize_nullable_float returning null for empty value');
@@ -432,19 +412,19 @@ class ResourceModal extends JawneCeny_AdminPage {
     }
     
     private function sanitize_nullable_int($value) {
-        Logger::info('UJC: sanitize_nullable_int called with value: ' . var_export($value, true));
+        Logger::info('UJC: sanitize_nullable_int called with value: ' . esc_html(var_export($value, true)));
         // If empty string or whitespace, return null
         if ($value === '' || $value === null || trim($value) === '') {
             Logger::info('UJC: sanitize_nullable_int returning null for empty value');
             return null;
         }
-        $result = intval($value);
+        $result = absint($value);
         Logger::info('UJC: sanitize_nullable_int returning: ' . $result);
         return $result;
     }
 
     private function sanitize_nullable_text($value) {
-        Logger::info('UJC: sanitize_nullable_text called with value: ' . var_export($value, true));
+        Logger::info('UJC: sanitize_nullable_text called with value: ' . esc_html(var_export($value, true)));
         // If empty string or whitespace, return null
         if (empty($value) || trim($value) === '') {
             Logger::info('UJC: sanitize_nullable_text returning null for empty value');
@@ -513,7 +493,7 @@ class ResourceModal extends JawneCeny_AdminPage {
         // Property Part
         $propertyPartPrice = isset($data['property_part_price']) ? (float)$data['property_part_price'] : 0;
         Logger::info('UJC: createComponentModels - property part price: ' . $propertyPartPrice);
-        Logger::info('UJC: createComponentModels - property part title: ' . ($data['property_part_title'] ?? 'NOT_SET'));
+        Logger::info('UJC: createComponentModels - property part title: ' . esc_html($data['property_part_title'] ?? 'NOT_SET'));
         
         if ($propertyPartPrice > 0) {
             try {
@@ -562,8 +542,8 @@ class ResourceModal extends JawneCeny_AdminPage {
      */
     private function createResourceFormData($data): ResourceFormData {
         Logger::info('UJC: createResourceFormData - starting with data keys: ' . implode(', ', array_keys($data)));
-        Logger::info('UJC: createResourceFormData - rodzaj_nieruchomosci value: ' . $data['rodzaj_nieruchomosci']);
-        Logger::info('UJC: createResourceFormData - status value: ' . $data['status']);
+        Logger::info('UJC: createResourceFormData - rodzaj_nieruchomosci value: ' . esc_html($data['rodzaj_nieruchomosci']));
+        Logger::info('UJC: createResourceFormData - status value: ' . esc_html($data['status']));
         
         $components = $this->createComponentModels($data);
         Logger::info('UJC: createResourceFormData - components created successfully');
@@ -585,7 +565,7 @@ class ResourceModal extends JawneCeny_AdminPage {
         }
         
         Logger::info('UJC: createResourceFormData - About to create ResourceFormData object');
-        Logger::info('UJC: createResourceFormData - Data for constructor: nr_lokalu=' . $data['nr_lokalu'] . ', powierzchnia=' . $data['powierzchnia_uzytkowa'] . ', cena_m2=' . ($data['cena_m2'] ?? 'NULL'));
+        Logger::info('UJC: createResourceFormData - Data for constructor: nr_lokalu=' . esc_html($data['nr_lokalu']) . ', powierzchnia=' . esc_html($data['powierzchnia_uzytkowa']) . ', cena_m2=' . esc_html($data['cena_m2'] ?? 'NULL'));
         
         try {
 
@@ -665,7 +645,7 @@ class ResourceModal extends JawneCeny_AdminPage {
         }
         
         try {
-            $resource_id = intval($_POST['resource_id'] ?? 0);
+            $resource_id = absint($_POST['resource_id'] ?? 0);
             Logger::info('UJC: Loading resource ID: ' . $resource_id);
             
             $resource = $this->getResourceByIdUseCase->execute($resource_id);
@@ -688,7 +668,7 @@ class ResourceModal extends JawneCeny_AdminPage {
         }
         
         try {
-            $resource_id = intval($_POST['resource_id'] ?? 0);
+            $resource_id = absint($_POST['resource_id'] ?? 0);
 
             if (!$resource_id) {
                 wp_send_json_error('Nieprawidłowy ID zasobu');
@@ -698,7 +678,7 @@ class ResourceModal extends JawneCeny_AdminPage {
             $data = $this->sanitize_resource_data();
 
             // Handle PDF field in 3 scenarios
-            $shouldRemovePdf = ($_POST['shouldRemovePdfFloorPlan'] ?? 'false') === 'true';
+            $shouldRemovePdf = (sanitize_text_field($_POST['shouldRemovePdfFloorPlan'] ?? 'false')) === 'true';
 
             if ($shouldRemovePdf) {
                 // Scenario 1: User wants to remove PDF file
@@ -730,13 +710,13 @@ class ResourceModal extends JawneCeny_AdminPage {
         }
         
         try {
-            $resource_id = intval($_POST['resource_id'] ?? 0);
-            
+            $resource_id = absint($_POST['resource_id'] ?? 0);
+
             if (!$resource_id) {
                 wp_send_json_error('Nieprawidłowy ID zasobu');
                 return;
             }
-            
+
             $result = $this->deleteResourceUseCase->execute($resource_id);
             
             if ($result->isSuccess) {
@@ -763,7 +743,7 @@ class ResourceModal extends JawneCeny_AdminPage {
         }
 
         $file = $_FILES['floor_plan_pdf'];
-        Logger::info('UJC: handle_pdf_upload - File upload detected: ' . $file['name'] . ' (' . $file['size'] . ' bytes)');
+        Logger::info('UJC: handle_pdf_upload - File upload detected: ' . sanitize_file_name($file['name']) . ' (' . intval($file['size']) . ' bytes)');
 
         // Check for upload errors
         if ($file['error'] !== UPLOAD_ERR_OK) {
@@ -783,17 +763,17 @@ class ResourceModal extends JawneCeny_AdminPage {
         // Validate file type
         $allowed_types = ['application/pdf'];
         $file_type = $file['type'];
-        $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $file_extension = strtolower(pathinfo(sanitize_file_name($file['name']), PATHINFO_EXTENSION));
 
         if (!in_array($file_type, $allowed_types) || $file_extension !== 'pdf') {
-            Logger::error('UJC: handle_pdf_upload - Invalid file type: ' . $file_type . ', extension: ' . $file_extension);
+            Logger::error('UJC: handle_pdf_upload - Invalid file type: ' . esc_html($file_type) . ', extension: ' . esc_html($file_extension));
             throw new Exception('Można przesyłać tylko pliki PDF');
         }
 
         // Validate file size (10MB limit)
         $max_size = 10 * 1024 * 1024; // 10MB
         if ($file['size'] > $max_size) {
-            Logger::error('UJC: handle_pdf_upload - File too large: ' . $file['size'] . ' bytes');
+            Logger::error('UJC: handle_pdf_upload - File too large: ' . intval($file['size']) . ' bytes');
             throw new Exception('Plik jest za duży. Maksymalny rozmiar to 10MB');
         }
 

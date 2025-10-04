@@ -345,7 +345,7 @@ class ResourceRepository {
         }
 
         Logger::info("ResourceRepository::readAllWithFiltersAndSort - SQL: " . $sql);
-        Logger::info("ResourceRepository::readAllWithFiltersAndSort - Prepare values: " . print_r($prepareValues, true));
+        Logger::info("ResourceRepository::readAllWithFiltersAndSort - Prepare values: " . esc_html(print_r($prepareValues, true)));
 
         // Execute query
         if (!empty($prepareValues)) {

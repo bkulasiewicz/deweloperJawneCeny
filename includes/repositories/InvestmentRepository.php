@@ -30,7 +30,7 @@ class InvestmentRepository {
         Logger::info('UJC: Table name: ' . $table);
         
         $data = $dto->modelToDatabase();
-        Logger::info('UJC: Data to insert: ' . print_r($data, true));
+        Logger::info('UJC: Data to insert: ' . esc_html(print_r($data, true)));
         
         $result = $wpdb->insert($table, $data);
         Logger::info('UJC: Insert result: ' . ($result !== false ? 'SUCCESS' : 'FAILED'));
@@ -58,7 +58,7 @@ class InvestmentRepository {
         Logger::info('UJC: Table name: ' . $table);
         
         $data = $dto->modelToDatabase();
-        Logger::info('UJC: Data to update: ' . print_r($data, true));
+        Logger::info('UJC: Data to update: ' . esc_html(print_r($data, true)));
         
         $result = $wpdb->update($table, $data, ['id' => $id]);
         Logger::info('UJC: Update result: ' . ($result !== false ? 'SUCCESS (rows affected: ' . $result . ')' : 'FAILED'));

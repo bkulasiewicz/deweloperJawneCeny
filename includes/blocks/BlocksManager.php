@@ -122,7 +122,7 @@ class BlocksManager {
     
     public function ajax_get_price_history() {
         check_ajax_referer('resources_list_nonce', 'nonce');
-        
+
         $resource_id = intval($_POST['resource_id']);
         
         if (!$resource_id) {

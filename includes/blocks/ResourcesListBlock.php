@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 class ResourcesListBlock {
 
     public static function render($attributes, $content) {
-        Logger::info("ResourcesListBlock: render started with attributes: " . print_r($attributes, true));
+        Logger::info("ResourcesListBlock: render started with attributes: " . esc_html(print_r($attributes, true)));
 
         // Parse and validate attributes with defaults
         $parsed_attributes = self::parseAttributes($attributes);
@@ -227,7 +227,7 @@ class ResourcesListBlock {
             $parsed['visibleColumns'] = [ResourceDto::FIELD_NR_LOKALU, ResourceDto::FIELD_CENA_CALKOWITA];
         }
 
-        Logger::info("ResourcesListBlock: Parsed attributes: " . print_r($parsed, true));
+        Logger::info("ResourcesListBlock: Parsed attributes: " . esc_html(print_r($parsed, true)));
         return $parsed;
     }
 
@@ -410,7 +410,8 @@ class ResourcesListBlock {
             $filterId = 'filter_' . sanitize_key($filterGroup['id']);
 
             // Check if this filter is active in URL
-            if (empty($_GET[$filterId]) || $_GET[$filterId] !== '1') {
+            $filter_value = sanitize_text_field($_GET[$filterId] ?? '');
+            if (empty($filter_value) || $filter_value !== '1') {
                 continue;
             }
 

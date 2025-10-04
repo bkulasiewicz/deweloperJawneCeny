@@ -425,22 +425,22 @@ class ShortcodeGeneratorPage {
         
         try {
             // Get shortcode from POST - no sanitization needed as shortcode will be parsed by WordPress
-            $shortcode = $_POST['shortcode'] ?? '';
-            
-            Logger::info('Preview shortcode: ' . $shortcode);
-            
+            $shortcode = sanitize_text_field($_POST['shortcode'] ?? '');
+
+            Logger::info('Preview shortcode: ' . esc_html($shortcode));
+
             if (empty($shortcode)) {
                 Logger::error('Preview shortcode is empty');
                 wp_send_json_error('Brak shortcode do podglądu');
                 return;
             }
-            
+
             // Parse shortcode manually for preview to preserve colons
-            Logger::info('Parsing shortcode manually for preview: ' . $shortcode);
+            Logger::info('Parsing shortcode manually for preview: ' . esc_html($shortcode));
             
             // Remove escape slashes added by WordPress
             $shortcode = stripslashes($shortcode);
-            Logger::info('After stripslashes: ' . $shortcode);
+            Logger::info('After stripslashes: ' . esc_html($shortcode));
             
             $attrs = [];
             

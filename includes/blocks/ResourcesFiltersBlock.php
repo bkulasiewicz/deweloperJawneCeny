@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 class ResourcesFiltersBlock {
 
     public static function render($attributes, $content) {
-        Logger::info("ResourcesFiltersBlock: render started with attributes: " . print_r($attributes, true));
+        Logger::info("ResourcesFiltersBlock: render started with attributes: " . esc_html(print_r($attributes, true)));
 
         // Parse and validate attributes
         $parsed_attributes = self::parseAttributes($attributes);
@@ -157,7 +157,7 @@ class ResourcesFiltersBlock {
             $parsed['filterGroups'] = $defaults['filterGroups'];
         }
 
-        Logger::info("ResourcesFiltersBlock: Parsed attributes: " . print_r($parsed, true));
+        Logger::info("ResourcesFiltersBlock: Parsed attributes: " . esc_html(print_r($parsed, true)));
         return $parsed;
     }
 
@@ -203,7 +203,8 @@ class ResourcesFiltersBlock {
      */
     private static function renderFilterGroup(array $group, array $attributes): string {
         $filterId = 'filter_' . sanitize_key($group['id']);
-        $isChecked = !empty($_GET[$filterId]);
+        $filter_value = sanitize_text_field($_GET[$filterId] ?? '');
+        $isChecked = ($filter_value === '1');
 
         $html = '<div class="filter-group">';
         $html .= '<label class="filter-label">';
