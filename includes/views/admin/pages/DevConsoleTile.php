@@ -18,6 +18,7 @@ class DevConsoleTile {
         $this->resetDatabaseUseCase = $resetDatabaseUseCase;
         // Inicjalizuj tylko w trybie deweloperskim
         if (defined('WP_DEBUG') && WP_DEBUG) {
+            add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
             add_action('wp_ajax_jawneceny_dev_clear_table', [$this, 'ajax_clear_table']);
             add_action('wp_ajax_jawneceny_dev_trigger_fallback', [$this, 'ajax_trigger_fallback']);
             add_action('wp_ajax_jawneceny_dev_clear_logs', [$this, 'ajax_clear_logs']);
@@ -30,7 +31,26 @@ class DevConsoleTile {
     public static function is_available() {
         return defined('WP_DEBUG') && WP_DEBUG;
     }
-    
+
+    /**
+     * Enqueue scripts and styles
+     */
+    public function enqueue_scripts() {
+        wp_enqueue_script(
+            'dev-console-tile',
+            JAWNECENY_PLUGIN_URL . 'includes/views/admin/pages/DevConsoleTile.js',
+            ['jquery'],
+            JAWNECENY_VERSION,
+            true
+        );
+
+        wp_localize_script('dev-console-tile', 'devConsoleTileData', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('jawneceny_admin_nonce'),
+            'wpDebugStatus' => defined('WP_DEBUG') && WP_DEBUG ? 'ON' : 'OFF'
+        ]);
+    }
+
     /**
      * AJAX handler do czyszczenia tabel
      */
@@ -203,87 +223,6 @@ class DevConsoleTile {
                 </button>
             </div>
         </div>
-        
-        <script>
-        console.log('DEV Console script loaded');
-        console.log('WP_DEBUG status:', '<?php echo esc_js(defined('WP_DEBUG') && WP_DEBUG ? 'ON' : 'OFF'); ?>');
-        
-        
-        function triggerFallback() {
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = '⏳ Uruchamianie fallback...';
-            button.disabled = true;
-            
-            const nonce = '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
-            
-            jQuery.post(ajaxurl, {
-                action: 'jawneceny_dev_trigger_fallback',
-                nonce: nonce
-            }, function(response) {
-                if (response.success) {
-                    alert('✅ ' + response.data);
-                } else {
-                    alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
-                }
-            }).fail(function(xhr, status, error) {
-                console.error('Trigger Fallback AJAX Error:', xhr, status, error);
-                alert('❌ Błąd połączenia: ' + error);
-            }).always(function() {
-                button.textContent = originalText;
-                button.disabled = false;
-            });
-        }
-
-        function clearLogs() {
-            const nonce = '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
-            
-            jQuery.post(ajaxurl, {
-                action: 'jawneceny_dev_clear_logs',
-                nonce: nonce
-            }, function(response) {
-                if (response.success) {
-                    alert('✅ ' + response.data);
-                } else {
-                    alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
-                }
-            }).fail(function(xhr, status, error) {
-                console.error('Clear Logs AJAX Error:', xhr, status, error);
-                alert('❌ Błąd połączenia: ' + error);
-            });
-        }
-
-        function confirmClearTable(type, description) {
-            const message = `Czy na pewno chcesz usunąć ${description}?\n\nTa operacja jest nieodwracalna!`;
-            
-            if (confirm(message)) {
-                const secondConfirm = `OSTATNIE OSTRZEŻENIE!\n\nUsuwasz: ${description}\n\nKliknij OK aby kontynuować.`;
-                if (confirm(secondConfirm)) {
-                    clearTableData(type);
-                }
-            }
-        }
-
-        function clearTableData(type) {
-            const nonce = '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
-            
-            jQuery.post(ajaxurl, {
-                action: 'jawneceny_dev_clear_table',
-                table_type: type,
-                nonce: nonce
-            }, function(response) {
-                if (response.success) {
-                    alert('✅ ' + response.data);
-                    location.reload();
-                } else {
-                    alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
-                }
-            }).fail(function(xhr, status, error) {
-                console.error('DEV Console AJAX Error:', xhr, status, error);
-                alert('❌ Błąd połączenia: ' + error);
-            });
-        }
-        </script>
         <?php
         return ob_get_clean();
     }

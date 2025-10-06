@@ -38,7 +38,7 @@ class ResourceCardRenderer {
         ?>
         <div class="resource-cards-grid cards-per-row-<?php echo esc_attr($cards_per_row); ?>">
             <?php foreach ($resources as $resource): ?>
-                <?php echo self::renderSingleCard($resource, $visible_columns, $column_names, $styling_options, $card_config); ?>
+                <?php echo wp_kses_post(self::renderSingleCard($resource, $visible_columns, $column_names, $styling_options, $card_config)); ?>
             <?php endforeach; ?>
         </div>
 

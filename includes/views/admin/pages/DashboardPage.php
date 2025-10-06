@@ -37,7 +37,8 @@ class DashboardPage {
         $this->automationTile = $automationTile;
         $this->historyTile = $historyTile;
         $this->devConsoleTile = $devConsoleTile;
-        
+
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
         add_action('wp_ajax_jawneceny_manual_generation', [$this, 'ajax_manual_generation']);
         add_action('wp_ajax_jawneceny_download_logs', [$this, 'ajax_download_logs']);
     }
@@ -84,7 +85,25 @@ class DashboardPage {
             wp_send_json_error('Błąd pobierania logów: ' . $e->getMessage());
         }
     }
-    
+
+    /**
+     * Enqueue scripts and styles
+     */
+    public function enqueue_scripts() {
+        wp_enqueue_script(
+            'dashboard-page',
+            JAWNECENY_PLUGIN_URL . 'includes/views/admin/pages/DashboardPage.js',
+            ['jquery'],
+            JAWNECENY_VERSION,
+            true
+        );
+
+        wp_localize_script('dashboard-page', 'dashboardPageData', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('jawneceny_admin_nonce')
+        ]);
+    }
+
     public function render() {
         $developer = $this->developerRepository->read();
         $investment = $this->investmentRepository->read();
@@ -123,7 +142,7 @@ class DashboardPage {
                 <?php
                 // Renderuj DEV Console jeśli dostępna
                 if (class_exists('DevConsoleTile')) {
-                    echo $this->devConsoleTile->render_console_tile();
+                    echo wp_kses_post($this->devConsoleTile->render_console_tile());
                 }
                 ?>
             </div>
@@ -144,59 +163,6 @@ class DashboardPage {
                     Pobierz logi
                 </button>
             </div>
-            
-            <script>
-            
-            function manualGeneration() {
-                const button = document.getElementById('quick-generation-btn');
-                const originalText = button.textContent;
-                button.textContent = '⏳ Generowanie...';
-                button.disabled = true;
-                
-                const nonce = '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
-                
-                jQuery.post(ajaxurl, {
-                    action: 'jawneceny_manual_generation',
-                    nonce: nonce
-                }, function(response) {
-                    if (response.success) {
-                        alert('✅ ' + response.data);
-                        location.reload();
-                    } else {
-                        alert('❌ Błąd: ' + (response.data || 'Nieznany błąd'));
-                        button.textContent = originalText;
-                        button.disabled = false;
-                    }
-                }).fail(function(xhr, status, error) {
-                    console.error('Manual generation AJAX Error:', xhr, status, error);
-                    alert('❌ Błąd połączenia: ' + error);
-                    button.textContent = originalText;
-                    button.disabled = false;
-                });
-            }
-            
-            function downloadLogs() {
-                const nonce = '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
-                
-                jQuery.post(ajaxurl, {
-                    action: 'jawneceny_download_logs',
-                    nonce: nonce
-                }, function(response) {
-                    if (response.success) {
-                        // Utwórz i pobierz plik
-                        const blob = new Blob([response.data.logs], { type: 'text/plain' });
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = response.data.filename;
-                        a.click();
-                        URL.revokeObjectURL(url);
-                    }
-                }).fail(function(xhr, status, error) {
-                    console.error('Log download error:', error);
-                });
-            }
-            </script>
         </div>
         <?php
     }
