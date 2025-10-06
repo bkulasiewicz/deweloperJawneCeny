@@ -215,7 +215,7 @@ class DevConsoleTile {
             button.textContent = '⏳ Uruchamianie fallback...';
             button.disabled = true;
             
-            const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
+            const nonce = '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
             
             jQuery.post(ajaxurl, {
                 action: 'jawneceny_dev_trigger_fallback',
@@ -236,7 +236,7 @@ class DevConsoleTile {
         }
 
         function clearLogs() {
-            const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
+            const nonce = '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
             
             jQuery.post(ajaxurl, {
                 action: 'jawneceny_dev_clear_logs',
@@ -265,7 +265,7 @@ class DevConsoleTile {
         }
 
         function clearTableData(type) {
-            const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
+            const nonce = '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
             
             jQuery.post(ajaxurl, {
                 action: 'jawneceny_dev_clear_table',

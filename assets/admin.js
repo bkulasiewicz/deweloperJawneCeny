@@ -11,7 +11,7 @@ jQuery(document).ready(function($) {
         var originalText = $submit.val();
         $submit.val(jawneceny_ajax.strings.saving).prop('disabled', true);
         
-        $.post(jawneceny_ajax.ajax_url, formData, function(response) {
+        $.post(jawneceny_ajax.ajaxurl, formData, function(response) {
             if (response.success) {
                 showNotice('success', jawneceny_ajax.strings.saved);
             } else {

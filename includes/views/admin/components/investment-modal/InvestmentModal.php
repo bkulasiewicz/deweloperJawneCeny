@@ -55,7 +55,7 @@ class InvestmentModal extends JawneCeny_AdminPage {
 
         wp_localize_script('investment-modal', 'investmentModalData', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('jawneceny_admin_nonce')
+            'nonce' => wp_create_nonce('jawneceny_investment_modal')
         ]);
     }
 
@@ -171,8 +171,7 @@ class InvestmentModal extends JawneCeny_AdminPage {
                 <!-- Formularz edycji (ukryty) -->
                 <div id="investment-edit" class="ujc-modal-body" style="display: none;">
                     <form id="investment-edit-form" method="post">
-                        <?php wp_nonce_field('jawneceny_admin_nonce', 'nonce'); ?>
-                        
+
                         <div class="modal-columns">
                             <!-- Lewa kolumna - Formularz podstawowy -->
                             <div class="modal-column-left">
@@ -291,24 +290,15 @@ class InvestmentModal extends JawneCeny_AdminPage {
     }
     
     public function ajax_get_investment() {
-        if (!$this->verify_nonce()) {
+        check_ajax_referer('jawneceny_investment_modal', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Brak uprawnień.');
             return;
         }
-        
-        if (!$this->check_permissions()) {
-            return;
-        }
-        
+
         try {
-            $investmentId = isset($_POST['investment_id']) ? absint($_POST['investment_id']) : null;
-            
-            if ($investmentId !== null) {
-                // Pobierz konkretną inwestycję po ID (przyszłość - gdy będzie więcej inwestycji)
-                $investment = $this->getInvestmentUseCase->execute($investmentId);
-            } else {
-                // Pobierz domyślną inwestycję (obecne zachowanie)
-                $investment = $this->getInvestmentUseCase->execute();
-            }
+            // Pobierz inwestycję (obecnie system obsługuje tylko jedną inwestycję)
+            $investment = $this->getInvestmentUseCase->execute();
             
             if ($investment) {
                 wp_send_json_success($investment);
@@ -321,16 +311,12 @@ class InvestmentModal extends JawneCeny_AdminPage {
     }
     
     public function ajax_update_investment() {
-        if (!$this->verify_nonce()) {
-            wp_send_json_error('Weryfikacja bezpieczeństwa nie powiodła się.');
-            return;
-        }
-        
-        if (!$this->check_permissions()) {
+        check_ajax_referer('jawneceny_investment_modal', 'nonce');
+        if (!current_user_can('manage_options')) {
             wp_send_json_error('Brak uprawnień do wykonania tej operacji.');
             return;
         }
-        
+
         try {
             // Direct sanitization - clear and compliant with WordPress.org guidelines
             $data = [
@@ -420,11 +406,12 @@ class InvestmentModal extends JawneCeny_AdminPage {
     }
     
     public function ajax_log_debug() {
-        if (!$this->verify_nonce()) {
-            wp_send_json_error('Nonce failed');
+        check_ajax_referer('jawneceny_investment_modal', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Brak uprawnień.');
             return;
         }
-        
+
         $message = sanitize_text_field($_POST['message'] ?? '');
         Logger::info('UJC DEBUG FROM JS: ' . $message);
         wp_send_json_success('Logged');

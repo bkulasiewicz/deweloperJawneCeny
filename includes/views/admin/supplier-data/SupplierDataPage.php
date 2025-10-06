@@ -54,16 +54,12 @@ class SupplierDataPage extends JawneCeny_AdminPage {
     }
     
     public function ajax_save_developer() {
-        if (!$this->verify_nonce()) {
-            wp_send_json_error('Weryfikacja bezpieczeństwa nie powiodła się.');
-            return;
-        }
-        
-        if (!$this->check_permissions()) {
+        check_ajax_referer('jawneceny_supplier_nonce', 'nonce');
+        if (!current_user_can('manage_options')) {
             wp_send_json_error('Brak uprawnień do wykonania tej operacji.');
             return;
         }
-        
+
         try {
             // View tworzy DTO z sanityzacją
             $supplierDto = new SupplierDto(
@@ -238,8 +234,8 @@ class SupplierDataPage extends JawneCeny_AdminPage {
             <?php endif; ?>
                 
                 <form id="developer-form" method="post">
-                    <?php wp_nonce_field('jawneceny_admin_nonce', 'nonce'); ?>
-                    
+                    <?php wp_nonce_field('jawneceny_supplier_nonce', 'nonce'); ?>
+
                     <!-- Dane podstawowe -->
                     <div class="ujc-form-section">
                         <h3>🏢 Dane podstawowe</h3>

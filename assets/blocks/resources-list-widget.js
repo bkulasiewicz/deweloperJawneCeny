@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('history-content').style.display = 'none';
             
             // Make AJAX request
-            fetch(jawnecenyResourcesListAjax.ajax_url, {
+            fetch(jawnecenyResourcesListAjax.ajaxurl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',

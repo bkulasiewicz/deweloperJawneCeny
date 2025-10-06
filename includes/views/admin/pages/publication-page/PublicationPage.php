@@ -47,6 +47,11 @@ class PublicationPage {
             [],
             JAWNECENY_VERSION
         );
+
+        wp_localize_script('publication-page', 'publicationPageData', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('jawneceny_admin_nonce')
+        ]);
     }
 
     public function ajax_generate_files() {

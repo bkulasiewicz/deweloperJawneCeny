@@ -122,7 +122,7 @@ class AdminController {
         wp_enqueue_style('jawneceny-admin-css', JAWNECENY_PLUGIN_URL . 'assets/admin.css', [], JAWNECENY_VERSION);
 
         wp_localize_script('jawneceny-admin-js', 'jawneceny_ajax', [
-            'ajax_url' => admin_url('admin-ajax.php'),
+            'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('jawneceny_admin_nonce'),
             'strings' => [
                 'confirm_delete' => 'Czy na pewno chcesz usunąć ten zasób?',

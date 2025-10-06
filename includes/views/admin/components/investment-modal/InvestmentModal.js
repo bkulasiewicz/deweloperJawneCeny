@@ -24,7 +24,7 @@ jQuery(document).ready(function($) {
 
     // Załaduj dane inwestycji
     function loadInvestmentData(investmentId = null) {
-        const nonce = typeof investmentModalData !== 'undefined' ? investmentModalData.nonce : '';
+        const nonce = investmentModalData.nonce;
 
         console.log('Loading investment data, investmentId:', investmentId, 'nonce:', nonce);
 
@@ -32,10 +32,6 @@ jQuery(document).ready(function($) {
             action: 'jawneceny_get_investment',
             nonce: nonce
         };
-
-        if (investmentId !== null) {
-            requestData.investment_id = investmentId;
-        }
 
         $.post(investmentModalData.ajaxurl, requestData, function(response) {
             if (response.success) {
@@ -49,7 +45,8 @@ jQuery(document).ready(function($) {
                 setViewMode();
             } else {
                 console.error('Error loading investment data:', response.data);
-                alert('Błąd podczas ładowania danych: ' + response.data);
+                const errorMessage = response.data || 'Nieznany błąd serwera';
+                alert('Błąd podczas ładowania danych: ' + errorMessage);
             }
         }).fail(function(xhr, status, error) {
             console.error('AJAX error loading investment data:', xhr.responseText, status, error);

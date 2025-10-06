@@ -8,11 +8,11 @@
         "psr/container": "^1.1"
     },
     "config": {
-        "vendor-dir": "vendor"
+        "vendor-dir": "includes/vendor"
     },
     "autoload": {
         "psr-4": {
-            "DeweloperJawneCeny\\": "./"
+            "DeweloperJawneCeny\\": "includes/"
         }
     }
 }

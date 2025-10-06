@@ -43,7 +43,7 @@ class ShortcodeGeneratorPage {
 
         wp_localize_script('shortcode-generator-page', 'shortcodeGeneratorPageData', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('jawneceny_frontend_nonce')
+            'nonce' => wp_create_nonce('jawneceny_frontend_settings_nonce')
         ]);
     }
 

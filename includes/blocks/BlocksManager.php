@@ -110,7 +110,7 @@ class BlocksManager {
         );
 
         wp_localize_script('resources-list-widget-js', 'jawnecenyResourcesListAjax', [
-            'ajax_url' => admin_url('admin-ajax.php'),
+            'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('resources_list_nonce'),
             'strings' => [
                 'loading' => 'Ładowanie...',
@@ -123,10 +123,11 @@ class BlocksManager {
     public function ajax_get_price_history() {
         check_ajax_referer('resources_list_nonce', 'nonce');
 
-        $resource_id = intval($_POST['resource_id']);
-        
+        $resource_id = absint($_POST['resource_id'] ?? 0);
+
         if (!$resource_id) {
-            wp_die('Nieprawidłowe ID zasobu');
+            wp_send_json_error('Nieprawidłowe ID zasobu');
+            return;
         }
         
         // Use DI Container for Use Cases

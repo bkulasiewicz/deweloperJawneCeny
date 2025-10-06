@@ -29,9 +29,9 @@ jQuery(document).ready(function($) {
 
     // Załaduj konfigurację inwestycji
     function loadInvestmentConfiguration() {
-        const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : ($('#ujc-nonce').length ? $('#ujc-nonce').val() : '');
+        const nonce = resourceModalData.investment_nonce;
 
-        return $.post(typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.ajax_url : ajaxurl, {
+        return $.post(resourceModalData.ajaxurl, {
             action: 'jawneceny_get_investment',
             nonce: nonce
         }).done(function(response) {
@@ -95,10 +95,10 @@ jQuery(document).ready(function($) {
 
     // Załaduj dane zasobu do edycji
     function loadResourceData(resourceId) {
-        const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : ($('#ujc-nonce').length ? $('#ujc-nonce').val() : '');
+        const nonce = resourceModalData.nonce;
 
 
-        $.post(typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.ajax_url : ajaxurl, {
+        $.post(resourceModalData.ajaxurl, {
             action: 'jawneceny_get_resource',
             resource_id: resourceId,
             nonce: nonce
@@ -260,13 +260,13 @@ jQuery(document).ready(function($) {
             return;
         }
 
-        const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : ($('#ujc-nonce').length ? $('#ujc-nonce').val() : '');
+        const nonce = resourceModalData.nonce;
         const $deleteBtn = $(this);
         const originalText = $deleteBtn.text();
 
         $deleteBtn.text('Usuwanie...').prop('disabled', true);
 
-        $.post(typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.ajax_url : ajaxurl, {
+        $.post(resourceModalData.ajaxurl, {
             action: 'jawneceny_delete_resource',
             resource_id: resourceId,
             nonce: nonce
@@ -382,13 +382,14 @@ jQuery(document).ready(function($) {
         // Create FormData to handle file uploads
         const formData = new FormData(this);
         formData.append('action', action);
+        formData.append('nonce', resourceModalData.nonce);
 
         const $submitBtn = $('#modal-submit-btn');
         const originalText = $submitBtn.text();
         $submitBtn.text('Zapisywanie...').prop('disabled', true);
 
         $.ajax({
-            url: typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.ajax_url : ajaxurl,
+            url: resourceModalData.ajaxurl,
             type: 'POST',
             data: formData,
             processData: false,

@@ -52,6 +52,7 @@ class AutomationTile {
 
         // Localize script with nonce for AJAX calls
         wp_localize_script('jawneceny-automation-tile', 'jawneceny_automation_ajax', [
+            'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('jawneceny_admin_nonce')
         ]);
     }

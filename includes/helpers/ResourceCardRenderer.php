@@ -381,7 +381,7 @@ class ResourceCardRenderer {
 
         // Localize script with AJAX data
         wp_localize_script('jawneceny-resources-widget', 'jawnecenyResourcesListAjax', [
-            'ajax_url' => admin_url('admin-ajax.php'),
+            'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('resources_list_nonce'),
             'strings' => [
                 'loading' => 'Ładowanie...',

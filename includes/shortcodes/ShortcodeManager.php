@@ -59,7 +59,7 @@ class ShortcodeManager {
         );
 
         wp_localize_script('jawneceny-shortcode-resources-list-js', 'jawnecenyResourcesListAjax', [
-            'ajax_url' => admin_url('admin-ajax.php'),
+            'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('resources_list_nonce'),
             'strings' => [
                 'loading' => 'Ładowanie...',

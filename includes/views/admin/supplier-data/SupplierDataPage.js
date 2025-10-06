@@ -27,7 +27,7 @@ jQuery(document).ready(function($) {
         var originalValue = $button.val();
         $button.val("⏳ Zapisywanie...").prop("disabled", true);
 
-        const formData = $("#developer-form").serialize() + "&action=jawneceny_save_developer&nonce=" + $("input[name=nonce]").val();
+        const formData = $("#developer-form").serialize() + "&action=jawneceny_save_developer";
 
         $.post(supplierDataPageData.ajaxurl, formData, function(response) {
             if (response.success) {

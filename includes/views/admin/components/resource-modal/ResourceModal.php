@@ -59,7 +59,8 @@ class ResourceModal extends JawneCeny_AdminPage {
 
         wp_localize_script('resource-modal', 'resourceModalData', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('jawneceny_admin_nonce'),
+            'nonce' => wp_create_nonce('jawneceny_resource_modal'),
+            'investment_nonce' => wp_create_nonce('jawneceny_investment_modal'),
             'defaultStatus' => esc_js(ResourceStatus::cases()[0]->value),
             'propertyTypes' => [
                 'PARKING_SPACE' => esc_js(PropertyType::PARKING_SPACE->value),
@@ -85,9 +86,8 @@ class ResourceModal extends JawneCeny_AdminPage {
                     <h2 id="modal-title">Dodaj Zasób</h2>
                     <span class="ujc-modal-close">&times;</span>
                 </div>
-                
+
                 <form id="resource-modal-form" method="post" enctype="multipart/form-data">
-                    <?php wp_nonce_field('jawneceny_admin_nonce', 'nonce'); ?>
                     <input type="hidden" id="resource-id" name="resource_id" value="">
                     <input type="hidden" id="modal-action" name="modal_action" value="add">
                     
@@ -467,23 +467,6 @@ class ResourceModal extends JawneCeny_AdminPage {
     }
     
     /**
-     * Validates AJAX request (nonce and permissions)
-     */
-    private function validateAjaxRequest(): bool {
-        if (!$this->verify_nonce()) {
-            wp_send_json_error('Błąd weryfikacji bezpieczeństwa.');
-            return false;
-        }
-        
-        if (!$this->check_permissions()) {
-            wp_send_json_error('Brak uprawnień.');
-            return false;
-        }
-        
-        return true;
-    }
-    
-    /**
      * Creates component models from sanitized data
      */
     private function createComponentModels($data): array {
@@ -601,12 +584,14 @@ class ResourceModal extends JawneCeny_AdminPage {
     
     public function ajax_save_resource() {
         Logger::info('UJC: ajax_save_resource started - handler is being called');
-        
-        if (!$this->validateAjaxRequest()) {
-            Logger::error('UJC: validateAjaxRequest failed');
+
+        check_ajax_referer('jawneceny_resource_modal', 'nonce');
+        if (!current_user_can('manage_options')) {
+            Logger::error('UJC: Unauthorized user');
+            wp_send_json_error('Brak uprawnień.');
             return;
         }
-        
+
         Logger::info('UJC: ajax_save_resource - validation passed, proceeding with save');
         
         try {
@@ -638,12 +623,14 @@ class ResourceModal extends JawneCeny_AdminPage {
     
     public function ajax_get_resource() {
         Logger::info('UJC: ajax_get_resource started');
-        
-        if (!$this->validateAjaxRequest()) {
-            Logger::error('UJC: validation failed');
+
+        check_ajax_referer('jawneceny_resource_modal', 'nonce');
+        if (!current_user_can('manage_options')) {
+            Logger::error('UJC: Unauthorized user');
+            wp_send_json_error('Brak uprawnień.');
             return;
         }
-        
+
         try {
             $resource_id = absint($_POST['resource_id'] ?? 0);
             Logger::info('UJC: Loading resource ID: ' . $resource_id);
@@ -663,10 +650,12 @@ class ResourceModal extends JawneCeny_AdminPage {
     }
     
     public function ajax_update_resource() {
-        if (!$this->validateAjaxRequest()) {
+        check_ajax_referer('jawneceny_resource_modal', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Brak uprawnień.');
             return;
         }
-        
+
         try {
             $resource_id = absint($_POST['resource_id'] ?? 0);
 
@@ -705,10 +694,12 @@ class ResourceModal extends JawneCeny_AdminPage {
     }
     
     public function ajax_delete_resource() {
-        if (!$this->validateAjaxRequest()) {
+        check_ajax_referer('jawneceny_resource_modal', 'nonce');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Brak uprawnień.');
             return;
         }
-        
+
         try {
             $resource_id = absint($_POST['resource_id'] ?? 0);
 

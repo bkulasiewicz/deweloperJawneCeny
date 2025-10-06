@@ -153,7 +153,7 @@ class DashboardPage {
                 button.textContent = '⏳ Generowanie...';
                 button.disabled = true;
                 
-                const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
+                const nonce = '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
                 
                 jQuery.post(ajaxurl, {
                     action: 'jawneceny_manual_generation',
@@ -176,7 +176,7 @@ class DashboardPage {
             }
             
             function downloadLogs() {
-                const nonce = typeof jawneceny_ajax !== 'undefined' ? jawneceny_ajax.nonce : '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
+                const nonce = '<?php echo esc_attr(wp_create_nonce('jawneceny_admin_nonce')); ?>';
                 
                 jQuery.post(ajaxurl, {
                     action: 'jawneceny_download_logs',
