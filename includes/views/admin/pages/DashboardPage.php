@@ -142,7 +142,10 @@ class DashboardPage {
                 <?php
                 // Renderuj DEV Console jeśli dostępna
                 if (class_exists('DevConsoleTile')) {
-                    echo wp_kses_post($this->devConsoleTile->render_console_tile());
+                    // Allow onclick attribute for DEV Console buttons
+                    $allowed_html = wp_kses_allowed_html('post');
+                    $allowed_html['button']['onclick'] = true;
+                    echo wp_kses($this->devConsoleTile->render_console_tile(), $allowed_html);
                 }
                 ?>
             </div>

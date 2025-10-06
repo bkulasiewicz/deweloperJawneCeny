@@ -141,8 +141,8 @@ class ResourceTableRenderer {
                             }
                         ?>>
                             <?php foreach ($visible_columns as $column): ?>
-                                <td<?php echo $enable_frontend_sorting ? self::getSortAttributes($resource, $column) : ''; ?>>
-                                    <?php echo self::renderColumnValue($resource, $column, $styling_options); ?>
+                                <td<?php echo wp_kses_post($enable_frontend_sorting ? self::getSortAttributes($resource, $column) : ''); ?>>
+                                    <?php echo wp_kses_post(self::renderColumnValue($resource, $column, $styling_options)); ?>
                                 </td>
                             <?php endforeach; ?>
                         </tr>

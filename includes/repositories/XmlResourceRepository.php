@@ -36,6 +36,7 @@ class XmlResourceRepository {
                 PRIMARY KEY (%i),
                 UNIQUE KEY unique_ext_ident (%i),
                 UNIQUE KEY unique_daily_publication (%i)
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $charset_collate is safe, from $wpdb->get_charset_collate()
             ) $charset_collate",
             $this->table_name,
             XmlResourceDto::FIELD_ID,
@@ -48,6 +49,7 @@ class XmlResourceRepository {
             XmlResourceDto::FIELD_DATA_DATE
         );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is already prepared via $wpdb->prepare() above
         return $wpdb->query($sql) !== false;
     }
     

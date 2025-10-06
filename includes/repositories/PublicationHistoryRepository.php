@@ -145,6 +145,7 @@ class PublicationHistoryRepository {
                 PRIMARY KEY (%i),
                 KEY %i (%i),
                 KEY %i (%i)
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $charset_collate is safe, from $wpdb->get_charset_collate()
             ) " . $charset_collate,
             $table,
             PublicationHistoryDto::FIELD_ID,
@@ -159,6 +160,7 @@ class PublicationHistoryRepository {
             PublicationHistoryDto::FIELD_STATUS
         );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is already prepared via $wpdb->prepare() above
         return $wpdb->query($sql) !== false;
     }
 }

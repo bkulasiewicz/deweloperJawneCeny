@@ -109,6 +109,7 @@ class PriceHistoryRepository {
                 KEY %i (%i),
                 KEY %i (%i),
                 FOREIGN KEY (%i) REFERENCES %i(id) ON DELETE CASCADE
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $charset_collate is safe, from $wpdb->get_charset_collate()
             ) " . $charset_collate,
             $table,
             PriceHistoryDto::FIELD_ID,
@@ -127,6 +128,7 @@ class PriceHistoryRepository {
             $resourcesTable
         );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is already prepared via $wpdb->prepare() above
         return $wpdb->query($sql) !== false;
     }
 }

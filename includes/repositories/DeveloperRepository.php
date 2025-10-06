@@ -87,6 +87,7 @@ class DeveloperRepository {
                 %i text,
                 %i text,
                 PRIMARY KEY (%i)
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $charset_collate is safe, from $wpdb->get_charset_collate()
             ) " . $charset_collate,
             $table,
             SupplierDto::FIELD_ID,
@@ -121,6 +122,7 @@ class DeveloperRepository {
             SupplierDto::FIELD_ID
         );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is already prepared via $wpdb->prepare() above
         return $wpdb->query($sql) !== false;
     }
 }

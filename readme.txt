@@ -2,10 +2,10 @@
 Contributors: deweloperjawneceny
 Donate link: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
 Tags: jawnosc, ceny, mieszkania, deweloper, nieruchomosci, ustawa, dane-gov-pl, oferty, katalog, automatyzacja, budownictwo
-Requires at least: 5.0
+Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.6.1
+Stable tag: 4.6.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 

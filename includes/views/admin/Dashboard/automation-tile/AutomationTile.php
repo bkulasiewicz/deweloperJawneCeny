@@ -81,7 +81,7 @@ class AutomationTile {
         ?>
         <div class="automation-control">
             <h2>Automatyzacja</h2>
-            <p><?php echo PremiumHelper::get_upgrade_message(); ?></p>
+            <p><?php echo wp_kses_post(PremiumHelper::get_upgrade_message()); ?></p>
             <p><small style="color: #666;">Automatyzuj proces zgodności z ustawą o jawności cen mieszkań.</small></p>
         </div>
         <?php

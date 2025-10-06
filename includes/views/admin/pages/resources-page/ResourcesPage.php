@@ -181,9 +181,13 @@ class ResourcesPage extends JawneCeny_AdminPage {
             <?php
             return;
         }
-        
+
+        // Allow onclick attribute for buttons (needed for openResourceModal and showResourceHistory functions)
+        $allowed_html = wp_kses_allowed_html('post');
+        $allowed_html['button']['onclick'] = true;
+
         foreach ($resources as $resource) {
-            echo ResourceItem::render_item_html($resource);
+            echo wp_kses(ResourceItem::render_item_html($resource), $allowed_html);
         }
     }
 }
