@@ -114,26 +114,7 @@ class DashboardPage {
             <h1>Pulpit - DeweloperJawneCeny</h1>
             
             <div class="ujc-dashboard">
-                <div class="ujc-quick-actions">
-                    <h2>Szybkie Akcje</h2>
-                    <?php if (!$developer): ?>
-                        <p><a href="<?php echo esc_url(admin_url('admin.php?page=ujc-developer')); ?>" class="button button-primary">Dodaj dane dostawcy</a></p>
-                    <?php elseif (!$investment): ?>
-                        <p><a href="<?php echo esc_url(admin_url('admin.php?page=ujc-resources')); ?>" class="button button-primary">Dodaj inwestycję</a></p>
-                    <?php elseif ($resources_count === 0): ?>
-                        <p><a href="<?php echo esc_url(admin_url('admin.php?page=ujc-resources')); ?>" class="button button-primary">Dodaj zasoby</a></p>
-                    <?php else: ?>
-                        <p>
-                            <button type="button" class="button button-primary" onclick="manualGeneration()" id="quick-generation-btn">
-                                🔄 Generuj manualnie
-                            </button>
-                            <a href="<?php echo esc_url(admin_url('admin.php?page=ujc-publication')); ?>" class="button button-secondary" style="margin-left: 10px;">
-                                📁 Publikacja danych
-                            </a>
-                        </p>
-                    <?php endif; ?>
-                </div>
-                
+
                 
                 <?php $this->automationTile->render(); ?>
                 

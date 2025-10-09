@@ -173,8 +173,18 @@ class ShortcodeGeneratorPage {
                             </div>
                         </div>
                     </div>
+
+                    <!-- Sortowanie i filtrowanie -->
+                    <div class="postbox">
+                        <div class="postbox-header">
+                            <h2>Sortowanie i filtrowanie</h2>
+                        </div>
+                        <div class="inside">
+                            <?php $this->render_sorting_and_filtering_options($settings); ?>
+                        </div>
+                    </div>
                 </div>
-                
+
                 <!-- Generated Shortcode Section -->
                 <div class="postbox">
                     <div class="postbox-header">
@@ -182,7 +192,7 @@ class ShortcodeGeneratorPage {
                     </div>
                     <div class="inside">
                         <div class="shortcode-display">
-                            <code id="generated-shortcode"><?php echo esc_html($this->generateShortcode($settings)); ?></code>
+                            <code id="generated-shortcode"></code>
                             <button type="button" class="button button-primary" id="copy-shortcode">
                                 <span class="dashicons dashicons-admin-page"></span>
                                 Kopiuj shortcode
@@ -435,26 +445,36 @@ class ShortcodeGeneratorPage {
                 return;
             }
 
+            // TYMCZASOWA ZMIANA: Używamy WordPress do_shortcode() zamiast manual parsingu
+            // żeby preview pokazywał dokładnie to samo co frontend (włącznie z problemami)
+            // Oryginalny manual parsing zakomentowany poniżej:
+
+            /*
             // Parse shortcode manually for preview to preserve colons
             Logger::info('Parsing shortcode manually for preview: ' . esc_html($shortcode));
-            
+
             // Remove escape slashes added by WordPress
             $shortcode = stripslashes($shortcode);
             Logger::info('After stripslashes: ' . esc_html($shortcode));
-            
+
             $attrs = [];
-            
+
             // Extract attributes using regex that handles double quotes
             if (preg_match_all('/(\w+)="([^"]*)"/', $shortcode, $matches, PREG_SET_ORDER)) {
                 foreach ($matches as $match) {
                     $attrs[$match[1]] = $match[2];
                 }
             }
-            
+
             Logger::info('Manually parsed attributes for preview: ' . print_r($attrs, true));
-            
+
             // Call ResourcesListShortcode::handle() directly for preview
             $preview_html = ResourcesListShortcode::handle($attrs);
+            */
+
+            // Tymczasowo używamy WordPress do_shortcode() dla konsystencji z frontend
+            Logger::info('Using WordPress do_shortcode() for preview consistency: ' . esc_html($shortcode));
+            $preview_html = do_shortcode($shortcode);
             Logger::info('Preview result length: ' . strlen($preview_html));
             Logger::info('Preview result content: ' . $preview_html);
             
@@ -510,6 +530,14 @@ class ShortcodeGeneratorPage {
             'karta_btn_text' => 'Karta lokalu',
             'karta_btn_bg_color' => '#007cba',
             'karta_btn_text_color' => '#ffffff',
+
+            // Sortowanie - domyślnie wyłączone
+            'sort' => '',
+            'sort_order' => 'asc',
+
+            // Filtrowanie - domyślnie wyłączone
+            'filterBy' => '',
+            'filterValue' => '',
         ];
     }
     
@@ -558,6 +586,20 @@ class ShortcodeGeneratorPage {
         // Add detail_page_url if provided
         if (!empty($settings['detail_page_url'])) {
             $shortcode .= " detail_page_url=\"{$settings['detail_page_url']}\"";
+        }
+
+        // Add sortowanie
+        if (!empty($settings['sort'])) {
+            $shortcode .= " sort=\"{$settings['sort']}\"";
+            if ($settings['sort_order'] !== 'asc') {
+                $shortcode .= " sort_order=\"{$settings['sort_order']}\"";
+            }
+        }
+
+        // Add filtrowanie
+        if (!empty($settings['filterBy']) && !empty($settings['filterValue'])) {
+            $shortcode .= " filterBy=\"{$settings['filterBy']}\"";
+            $shortcode .= " filterValue=\"{$settings['filterValue']}\"";
         }
 
         // Add styling parameters
@@ -720,6 +762,50 @@ class ShortcodeGeneratorPage {
         echo '</div>';
 
         echo '</div>';
+        echo '</div>';
+
+        echo '</div>';
+    }
+
+    /**
+     * Render sorting and filtering options
+     */
+    private function render_sorting_and_filtering_options(array $settings) {
+        // Sortowanie
+        echo '<div class="setting-group">';
+        echo '<h4>Sortowanie</h4>';
+
+        echo '<div style="display: flex; gap: 10px; align-items: center;">';
+        echo '<select id="sort" name="sort" style="width: 200px;">';
+        echo '<option value="">Bez sortowania</option>';
+        echo '<option value="price"' . selected($settings['sort'], 'price', false) . '>Cena</option>';
+        echo '<option value="area"' . selected($settings['sort'], 'area', false) . '>Powierzchnia</option>';
+        echo '<option value="floor"' . selected($settings['sort'], 'floor', false) . '>Piętro</option>';
+        echo '<option value="unit"' . selected($settings['sort'], 'unit', false) . '>Numer lokalu</option>';
+        echo '<option value="status"' . selected($settings['sort'], 'status', false) . '>Status</option>';
+        echo '<option value="rooms"' . selected($settings['sort'], 'rooms', false) . '>Pokoje</option>';
+        echo '</select>';
+
+        echo '<select id="sort_order" name="sort_order" style="width: 120px;">';
+        echo '<option value="asc"' . selected($settings['sort_order'], 'asc', false) . '>Rosnąco</option>';
+        echo '<option value="desc"' . selected($settings['sort_order'], 'desc', false) . '>Malejąco</option>';
+        echo '</select>';
+        echo '</div>';
+
+        echo '</div>';
+
+        // Filtrowanie
+        echo '<div class="setting-group">';
+        echo '<h4>Filtrowanie</h4>';
+
+        echo '<div style="display: flex; gap: 10px; align-items: center;">';
+        echo '<select id="filterBy" name="filterBy" style="width: 200px;">';
+        echo '<option value="">Bez filtrowania</option>';
+        echo '<option value="floor"' . selected($settings['filterBy'], 'floor', false) . '>Piętro</option>';
+        // TODO: Dodać w przyszłości: price, status, area, rooms
+        echo '</select>';
+
+        echo '<input type="text" id="filterValue" name="filterValue" value="' . esc_attr($settings['filterValue']) . '" placeholder="Wartość (np. 5)" class="regular-text" style="width: 150px;">';
         echo '</div>';
 
         echo '</div>';

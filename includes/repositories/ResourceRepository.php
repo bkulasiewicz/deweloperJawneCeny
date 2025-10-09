@@ -298,7 +298,7 @@ class ResourceRepository {
             }
 
             // Floor filter
-            if (!empty($filters->floorFilter)) {
+            if ($filters->floorFilter !== null) {
                 $floorPlaceholders = implode(',', array_fill(0, count($filters->floorFilter), '%d'));
                 $whereConditions[] = "r.floor_number IN ({$floorPlaceholders})";
                 $prepareValues = array_merge($prepareValues, $filters->floorFilter);

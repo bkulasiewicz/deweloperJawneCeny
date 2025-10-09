@@ -49,6 +49,16 @@ jQuery(document).ready(function($) {
         const kartaBtnBgColor = $('#karta_btn_bg_color').val();
         const kartaBtnTextColor = $('#karta_btn_text_color').val();
 
+        // Get sorting options - combine into single parameter
+        const sort = $('#sort').val();
+        const sortOrder = $('#sort_order').val();
+        const sortingCombined = (sort && sort !== '') ? sort + ':' + sortOrder : '';
+
+        // Get filtering options - combine into single parameter
+        const filterBy = $('#filterBy').val();
+        const filterValue = $('#filterValue').val();
+        const filteringCombined = (filterBy && filterBy !== '' && filterValue && filterValue.trim() !== '') ? filterBy + ':' + filterValue.trim() : '';
+
         let shortcode = '[resources_list';
 
         if (selectedTypes.length > 0) {
@@ -112,6 +122,16 @@ jQuery(document).ready(function($) {
         }
         if (kartaBtnTextColor) {
             shortcode += ' karta_btn_text_color="' + kartaBtnTextColor + '"';
+        }
+
+        // Add combined sorting parameter
+        if (sortingCombined) {
+            shortcode += ' sorting="' + sortingCombined + '"';
+        }
+
+        // Add combined filtering parameter
+        if (filteringCombined) {
+            shortcode += ' filtering="' + filteringCombined + '"';
         }
 
         shortcode += ']';
@@ -223,6 +243,17 @@ jQuery(document).ready(function($) {
         updatePreview();
     });
 
+    // Update shortcode when sorting/filtering options change
+    $('#sort, #sort_order, #filterBy').on('change', function() {
+        updateShortcodePreview();
+        updatePreview();
+    });
+
+    $('#filterValue').on('input', function() {
+        updateShortcodePreview();
+        updatePreview();
+    });
+
     // Initialize on page load
     toggleColumnNameInputs();
     updateColorHexDisplays();
@@ -247,13 +278,14 @@ jQuery(document).ready(function($) {
 
     // Copy shortcode to clipboard
     $('#copy-shortcode').on('click', function() {
+        const $button = $(this);  // Zapisz referencję do przycisku
         const shortcode = $('#generated-shortcode').text();
         navigator.clipboard.writeText(shortcode).then(function() {
-            $(this).text('Skopiowano!').addClass('button-primary');
+            $button.text('Skopiowano!').addClass('button-primary');
             setTimeout(() => {
-                $(this).text('Kopiuj').removeClass('button-primary');
+                $button.text('Kopiuj').removeClass('button-primary');
             }, 2000);
-        }.bind(this));
+        });
     });
 
     // Removed save functionality - shortcode is generated dynamically only

@@ -83,6 +83,10 @@ class ResourcesListShortcode {
 
             // Frontend sorting
             'enable_frontend_sorting' => 'false',
+
+            // Sortowanie i filtrowanie (połączone w jeden parametr)
+            'sorting' => '', // format: "field:order" np. "floor:desc"
+            'filtering' => '', // format: "field:value" np. "floor:2"
         ], $atts);
 
         Logger::info('Processed atts after shortcode_atts: ' . esc_html(print_r($atts, true)));
@@ -200,9 +204,17 @@ class ResourcesListShortcode {
                 'karta_btn_bg_color' => $atts['karta_btn_bg_color'],
                 'karta_btn_text_color' => $atts['karta_btn_text_color'],
             ];
-            
+
+            // Parse sortowanie z nowego formatu "field:order"
+            $sortOptions = self::createSortOptionsFromCombined($atts['sorting']);
+            Logger::info("Shortcode: Sort options created: " . ($sortOptions ? $sortOptions->sortBy . " " . $sortOptions->sortOrder : "none"));
+
+            // Parse filtrowanie z nowego formatu "field:value"
+            $filterCriteria = self::createFilterFromCombined($atts['filtering']);
+            Logger::info("Shortcode: Filter criteria created for filtering={$atts['filtering']}");
+
             // Render the resources table
-            return self::render_resources_table($selected_types, $visible_columns, $column_names, $styling_options, $atts['detail_page_url']);
+            return self::render_resources_table($selected_types, $visible_columns, $column_names, $styling_options, $atts['detail_page_url'], $sortOptions, $filterCriteria, ($atts['enable_frontend_sorting'] === 'true'));
             
         } catch (Exception $e) {
             Logger::error("Shortcode error: " . $e->getMessage());
@@ -211,16 +223,96 @@ class ResourcesListShortcode {
     }
     
     /**
+     * Create SortOptions from combined format "field:order"
+     */
+    private static function createSortOptionsFromCombined(string $sorting): ?SortOptions {
+        if (empty($sorting)) {
+            return null;
+        }
+
+        // Parse format "field:order"
+        $parts = explode(':', $sorting);
+        if (count($parts) !== 2) {
+            Logger::error("Invalid sorting format in shortcode: {$sorting}. Expected 'field:order'");
+            return null;
+        }
+
+        $sort = trim($parts[0]);
+        $order = trim($parts[1]);
+
+        // Mapowanie user-friendly nazw na stałe SortOptions
+        $sortMapping = [
+            'price' => SortOptions::SORT_BY_PRICE,
+            'area' => SortOptions::SORT_BY_AREA,
+            'floor' => SortOptions::SORT_BY_FLOOR,
+            'unit' => SortOptions::SORT_BY_UNIT_NUMBER,
+            'status' => SortOptions::SORT_BY_STATUS,
+            'rooms' => SortOptions::SORT_BY_ROOMS
+        ];
+
+        $mappedSort = $sortMapping[$sort] ?? null;
+        if (!$mappedSort) {
+            Logger::error("Invalid sort field in shortcode: {$sort}");
+            return null;
+        }
+
+        return new SortOptions($mappedSort, $order);
+    }
+
+    /**
+     * Create FilterCriteria from combined format "field:value"
+     */
+    private static function createFilterFromCombined(string $filtering): FilterCriteria {
+        if (empty($filtering)) {
+            return new FilterCriteria();
+        }
+
+        // Parse format "field:value"
+        $parts = explode(':', $filtering);
+        if (count($parts) !== 2) {
+            Logger::error("Invalid filtering format in shortcode: {$filtering}. Expected 'field:value'");
+            return new FilterCriteria();
+        }
+
+        $filterBy = trim($parts[0]);
+        $filterValue = trim($parts[1]);
+
+        switch ($filterBy) {
+            case 'floor':
+                $floor = (int)$filterValue;
+                Logger::info("Shortcode: Filtering by floor = {$floor}");
+                return new FilterCriteria(
+                    null, null,        // price min/max
+                    null, null,        // area min/max
+                    null,              // status filter
+                    [$floor],          // floor filter (array with single floor)
+                    null,              // rooms filter
+                    null,              // property types (handled separately)
+                    null               // unit number filter
+                );
+
+            // TODO: Dodać w przyszłości:
+            // case 'price': ...
+            // case 'status': ...
+            // case 'area': ...
+
+            default:
+                Logger::error("Invalid filterBy field in shortcode: {$filterBy}");
+                return new FilterCriteria(); // empty filter
+        }
+    }
+
+    /**
      * Render resources table for shortcode using shared ResourceTableRenderer
      */
-    private static function render_resources_table(array $selected_types, array $visible_columns, array $column_names, array $styling_options, string $detail_page_url = ''): string {
+    private static function render_resources_table(array $selected_types, array $visible_columns, array $column_names, array $styling_options, string $detail_page_url = '', ?SortOptions $sortOptions = null, ?FilterCriteria $filterCriteria = null, bool $enable_frontend_sorting = false): string {
         Logger::info("Shortcode: render_resources_table started");
         Logger::info("Shortcode: Selected types count: " . count($selected_types));
         Logger::info("Shortcode: Selected type values: " . implode(', ', array_map(fn($type) => $type->value, $selected_types)));
 
         // Get resources using dedicated frontend UseCase with built-in filtering
         $frontend_use_case = DIContainer::get(GetResourcesForFrontendUseCase::class);
-        $filtered_resources = $frontend_use_case->execute($selected_types);
+        $filtered_resources = $frontend_use_case->execute($selected_types, $filterCriteria, $sortOptions);
         Logger::info("Shortcode: Got " . count($filtered_resources) . " filtered resources from GetResourcesForFrontendUseCase");
 
         // Use ResourceTableRenderer for consistent rendering
@@ -231,7 +323,7 @@ class ResourcesListShortcode {
             $styling_options,
             $detail_page_url,
             'ujc-shortcode-resources-list',  // Shortcode container class
-            ($atts['enable_frontend_sorting'] === 'true')
+            $enable_frontend_sorting
         );
     }
     
