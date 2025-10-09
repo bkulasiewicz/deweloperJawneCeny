@@ -87,6 +87,15 @@ class ResourcesListShortcode {
             // Sortowanie i filtrowanie (połączone w jeden parametr)
             'sorting' => '', // format: "field:order" np. "floor:desc"
             'filtering' => '', // format: "field:value" np. "floor:2"
+
+            // Navigation mode - '' = clickable rows (BC), 'button' = zobacz więcej button
+            'navigation_mode' => '',
+            'zobacz_btn_text' => 'Zobacz więcej',
+            'zobacz_btn_bg_color' => '#007cba',
+            'zobacz_btn_text_color' => '#ffffff',
+            'zobacz_btn_padding' => '6px 12px',
+            'zobacz_btn_border_radius' => '4px',
+            'zobacz_btn_font_size' => '0.875em',
         ], $atts);
 
         Logger::info('Processed atts after shortcode_atts: ' . esc_html(print_r($atts, true)));
@@ -172,7 +181,16 @@ class ResourcesListShortcode {
                 Logger::error("No valid columns provided in shortcode");
                 return '<div class="ujc-shortcode-error">Błąd: Brak prawidłowych kolumn w formacie field:nazwa.</div>';
             }
-            
+
+            // Automatically add zobacz_wiecej column if navigation_mode is 'button' and detail_page_url is set
+            if (!empty($atts['detail_page_url']) && $atts['navigation_mode'] === 'button') {
+                if (!in_array(ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ, $visible_columns)) {
+                    $visible_columns[] = ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ;
+                    $column_names[ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ] = '';
+                    Logger::info("Shortcode: Auto-added COLUMN_ZOBACZ_WIECEJ because navigation_mode='button'");
+                }
+            }
+
             // Use provided styling options
             $styling_options = [
                 'header_bg_color' => $atts['header_bg_color'],
@@ -203,6 +221,16 @@ class ResourcesListShortcode {
                 'karta_btn_text' => $atts['karta_btn_text'],
                 'karta_btn_bg_color' => $atts['karta_btn_bg_color'],
                 'karta_btn_text_color' => $atts['karta_btn_text_color'],
+
+                // Navigation mode and Zobacz więcej button styling
+                'navigation_mode' => $atts['navigation_mode'],
+                'detail_page_url' => $atts['detail_page_url'],
+                'zobacz_btn_text' => $atts['zobacz_btn_text'],
+                'zobacz_btn_bg_color' => $atts['zobacz_btn_bg_color'],
+                'zobacz_btn_text_color' => $atts['zobacz_btn_text_color'],
+                'zobacz_btn_padding' => $atts['zobacz_btn_padding'],
+                'zobacz_btn_border_radius' => $atts['zobacz_btn_border_radius'],
+                'zobacz_btn_font_size' => $atts['zobacz_btn_font_size'],
             ];
 
             // Parse sortowanie z nowego formatu "field:order"

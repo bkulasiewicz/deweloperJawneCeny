@@ -23,7 +23,8 @@
         'price_with_extras': 'Cena z dodatkami',          // PriceHistoryDto::FIELD_CENA_Z_DODATKAMI
 
         // Functional columns
-        'historia_cen': 'Historia cen'                     // ResourceTableRenderer::COLUMN_HISTORIA_CEN
+        'historia_cen': 'Historia cen',                    // ResourceTableRenderer::COLUMN_HISTORIA_CEN
+        'zobacz_wiecej': ''                                // ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ
     };
 
     // Available property types
@@ -173,6 +174,36 @@
             detailPageUrl: {
                 type: 'string',
                 default: ''
+            },
+
+            // Navigation mode
+            navigationMode: {
+                type: 'string',
+                default: ''
+            },
+            zobaczBtnText: {
+                type: 'string',
+                default: 'Zobacz więcej'
+            },
+            zobaczBtnBgColor: {
+                type: 'string',
+                default: '#007cba'
+            },
+            zobaczBtnTextColor: {
+                type: 'string',
+                default: '#ffffff'
+            },
+            zobaczBtnPadding: {
+                type: 'string',
+                default: '6px 12px'
+            },
+            zobaczBtnBorderRadius: {
+                type: 'string',
+                default: '4px'
+            },
+            zobaczBtnFontSize: {
+                type: 'string',
+                default: '0.875em'
             },
 
             // Button customization
@@ -817,17 +848,100 @@
                     ),
 
                     // Interactive Features Panel
+                    // === NOWA SEKCJA: Nawigacja do szczegółów ===
                     el(PanelBody, {
-                        title: 'Funkcje interaktywne',
+                        title: 'Nawigacja do szczegółów',
                         initialOpen: false
                     },
+                        // URL input (zawsze widoczny)
                         el(TextControl, {
                             label: 'URL strony szczegółów',
                             placeholder: '/mieszkania/',
                             value: attributes.detailPageUrl,
                             onChange: (value) => setAttributes({ detailPageUrl: value }),
-                            help: 'Gdy ustawione, wiersze będą klikalne'
+                            help: 'Podaj URL bazowy (np. /mieszkania/). Numer lokalu zostanie dodany automatycznie.'
                         }),
+
+                        // Separator + Navigation mode picker (tylko gdy URL ustawiony)
+                        attributes.detailPageUrl && el(Fragment, {},
+                            el('hr', { style: { margin: '16px 0' } }),
+                            el('h4', { style: { margin: '0 0 8px', fontSize: '13px', fontWeight: '500' } }, 'Sposób nawigacji'),
+                            el('div', { style: { marginBottom: '12px' } },
+                                el('label', {
+                                    style: { display: 'block', marginBottom: '8px', cursor: 'pointer' }
+                                },
+                                    el('input', {
+                                        type: 'radio',
+                                        name: 'navigationMode',
+                                        value: '',
+                                        checked: attributes.navigationMode === '',
+                                        onChange: () => setAttributes({ navigationMode: '' }),
+                                        style: { marginRight: '6px' }
+                                    }),
+                                    'Klikalne wiersze/karty'
+                                ),
+                                el('label', {
+                                    style: { display: 'block', cursor: 'pointer' }
+                                },
+                                    el('input', {
+                                        type: 'radio',
+                                        name: 'navigationMode',
+                                        value: 'button',
+                                        checked: attributes.navigationMode === 'button',
+                                        onChange: () => setAttributes({ navigationMode: 'button' }),
+                                        style: { marginRight: '6px' }
+                                    }),
+                                    'Przycisk "Zobacz więcej"'
+                                )
+                            )
+                        ),
+
+                        // Separator + Button styling (tylko gdy button mode wybrany)
+                        attributes.detailPageUrl && attributes.navigationMode === 'button' && el(Fragment, {},
+                            el('hr', { style: { margin: '16px 0' } }),
+                            el('h4', { style: { margin: '0 0 12px', fontSize: '13px', fontWeight: '500' } }, 'Stylizacja przycisku "Zobacz więcej"'),
+
+                            el(TextControl, {
+                                label: 'Tekst przycisku',
+                                value: attributes.zobaczBtnText,
+                                onChange: (value) => setAttributes({ zobaczBtnText: value }),
+                                placeholder: 'Zobacz więcej'
+                            }),
+
+                            CompactColorPicker('zobaczBtnBgColor', 'Kolor tła', attributes.zobaczBtnBgColor, (color) => setAttributes({ zobaczBtnBgColor: color })),
+
+                            CompactColorPicker('zobaczBtnTextColor', 'Kolor tekstu', attributes.zobaczBtnTextColor, (color) => setAttributes({ zobaczBtnTextColor: color })),
+
+                            el(TextControl, {
+                                label: 'Padding',
+                                value: attributes.zobaczBtnPadding,
+                                onChange: (value) => setAttributes({ zobaczBtnPadding: value }),
+                                placeholder: '6px 12px',
+                                help: 'Odstęp wewnętrzny (np. 6px 12px)'
+                            }),
+
+                            el(TextControl, {
+                                label: 'Border radius',
+                                value: attributes.zobaczBtnBorderRadius,
+                                onChange: (value) => setAttributes({ zobaczBtnBorderRadius: value }),
+                                placeholder: '4px',
+                                help: 'Zaokrąglenie rogów (np. 4px)'
+                            }),
+
+                            el(TextControl, {
+                                label: 'Rozmiar czcionki',
+                                value: attributes.zobaczBtnFontSize,
+                                onChange: (value) => setAttributes({ zobaczBtnFontSize: value }),
+                                placeholder: '0.875em',
+                                help: 'Rozmiar tekstu (np. 0.875em lub 14px)'
+                            })
+                        )
+                    ),
+
+                    el(PanelBody, {
+                        title: 'Funkcje interaktywne',
+                        initialOpen: false
+                    },
                         el('hr'),
                         el('h4', { style: { margin: '16px 0 8px' } }, 'Przycisk Historia Cen'),
                         el(TextControl, {

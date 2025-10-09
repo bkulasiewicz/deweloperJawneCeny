@@ -58,6 +58,14 @@ class ResourcesListBlock {
         // Apply column ordering
         $ordered_columns = self::applyColumnOrdering($visible_columns, $parsed_attributes['columnOrder']);
 
+        // Auto-add zobacz_wiecej column if navigation_mode is 'button' and URL is set
+        if (!empty($parsed_attributes['detailPageUrl']) && $parsed_attributes['navigationMode'] === 'button') {
+            if (!in_array(ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ, $ordered_columns)) {
+                $ordered_columns[] = ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ;
+                $column_names[ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ] = '';
+            }
+        }
+
         // Prepare styling options
         $styling_options = self::buildStylingOptions($parsed_attributes);
 
@@ -197,7 +205,16 @@ class ResourcesListBlock {
             'modalHeaderBorderColor' => '#dee2e6',
             'modalCloseBtnColor' => '#666666',
             'modalCloseBtnHoverColor' => '#000000',
-            'modalZIndex' => '10000'
+            'modalZIndex' => '10000',
+
+            // Navigation mode - '' = clickable (BC), 'button' = zobacz więcej button
+            'navigationMode' => '',
+            'zobaczBtnText' => 'Zobacz więcej',
+            'zobaczBtnBgColor' => '#007cba',
+            'zobaczBtnTextColor' => '#ffffff',
+            'zobaczBtnPadding' => '6px 12px',
+            'zobaczBtnBorderRadius' => '4px',
+            'zobaczBtnFontSize' => '0.875em'
         ];
 
         // Merge with defaults and validate
@@ -333,7 +350,17 @@ class ResourcesListBlock {
             'modal_header_border_color' => $attributes['modalHeaderBorderColor'],
             'modal_close_btn_color' => $attributes['modalCloseBtnColor'],
             'modal_close_btn_hover_color' => $attributes['modalCloseBtnHoverColor'],
-            'modal_z_index' => $attributes['modalZIndex']
+            'modal_z_index' => $attributes['modalZIndex'],
+
+            // Navigation mode and Zobacz więcej button styling
+            'navigation_mode' => $attributes['navigationMode'],
+            'detail_page_url' => $attributes['detailPageUrl'],
+            'zobacz_btn_text' => $attributes['zobaczBtnText'],
+            'zobacz_btn_bg_color' => $attributes['zobaczBtnBgColor'],
+            'zobacz_btn_text_color' => $attributes['zobaczBtnTextColor'],
+            'zobacz_btn_padding' => $attributes['zobaczBtnPadding'],
+            'zobacz_btn_border_radius' => $attributes['zobaczBtnBorderRadius'],
+            'zobacz_btn_font_size' => $attributes['zobaczBtnFontSize']
         ];
     }
 

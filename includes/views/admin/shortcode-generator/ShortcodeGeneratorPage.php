@@ -98,33 +98,30 @@ class ShortcodeGeneratorPage {
                 
                 <!-- Configuration Sections -->
                 <div class="config-section-grid">
-                    <!-- Basic Settings -->
-                    <div class="postbox">
-                        <div class="postbox-header">
-                            <h2>Podstawowe ustawienia</h2>
-                        </div>
-                        <div class="inside">
-                            <div class="setting-group">
-                                <label>Typy nieruchomości</label>
-                                <?php $this->render_property_types_checkboxes($settings); ?>
-                                <p class="description">Wybierz które typy nieruchomości mają być wyświetlane.</p>
+                    <div class="left-column">
+                        <!-- Basic Settings -->
+                        <div class="postbox">
+                            <div class="postbox-header">
+                                <h2>Podstawowe ustawienia</h2>
                             </div>
-                            
-                            <div class="setting-group">
-                                <label>Widoczne kolumny</label>
-                                <?php $this->render_columns_with_names($settings); ?>
-                                <p class="description">Zaznacz kolumny które mają być wyświetlane w tabeli.</p>
-                            </div>
+                            <div class="inside">
+                                <div class="setting-group">
+                                    <label>Typy nieruchomości</label>
+                                    <?php $this->render_property_types_checkboxes($settings); ?>
+                                    <p class="description">Wybierz które typy nieruchomości mają być wyświetlane.</p>
+                                </div>
 
-                            <div class="setting-group">
-                                <label for="detail-page-url">URL strony szczegółów (opcjonalne)</label>
-                                <input type="text" id="detail-page-url" name="detail_page_url" value="<?php echo esc_attr($settings['detail_page_url']); ?>" class="regular-text" placeholder="/mieszkania/">
-                                <p class="description">Podaj URL gdzie mają przekierowywać kliknięte wiersze (np. /mieszkania/). Numer lokalu zostanie automatycznie dodany na końcu.</p>
+                                <div class="setting-group">
+                                    <label>Widoczne kolumny</label>
+                                    <?php $this->render_columns_with_names($settings); ?>
+                                    <p class="description">Zaznacz kolumny które mają być wyświetlane w tabeli.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Personalization -->
+
+                    <div class="right-column">
+                        <!-- Personalization -->
                     <div class="postbox">
                         <div class="postbox-header">
                             <h2>Personalizacja</h2>
@@ -174,13 +171,78 @@ class ShortcodeGeneratorPage {
                         </div>
                     </div>
 
-                    <!-- Sortowanie i filtrowanie -->
+                    <!-- Nawigacja do szczegółów -->
                     <div class="postbox">
                         <div class="postbox-header">
-                            <h2>Sortowanie i filtrowanie</h2>
+                            <h2>Nawigacja do szczegółów</h2>
                         </div>
                         <div class="inside">
-                            <?php $this->render_sorting_and_filtering_options($settings); ?>
+                            <div class="setting-group">
+                                <label for="detail-page-url">URL strony szczegółów</label>
+                                <input type="text" id="detail-page-url" name="detail_page_url" value="<?php echo esc_attr($settings['detail_page_url']); ?>" class="regular-text" placeholder="/mieszkania/">
+                                <p class="description">Podaj URL bazowy (np. /mieszkania/). Numer lokalu zostanie dodany automatycznie.</p>
+                            </div>
+
+                            <div class="setting-group" id="navigation-mode-group" style="display: <?php echo !empty($settings['detail_page_url']) ? 'block' : 'none'; ?>;">
+                                <label>Sposób nawigacji</label>
+                                <div>
+                                    <label style="display: inline-block; margin-right: 20px;">
+                                        <input type="radio" name="navigation_mode" value="" <?php checked($settings['navigation_mode'], ''); ?>>
+                                        Klikalne wiersze/karty
+                                    </label>
+                                    <label style="display: inline-block;">
+                                        <input type="radio" name="navigation_mode" value="button" <?php checked($settings['navigation_mode'], 'button'); ?>>
+                                        Przycisk "Zobacz więcej"
+                                    </label>
+                                </div>
+                                <p class="description">Wybierz sposób nawigacji: klikalne wiersze/karty lub dedykowany przycisk.</p>
+                            </div>
+
+                            <div class="setting-group" id="button-config-group" style="display: <?php echo ($settings['navigation_mode'] ?? '') === 'button' ? 'block' : 'none'; ?>;">
+                                <h4>Konfiguracja przycisku "Zobacz więcej"</h4>
+                                <div class="button-inputs-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div>
+                                        <label for="zobacz-btn-text">Tekst przycisku</label>
+                                        <input type="text" id="zobacz-btn-text" name="zobacz_btn_text" value="<?php echo esc_attr($settings['zobacz_btn_text'] ?? 'Zobacz więcej'); ?>" class="regular-text">
+                                    </div>
+                                    <div>
+                                        <label for="zobacz-btn-bg-color">Kolor tła</label>
+                                        <input type="color" id="zobacz-btn-bg-color" name="zobacz_btn_bg_color" value="<?php echo esc_attr($settings['zobacz_btn_bg_color'] ?? '#007cba'); ?>" class="compact-color-input">
+                                        <span class="color-hex-display"><?php echo esc_html(strtoupper($settings['zobacz_btn_bg_color'] ?? '#007CBA')); ?></span>
+                                    </div>
+                                    <div>
+                                        <label for="zobacz-btn-text-color">Kolor tekstu</label>
+                                        <input type="color" id="zobacz-btn-text-color" name="zobacz_btn_text_color" value="<?php echo esc_attr($settings['zobacz_btn_text_color'] ?? '#ffffff'); ?>" class="compact-color-input">
+                                        <span class="color-hex-display"><?php echo esc_html(strtoupper($settings['zobacz_btn_text_color'] ?? '#FFFFFF')); ?></span>
+                                    </div>
+                                    <div>
+                                        <label for="zobacz-btn-padding">Padding</label>
+                                        <input type="text" id="zobacz-btn-padding" name="zobacz_btn_padding" value="<?php echo esc_attr($settings['zobacz_btn_padding'] ?? '6px 12px'); ?>" class="regular-text" placeholder="6px 12px">
+                                        <p class="description">Odstęp wewnętrzny (np. 6px 12px)</p>
+                                    </div>
+                                    <div>
+                                        <label for="zobacz-btn-border-radius">Border radius</label>
+                                        <input type="text" id="zobacz-btn-border-radius" name="zobacz_btn_border_radius" value="<?php echo esc_attr($settings['zobacz_btn_border_radius'] ?? '4px'); ?>" class="regular-text" placeholder="4px">
+                                        <p class="description">Zaokrąglenie rogów (np. 4px)</p>
+                                    </div>
+                                    <div>
+                                        <label for="zobacz-btn-font-size">Rozmiar czcionki</label>
+                                        <input type="text" id="zobacz-btn-font-size" name="zobacz_btn_font_size" value="<?php echo esc_attr($settings['zobacz_btn_font_size'] ?? '0.875em'); ?>" class="regular-text" placeholder="0.875em">
+                                        <p class="description">Rozmiar tekstu (np. 0.875em lub 14px)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                        <!-- Sortowanie i filtrowanie -->
+                        <div class="postbox">
+                            <div class="postbox-header">
+                                <h2>Sortowanie i filtrowanie</h2>
+                            </div>
+                            <div class="inside">
+                                <?php $this->render_sorting_and_filtering_options($settings); ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -538,6 +600,15 @@ class ShortcodeGeneratorPage {
             // Filtrowanie - domyślnie wyłączone
             'filterBy' => '',
             'filterValue' => '',
+
+            // Navigation mode - domyślnie klikalne wiersze
+            'navigation_mode' => '',
+            'zobacz_btn_text' => 'Zobacz więcej',
+            'zobacz_btn_bg_color' => '#007cba',
+            'zobacz_btn_text_color' => '#ffffff',
+            'zobacz_btn_padding' => '6px 12px',
+            'zobacz_btn_border_radius' => '4px',
+            'zobacz_btn_font_size' => '0.875em',
         ];
     }
     
@@ -558,7 +629,8 @@ class ShortcodeGeneratorPage {
             ResourceDto::FIELD_ADDITIONAL_DESCRIPTION => 'Opis',
             ResourceDto::FIELD_GARDEN_AREA => 'Ogród',
             ResourceDto::FIELD_FLOOR_PLAN_PDF => 'Plan',
-            ResourcesListShortcode::COLUMN_HISTORIA_CEN => 'Historia cen'
+            ResourceTableRenderer::COLUMN_HISTORIA_CEN => 'Historia cen',
+            ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ => ''
         ];
     }
     
@@ -632,7 +704,7 @@ class ShortcodeGeneratorPage {
             ResourceDto::FIELD_ADDITIONAL_DESCRIPTION,
             ResourceDto::FIELD_GARDEN_AREA,
             ResourceDto::FIELD_FLOOR_PLAN_PDF,
-            ResourcesListShortcode::COLUMN_HISTORIA_CEN
+            ResourceTableRenderer::COLUMN_HISTORIA_CEN
         ];
         
         $default_names = $this->getDefaultColumnNames();
@@ -689,26 +761,80 @@ class ShortcodeGeneratorPage {
      * Render status styling options
      */
     private function render_status_styling(array $settings) {
-        $status_options = [
-            'status_available_bg_color' => 'Tło "Dostępne"',
-            'status_available_text_color' => 'Tekst "Dostępne"',
-            'status_sold_bg_color' => 'Tło "Sprzedane"',
-            'status_sold_text_color' => 'Tekst "Sprzedane"',
-            'status_reserved_bg_color' => 'Tło "Zarezerwowane"',
-            'status_reserved_text_color' => 'Tekst "Zarezerwowane"'
-        ];
-
         echo '<div class="status-styling-options">';
-        foreach ($status_options as $field => $label) {
-            $color_value = $settings[$field] ?? '#007cba';
-            echo '<div class="status-color-item">';
-            echo '<label for="' . esc_attr($field) . '">' . esc_html($label) . '</label>';
-            echo '<div class="color-input-wrapper">';
-            echo '<input type="color" id="' . esc_attr($field) . '" name="' . esc_attr($field) . '" value="' . esc_attr($color_value) . '" class="compact-color-input">';
-            echo '<span class="color-hex-display">' . esc_html(strtoupper($color_value)) . '</span>';
-            echo '</div>';
-            echo '</div>';
-        }
+
+        // Status: Dostępne
+        echo '<div class="status-group">';
+        echo '<h5>Status: Dostępne</h5>';
+        echo '<div class="status-group-colors">';
+
+        echo '<div class="status-color-item">';
+        echo '<label for="status_available_bg_color">Kolor tła</label>';
+        echo '<div class="color-input-wrapper">';
+        echo '<input type="color" id="status_available_bg_color" name="status_available_bg_color" value="' . esc_attr($settings['status_available_bg_color'] ?? '#28a745') . '" class="compact-color-input">';
+        echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['status_available_bg_color'] ?? '#28A745')) . '</span>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '<div class="status-color-item">';
+        echo '<label for="status_available_text_color">Kolor tekstu</label>';
+        echo '<div class="color-input-wrapper">';
+        echo '<input type="color" id="status_available_text_color" name="status_available_text_color" value="' . esc_attr($settings['status_available_text_color'] ?? '#ffffff') . '" class="compact-color-input">';
+        echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['status_available_text_color'] ?? '#FFFFFF')) . '</span>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '</div>';
+        echo '</div>';
+
+        // Status: Sprzedane
+        echo '<div class="status-group">';
+        echo '<h5>Status: Sprzedane</h5>';
+        echo '<div class="status-group-colors">';
+
+        echo '<div class="status-color-item">';
+        echo '<label for="status_sold_bg_color">Kolor tła</label>';
+        echo '<div class="color-input-wrapper">';
+        echo '<input type="color" id="status_sold_bg_color" name="status_sold_bg_color" value="' . esc_attr($settings['status_sold_bg_color'] ?? '#dc3545') . '" class="compact-color-input">';
+        echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['status_sold_bg_color'] ?? '#DC3545')) . '</span>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '<div class="status-color-item">';
+        echo '<label for="status_sold_text_color">Kolor tekstu</label>';
+        echo '<div class="color-input-wrapper">';
+        echo '<input type="color" id="status_sold_text_color" name="status_sold_text_color" value="' . esc_attr($settings['status_sold_text_color'] ?? '#ffffff') . '" class="compact-color-input">';
+        echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['status_sold_text_color'] ?? '#FFFFFF')) . '</span>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '</div>';
+        echo '</div>';
+
+        // Status: Zarezerwowane
+        echo '<div class="status-group">';
+        echo '<h5>Status: Zarezerwowane</h5>';
+        echo '<div class="status-group-colors">';
+
+        echo '<div class="status-color-item">';
+        echo '<label for="status_reserved_bg_color">Kolor tła</label>';
+        echo '<div class="color-input-wrapper">';
+        echo '<input type="color" id="status_reserved_bg_color" name="status_reserved_bg_color" value="' . esc_attr($settings['status_reserved_bg_color'] ?? '#ffc107') . '" class="compact-color-input">';
+        echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['status_reserved_bg_color'] ?? '#FFC107')) . '</span>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '<div class="status-color-item">';
+        echo '<label for="status_reserved_text_color">Kolor tekstu</label>';
+        echo '<div class="color-input-wrapper">';
+        echo '<input type="color" id="status_reserved_text_color" name="status_reserved_text_color" value="' . esc_attr($settings['status_reserved_text_color'] ?? '#000000') . '" class="compact-color-input">';
+        echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['status_reserved_text_color'] ?? '#000000')) . '</span>';
+        echo '</div>';
+        echo '</div>';
+
+        echo '</div>';
+        echo '</div>';
+
         echo '</div>';
     }
 
@@ -725,17 +851,23 @@ class ShortcodeGeneratorPage {
 
         echo '<div class="button-text-input">';
         echo '<label for="historia_btn_text">Tekst przycisku</label>';
-        echo '<input type="text" id="historia_btn_text" name="historia_btn_text" value="' . esc_attr($settings['historia_btn_text'] ?? 'Historia') . '" class="regular-text">';
+        echo '<input type="text" id="historia_btn_text" name="historia_btn_text" value="' . esc_attr($settings['historia_btn_text'] ?? 'Historia') . '">';
         echo '</div>';
 
         echo '<div class="button-color-inputs">';
         echo '<label for="historia_btn_bg_color">Kolor tła</label>';
-        echo '<input type="color" id="historia_btn_bg_color" name="historia_btn_bg_color" value="' . esc_attr($settings['historia_btn_bg_color'] ?? '#007cba') . '">';
+        echo '<div class="color-input-wrapper">';
+        echo '<input type="color" id="historia_btn_bg_color" name="historia_btn_bg_color" value="' . esc_attr($settings['historia_btn_bg_color'] ?? '#007cba') . '" class="compact-color-input">';
+        echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['historia_btn_bg_color'] ?? '#007CBA')) . '</span>';
+        echo '</div>';
         echo '</div>';
 
         echo '<div class="button-color-inputs">';
         echo '<label for="historia_btn_text_color">Kolor tekstu</label>';
-        echo '<input type="color" id="historia_btn_text_color" name="historia_btn_text_color" value="' . esc_attr($settings['historia_btn_text_color'] ?? '#ffffff') . '">';
+        echo '<div class="color-input-wrapper">';
+        echo '<input type="color" id="historia_btn_text_color" name="historia_btn_text_color" value="' . esc_attr($settings['historia_btn_text_color'] ?? '#ffffff') . '" class="compact-color-input">';
+        echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['historia_btn_text_color'] ?? '#FFFFFF')) . '</span>';
+        echo '</div>';
         echo '</div>';
 
         echo '</div>';
@@ -748,17 +880,23 @@ class ShortcodeGeneratorPage {
 
         echo '<div class="button-text-input">';
         echo '<label for="karta_btn_text">Tekst przycisku</label>';
-        echo '<input type="text" id="karta_btn_text" name="karta_btn_text" value="' . esc_attr($settings['karta_btn_text'] ?? 'Karta lokalu') . '" class="regular-text">';
+        echo '<input type="text" id="karta_btn_text" name="karta_btn_text" value="' . esc_attr($settings['karta_btn_text'] ?? 'Karta lokalu') . '">';
         echo '</div>';
 
         echo '<div class="button-color-inputs">';
         echo '<label for="karta_btn_bg_color">Kolor tła</label>';
-        echo '<input type="color" id="karta_btn_bg_color" name="karta_btn_bg_color" value="' . esc_attr($settings['karta_btn_bg_color'] ?? '#007cba') . '">';
+        echo '<div class="color-input-wrapper">';
+        echo '<input type="color" id="karta_btn_bg_color" name="karta_btn_bg_color" value="' . esc_attr($settings['karta_btn_bg_color'] ?? '#007cba') . '" class="compact-color-input">';
+        echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['karta_btn_bg_color'] ?? '#007CBA')) . '</span>';
+        echo '</div>';
         echo '</div>';
 
         echo '<div class="button-color-inputs">';
         echo '<label for="karta_btn_text_color">Kolor tekstu</label>';
-        echo '<input type="color" id="karta_btn_text_color" name="karta_btn_text_color" value="' . esc_attr($settings['karta_btn_text_color'] ?? '#ffffff') . '">';
+        echo '<div class="color-input-wrapper">';
+        echo '<input type="color" id="karta_btn_text_color" name="karta_btn_text_color" value="' . esc_attr($settings['karta_btn_text_color'] ?? '#ffffff') . '" class="compact-color-input">';
+        echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['karta_btn_text_color'] ?? '#FFFFFF')) . '</span>';
+        echo '</div>';
         echo '</div>';
 
         echo '</div>';

@@ -134,6 +134,38 @@ jQuery(document).ready(function($) {
             shortcode += ' filtering="' + filteringCombined + '"';
         }
 
+        // Add navigation mode parameters
+        const navigationMode = $('input[name="navigation_mode"]:checked').val();
+        if (detailPageUrl && detailPageUrl.trim() !== '' && navigationMode === 'button') {
+            shortcode += ' navigation_mode="button"';
+
+            const zobaczBtnText = $('#zobacz-btn-text').val();
+            const zobaczBtnBgColor = $('#zobacz-btn-bg-color').val();
+            const zobaczBtnTextColor = $('#zobacz-btn-text-color').val();
+            const zobaczBtnPadding = $('#zobacz-btn-padding').val();
+            const zobaczBtnBorderRadius = $('#zobacz-btn-border-radius').val();
+            const zobaczBtnFontSize = $('#zobacz-btn-font-size').val();
+
+            if (zobaczBtnText) {
+                shortcode += ' zobacz_btn_text="' + zobaczBtnText + '"';
+            }
+            if (zobaczBtnBgColor) {
+                shortcode += ' zobacz_btn_bg_color="' + zobaczBtnBgColor + '"';
+            }
+            if (zobaczBtnTextColor) {
+                shortcode += ' zobacz_btn_text_color="' + zobaczBtnTextColor + '"';
+            }
+            if (zobaczBtnPadding) {
+                shortcode += ' zobacz_btn_padding="' + zobaczBtnPadding + '"';
+            }
+            if (zobaczBtnBorderRadius) {
+                shortcode += ' zobacz_btn_border_radius="' + zobaczBtnBorderRadius + '"';
+            }
+            if (zobaczBtnFontSize) {
+                shortcode += ' zobacz_btn_font_size="' + zobaczBtnFontSize + '"';
+            }
+        }
+
         shortcode += ']';
 
         $('#generated-shortcode').text(shortcode);
@@ -239,6 +271,31 @@ jQuery(document).ready(function($) {
 
     // Update shortcode when detail page URL changes
     $('#detail-page-url').on('input', function() {
+        const hasUrl = $(this).val().trim() !== '';
+        $('#navigation-mode-group').toggle(hasUrl);
+        if (!hasUrl) {
+            $('#button-config-group').hide();
+        }
+        updateShortcodePreview();
+        updatePreview();
+    });
+
+    // Update shortcode when navigation mode changes
+    $('input[name="navigation_mode"]').on('change', function() {
+        const isButton = $(this).val() === 'button';
+        $('#button-config-group').toggle(isButton);
+        updateShortcodePreview();
+        updatePreview();
+    });
+
+    // Update shortcode when zobacz button options change
+    $('#zobacz-btn-text, #zobacz-btn-padding, #zobacz-btn-border-radius, #zobacz-btn-font-size').on('input', function() {
+        updateShortcodePreview();
+        updatePreview();
+    });
+
+    $('#zobacz-btn-bg-color, #zobacz-btn-text-color').on('change input', function() {
+        updateColorHexDisplays();
         updateShortcodePreview();
         updatePreview();
     });
