@@ -15,13 +15,13 @@ if [ -n "$1" ]; then
     echo "🔧 Setting version to ${VERSION} in all files..."
     
     # Update main plugin header
-    sed -i.bak "s/ \* Version: .*/ * Version: ${VERSION}/" "${SCRIPT_DIR}/ustawa-jawnosci-cen.php"
-    
+    sed -i '' "s/ \* Version: .*/ * Version: ${VERSION}/" "${SCRIPT_DIR}/ustawa-jawnosci-cen.php"
+
     # Update VERSION constant
-    sed -i.bak "s/define('VERSION', '[^']*')/define('VERSION', '${VERSION}')/" "${SCRIPT_DIR}/ustawa-jawnosci-cen.php"
-    
+    sed -i '' "s/define('VERSION', '[^']*')/define('VERSION', '${VERSION}')/" "${SCRIPT_DIR}/ustawa-jawnosci-cen.php"
+
     # Update readme.txt
-    sed -i.bak "s/Stable tag: .*/Stable tag: ${VERSION}/" "${SCRIPT_DIR}/readme.txt"
+    sed -i '' "s/Stable tag: .*/Stable tag: ${VERSION}/" "${SCRIPT_DIR}/readme.txt"
     
     echo "✅ Version updated to ${VERSION} in all files"
 else
@@ -64,11 +64,11 @@ mkdir -p "${FREEMIUM_DIR}"
 rsync -av --exclude='build' --exclude='.git' --exclude='includes/premium' --exclude='.claude' --exclude='CLAUDE.md' --exclude='.DS_Store' --exclude='**/.gitignore' "${SCRIPT_DIR}/" "${FREEMIUM_DIR}/"
 
 # Update plugin header for freemium
-sed -i.bak 's/Plugin Name: DeweloperJawneCeny/Plugin Name: Deweloper Jawne Ceny - Free/' "${FREEMIUM_DIR}/ustawa-jawnosci-cen.php"
-sed -i.bak 's/Description: Plugin do automatyzacji/Description: Darmowa wersja - ręczne generowanie plików zgodnie z ustawą/' "${FREEMIUM_DIR}/ustawa-jawnosci-cen.php"
+sed -i '' 's/Plugin Name: DeweloperJawneCeny/Plugin Name: Deweloper Jawne Ceny - Free/' "${FREEMIUM_DIR}/ustawa-jawnosci-cen.php"
+sed -i '' 's/Description: Plugin do automatyzacji/Description: Darmowa wersja - ręczne generowanie plików zgodnie z ustawą/' "${FREEMIUM_DIR}/ustawa-jawnosci-cen.php"
 
 # Cleanup
-rm -f "${FREEMIUM_DIR}/deploy.sh" "${FREEMIUM_DIR}/test.sh" "${FREEMIUM_DIR}/"*.bak
+rm -f "${FREEMIUM_DIR}/deploy.sh" "${FREEMIUM_DIR}/test.sh"
 
 # Create freemium ZIP with proper folder structure
 cd "${BUILD_DIR}"
