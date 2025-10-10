@@ -5,7 +5,7 @@ Tags: jawnosc, ceny, mieszkania, deweloper, nieruchomosci, ustawa, dane-gov-pl, 
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.6.41
+Stable tag: 4.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,7 +15,7 @@ Automates transparent housing prices for real estate developers - generates data
 
 == Description ==
 
-**Deweloper Jawne Ceny** to wtyczka WordPress stworzona specjalnie dla polskich deweloperów nieruchomości, którzy muszą wypełniać obowiązki jawności cen mieszkań wynikające z Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego. Wtyczka automatyzuje proces publikacji jawnych cen nieruchomości w formacie wymaganym przez portal dane.gov.pl.
+**Deweloper Jawne Ceny** to narzędzie WordPress wspierające polskich deweloperów nieruchomości w spełnieniu wymogów Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego w zakresie jawności cen mieszkań. Wtyczka automatyzuje proces publikacji jawnych cen nieruchomości w formacie wymaganym przez portal dane.gov.pl, ułatwiając deweloperom wypełnianie obowiązków prawnych.
 
 = Główne funkcje =
 
@@ -29,7 +29,7 @@ Automates transparent housing prices for real estate developers - generates data
 
 = Zgodność z prawem =
 
-Wtyczka zapewnia pełną zgodność z polskimi przepisami dotyczącymi jawności cen nieruchomości:
+Wtyczka została zaprojektowana zgodnie z wymogami polskich przepisów dotyczących jawności cen nieruchomości:
 
 * Automatyczne generowanie plików w formacie XML zgodnym ze schematem dane.gov.pl
 * Eksport danych w formacie CSV dla łatwej analizy
@@ -41,7 +41,7 @@ Wtyczka zapewnia pełną zgodność z polskimi przepisami dotyczącymi jawności
 **Wersja darmowa:**
 * Pełne funkcje zarządzania danymi i ręczne generowanie plików
 * Podstawowe możliwości wyświetlania lokali na stronie internetowej
-* Zgodność z wymogami prawnymi
+* Narzędzie wspierające spełnienie wymogów prawnych
 
 **Wersja premium:**
 * Automatyzacja i zaplanowane publikowanie danych
@@ -61,7 +61,7 @@ Jeśli potrzebujesz pomocy z konfiguracją lub masz pytania, skorzystaj z formul
 
 == Description (English) ==
 
-**Deweloper Jawne Ceny** is a WordPress plugin created specifically for Polish real estate developers who must comply with obligations arising from the Act of May 21, 2025 on amending the act on the protection of the rights of residential premises buyers.
+**Deweloper Jawne Ceny** is a WordPress tool that helps Polish real estate developers comply with the requirements of the Act of May 21, 2025 on amending the act on the protection of the rights of residential premises buyers regarding housing price transparency. The plugin automates the publication process, making it easier for developers to fulfill their legal obligations.
 
 = Key Features =
 
@@ -75,7 +75,7 @@ Jeśli potrzebujesz pomocy z konfiguracją lub masz pytania, skorzystaj z formul
 
 = Legal Compliance =
 
-The plugin ensures full compliance with Polish regulations regarding real estate price transparency:
+The plugin has been designed in accordance with Polish regulations regarding real estate price transparency:
 
 * Automatic generation of XML files compliant with dane.gov.pl schema
 * Data export in CSV format for easy analysis
@@ -87,7 +87,7 @@ The plugin ensures full compliance with Polish regulations regarding real estate
 **Free version:**
 * Full data management features and manual file generation
 * Basic website display capabilities for properties
-* Legal compliance
+* Tool supporting legal compliance
 
 **Premium version:**
 * Automation and scheduled data publishing
@@ -151,9 +151,9 @@ If you need help with configuration or have questions, use the contact form avai
 
 == Frequently Asked Questions ==
 
-= Czy wtyczka jest zgodna z polskim prawem? =
+= Czy wtyczka wspiera zgodność z polskim prawem? =
 
-Tak, wtyczka została stworzona zgodnie z wymogami Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego. Generuje pliki w formatach wymaganych przez portal dane.gov.pl. Użytkownik ponosi odpowiedzialność za poprawność wprowadzanych danych.
+Wtyczka została zaprojektowana zgodnie z wymogami Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego i generuje pliki w formatach wymaganych przez portal dane.gov.pl. Wtyczka jest narzędziem wspierającym - użytkownik ponosi pełną odpowiedzialność za poprawność wprowadzanych danych i zgodność z obowiązującymi przepisami.
 
 = Czy mogę używać wtyczki dla wielu inwestycji? =
 

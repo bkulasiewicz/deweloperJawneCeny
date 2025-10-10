@@ -45,7 +45,7 @@ PREMIUM_DIR="${BUILD_DIR}/Deweloper Jawne Ceny"
 mkdir -p "${PREMIUM_DIR}"
 
 # Copy all files except build directory
-rsync -av --exclude='build' --exclude='.git' --exclude='.claude' --exclude='.DS_Store' --exclude='**/.gitignore' "${SCRIPT_DIR}/" "${PREMIUM_DIR}/"
+rsync -av --exclude='build' --exclude='.git' --exclude='.claude' --exclude='CLAUDE.md' --exclude='.DS_Store' --exclude='**/.gitignore' "${SCRIPT_DIR}/" "${PREMIUM_DIR}/"
 
 # Cleanup premium temp
 rm -f "${PREMIUM_DIR}/deploy.sh" "${PREMIUM_DIR}/test.sh"
@@ -61,7 +61,7 @@ FREEMIUM_DIR="${BUILD_DIR}/Deweloper Jawne Ceny"
 mkdir -p "${FREEMIUM_DIR}"
 
 # Copy all files except build directory and premium folder
-rsync -av --exclude='build' --exclude='.git' --exclude='includes/premium' --exclude='.claude' --exclude='.DS_Store' --exclude='**/.gitignore' "${SCRIPT_DIR}/" "${FREEMIUM_DIR}/"
+rsync -av --exclude='build' --exclude='.git' --exclude='includes/premium' --exclude='.claude' --exclude='CLAUDE.md' --exclude='.DS_Store' --exclude='**/.gitignore' "${SCRIPT_DIR}/" "${FREEMIUM_DIR}/"
 
 # Update plugin header for freemium
 sed -i.bak 's/Plugin Name: DeweloperJawneCeny/Plugin Name: Deweloper Jawne Ceny - Free/' "${FREEMIUM_DIR}/ustawa-jawnosci-cen.php"
