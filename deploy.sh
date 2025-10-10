@@ -41,7 +41,7 @@ mkdir -p "${BUILD_DIR}"
 
 echo "📦 Building Premium version..."
 # Build Premium version (full codebase)
-PREMIUM_DIR="${BUILD_DIR}/deweloper-jawne-ceny"
+PREMIUM_DIR="${BUILD_DIR}/Deweloper Jawne Ceny"
 mkdir -p "${PREMIUM_DIR}"
 
 # Copy all files except build directory
@@ -52,12 +52,12 @@ rm -f "${PREMIUM_DIR}/deploy.sh" "${PREMIUM_DIR}/test.sh"
 
 # Create premium ZIP with proper folder structure
 cd "${BUILD_DIR}"
-zip -r "DeweloperJawneCeny-premium-${VERSION}.zip" "deweloper-jawne-ceny" -x "*.DS_Store"
-rm -rf "deweloper-jawne-ceny"
+zip -r "DeweloperJawneCeny-premium-${VERSION}.zip" "Deweloper Jawne Ceny" -x "*.DS_Store"
+rm -rf "Deweloper Jawne Ceny"
 
 echo "📦 Building Freemium version..."
 # Build Freemium version (no premium folder)
-FREEMIUM_DIR="${BUILD_DIR}/deweloper-jawne-ceny"
+FREEMIUM_DIR="${BUILD_DIR}/Deweloper Jawne Ceny"
 mkdir -p "${FREEMIUM_DIR}"
 
 # Copy all files except build directory and premium folder
@@ -72,8 +72,8 @@ rm -f "${FREEMIUM_DIR}/deploy.sh" "${FREEMIUM_DIR}/test.sh" "${FREEMIUM_DIR}/"*.
 
 # Create freemium ZIP with proper folder structure
 cd "${BUILD_DIR}"
-zip -r "DeweloperJawneCeny-Free-${VERSION}.zip" "deweloper-jawne-ceny" -x "*.DS_Store"
-rm -rf "deweloper-jawne-ceny"
+zip -r "DeweloperJawneCeny-Free-${VERSION}.zip" "Deweloper Jawne Ceny" -x "*.DS_Store"
+rm -rf "Deweloper Jawne Ceny"
 
 echo "✅ Build completed successfully!"
 echo "📁 Premium version: ${BUILD_DIR}/DeweloperJawneCeny-premium-${VERSION}.zip"

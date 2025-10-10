@@ -5,7 +5,7 @@ Tags: jawnosc, ceny, mieszkania, deweloper, nieruchomosci, ustawa, dane-gov-pl, 
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.6.28
+Stable tag: 4.6.41
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
