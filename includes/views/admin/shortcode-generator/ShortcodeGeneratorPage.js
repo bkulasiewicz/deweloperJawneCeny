@@ -102,6 +102,29 @@ jQuery(document).ready(function($) {
             shortcode += ' status_reserved_text_color="' + statusReservedTextColor + '"';
         }
 
+        // Status advanced styling options
+        const statusDisplayStyle = $('#status_display_style').val();
+        const statusFontSize = $('#status_font_size').val();
+        const statusPadding = $('#status_padding').val();
+        const statusBorderRadius = $('#status_border_radius').val();
+        const statusFontWeight = $('#status_font_weight').val();
+
+        if (statusDisplayStyle && statusDisplayStyle !== 'badge') {
+            shortcode += ' status_display_style="' + statusDisplayStyle + '"';
+        }
+        if (statusFontSize && statusFontSize !== '0.875em') {
+            shortcode += ' status_font_size="' + statusFontSize + '"';
+        }
+        if (statusPadding && statusPadding !== '4px 8px') {
+            shortcode += ' status_padding="' + statusPadding + '"';
+        }
+        if (statusBorderRadius && statusBorderRadius !== '4px') {
+            shortcode += ' status_border_radius="' + statusBorderRadius + '"';
+        }
+        if (statusFontWeight && statusFontWeight !== '500') {
+            shortcode += ' status_font_weight="' + statusFontWeight + '"';
+        }
+
         // Add button styling parameters - Historia
         if (historiaBtnText) {
             shortcode += ' historia_btn_text="' + historiaBtnText + '"';

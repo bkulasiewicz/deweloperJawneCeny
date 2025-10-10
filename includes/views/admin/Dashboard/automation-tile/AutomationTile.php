@@ -44,7 +44,7 @@ class AutomationTile {
 
         wp_enqueue_script(
             'jawneceny-automation-tile',
-            plugins_url('automation-tile/AutomationTile.js', __FILE__),
+            plugins_url('AutomationTile.js', __FILE__),
             ['jquery'],
             '1.0.0',
             true
@@ -91,6 +91,12 @@ class AutomationTile {
      * Render external cron controls
      */
     private function render_external_cron_control() {
+        // Guard: Ensure premium dependencies are available
+        if (!$this->externalCronController || !$this->externalCronRepository) {
+            echo '<p style="color: #d63638;">Błąd: Nie można załadować komponentów automatyzacji.</p>';
+            return;
+        }
+
         $external_cron_enabled = ExternalCronController::is_external_cron_enabled();
         $current_schedule = $this->externalCronController->get_current_schedule();
         $available_schedules = $this->externalCronRepository->getAvailableSchedules();

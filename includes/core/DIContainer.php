@@ -89,7 +89,7 @@ class DIContainer {
         $c->singleton(XmlResourceRepository::class);
 
         // Premium repositories (conditional loading)
-        if (class_exists('ExternalCronRepository')) {
+        if (class_exists(ExternalCronRepository::class)) {
             $c->singleton(ExternalCronRepository::class);
         }
     }
@@ -255,7 +255,7 @@ class DIContainer {
         });
 
         // Premium Use Cases (conditional loading)
-        if (class_exists('WpCronFallbackUseCase')) {
+        if (class_exists(WpCronFallbackUseCase::class)) {
             $c->bind(WpCronFallbackUseCase::class, function() use ($c) {
                 return new WpCronFallbackUseCase(
                     $c->get(SettingsRepository::class),
@@ -265,7 +265,7 @@ class DIContainer {
             });
         }
 
-        if (class_exists('ToggleExternalCronUseCase')) {
+        if (class_exists(ToggleExternalCronUseCase::class)) {
             $c->bind(ToggleExternalCronUseCase::class, function() use ($c) {
                 return new ToggleExternalCronUseCase(
                     $c->get(RegisterExternalCronUseCase::class),
@@ -277,7 +277,7 @@ class DIContainer {
             });
         }
 
-        if (class_exists('RegisterExternalCronUseCase')) {
+        if (class_exists(RegisterExternalCronUseCase::class)) {
             $c->bind(RegisterExternalCronUseCase::class, function() use ($c) {
                 return new RegisterExternalCronUseCase(
                     $c->get(ExternalCronRepository::class),
@@ -288,7 +288,7 @@ class DIContainer {
             });
         }
 
-        if (class_exists('UnregisterExternalCronUseCase')) {
+        if (class_exists(UnregisterExternalCronUseCase::class)) {
             $c->bind(UnregisterExternalCronUseCase::class, function() use ($c) {
                 return new UnregisterExternalCronUseCase(
                     $c->get(ExternalCronRepository::class)
@@ -296,7 +296,7 @@ class DIContainer {
             });
         }
 
-        if (class_exists('UpdateExternalCronScheduleUseCase')) {
+        if (class_exists(UpdateExternalCronScheduleUseCase::class)) {
             $c->bind(UpdateExternalCronScheduleUseCase::class, function() use ($c) {
                 return new UpdateExternalCronScheduleUseCase(
                     $c->get(ExternalCronRepository::class)
@@ -356,7 +356,7 @@ class DIContainer {
         $c->singleton(BlocksManager::class);
 
         // Premium controllers (conditional loading)
-        if (class_exists('ExternalCronController')) {
+        if (class_exists(ExternalCronController::class)) {
             $c->bind(ExternalCronController::class, function() use ($c) {
                 return new ExternalCronController(
                     $c->get(ExternalCronRepository::class),
@@ -368,7 +368,7 @@ class DIContainer {
             });
         }
 
-        if (class_exists('WpCronFallbackController')) {
+        if (class_exists(WpCronFallbackController::class)) {
             $c->bind(WpCronFallbackController::class, function() use ($c) {
                 return new WpCronFallbackController(
                     $c->get(WpCronFallbackUseCase::class)
@@ -439,9 +439,9 @@ class DIContainer {
 
         $c->bind(AutomationTile::class, function() use ($c) {
             // Premium dependencies are optional (nullable)
-            $externalCronRepo = class_exists('ExternalCronRepository') ? $c->get(ExternalCronRepository::class) : null;
-            $externalCronController = class_exists('ExternalCronController') ? $c->get(ExternalCronController::class) : null;
-            $toggleUseCase = class_exists('ToggleExternalCronUseCase') ? $c->get(ToggleExternalCronUseCase::class) : null;
+            $externalCronRepo = class_exists(ExternalCronRepository::class) ? $c->get(ExternalCronRepository::class) : null;
+            $externalCronController = class_exists(ExternalCronController::class) ? $c->get(ExternalCronController::class) : null;
+            $toggleUseCase = class_exists(ToggleExternalCronUseCase::class) ? $c->get(ToggleExternalCronUseCase::class) : null;
 
             return new AutomationTile(
                 $externalCronRepo,

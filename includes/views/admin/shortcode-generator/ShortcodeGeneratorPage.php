@@ -835,6 +835,58 @@ class ShortcodeGeneratorPage {
         echo '</div>';
         echo '</div>';
 
+        // Dodatkowe opcje stylizacji
+        echo '<div class="status-group status-advanced-group">';
+        echo '<h5>Dodatkowe opcje stylizacji</h5>';
+        echo '<div class="status-group-colors">';
+
+        // Styl wyświetlania
+        echo '<div class="status-color-item">';
+        echo '<label for="status_display_style">Styl wyświetlania</label>';
+        echo '<select id="status_display_style" name="status_display_style" class="status-input">';
+        $display_style = $settings['status_display_style'] ?? 'badge';
+        echo '<option value="badge"' . ($display_style === 'badge' ? ' selected' : '') . '>Badge (prostokąt z ramką)</option>';
+        echo '<option value="pill"' . ($display_style === 'pill' ? ' selected' : '') . '>Pill (zaokrąglony)</option>';
+        echo '<option value="highlight"' . ($display_style === 'highlight' ? ' selected' : '') . '>Highlight (podświetlenie)</option>';
+        echo '<option value="underline"' . ($display_style === 'underline' ? ' selected' : '') . '>Underline (podkreślenie)</option>';
+        echo '<option value="plain"' . ($display_style === 'plain' ? ' selected' : '') . '>Plain (tylko tekst)</option>';
+        echo '</select>';
+        echo '</div>';
+
+        // Rozmiar czcionki
+        echo '<div class="status-color-item">';
+        echo '<label for="status_font_size">Rozmiar czcionki</label>';
+        echo '<input type="text" id="status_font_size" name="status_font_size" class="status-input" value="' . esc_attr($settings['status_font_size'] ?? '0.875em') . '" placeholder="0.875em">';
+        echo '</div>';
+
+        // Padding
+        echo '<div class="status-color-item">';
+        echo '<label for="status_padding">Padding</label>';
+        echo '<input type="text" id="status_padding" name="status_padding" class="status-input" value="' . esc_attr($settings['status_padding'] ?? '4px 8px') . '" placeholder="4px 8px">';
+        echo '</div>';
+
+        // Border radius
+        echo '<div class="status-color-item">';
+        echo '<label for="status_border_radius">Border radius</label>';
+        echo '<input type="text" id="status_border_radius" name="status_border_radius" class="status-input" value="' . esc_attr($settings['status_border_radius'] ?? '4px') . '" placeholder="4px">';
+        echo '</div>';
+
+        // Grubość czcionki
+        echo '<div class="status-color-item">';
+        echo '<label for="status_font_weight">Grubość czcionki</label>';
+        echo '<select id="status_font_weight" name="status_font_weight" class="status-input">';
+        $font_weight = $settings['status_font_weight'] ?? '500';
+        echo '<option value="normal"' . ($font_weight === 'normal' ? ' selected' : '') . '>Normalna</option>';
+        echo '<option value="bold"' . ($font_weight === 'bold' ? ' selected' : '') . '>Pogrubiona</option>';
+        echo '<option value="300"' . ($font_weight === '300' ? ' selected' : '') . '>Cienka</option>';
+        echo '<option value="500"' . ($font_weight === '500' ? ' selected' : '') . '>Średnia</option>';
+        echo '<option value="700"' . ($font_weight === '700' ? ' selected' : '') . '>Bardzo pogrubiona</option>';
+        echo '</select>';
+        echo '</div>';
+
+        echo '</div>';
+        echo '</div>';
+
         echo '</div>';
     }
 

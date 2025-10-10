@@ -1,10 +1,14 @@
 <?php
 /**
  * Premium Features Loader
- * 
+ *
  * Loads all premium functionality including external cron automation.
  * This file is only present in premium version of the plugin.
  */
+
+namespace JawneCeny;
+
+use Exception;
 
 if (!defined('ABSPATH')) {
     exit;

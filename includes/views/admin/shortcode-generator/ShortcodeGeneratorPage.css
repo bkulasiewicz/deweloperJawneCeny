@@ -546,6 +546,74 @@ body.modal-open {
     outline: none;
 }
 
+/* Status advanced options - text inputs and selects */
+.status-color-item input[type="text"],
+.status-color-item select {
+    flex: 1;
+    max-width: 250px;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    background: #ffffff;
+}
+
+.status-color-item input[type="text"]:focus,
+.status-color-item select:focus {
+    border-color: #007cba;
+    box-shadow: 0 0 0 1px #007cba;
+    outline: none;
+}
+
+.status-color-item select {
+    cursor: pointer;
+    padding-right: 30px;
+    background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"%3e%3cpath fill="%23555" d="M7 10l5 5 5-5z"/%3e%3c/svg%3e');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px;
+    appearance: none;
+}
+
+/* Status advanced options - 3 column grid layout */
+.status-group.status-advanced-group .status-group-colors {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px 20px;
+}
+
+@media (max-width: 1200px) {
+    .status-group.status-advanced-group .status-group-colors {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .status-group.status-advanced-group .status-group-colors {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Vertical layout for advanced options - label above input */
+.status-group.status-advanced-group .status-color-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.status-group.status-advanced-group .status-color-item label {
+    min-width: auto;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Full width inputs for advanced options */
+.status-group.status-advanced-group .status-color-item input[type="text"],
+.status-group.status-advanced-group .status-color-item select {
+    width: 100%;
+    max-width: none;
+}
+
 /* Button Styling Options */
 .button-styling-options {
     display: grid;
