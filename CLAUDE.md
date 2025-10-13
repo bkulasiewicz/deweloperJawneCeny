@@ -79,11 +79,24 @@ Pure business logic and formatting services:
 
 ## Development Commands
 
+### Composer Dependencies
+Install dependencies:
+```bash
+cd includes && composer install
+```
+
+**Note:** The `composer.json` file is located in `includes/` directory to comply with WordPress.org plugin review requirements.
+
 ### Testing
 No test framework detected. Manual testing through WordPress admin panel.
 
 ### Building/Packaging
 Create plugin ZIP for distribution:
+```bash
+./deploy.sh
+```
+
+Or manually:
 ```bash
 zip -r DeweloperJawneCeny-{version}.zip . -x "*.git*" -x "node_modules/*" -x "*.DS_Store" -x "website/*"
 ```
@@ -93,7 +106,7 @@ zip -r DeweloperJawneCeny-{version}.zip . -x "*.git*" -x "node_modules/*" -x "*.
 # Activate plugin
 wp plugin activate ustawa-jawnosci-cen
 
-# Deactivate plugin  
+# Deactivate plugin
 wp plugin deactivate ustawa-jawnosci-cen
 
 # Check plugin status

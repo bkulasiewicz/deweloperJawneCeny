@@ -32,7 +32,7 @@ class ComposerStaticInit8dd63bc7b5d5fc2a9c9232efa52368ee
         ),
         'DeweloperJawneCeny\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/',
+            0 => __DIR__ . '/../..' . '/includes',
         ),
     );
 

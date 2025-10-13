@@ -8,5 +8,5 @@ $baseDir = dirname($vendorDir);
 return array(
     'lucatume\\DI52\\' => array($vendorDir . '/lucatume/di52/src'),
     'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
-    'DeweloperJawneCeny\\' => array($baseDir . '/'),
+    'DeweloperJawneCeny\\' => array($baseDir . '/includes'),
 );

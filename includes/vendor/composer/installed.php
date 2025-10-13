@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'deweloperjawneceny/plugin',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => '71bcddbbb1ba4bd934f0ee5a7729743fd0b05e8c',
+        'pretty_version' => 'dev-develop',
+        'version' => 'dev-develop',
+        'reference' => '76513166b7b30c0da7543f5ec20f207d1b2790d9',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,9 +11,9 @@
     ),
     'versions' => array(
         'deweloperjawneceny/plugin' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => '71bcddbbb1ba4bd934f0ee5a7729743fd0b05e8c',
+            'pretty_version' => 'dev-develop',
+            'version' => 'dev-develop',
+            'reference' => '76513166b7b30c0da7543f5ec20f207d1b2790d9',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

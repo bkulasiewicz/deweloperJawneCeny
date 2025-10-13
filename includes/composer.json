@@ -8,7 +8,7 @@
         "psr/container": "^1.1"
     },
     "config": {
-        "vendor-dir": "includes/vendor"
+        "vendor-dir": "vendor"
     },
     "autoload": {
         "psr-4": {
