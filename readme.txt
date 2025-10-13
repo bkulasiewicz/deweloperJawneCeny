@@ -1,5 +1,5 @@
 === Deweloper Jawne Ceny ===
-Contributors: deweloperjawneceny
+Contributors: ujcteam, deweloperjawneceny
 Donate link: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
 Tags: jawnosc, ceny, mieszkania, deweloper, nieruchomosci, ustawa, dane-gov-pl, oferty, katalog, automatyzacja, budownictwo
 Requires at least: 6.2
