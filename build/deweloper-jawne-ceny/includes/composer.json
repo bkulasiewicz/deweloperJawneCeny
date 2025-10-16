@@ -1,0 +1,18 @@
+{
+    "name": "deweloperjawneceny/plugin",
+    "description": "WordPress plugin for real estate price transparency compliance",
+    "type": "wordpress-plugin",
+    "require": {
+        "php": ">=7.4",
+        "lucatume/di52": "^4.0",
+        "psr/container": "^1.1"
+    },
+    "config": {
+        "vendor-dir": "vendor"
+    },
+    "autoload": {
+        "psr-4": {
+            "DeweloperJawneCeny\\": "includes/"
+        }
+    }
+}

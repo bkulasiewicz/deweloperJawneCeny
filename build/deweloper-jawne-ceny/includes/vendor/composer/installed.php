@@ -1,0 +1,41 @@
+<?php return array(
+    'root' => array(
+        'name' => 'deweloperjawneceny/plugin',
+        'pretty_version' => 'dev-develop',
+        'version' => 'dev-develop',
+        'reference' => '76513166b7b30c0da7543f5ec20f207d1b2790d9',
+        'type' => 'wordpress-plugin',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'dev' => true,
+    ),
+    'versions' => array(
+        'deweloperjawneceny/plugin' => array(
+            'pretty_version' => 'dev-develop',
+            'version' => 'dev-develop',
+            'reference' => '76513166b7b30c0da7543f5ec20f207d1b2790d9',
+            'type' => 'wordpress-plugin',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'lucatume/di52' => array(
+            'pretty_version' => '4.0.1',
+            'version' => '4.0.1.0',
+            'reference' => '1552a86bf17db4cb098db368d2e4cbb508dcaec0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../lucatume/di52',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'psr/container' => array(
+            'pretty_version' => '1.1.2',
+            'version' => '1.1.2.0',
+            'reference' => '513e0666f7216c7459170d56df27dfcefe1689ea',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../psr/container',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+    ),
+);

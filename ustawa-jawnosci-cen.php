@@ -4,7 +4,7 @@
  * Plugin URI: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
  * Description (EN): Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.7.7
+ * Version: 4.7.21
  * Requires at least: 6.2
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -418,3 +418,24 @@ class DeweloperJawneCeny {
 
 // Initialize
 DeweloperJawneCeny::get_instance();
+
+/**
+ * Force UTF-8 encoding for CSV files in ujc-data directory
+ * Ensures proper display of Polish characters even for files generated before UTF-8 fix
+ */
+add_action('init', function() {
+    if (isset($_SERVER['REQUEST_URI']) &&
+        strpos($_SERVER['REQUEST_URI'], '/wp-content/uploads/ujc-data/') !== false &&
+        strpos($_SERVER['REQUEST_URI'], '.csv') !== false) {
+
+        $upload_dir = wp_upload_dir();
+        $filename = basename($_SERVER['REQUEST_URI']);
+        $filepath = $upload_dir['basedir'] . '/ujc-data/' . $filename;
+
+        if (file_exists($filepath)) {
+            header('Content-Type: text/csv; charset=UTF-8');
+            readfile($filepath);
+            exit;
+        }
+    }
+}, 1);

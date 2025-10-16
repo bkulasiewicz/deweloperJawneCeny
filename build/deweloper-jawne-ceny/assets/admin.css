@@ -1,0 +1,189 @@
+/* Admin styles for UJC plugin */
+.ujc-dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.ujc-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    width: 100%;
+}
+
+.ujc-stat-box {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 15px;
+    text-align: center;
+}
+
+.ujc-stat-box h3 {
+    margin: 0 0 10px 0;
+    color: #23282d;
+}
+
+
+.ujc-compliance-info {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    min-width: 300px;
+}
+
+.ujc-compliance-info ul {
+    list-style: none;
+    padding: 0;
+}
+
+.ujc-compliance-info li {
+    padding: 5px 0;
+}
+
+.automation-control {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    min-width: 300px;
+}
+
+
+.ujc-date {
+    color: #666;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.extra-item {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+    align-items: center;
+}
+
+.extra-item select,
+.extra-item input {
+    min-width: 120px;
+}
+
+.form-table th {
+    width: 200px;
+}
+
+.notice.ujc-notice {
+    margin: 5px 0 15px;
+    padding: 1px 12px;
+}
+
+/* DEV Console styles */
+.ujc-dev-console {
+    background: #fff3cd;
+    border: 2px solid #ffeaa7;
+    border-radius: 4px;
+    padding: 20px;
+    margin-top: 20px;
+    min-width: 300px;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+}
+
+.ujc-dev-console h2 {
+    color: #856404;
+    margin-top: 0;
+}
+
+.ujc-dev-console h3 {
+    color: #856404;
+    margin: 15px 0 10px 0;
+}
+
+.ujc-dev-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-grow: 1;
+}
+
+.ujc-dev-actions button {
+    transition: all 0.2s ease;
+}
+
+/* Minimalistyczne style dla listy zasobów */
+.ujc-resource-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    transition: box-shadow 0.2s ease;
+}
+
+.ujc-resource-item:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ujc-resource-name {
+    font-weight: 600;
+    color: #0073aa;
+    min-width: 120px;
+    font-size: 14px;
+}
+
+.ujc-resource-data {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+    margin: 0 20px;
+}
+
+.ujc-resource-data span {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+}
+
+.ujc-resource-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.ujc-no-resources {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+    font-style: italic;
+}
+
+.ujc-dev-actions button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Fix for dashicons alignment with text in buttons */
+.button .dashicons {
+    vertical-align: middle;
+    margin-top: -2px;
+    line-height: 1;
+}
+
+/* Enhanced button flexbox layout for perfect icon-text alignment */
+.button {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 6px;
+    vertical-align: top;
+}
+
+/* Ensure dashicons in flex buttons are properly aligned */
+.button .dashicons {
+    margin-top: 0;
+    flex-shrink: 0;
+}

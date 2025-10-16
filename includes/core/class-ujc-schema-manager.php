@@ -48,6 +48,7 @@ class JawneCeny_SchemaManager {
         // Przetwarzaj każde repository
         foreach ($repositories as $repo) {
             if (!$repo->createTable($currentDbVersion)) {
+                Logger::error('UJC_Schema_Manager: ' . get_class($repo) . ' failed: ' . $wpdb->last_error);
                 return false;
             }
         }

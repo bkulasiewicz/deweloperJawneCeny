@@ -1,0 +1,16 @@
+<?php
+
+namespace JawneCeny;
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Publication trigger type enum
+ */
+enum TriggerType: string {
+    case Manual = 'manual';
+    case ExternalCron = 'external_cron';
+    case WpCronFallback = 'wp_cron_fallback';
+}
