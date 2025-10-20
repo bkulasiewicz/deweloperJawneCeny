@@ -14,7 +14,10 @@ if (!defined('ABSPATH')) {
  */
 class ShortcodeGeneratorPage {
 
-    public function __construct() {
+    private GetAllResourcesUseCase $getAllResourcesUseCase;
+
+    public function __construct(GetAllResourcesUseCase $getAllResourcesUseCase) {
+        $this->getAllResourcesUseCase = $getAllResourcesUseCase;
 
         // Add AJAX handlers
         add_action('wp_ajax_jawneceny_reset_frontend_settings', [$this, 'ajax_reset_settings']);
@@ -33,10 +36,13 @@ class ShortcodeGeneratorPage {
             JAWNECENY_VERSION
         );
 
+        // Enqueue jQuery UI Sortable for drag & drop
+        wp_enqueue_script('jquery-ui-sortable');
+
         wp_enqueue_script(
             'shortcode-generator-page',
             $viewPath . 'ShortcodeGeneratorPage.js',
-            ['jquery'],
+            ['jquery', 'jquery-ui-sortable'],
             JAWNECENY_VERSION,
             true
         );
@@ -74,10 +80,19 @@ class ShortcodeGeneratorPage {
                 <p><strong>Konfiguracja widgetów frontendowych</strong></p>
                 <p>Skonfiguruj sposób wyświetlania nieruchomości na stronie internetowej i wygeneruj shortcode.</p>
             </div>
-            
+
+            <!-- Tab Navigation -->
+            <h2 class="nav-tab-wrapper">
+                <a href="#" class="nav-tab nav-tab-active" data-tab="resources-list">Lista zasobów</a>
+                <a href="#" class="nav-tab" data-tab="resource-single">Szczegóły zasobu</a>
+            </h2>
+
             <form id="frontend-settings-form" method="post">
                 <?php wp_nonce_field('jawneceny_frontend_settings_nonce', 'nonce'); ?>
-                
+
+                <!-- Tab Content: Resources List -->
+                <div class="tab-content tab-content-list active" data-tab-content="resources-list">
+
                 <!-- Live Preview Section -->
                 <div class="postbox">
                     <div class="postbox-header">
@@ -95,7 +110,7 @@ class ShortcodeGeneratorPage {
                         <p class="description">Zobacz jak będzie wyglądać tabela na stronie. Podgląd aktualizuje się automatycznie po zmianie ustawień.</p>
                     </div>
                 </div>
-                
+
                 <!-- Configuration Sections -->
                 <div class="config-section-grid">
                     <div class="left-column">
@@ -263,7 +278,93 @@ class ShortcodeGeneratorPage {
                         <p class="description">Skopiuj powyższy kod i wklej go tam gdzie chcesz wyświetlić tabelę z nieruchomościami.</p>
                     </div>
                 </div>
-                
+
+                </div><!-- End Tab Content: Resources List -->
+
+                <!-- Tab Content: Resource Single -->
+                <div class="tab-content tab-content-single" data-tab-content="resource-single">
+
+                <!-- Live Preview Section (Shared) -->
+                <div class="postbox">
+                    <div class="postbox-header">
+                        <h2>Podgląd na żywo</h2>
+                    </div>
+                    <div class="inside">
+                        <div id="live-preview-container">
+                            <div id="preview-loading" style="display: none;">
+                                <p>Ładowanie podglądu...</p>
+                            </div>
+                            <div id="preview-content">
+                                <!-- Podgląd będzie wstawiany tutaj przez AJAX -->
+                            </div>
+                        </div>
+                        <p class="description">Zobacz jak będzie wyglądać karta zasobu na stronie. Podgląd aktualizuje się automatycznie po zmianie ustawień.</p>
+                    </div>
+                </div>
+
+                <!-- Configuration Sections -->
+                <div class="config-section-grid">
+                    <div class="left-column">
+                        <!-- Basic Settings -->
+                        <div class="postbox">
+                            <div class="postbox-header">
+                                <h2>Podstawowe ustawienia</h2>
+                            </div>
+                            <div class="inside">
+                                <div class="setting-group">
+                                    <label>Widoczne pola</label>
+                                    <?php $this->render_single_resource_fields($settings); ?>
+                                    <p class="description">Zaznacz pola które mają być wyświetlane w karcie zasobu. Numer lokalu jest wykrywany automatycznie z URL.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-column">
+                        <!-- Personalization -->
+                        <div class="postbox">
+                            <div class="postbox-header">
+                                <h2>Personalizacja karty</h2>
+                            </div>
+                            <div class="inside">
+                                <div class="setting-group">
+                                    <h4>Kolory i odstępy</h4>
+                                    <?php $this->render_single_card_styling($settings); ?>
+                                </div>
+
+                                <div class="setting-group">
+                                    <h4>Stylizacja statusów</h4>
+                                    <?php $this->render_status_styling($settings, '-single'); ?>
+                                </div>
+
+                                <div class="setting-group">
+                                    <h4>Stylizacja przycisków</h4>
+                                    <?php $this->render_button_styling($settings, '-single'); ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generated Shortcode Section -->
+                <div class="postbox">
+                    <div class="postbox-header">
+                        <h2>Wygenerowany shortcode</h2>
+                    </div>
+                    <div class="inside">
+                        <div class="shortcode-display">
+                            <code id="generated-shortcode-single"></code>
+                            <button type="button" class="button button-primary" id="copy-shortcode-single">
+                                <span class="dashicons dashicons-admin-page"></span>
+                                Kopiuj shortcode
+                            </button>
+                        </div>
+                        <p class="description">Skopiuj powyższy kod i wklej go na stronie szczegółów zasobu.</p>
+                    </div>
+                </div>
+
+                </div><!-- End Tab Content: Resource Single -->
+
             </form>
         </div>
         
@@ -496,10 +597,10 @@ class ShortcodeGeneratorPage {
         }
         
         try {
-            // Get shortcode from POST - no sanitization needed as shortcode will be parsed by WordPress
-            $shortcode = sanitize_text_field($_POST['shortcode'] ?? '');
+            // Get shortcode from POST - use wp_unslash to preserve quotes for do_shortcode()
+            $shortcode = wp_unslash($_POST['shortcode'] ?? '');
 
-            Logger::info('Preview shortcode: ' . esc_html($shortcode));
+            Logger::info('Preview shortcode received: ' . esc_html($shortcode));
 
             if (empty($shortcode)) {
                 Logger::error('Preview shortcode is empty');
@@ -534,12 +635,39 @@ class ShortcodeGeneratorPage {
             $preview_html = ResourcesListShortcode::handle($attrs);
             */
 
-            // Tymczasowo używamy WordPress do_shortcode() dla konsystencji z frontend
-            Logger::info('Using WordPress do_shortcode() for preview consistency: ' . esc_html($shortcode));
+            // For jawneceny_resource_single preview, inject first resource nr_lokalu if missing
+            if (strpos($shortcode, 'jawneceny_resource_single') !== false) {
+                Logger::info('Preview: Detected jawneceny_resource_single shortcode');
+                // Check if nr_lokalu parameter is missing
+                if (strpos($shortcode, 'nr_lokalu=') === false) {
+                    Logger::info('Preview: nr_lokalu parameter missing, will inject first resource');
+                    try {
+                        $all = $this->getAllResourcesUseCase->execute();
+                        Logger::info('Preview: Got ' . count($all) . ' resources from use case');
+
+                        if (!empty($all)) {
+                            $first_nr_lokalu = $all[0]->nr_lokalu;
+                            // Inject nr_lokalu parameter before the closing ]
+                            $shortcode = str_replace(']', ' nr_lokalu="' . esc_attr($first_nr_lokalu) . '"]', $shortcode);
+                            Logger::info("Preview: Injected nr_lokalu for single resource: {$first_nr_lokalu}");
+                        } else {
+                            Logger::warning('Preview: No resources available for single resource preview');
+                            wp_send_json_success(['html' => '<div class="ujc-error">Brak zasobów w bazie. Dodaj zasób aby zobaczyć podgląd.</div>']);
+                            return;
+                        }
+                    } catch (\Exception $e) {
+                        Logger::error('Preview: Failed to get first resource: ' . $e->getMessage());
+                        wp_send_json_error('Błąd podczas pobierania zasobu dla podglądu');
+                        return;
+                    }
+                }
+            }
+
+            // Execute shortcode
+            Logger::info('Using WordPress do_shortcode() for preview: ' . esc_html($shortcode));
             $preview_html = do_shortcode($shortcode);
             Logger::info('Preview result length: ' . strlen($preview_html));
-            Logger::info('Preview result content: ' . $preview_html);
-            
+
             wp_send_json_success(['html' => $preview_html]);
             
         } catch (Exception $e) {
@@ -609,6 +737,26 @@ class ShortcodeGeneratorPage {
             'zobacz_btn_padding' => '6px 12px',
             'zobacz_btn_border_radius' => '4px',
             'zobacz_btn_font_size' => '0.875em',
+
+            // Single resource settings
+            'visible_columns_single' => [
+                ResourceDto::FIELD_NR_LOKALU,
+                ResourceDto::FIELD_RODZAJ_NIERUCHOMOSCI,
+                ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA,
+                ResourceDto::FIELD_ROOM_COUNT,
+                ResourceDto::FIELD_FLOOR_NUMBER,
+                PriceHistoryDto::FIELD_CENA_CALKOWITA,
+                PriceHistoryDto::FIELD_CENA_M2,
+                'historia_cen'
+            ],
+            'column_names_single' => $this->getDefaultColumnNames(),
+            'card_bg_color' => '#ffffff',
+            'card_border_color' => '#e1e5e9',
+            'card_border_radius' => '8px',
+            'card_padding' => '24px',
+            'card_text_color' => '#333333',
+            'card_label_color' => '#666666',
+            'field_spacing' => '12px',
         ];
     }
     
@@ -630,7 +778,18 @@ class ShortcodeGeneratorPage {
             ResourceDto::FIELD_GARDEN_AREA => 'Ogród',
             ResourceDto::FIELD_FLOOR_PLAN_PDF => 'Plan',
             ResourceTableRenderer::COLUMN_HISTORIA_CEN => 'Historia cen',
-            ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ => ''
+            ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ => '',
+            // Component fields
+            ResourceDto::FIELD_PROPERTY_PART_TITLE => 'Część nieruchomości - tytuł',
+            ResourceDto::FIELD_PROPERTY_PART_DESIGNATION => 'Część nieruchomości - oznaczenie',
+            ResourceDto::FIELD_PROPERTY_PART_PRICE => 'Część nieruchomości - cena',
+            ResourceDto::FIELD_BELONGING_ROOM_TITLE => 'Pomieszczenie przynależne - tytuł',
+            ResourceDto::FIELD_BELONGING_ROOM_DESIGNATION => 'Pomieszczenie przynależne - oznaczenie',
+            ResourceDto::FIELD_BELONGING_ROOM_PRICE => 'Pomieszczenie przynależne - cena',
+            ResourceDto::FIELD_USAGE_RIGHT_TITLE => 'Prawo użytkowania - tytuł',
+            ResourceDto::FIELD_USAGE_RIGHT_PRICE => 'Prawo użytkowania - cena',
+            ResourceDto::FIELD_OTHER_SERVICE_TITLE => 'Inna usługa - tytuł',
+            ResourceDto::FIELD_OTHER_SERVICE_PRICE => 'Inna usługa - cena'
         ];
     }
     
@@ -708,25 +867,47 @@ class ShortcodeGeneratorPage {
         ];
         
         $default_names = $this->getDefaultColumnNames();
-        
-        echo '<div class="compact-columns">';
-        
-        foreach ($available_columns as $column) {
-            $is_checked = in_array($column, $settings['visible_columns']);
-            $display_name = $default_names[$column] ?? ucfirst($column);
-            $current_name = $settings['column_names'][$column] ?? ($default_names[$column] ?? ucfirst($column));
-            
-            echo '<div class="compact-column-item">';
-            echo '<div class="column-checkbox-section">';
-            echo '<input type="checkbox" name="visible_columns[]" value="' . esc_attr($column) . '" id="column_' . esc_attr($column) . '"' . checked($is_checked, true, false) . ' class="column-checkbox">';
-            echo '<label for="column_' . esc_attr($column) . '">' . esc_html($display_name) . '</label>';
-            echo '</div>';
-            echo '<div class="column-name-section" style="' . esc_attr($is_checked ? '' : 'display: none;') . '">';
-            echo '<input type="text" name="column_names[' . esc_attr($column) . ']" value="' . esc_attr($current_name) . '" placeholder="Nazwa kolumny" class="regular-text column-name-input" data-column="' . esc_attr($column) . '">';
-            echo '</div>';
-            echo '</div>';
+
+        echo '<div class="columns-reorder-container">';
+
+        // Selected columns (sortable with drag & drop)
+        echo '<div class="selected-columns-section">';
+        echo '<p class="description">Przeciągnij kolumny aby zmienić kolejność. Kliknij × aby usunąć.</p>';
+        echo '<div id="selected-columns-list" class="selected-columns-list">';
+
+        foreach ($settings['visible_columns'] as $column) {
+            if (in_array($column, $available_columns)) {
+                $display_name = $default_names[$column] ?? ucfirst($column);
+                $current_name = $settings['column_names'][$column] ?? ($default_names[$column] ?? ucfirst($column));
+
+                echo '<div class="selected-column-item" data-column="' . esc_attr($column) . '">';
+                echo '<span class="drag-handle">⋮⋮</span>';
+                echo '<input type="checkbox" name="visible_columns[]" value="' . esc_attr($column) . '" checked class="column-checkbox" style="display:none;">';
+                echo '<span class="column-label">' . esc_html($display_name) . '</span>';
+                echo '<input type="text" name="column_names[' . esc_attr($column) . ']" value="' . esc_attr($current_name) . '" placeholder="Nazwa" class="column-name-input" data-column="' . esc_attr($column) . '">';
+                echo '<button type="button" class="remove-column-btn" data-column="' . esc_attr($column) . '">×</button>';
+                echo '</div>';
+            }
         }
-        
+
+        echo '</div>';
+        echo '</div>';
+
+        // Available columns (to add)
+        echo '<div class="available-columns-section">';
+        echo '<p class="description">Dostępne kolumny do dodania:</p>';
+        echo '<div class="available-columns-list">';
+
+        foreach ($available_columns as $column) {
+            if (!in_array($column, $settings['visible_columns'])) {
+                $display_name = $default_names[$column] ?? ucfirst($column);
+                echo '<button type="button" class="add-column-btn" data-column="' . esc_attr($column) . '">+ ' . esc_html($display_name) . '</button>';
+            }
+        }
+
+        echo '</div>';
+        echo '</div>';
+
         echo '</div>';
     }
     
@@ -760,7 +941,7 @@ class ShortcodeGeneratorPage {
     /**
      * Render status styling options
      */
-    private function render_status_styling(array $settings) {
+    private function render_status_styling(array $settings, string $suffix = '') {
         echo '<div class="status-styling-options">';
 
         // Status: Dostępne
@@ -769,17 +950,17 @@ class ShortcodeGeneratorPage {
         echo '<div class="status-group-colors">';
 
         echo '<div class="status-color-item">';
-        echo '<label for="status_available_bg_color">Kolor tła</label>';
+        echo '<label for="status_available_bg_color' . esc_attr($suffix) . '">Kolor tła</label>';
         echo '<div class="color-input-wrapper">';
-        echo '<input type="color" id="status_available_bg_color" name="status_available_bg_color" value="' . esc_attr($settings['status_available_bg_color'] ?? '#28a745') . '" class="compact-color-input">';
+        echo '<input type="color" id="status_available_bg_color' . esc_attr($suffix) . '" name="status_available_bg_color" value="' . esc_attr($settings['status_available_bg_color'] ?? '#28a745') . '" class="compact-color-input">';
         echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['status_available_bg_color'] ?? '#28A745')) . '</span>';
         echo '</div>';
         echo '</div>';
 
         echo '<div class="status-color-item">';
-        echo '<label for="status_available_text_color">Kolor tekstu</label>';
+        echo '<label for="status_available_text_color' . esc_attr($suffix) . '">Kolor tekstu</label>';
         echo '<div class="color-input-wrapper">';
-        echo '<input type="color" id="status_available_text_color" name="status_available_text_color" value="' . esc_attr($settings['status_available_text_color'] ?? '#ffffff') . '" class="compact-color-input">';
+        echo '<input type="color" id="status_available_text_color' . esc_attr($suffix) . '" name="status_available_text_color" value="' . esc_attr($settings['status_available_text_color'] ?? '#ffffff') . '" class="compact-color-input">';
         echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['status_available_text_color'] ?? '#FFFFFF')) . '</span>';
         echo '</div>';
         echo '</div>';
@@ -793,17 +974,17 @@ class ShortcodeGeneratorPage {
         echo '<div class="status-group-colors">';
 
         echo '<div class="status-color-item">';
-        echo '<label for="status_sold_bg_color">Kolor tła</label>';
+        echo '<label for="status_sold_bg_color' . esc_attr($suffix) . '">Kolor tła</label>';
         echo '<div class="color-input-wrapper">';
-        echo '<input type="color" id="status_sold_bg_color" name="status_sold_bg_color" value="' . esc_attr($settings['status_sold_bg_color'] ?? '#dc3545') . '" class="compact-color-input">';
+        echo '<input type="color" id="status_sold_bg_color' . esc_attr($suffix) . '" name="status_sold_bg_color" value="' . esc_attr($settings['status_sold_bg_color'] ?? '#dc3545') . '" class="compact-color-input">';
         echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['status_sold_bg_color'] ?? '#DC3545')) . '</span>';
         echo '</div>';
         echo '</div>';
 
         echo '<div class="status-color-item">';
-        echo '<label for="status_sold_text_color">Kolor tekstu</label>';
+        echo '<label for="status_sold_text_color' . esc_attr($suffix) . '">Kolor tekstu</label>';
         echo '<div class="color-input-wrapper">';
-        echo '<input type="color" id="status_sold_text_color" name="status_sold_text_color" value="' . esc_attr($settings['status_sold_text_color'] ?? '#ffffff') . '" class="compact-color-input">';
+        echo '<input type="color" id="status_sold_text_color' . esc_attr($suffix) . '" name="status_sold_text_color" value="' . esc_attr($settings['status_sold_text_color'] ?? '#ffffff') . '" class="compact-color-input">';
         echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['status_sold_text_color'] ?? '#FFFFFF')) . '</span>';
         echo '</div>';
         echo '</div>';
@@ -817,17 +998,17 @@ class ShortcodeGeneratorPage {
         echo '<div class="status-group-colors">';
 
         echo '<div class="status-color-item">';
-        echo '<label for="status_reserved_bg_color">Kolor tła</label>';
+        echo '<label for="status_reserved_bg_color' . esc_attr($suffix) . '">Kolor tła</label>';
         echo '<div class="color-input-wrapper">';
-        echo '<input type="color" id="status_reserved_bg_color" name="status_reserved_bg_color" value="' . esc_attr($settings['status_reserved_bg_color'] ?? '#ffc107') . '" class="compact-color-input">';
+        echo '<input type="color" id="status_reserved_bg_color' . esc_attr($suffix) . '" name="status_reserved_bg_color" value="' . esc_attr($settings['status_reserved_bg_color'] ?? '#ffc107') . '" class="compact-color-input">';
         echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['status_reserved_bg_color'] ?? '#FFC107')) . '</span>';
         echo '</div>';
         echo '</div>';
 
         echo '<div class="status-color-item">';
-        echo '<label for="status_reserved_text_color">Kolor tekstu</label>';
+        echo '<label for="status_reserved_text_color' . esc_attr($suffix) . '">Kolor tekstu</label>';
         echo '<div class="color-input-wrapper">';
-        echo '<input type="color" id="status_reserved_text_color" name="status_reserved_text_color" value="' . esc_attr($settings['status_reserved_text_color'] ?? '#000000') . '" class="compact-color-input">';
+        echo '<input type="color" id="status_reserved_text_color' . esc_attr($suffix) . '" name="status_reserved_text_color" value="' . esc_attr($settings['status_reserved_text_color'] ?? '#000000') . '" class="compact-color-input">';
         echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['status_reserved_text_color'] ?? '#000000')) . '</span>';
         echo '</div>';
         echo '</div>';
@@ -842,8 +1023,8 @@ class ShortcodeGeneratorPage {
 
         // Styl wyświetlania
         echo '<div class="status-color-item">';
-        echo '<label for="status_display_style">Styl wyświetlania</label>';
-        echo '<select id="status_display_style" name="status_display_style" class="status-input">';
+        echo '<label for="status_display_style' . esc_attr($suffix) . '">Styl wyświetlania</label>';
+        echo '<select id="status_display_style' . esc_attr($suffix) . '" name="status_display_style" class="status-input">';
         $display_style = $settings['status_display_style'] ?? 'badge';
         echo '<option value="badge"' . ($display_style === 'badge' ? ' selected' : '') . '>Badge (prostokąt z ramką)</option>';
         echo '<option value="pill"' . ($display_style === 'pill' ? ' selected' : '') . '>Pill (zaokrąglony)</option>';
@@ -855,26 +1036,26 @@ class ShortcodeGeneratorPage {
 
         // Rozmiar czcionki
         echo '<div class="status-color-item">';
-        echo '<label for="status_font_size">Rozmiar czcionki</label>';
-        echo '<input type="text" id="status_font_size" name="status_font_size" class="status-input" value="' . esc_attr($settings['status_font_size'] ?? '0.875em') . '" placeholder="0.875em">';
+        echo '<label for="status_font_size' . esc_attr($suffix) . '">Rozmiar czcionki</label>';
+        echo '<input type="text" id="status_font_size' . esc_attr($suffix) . '" name="status_font_size" class="status-input" value="' . esc_attr($settings['status_font_size'] ?? '0.875em') . '" placeholder="0.875em">';
         echo '</div>';
 
         // Padding
         echo '<div class="status-color-item">';
-        echo '<label for="status_padding">Padding</label>';
-        echo '<input type="text" id="status_padding" name="status_padding" class="status-input" value="' . esc_attr($settings['status_padding'] ?? '4px 8px') . '" placeholder="4px 8px">';
+        echo '<label for="status_padding' . esc_attr($suffix) . '">Padding</label>';
+        echo '<input type="text" id="status_padding' . esc_attr($suffix) . '" name="status_padding" class="status-input" value="' . esc_attr($settings['status_padding'] ?? '4px 8px') . '" placeholder="4px 8px">';
         echo '</div>';
 
         // Border radius
         echo '<div class="status-color-item">';
-        echo '<label for="status_border_radius">Border radius</label>';
-        echo '<input type="text" id="status_border_radius" name="status_border_radius" class="status-input" value="' . esc_attr($settings['status_border_radius'] ?? '4px') . '" placeholder="4px">';
+        echo '<label for="status_border_radius' . esc_attr($suffix) . '">Border radius</label>';
+        echo '<input type="text" id="status_border_radius' . esc_attr($suffix) . '" name="status_border_radius" class="status-input" value="' . esc_attr($settings['status_border_radius'] ?? '4px') . '" placeholder="4px">';
         echo '</div>';
 
         // Grubość czcionki
         echo '<div class="status-color-item">';
-        echo '<label for="status_font_weight">Grubość czcionki</label>';
-        echo '<select id="status_font_weight" name="status_font_weight" class="status-input">';
+        echo '<label for="status_font_weight' . esc_attr($suffix) . '">Grubość czcionki</label>';
+        echo '<select id="status_font_weight' . esc_attr($suffix) . '" name="status_font_weight" class="status-input">';
         $font_weight = $settings['status_font_weight'] ?? '500';
         echo '<option value="normal"' . ($font_weight === 'normal' ? ' selected' : '') . '>Normalna</option>';
         echo '<option value="bold"' . ($font_weight === 'bold' ? ' selected' : '') . '>Pogrubiona</option>';
@@ -893,7 +1074,7 @@ class ShortcodeGeneratorPage {
     /**
      * Render button styling options
      */
-    private function render_button_styling(array $settings) {
+    private function render_button_styling(array $settings, string $suffix = '') {
         echo '<div class="button-styling-options">';
 
         // Historia button styling
@@ -902,22 +1083,22 @@ class ShortcodeGeneratorPage {
         echo '<div class="button-styling-row">';
 
         echo '<div class="button-text-input">';
-        echo '<label for="historia_btn_text">Tekst przycisku</label>';
-        echo '<input type="text" id="historia_btn_text" name="historia_btn_text" value="' . esc_attr($settings['historia_btn_text'] ?? 'Historia') . '">';
+        echo '<label for="historia_btn_text' . esc_attr($suffix) . '">Tekst przycisku</label>';
+        echo '<input type="text" id="historia_btn_text' . esc_attr($suffix) . '" name="historia_btn_text" value="' . esc_attr($settings['historia_btn_text'] ?? 'Historia') . '">';
         echo '</div>';
 
         echo '<div class="button-color-inputs">';
-        echo '<label for="historia_btn_bg_color">Kolor tła</label>';
+        echo '<label for="historia_btn_bg_color' . esc_attr($suffix) . '">Kolor tła</label>';
         echo '<div class="color-input-wrapper">';
-        echo '<input type="color" id="historia_btn_bg_color" name="historia_btn_bg_color" value="' . esc_attr($settings['historia_btn_bg_color'] ?? '#007cba') . '" class="compact-color-input">';
+        echo '<input type="color" id="historia_btn_bg_color' . esc_attr($suffix) . '" name="historia_btn_bg_color" value="' . esc_attr($settings['historia_btn_bg_color'] ?? '#007cba') . '" class="compact-color-input">';
         echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['historia_btn_bg_color'] ?? '#007CBA')) . '</span>';
         echo '</div>';
         echo '</div>';
 
         echo '<div class="button-color-inputs">';
-        echo '<label for="historia_btn_text_color">Kolor tekstu</label>';
+        echo '<label for="historia_btn_text_color' . esc_attr($suffix) . '">Kolor tekstu</label>';
         echo '<div class="color-input-wrapper">';
-        echo '<input type="color" id="historia_btn_text_color" name="historia_btn_text_color" value="' . esc_attr($settings['historia_btn_text_color'] ?? '#ffffff') . '" class="compact-color-input">';
+        echo '<input type="color" id="historia_btn_text_color' . esc_attr($suffix) . '" name="historia_btn_text_color" value="' . esc_attr($settings['historia_btn_text_color'] ?? '#ffffff') . '" class="compact-color-input">';
         echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['historia_btn_text_color'] ?? '#FFFFFF')) . '</span>';
         echo '</div>';
         echo '</div>';
@@ -931,28 +1112,140 @@ class ShortcodeGeneratorPage {
         echo '<div class="button-styling-row">';
 
         echo '<div class="button-text-input">';
-        echo '<label for="karta_btn_text">Tekst przycisku</label>';
-        echo '<input type="text" id="karta_btn_text" name="karta_btn_text" value="' . esc_attr($settings['karta_btn_text'] ?? 'Karta lokalu') . '">';
+        echo '<label for="karta_btn_text' . esc_attr($suffix) . '">Tekst przycisku</label>';
+        echo '<input type="text" id="karta_btn_text' . esc_attr($suffix) . '" name="karta_btn_text" value="' . esc_attr($settings['karta_btn_text'] ?? 'Karta lokalu') . '">';
         echo '</div>';
 
         echo '<div class="button-color-inputs">';
-        echo '<label for="karta_btn_bg_color">Kolor tła</label>';
+        echo '<label for="karta_btn_bg_color' . esc_attr($suffix) . '">Kolor tła</label>';
         echo '<div class="color-input-wrapper">';
-        echo '<input type="color" id="karta_btn_bg_color" name="karta_btn_bg_color" value="' . esc_attr($settings['karta_btn_bg_color'] ?? '#007cba') . '" class="compact-color-input">';
+        echo '<input type="color" id="karta_btn_bg_color' . esc_attr($suffix) . '" name="karta_btn_bg_color" value="' . esc_attr($settings['karta_btn_bg_color'] ?? '#007cba') . '" class="compact-color-input">';
         echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['karta_btn_bg_color'] ?? '#007CBA')) . '</span>';
         echo '</div>';
         echo '</div>';
 
         echo '<div class="button-color-inputs">';
-        echo '<label for="karta_btn_text_color">Kolor tekstu</label>';
+        echo '<label for="karta_btn_text_color' . esc_attr($suffix) . '">Kolor tekstu</label>';
         echo '<div class="color-input-wrapper">';
-        echo '<input type="color" id="karta_btn_text_color" name="karta_btn_text_color" value="' . esc_attr($settings['karta_btn_text_color'] ?? '#ffffff') . '" class="compact-color-input">';
+        echo '<input type="color" id="karta_btn_text_color' . esc_attr($suffix) . '" name="karta_btn_text_color" value="' . esc_attr($settings['karta_btn_text_color'] ?? '#ffffff') . '" class="compact-color-input">';
         echo '<span class="color-hex-display">' . esc_html(strtoupper($settings['karta_btn_text_color'] ?? '#FFFFFF')) . '</span>';
         echo '</div>';
         echo '</div>';
 
         echo '</div>';
         echo '</div>';
+
+        echo '</div>';
+    }
+
+    /**
+     * Render single resource fields selection
+     */
+    private function render_single_resource_fields(array $settings) {
+        $available_fields = [
+            ResourceDto::FIELD_NR_LOKALU,
+            ResourceDto::FIELD_RODZAJ_NIERUCHOMOSCI,
+            ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA,
+            ResourceDto::FIELD_STATUS,
+            ResourceDto::FIELD_FLOOR_NUMBER,
+            ResourceDto::FIELD_ROOM_COUNT,
+            ResourceDto::FIELD_ADDITIONAL_DESCRIPTION,
+            ResourceDto::FIELD_GARDEN_AREA,
+            PriceHistoryDto::FIELD_CENA_M2,
+            PriceHistoryDto::FIELD_CENA_CALKOWITA,
+            PriceHistoryDto::FIELD_CENA_Z_DODATKAMI,
+            'historia_cen',
+            ResourceDto::FIELD_FLOOR_PLAN_PDF,
+            // Component fields - only for single resource page
+            ResourceDto::FIELD_PROPERTY_PART_TITLE,
+            ResourceDto::FIELD_PROPERTY_PART_DESIGNATION,
+            ResourceDto::FIELD_PROPERTY_PART_PRICE,
+            ResourceDto::FIELD_BELONGING_ROOM_TITLE,
+            ResourceDto::FIELD_BELONGING_ROOM_DESIGNATION,
+            ResourceDto::FIELD_BELONGING_ROOM_PRICE,
+            ResourceDto::FIELD_USAGE_RIGHT_TITLE,
+            ResourceDto::FIELD_USAGE_RIGHT_PRICE,
+            ResourceDto::FIELD_OTHER_SERVICE_TITLE,
+            ResourceDto::FIELD_OTHER_SERVICE_PRICE
+        ];
+
+        $default_names = $this->getDefaultColumnNames();
+
+        echo '<div class="columns-reorder-container">';
+
+        // Selected columns (sortable with drag & drop)
+        echo '<div class="selected-columns-section">';
+        echo '<p class="description">Przeciągnij pola aby zmienić kolejność. Kliknij × aby usunąć.</p>';
+        echo '<div id="selected-columns-list-single" class="selected-columns-list">';
+
+        foreach ($settings['visible_columns_single'] as $field) {
+            if (in_array($field, $available_fields)) {
+                $display_name = $default_names[$field] ?? ucfirst($field);
+                $current_name = $settings['column_names_single'][$field] ?? ($default_names[$field] ?? ucfirst($field));
+
+                echo '<div class="selected-column-item" data-column="' . esc_attr($field) . '">';
+                echo '<span class="drag-handle">⋮⋮</span>';
+                echo '<input type="checkbox" name="visible_columns_single[]" value="' . esc_attr($field) . '" checked class="column-checkbox-single" style="display:none;">';
+                echo '<span class="column-label">' . esc_html($display_name) . '</span>';
+                echo '<input type="text" name="column_names_single[' . esc_attr($field) . ']" value="' . esc_attr($current_name) . '" placeholder="Nazwa" class="column-name-input-single" data-column="' . esc_attr($field) . '">';
+                echo '<button type="button" class="remove-column-btn" data-column="' . esc_attr($field) . '">×</button>';
+                echo '</div>';
+            }
+        }
+
+        echo '</div>';
+        echo '</div>';
+
+        // Available fields (to add)
+        echo '<div class="available-columns-section">';
+        echo '<p class="description">Dostępne pola do dodania:</p>';
+        echo '<div class="available-columns-list">';
+
+        foreach ($available_fields as $field) {
+            if (!in_array($field, $settings['visible_columns_single'] ?? [])) {
+                $display_name = $default_names[$field] ?? ucfirst($field);
+                echo '<button type="button" class="add-column-btn-single" data-column="' . esc_attr($field) . '">+ ' . esc_html($display_name) . '</button>';
+            }
+        }
+
+        echo '</div>';
+        echo '</div>';
+
+        echo '</div>';
+    }
+
+    /**
+     * Render single card styling options
+     */
+    private function render_single_card_styling(array $settings) {
+        $styling_options = [
+            'card_bg_color' => ['label' => 'Tło karty', 'type' => 'color', 'default' => '#ffffff'],
+            'card_border_color' => ['label' => 'Obramowanie', 'type' => 'color', 'default' => '#e1e5e9'],
+            'card_text_color' => ['label' => 'Tekst', 'type' => 'color', 'default' => '#333333'],
+            'card_label_color' => ['label' => 'Etykiety', 'type' => 'color', 'default' => '#666666'],
+            'card_border_radius' => ['label' => 'Zaokrąglenie', 'type' => 'text', 'default' => '8px', 'placeholder' => '8px'],
+            'card_padding' => ['label' => 'Padding', 'type' => 'text', 'default' => '24px', 'placeholder' => '24px'],
+            'field_spacing' => ['label' => 'Odstępy pól', 'type' => 'text', 'default' => '12px', 'placeholder' => '12px']
+        ];
+
+        echo '<div class="compact-colors">';
+
+        foreach ($styling_options as $field => $config) {
+            $value = $settings[$field] ?? $config['default'];
+            echo '<div class="compact-color-item">';
+            echo '<label for="' . esc_attr($field) . '">' . esc_html($config['label']) . '</label>';
+
+            if ($config['type'] === 'color') {
+                echo '<div class="color-input-wrapper">';
+                echo '<input type="color" id="' . esc_attr($field) . '" name="' . esc_attr($field) . '" value="' . esc_attr($value) . '" class="compact-color-input">';
+                echo '<span class="color-hex-display">' . esc_html(strtoupper($value)) . '</span>';
+                echo '</div>';
+            } else {
+                echo '<input type="text" id="' . esc_attr($field) . '" name="' . esc_attr($field) . '" value="' . esc_attr($value) . '" placeholder="' . esc_attr($config['placeholder'] ?? '') . '" class="regular-text">';
+            }
+
+            echo '</div>';
+        }
 
         echo '</div>';
     }

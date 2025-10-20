@@ -18,6 +18,24 @@
     gap: 12px;
 }
 
+/* Tab Navigation */
+.nav-tab-wrapper {
+    margin-bottom: 20px;
+}
+
+.nav-tab {
+    cursor: pointer;
+}
+
+/* Tab Content Visibility */
+.shortcode-generator-page .tab-content {
+    display: none;
+}
+
+.shortcode-generator-page .tab-content.active {
+    display: block;
+}
+
 /* Configuration Section Grid */
 .config-section-grid {
     display: grid;
@@ -706,5 +724,229 @@ body.modal-open {
 
     .status-styling-options {
         grid-template-columns: 1fr;
+    }
+}
+
+/* Drag & Drop Column Ordering */
+.columns-reorder-container {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.selected-columns-section,
+.available-columns-section {
+    padding: 15px;
+    background: #ffffff;
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+}
+
+.selected-columns-section h4,
+.available-columns-section h4 {
+    margin: 0 0 15px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d2327;
+}
+
+/* Selected Columns List */
+.selected-columns-list {
+    min-height: 200px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.selected-column-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    cursor: move;
+}
+
+.selected-column-item:hover {
+    background: #f0f0f0;
+    border-color: #c3c3c3;
+}
+
+.selected-column-item:last-child {
+    margin-bottom: 0;
+}
+
+/* Drag Handle */
+.drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    color: #666;
+    cursor: move;
+    font-size: 16px;
+    line-height: 1;
+    user-select: none;
+}
+
+.drag-handle:hover {
+    color: #007cba;
+}
+
+/* Column Label */
+.column-label {
+    flex: 0 0 auto;
+    min-width: 150px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2c3338;
+}
+
+/* Column Name Input */
+.selected-column-item .column-name-input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 13px;
+    background: #ffffff;
+    height: 32px;
+    line-height: 1.4;
+}
+
+.selected-column-item .column-name-input:focus {
+    border-color: #007cba;
+    box-shadow: 0 0 0 1px #007cba;
+    outline: none;
+}
+
+/* Remove Button */
+.remove-column-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: #dc3545;
+    color: #ffffff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    transition: all 0.2s ease;
+}
+
+.remove-column-btn:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+/* Sortable Placeholder */
+.column-placeholder {
+    height: 42px;
+    background: #e3f2fd;
+    border: 2px dashed #007cba;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+/* UI Sortable Helper */
+.ui-sortable-helper {
+    opacity: 0.8;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+}
+
+/* Available Columns Buttons */
+.available-columns-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.available-columns-section h4 {
+    width: 100%;
+    flex-shrink: 0;
+}
+
+/* Available Columns List (container for buttons) */
+.available-columns-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.add-column-btn,
+.add-column-btn-single {
+    padding: 8px 14px;
+    background: #007cba;
+    color: #ffffff;
+    border: 1px solid #0071a1;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.add-column-btn:hover,
+.add-column-btn-single:hover {
+    background: #006ba1;
+    border-color: #005a87;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-column-btn:active,
+.add-column-btn-single:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Empty State for Selected Columns */
+.selected-columns-list:empty::before {
+    content: "Przeciągnij tutaj kolumny lub kliknij przycisk 'Dodaj' poniżej";
+    display: block;
+    padding: 40px 20px;
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+    font-style: italic;
+    background: #fafafa;
+    border: 2px dashed #ddd;
+    border-radius: 4px;
+}
+
+/* Responsive adjustments for drag & drop */
+@media (max-width: 768px) {
+    .selected-column-item {
+        flex-wrap: wrap;
+    }
+
+    .column-label {
+        min-width: auto;
+        flex: 1 1 100%;
+    }
+
+    .selected-column-item .column-name-input {
+        flex: 1 1 100%;
+        margin-left: 32px;
+    }
+
+    .drag-handle {
+        order: -1;
+    }
+
+    .remove-column-btn {
+        order: 1;
     }
 }
