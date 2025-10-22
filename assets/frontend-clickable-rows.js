@@ -25,8 +25,8 @@
                     return;
                 }
 
-                // Open in new tab (fallback temporarily disabled for testing)
-                window.open(detailUrl, '_blank');
+                // Open in same tab
+                window.location.href = detailUrl;
 
                 // FALLBACK CODE (temporarily disabled):
                 // try {

@@ -44,9 +44,6 @@ jQuery(document).ready(function($) {
             columnsWithNames.push(columnString);
         });
 
-        // Get detail page URL
-        const detailPageUrl = $('#detail-page-url').val();
-
         // Get styling options - support both compact and legacy selectors
         const headerBgColor = $('#header_bg_color').val() || $('#header-bg-color').val();
         const headerTextColor = $('#header_text_color').val() || $('#header-text-color').val();
@@ -91,11 +88,6 @@ jQuery(document).ready(function($) {
 
         if (columnsWithNames.length > 0) {
             shortcode += ' columns="' + columnsWithNames.join(',') + '"';
-        }
-
-        // Add detail_page_url if provided
-        if (detailPageUrl && detailPageUrl.trim() !== '') {
-            shortcode += ' detail_page_url="' + detailPageUrl.trim() + '"';
         }
 
         // Add styling parameters
@@ -183,9 +175,12 @@ jQuery(document).ready(function($) {
 
         // Add navigation mode parameters
         const navigationMode = $('input[name="navigation_mode"]:checked').val();
-        if (detailPageUrl && detailPageUrl.trim() !== '' && navigationMode === 'button') {
-            shortcode += ' navigation_mode="button"';
+        if (navigationMode && navigationMode !== '') {
+            shortcode += ' navigation_mode="' + navigationMode + '"';
+        }
 
+        // Add Zobacz więcej button styling if button mode is selected
+        if (navigationMode === 'button') {
             const zobaczBtnText = $('#zobacz-btn-text').val();
             const zobaczBtnBgColor = $('#zobacz-btn-bg-color').val();
             const zobaczBtnTextColor = $('#zobacz-btn-text-color').val();
@@ -213,9 +208,55 @@ jQuery(document).ready(function($) {
             }
         }
 
+        // Add display mode and card configuration
+        const displayMode = $('input[name="display_mode"]:checked').val();
+        if (displayMode && displayMode !== 'table') {
+            shortcode += ' display_mode="' + displayMode + '"';
+        }
+
+        // Add card configuration if display_mode is 'cards'
+        if (displayMode === 'cards') {
+            const cardsPerRow = $('#cards-per-row').val();
+            const cardGap = $('#card-gap').val();
+            const cardBgColor = $('#card-bg-color').val();
+            const cardBorderColor = $('#card-border-color').val();
+            const cardBorderRadius = $('#card-border-radius').val();
+            const cardPadding = $('#card-padding').val();
+            const cardShadow = $('#card-shadow').val();
+            const cardHoverShadow = $('#card-hover-shadow').val();
+
+            if (cardsPerRow) {
+                shortcode += ' cards_per_row="' + cardsPerRow + '"';
+            }
+            if (cardGap) {
+                shortcode += ' card_gap="' + cardGap + '"';
+            }
+            if (cardBgColor) {
+                shortcode += ' card_bg_color="' + cardBgColor + '"';
+            }
+            if (cardBorderColor) {
+                shortcode += ' card_border_color="' + cardBorderColor + '"';
+            }
+            if (cardBorderRadius) {
+                shortcode += ' card_border_radius="' + cardBorderRadius + '"';
+            }
+            if (cardPadding) {
+                shortcode += ' card_padding="' + cardPadding + '"';
+            }
+            if (cardShadow) {
+                shortcode += ' card_shadow="' + cardShadow + '"';
+            }
+            if (cardHoverShadow) {
+                shortcode += ' card_hover_shadow="' + cardHoverShadow + '"';
+            }
+        }
+
         shortcode += ']';
 
         $('#generated-shortcode').text(shortcode);
+
+        // Automatically update preview when shortcode changes
+        updatePreview();
     }
 
     // Update single resource shortcode preview
@@ -427,9 +468,8 @@ jQuery(document).ready(function($) {
 
     // Update preview and column inputs on changes - for compact layout
     $(document).on('change', '.column-checkbox, input[name="selected_types[]"]', function() {
-        updateShortcodePreview();
+        updateShortcodePreview(); // This now automatically calls updatePreview()
         toggleColumnNameInputs();
-        updatePreview();
     });
 
     // Update shortcode when compact color inputs change
@@ -463,13 +503,22 @@ jQuery(document).ready(function($) {
         updatePreview();
     });
 
-    // Update shortcode when detail page URL changes
-    $('#detail-page-url').on('input', function() {
-        const hasUrl = $(this).val().trim() !== '';
-        $('#navigation-mode-group').toggle(hasUrl);
-        if (!hasUrl) {
-            $('#button-config-group').hide();
-        }
+    // Update shortcode when display mode changes
+    $('input[name="display_mode"]').on('change', function() {
+        const isCards = $(this).val() === 'cards';
+        $('#card-config-section').toggle(isCards);
+        updateShortcodePreview();
+        updatePreview();
+    });
+
+    // Update shortcode when card configuration changes
+    $('#cards-per-row, #card-gap, #card-border-radius, #card-padding, #card-shadow, #card-hover-shadow').on('input change', function() {
+        updateShortcodePreview();
+        updatePreview();
+    });
+
+    $('#card-bg-color, #card-border-color').on('change input', function() {
+        updateColorHexDisplays();
         updateShortcodePreview();
         updatePreview();
     });

@@ -116,6 +116,13 @@ class DIContainer {
             );
         });
 
+        $c->bind(GetResourceForSinglePageUseCase::class, function() use ($c) {
+            return new GetResourceForSinglePageUseCase(
+                $c->get(ResourceRepository::class),
+                $c->get(PriceHistoryRepository::class)
+            );
+        });
+
         $c->bind(CreateResourceUseCase::class, function() use ($c) {
             return new CreateResourceUseCase(
                 $c->get(ResourceRepository::class),
@@ -458,7 +465,9 @@ class DIContainer {
         });
 
         $c->bind(ShortcodeGeneratorPage::class, function() use ($c) {
-            return new ShortcodeGeneratorPage();
+            return new ShortcodeGeneratorPage(
+                $c->get(GetAllResourcesUseCase::class)
+            );
         });
 
     }

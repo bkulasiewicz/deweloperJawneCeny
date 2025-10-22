@@ -170,13 +170,7 @@
                 default: '0 4px 12px rgba(0,0,0,0.15)'
             },
 
-            // Interactive options
-            detailPageUrl: {
-                type: 'string',
-                default: ''
-            },
-
-            // Navigation mode
+            // Navigation mode - '' = no navigation, 'clickable' = clickable rows/cards, 'button' = Zobacz więcej button
             navigationMode: {
                 type: 'string',
                 default: ''
@@ -853,51 +847,52 @@
                         title: 'Nawigacja do szczegółów',
                         initialOpen: false
                     },
-                        // URL input (zawsze widoczny)
-                        el(TextControl, {
-                            label: 'URL strony szczegółów',
-                            placeholder: '/mieszkania/',
-                            value: attributes.detailPageUrl,
-                            onChange: (value) => setAttributes({ detailPageUrl: value }),
-                            help: 'Podaj URL bazowy (np. /mieszkania/). Numer lokalu zostanie dodany automatycznie.'
-                        }),
-
-                        // Separator + Navigation mode picker (tylko gdy URL ustawiony)
-                        attributes.detailPageUrl && el(Fragment, {},
-                            el('hr', { style: { margin: '16px 0' } }),
-                            el('h4', { style: { margin: '0 0 8px', fontSize: '13px', fontWeight: '500' } }, 'Sposób nawigacji'),
-                            el('div', { style: { marginBottom: '12px' } },
-                                el('label', {
-                                    style: { display: 'block', marginBottom: '8px', cursor: 'pointer' }
-                                },
-                                    el('input', {
-                                        type: 'radio',
-                                        name: 'navigationMode',
-                                        value: '',
-                                        checked: attributes.navigationMode === '',
-                                        onChange: () => setAttributes({ navigationMode: '' }),
-                                        style: { marginRight: '6px' }
-                                    }),
-                                    'Klikalne wiersze/karty'
-                                ),
-                                el('label', {
-                                    style: { display: 'block', cursor: 'pointer' }
-                                },
-                                    el('input', {
-                                        type: 'radio',
-                                        name: 'navigationMode',
-                                        value: 'button',
-                                        checked: attributes.navigationMode === 'button',
-                                        onChange: () => setAttributes({ navigationMode: 'button' }),
-                                        style: { marginRight: '6px' }
-                                    }),
-                                    'Przycisk "Zobacz więcej"'
-                                )
+                        // Navigation mode picker (3 options)
+                        el('h4', { style: { margin: '0 0 8px', fontSize: '13px', fontWeight: '500' } }, 'Sposób nawigacji'),
+                        el('div', { style: { marginBottom: '12px' } },
+                            el('label', {
+                                style: { display: 'block', marginBottom: '8px', cursor: 'pointer' }
+                            },
+                                el('input', {
+                                    type: 'radio',
+                                    name: 'navigationMode',
+                                    value: '',
+                                    checked: attributes.navigationMode === '',
+                                    onChange: () => setAttributes({ navigationMode: '' }),
+                                    style: { marginRight: '6px' }
+                                }),
+                                'Brak nawigacji'
+                            ),
+                            el('label', {
+                                style: { display: 'block', marginBottom: '8px', cursor: 'pointer' }
+                            },
+                                el('input', {
+                                    type: 'radio',
+                                    name: 'navigationMode',
+                                    value: 'clickable',
+                                    checked: attributes.navigationMode === 'clickable',
+                                    onChange: () => setAttributes({ navigationMode: 'clickable' }),
+                                    style: { marginRight: '6px' }
+                                }),
+                                'Klikalne wiersze/karty'
+                            ),
+                            el('label', {
+                                style: { display: 'block', cursor: 'pointer' }
+                            },
+                                el('input', {
+                                    type: 'radio',
+                                    name: 'navigationMode',
+                                    value: 'button',
+                                    checked: attributes.navigationMode === 'button',
+                                    onChange: () => setAttributes({ navigationMode: 'button' }),
+                                    style: { marginRight: '6px' }
+                                }),
+                                'Przycisk "Zobacz więcej"'
                             )
                         ),
 
                         // Separator + Button styling (tylko gdy button mode wybrany)
-                        attributes.detailPageUrl && attributes.navigationMode === 'button' && el(Fragment, {},
+                        attributes.navigationMode === 'button' && el(Fragment, {},
                             el('hr', { style: { margin: '16px 0' } }),
                             el('h4', { style: { margin: '0 0 12px', fontSize: '13px', fontWeight: '500' } }, 'Stylizacja przycisku "Zobacz więcej"'),
 

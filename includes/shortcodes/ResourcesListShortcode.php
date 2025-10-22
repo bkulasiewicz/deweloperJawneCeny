@@ -50,7 +50,6 @@ class ResourcesListShortcode {
         $atts = shortcode_atts([
             'types' => $default_types,
             'columns' => $default_columns,
-            'detail_page_url' => '',
             'header_bg_color' => '',
             'header_text_color' => '',
             'hover_bg_color' => '',
@@ -96,6 +95,19 @@ class ResourcesListShortcode {
             'zobacz_btn_padding' => '6px 12px',
             'zobacz_btn_border_radius' => '4px',
             'zobacz_btn_font_size' => '0.875em',
+
+            // Display mode - 'table' (default) or 'cards'
+            'display_mode' => 'table',
+
+            // Card-specific styling options
+            'cards_per_row' => '3',
+            'card_gap' => '20px',
+            'card_bg_color' => '#ffffff',
+            'card_border_color' => '#e0e0e0',
+            'card_border_radius' => '8px',
+            'card_padding' => '20px',
+            'card_shadow' => '0 2px 4px rgba(0,0,0,0.1)',
+            'card_hover_shadow' => '0 4px 8px rgba(0,0,0,0.15)',
         ], $atts);
 
         Logger::info('Processed atts after shortcode_atts: ' . esc_html(print_r($atts, true)));
@@ -182,8 +194,8 @@ class ResourcesListShortcode {
                 return '<div class="ujc-shortcode-error">Błąd: Brak prawidłowych kolumn w formacie field:nazwa.</div>';
             }
 
-            // Automatically add zobacz_wiecej column if navigation_mode is 'button' and detail_page_url is set
-            if (!empty($atts['detail_page_url']) && $atts['navigation_mode'] === 'button') {
+            // Automatically add zobacz_wiecej column if navigation_mode is 'button'
+            if ($atts['navigation_mode'] === 'button') {
                 if (!in_array(ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ, $visible_columns)) {
                     $visible_columns[] = ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ;
                     $column_names[ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ] = '';
@@ -224,13 +236,24 @@ class ResourcesListShortcode {
 
                 // Navigation mode and Zobacz więcej button styling
                 'navigation_mode' => $atts['navigation_mode'],
-                'detail_page_url' => $atts['detail_page_url'],
                 'zobacz_btn_text' => $atts['zobacz_btn_text'],
                 'zobacz_btn_bg_color' => $atts['zobacz_btn_bg_color'],
                 'zobacz_btn_text_color' => $atts['zobacz_btn_text_color'],
                 'zobacz_btn_padding' => $atts['zobacz_btn_padding'],
                 'zobacz_btn_border_radius' => $atts['zobacz_btn_border_radius'],
                 'zobacz_btn_font_size' => $atts['zobacz_btn_font_size'],
+            ];
+
+            // Build card configuration for card display mode
+            $card_config = [
+                'cardsPerRow' => (int)$atts['cards_per_row'],
+                'cardGap' => $atts['card_gap'],
+                'cardBgColor' => $atts['card_bg_color'],
+                'cardBorderColor' => $atts['card_border_color'],
+                'cardBorderRadius' => $atts['card_border_radius'],
+                'cardPadding' => $atts['card_padding'],
+                'cardShadow' => $atts['card_shadow'],
+                'cardHoverShadow' => $atts['card_hover_shadow'],
             ];
 
             // Parse sortowanie z nowego formatu "field:order"
@@ -241,8 +264,18 @@ class ResourcesListShortcode {
             $filterCriteria = self::createFilterFromCombined($atts['filtering']);
             Logger::info("Shortcode: Filter criteria created for filtering={$atts['filtering']}");
 
-            // Render the resources table
-            return self::render_resources_table($selected_types, $visible_columns, $column_names, $styling_options, $atts['detail_page_url'], $sortOptions, $filterCriteria, ($atts['enable_frontend_sorting'] === 'true'));
+            // Render the resources (table or cards based on display_mode)
+            return self::render_resources(
+                $atts['display_mode'],
+                $selected_types,
+                $visible_columns,
+                $column_names,
+                $styling_options,
+                $card_config,
+                $sortOptions,
+                $filterCriteria,
+                ($atts['enable_frontend_sorting'] === 'true')
+            );
             
         } catch (Exception $e) {
             Logger::error("Shortcode error: " . $e->getMessage());
@@ -331,10 +364,20 @@ class ResourcesListShortcode {
     }
 
     /**
-     * Render resources table for shortcode using shared ResourceTableRenderer
+     * Render resources (table or cards) for shortcode using shared renderers
      */
-    private static function render_resources_table(array $selected_types, array $visible_columns, array $column_names, array $styling_options, string $detail_page_url = '', ?SortOptions $sortOptions = null, ?FilterCriteria $filterCriteria = null, bool $enable_frontend_sorting = false): string {
-        Logger::info("Shortcode: render_resources_table started");
+    private static function render_resources(
+        string $display_mode,
+        array $selected_types,
+        array $visible_columns,
+        array $column_names,
+        array $styling_options,
+        array $card_config,
+        ?SortOptions $sortOptions = null,
+        ?FilterCriteria $filterCriteria = null,
+        bool $enable_frontend_sorting = false
+    ): string {
+        Logger::info("Shortcode: render_resources started with display_mode={$display_mode}");
         Logger::info("Shortcode: Selected types count: " . count($selected_types));
         Logger::info("Shortcode: Selected type values: " . implode(', ', array_map(fn($type) => $type->value, $selected_types)));
 
@@ -343,16 +386,28 @@ class ResourcesListShortcode {
         $filtered_resources = $frontend_use_case->execute($selected_types, $filterCriteria, $sortOptions);
         Logger::info("Shortcode: Got " . count($filtered_resources) . " filtered resources from GetResourcesForFrontendUseCase");
 
-        // Use ResourceTableRenderer for consistent rendering
-        return ResourceTableRenderer::renderTable(
-            $filtered_resources,
-            $visible_columns,
-            $column_names,
-            $styling_options,
-            $detail_page_url,
-            'ujc-shortcode-resources-list',  // Shortcode container class
-            $enable_frontend_sorting
-        );
+        // Render based on display mode
+        if ($display_mode === 'cards') {
+            Logger::info("Shortcode: Rendering as card grid");
+            return ResourceCardRenderer::renderCardGrid(
+                $filtered_resources,
+                $visible_columns,
+                $column_names,
+                $styling_options,
+                $card_config
+            );
+        } else {
+            Logger::info("Shortcode: Rendering as table");
+            // Use ResourceTableRenderer for consistent rendering
+            return ResourceTableRenderer::renderTable(
+                $filtered_resources,
+                $visible_columns,
+                $column_names,
+                $styling_options,
+                'ujc-shortcode-resources-list',  // Shortcode container class
+                $enable_frontend_sorting
+            );
+        }
     }
     
 }

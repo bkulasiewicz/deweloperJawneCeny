@@ -58,8 +58,8 @@ class ResourcesListBlock {
         // Apply column ordering
         $ordered_columns = self::applyColumnOrdering($visible_columns, $parsed_attributes['columnOrder']);
 
-        // Auto-add zobacz_wiecej column if navigation_mode is 'button' and URL is set
-        if (!empty($parsed_attributes['detailPageUrl']) && $parsed_attributes['navigationMode'] === 'button') {
+        // Auto-add zobacz_wiecej column if navigation_mode is 'button'
+        if ($parsed_attributes['navigationMode'] === 'button') {
             if (!in_array(ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ, $ordered_columns)) {
                 $ordered_columns[] = ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ;
                 $column_names[ResourceTableRenderer::COLUMN_ZOBACZ_WIECEJ] = '';
@@ -79,7 +79,6 @@ class ResourcesListBlock {
                 $styling_options,
                 [
                     'cardsPerRow' => $parsed_attributes['cardsPerRow'],
-                    'detailPageUrl' => $parsed_attributes['detailPageUrl'],
                     'cardBgColor' => $parsed_attributes['cardBgColor'],
                     'cardBorderColor' => $parsed_attributes['cardBorderColor'],
                     'cardPadding' => $parsed_attributes['cardPadding'],
@@ -96,7 +95,6 @@ class ResourcesListBlock {
                 $ordered_columns,
                 $column_names,
                 $styling_options,
-                $parsed_attributes['detailPageUrl'],
                 'resources-list-block',  // Different container class for block
                 $parsed_attributes['enableFrontendSorting']
             );
@@ -118,7 +116,6 @@ class ResourcesListBlock {
             'hoverBgColor' => '#f5f5f5',
             'headerFontFamily' => 'inherit',
             'contentFontFamily' => 'inherit',
-            'detailPageUrl' => '',
             'historiaBtnText' => 'Historia',
             'historiaBtnBgColor' => '#007cba',
             'historiaBtnTextColor' => '#ffffff',
@@ -354,7 +351,6 @@ class ResourcesListBlock {
 
             // Navigation mode and Zobacz więcej button styling
             'navigation_mode' => $attributes['navigationMode'],
-            'detail_page_url' => $attributes['detailPageUrl'],
             'zobacz_btn_text' => $attributes['zobaczBtnText'],
             'zobacz_btn_bg_color' => $attributes['zobaczBtnBgColor'],
             'zobacz_btn_text_color' => $attributes['zobaczBtnTextColor'],

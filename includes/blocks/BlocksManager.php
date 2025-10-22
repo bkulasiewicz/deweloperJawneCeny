@@ -28,6 +28,10 @@ class BlocksManager {
             register_block_type('jawne-ceny/resources-filters', [
                 'render_callback' => [ResourcesFiltersBlock::class, 'render']
             ]);
+
+            register_block_type('jawne-ceny/resource-single', [
+                'render_callback' => [ResourceSingleBlock::class, 'render']
+            ]);
         }
     }
     
@@ -50,6 +54,13 @@ class BlocksManager {
         wp_enqueue_script(
             'resources-filters-block-js',
             JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-filters-block.js',
+            ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'compact-color-picker-js'],
+            JAWNECENY_VERSION
+        );
+
+        wp_enqueue_script(
+            'resource-single-block-js',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resource-single-block.js',
             ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'compact-color-picker-js'],
             JAWNECENY_VERSION
         );

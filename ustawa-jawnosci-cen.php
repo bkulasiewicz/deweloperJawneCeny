@@ -4,7 +4,7 @@
  * Plugin URI: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
  * Description (EN): Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.7.21
+ * Version: 4.7.58
  * Requires at least: 6.2
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -120,11 +120,14 @@ class DeweloperJawneCeny {
         require_once JAWNECENY_PLUGIN_DIR . 'includes/services/FileManager.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/helpers/ResourceTableRenderer.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/helpers/ResourceCardRenderer.php';
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/helpers/ResourceSingleRenderer.php';
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/helpers/PriceHistoryModal.php';
 
         // DTOs that depend on services
         require_once JAWNECENY_PLUGIN_DIR . 'includes/dto/PublicationHistoryDto.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/models/PresentablePriceHistory.php';
-        
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/models/SinglePageResource.php';
+
         // Core
         require_once JAWNECENY_PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
         
@@ -176,7 +179,8 @@ class DeweloperJawneCeny {
         
         // UseCases - Frontend
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Frontend/GetResourcesForFrontendUseCase.php';
-        
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Frontend/GetResourceForSinglePageUseCase.php';
+
         // Views - Admin Components
         require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/components/resource-modal/ResourceModal.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/components/investment-modal/InvestmentModal.php';
@@ -202,10 +206,12 @@ class DeweloperJawneCeny {
         // Blocks
         require_once JAWNECENY_PLUGIN_DIR . 'includes/blocks/ResourcesListBlock.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/blocks/ResourcesFiltersBlock.php';
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/blocks/ResourceSingleBlock.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/blocks/BlocksManager.php';
         
         // Shortcodes
         require_once JAWNECENY_PLUGIN_DIR . 'includes/shortcodes/ResourcesListShortcode.php';
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/shortcodes/ResourceSingleShortcode.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/shortcodes/ShortcodeManager.php';
 
       

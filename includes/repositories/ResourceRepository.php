@@ -54,6 +54,27 @@ class ResourceRepository {
 
         return ResourceDto::databaseToModel($data);
     }
+
+    /**
+     * Get resource by nr_lokalu
+     */
+    public function readByNrLokalu(string $nr_lokalu): ?ResourceDto {
+        $table = TableNames::getResources();
+        global $wpdb;
+
+        $data = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM %i WHERE %i = %s LIMIT 1",
+            $table,
+            ResourceDto::FIELD_NR_LOKALU,
+            $nr_lokalu
+        ), ARRAY_A);
+
+        if (!$data) {
+            return null;
+        }
+
+        return ResourceDto::databaseToModel($data);
+    }
     
     /**
      * Create new resource

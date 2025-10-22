@@ -1,0 +1,209 @@
+/**
+ * Resource Single Page Styles
+ * Styling for single resource detail page rendered by ResourceSingleRenderer
+ */
+
+.ujc-resource-single {
+    background-color: var(--card-bg-color, #ffffff);
+    border: 1px solid var(--card-border-color, #e1e5e9);
+    border-radius: var(--card-border-radius, 8px);
+    padding: var(--card-padding, 24px);
+    color: var(--text-color, #333333);
+    font-family: var(--content-font-family, inherit);
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+/* Header Section */
+.resource-single-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--card-border-color, #e1e5e9);
+}
+
+.resource-title {
+    margin: 0;
+    font-size: 2em;
+    font-weight: 600;
+    color: var(--text-color, #333333);
+}
+
+/* Fields Section */
+.resource-single-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--field-spacing, 12px);
+}
+
+.field-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--card-border-color, #e1e5e9);
+}
+
+.field-row:last-child {
+    border-bottom: none;
+}
+
+.field-label {
+    font-weight: var(--label-font-weight, bold);
+    color: var(--label-color, #666666);
+    flex: 0 0 40%;
+}
+
+.field-value {
+    color: var(--text-color, #333333);
+    flex: 1;
+    text-align: right;
+}
+
+/* Status Badges (reuse from list) */
+.ujc-status-available {
+    background-color: var(--status-available-bg, #28a745);
+    color: var(--status-available-color, #ffffff);
+    padding: var(--status-padding, 4px 8px);
+    border-radius: var(--status-border-radius, 4px);
+    font-size: var(--status-font-size, 0.875em);
+    font-weight: var(--status-font-weight, normal);
+    display: inline-block;
+}
+
+.ujc-status-sold {
+    background-color: var(--status-sold-bg, #dc3545);
+    color: var(--status-sold-color, #ffffff);
+    padding: var(--status-padding, 4px 8px);
+    border-radius: var(--status-border-radius, 4px);
+    font-size: var(--status-font-size, 0.875em);
+    font-weight: var(--status-font-weight, normal);
+    display: inline-block;
+}
+
+.ujc-status-reserved {
+    background-color: var(--status-reserved-bg, #ffc107);
+    color: var(--status-reserved-color, #000000);
+    padding: var(--status-padding, 4px 8px);
+    border-radius: var(--status-border-radius, 4px);
+    font-size: var(--status-font-size, 0.875em);
+    font-weight: var(--status-font-weight, normal);
+    display: inline-block;
+}
+
+/* Status Display Style Variants */
+.ujc-status-style-pill {
+    border-radius: 50px !important;
+}
+
+.ujc-status-style-highlight {
+    background-color: transparent !important;
+    border: 2px solid currentColor;
+    font-weight: 600 !important;
+}
+
+.ujc-status-style-underline {
+    background-color: transparent !important;
+    border-bottom: 3px solid currentColor;
+    border-radius: 0 !important;
+    padding-bottom: 2px !important;
+}
+
+.ujc-status-style-plain {
+    background-color: transparent !important;
+    padding: 0 !important;
+    font-weight: 600 !important;
+}
+
+/* Action Buttons Section */
+.resource-single-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 2px solid var(--card-border-color, #e1e5e9);
+}
+
+.resource-single-actions .field-row {
+    border-bottom: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Legacy support for old field-action class */
+.field-action {
+    justify-content: center;
+    border-bottom: none;
+    margin-top: 8px;
+}
+
+.ujc-historia-btn,
+.ujc-karta-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875em;
+    transition: opacity 0.2s ease;
+}
+
+.ujc-historia-btn {
+    background-color: var(--historia-btn-bg-color, #007cba);
+    color: var(--historia-btn-text-color, #ffffff);
+}
+
+.ujc-historia-btn:hover {
+    opacity: 0.85;
+}
+
+.ujc-karta-btn {
+    background-color: var(--karta-btn-bg-color, #007cba);
+    color: var(--karta-btn-text-color, #ffffff);
+}
+
+.ujc-karta-btn:hover {
+    opacity: 0.85;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .ujc-resource-single {
+        padding: 16px;
+        margin: 10px;
+    }
+
+    .resource-title {
+        font-size: 1.5em;
+    }
+
+    .resource-single-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .field-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    .field-label,
+    .field-value {
+        flex: 1;
+        text-align: left;
+    }
+}
+
+/* Error message */
+.ujc-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin: 20px 0;
+}

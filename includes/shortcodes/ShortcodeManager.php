@@ -14,6 +14,7 @@ class ShortcodeManager {
 
     public function __construct() {
         $this->initializeShortcodeHooks();
+        new PriceHistoryModal(); // Initialize global modal
         Logger::info('ShortcodeManager: Initialized');
     }
 
@@ -37,12 +38,16 @@ class ShortcodeManager {
 
         // Backwards compatibility: Keep old shortcode name as deprecated
         add_shortcode('resources_list', [ResourcesListShortcode::class, 'handle']);
+
+        // Register resource single shortcode with prefix
+        add_shortcode('jawneceny_resource_single', [ResourceSingleShortcode::class, 'handle']);
     }
 
     /**
      * Enqueue shortcode CSS and JavaScript assets
      */
     public function enqueue_shortcode_assets() {
+        // Resources list CSS
         wp_enqueue_style(
             'jawneceny-shortcode-resources-list-css',
             JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-block.css',
@@ -53,6 +58,37 @@ class ShortcodeManager {
         // Set priority to ensure CSS loads early
         wp_styles()->add_data('jawneceny-shortcode-resources-list-css', 'priority', 'high');
 
+        // Resource cards CSS (for card display mode)
+        wp_enqueue_style(
+            'resource-cards-css',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resource-cards.css',
+            [],
+            JAWNECENY_VERSION
+        );
+
+        wp_styles()->add_data('resource-cards-css', 'priority', 'high');
+
+        // Resource single CSS
+        wp_enqueue_style(
+            'jawneceny-shortcode-resource-single-css',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resource-single.css',
+            [],
+            JAWNECENY_VERSION
+        );
+
+        wp_styles()->add_data('jawneceny-shortcode-resource-single-css', 'priority', 'high');
+
+        // Price History Modal CSS (shared across all views)
+        wp_enqueue_style(
+            'price-history-modal-css',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/price-history-modal.css',
+            [],
+            JAWNECENY_VERSION
+        );
+
+        wp_styles()->add_data('price-history-modal-css', 'priority', 'high');
+
+        // JavaScript (shared for both list and single - modal functionality)
         wp_enqueue_script(
             'jawneceny-shortcode-resources-list-js',
             JAWNECENY_PLUGIN_URL . 'assets/blocks/resources-list-widget.js',
@@ -78,5 +114,6 @@ class ShortcodeManager {
     public static function remove_shortcodes() {
         remove_shortcode('jawneceny_resources_list');
         remove_shortcode('resources_list'); // Backwards compatibility
+        remove_shortcode('jawneceny_resource_single');
     }
 }

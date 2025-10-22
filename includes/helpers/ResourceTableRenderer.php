@@ -89,7 +89,6 @@ class ResourceTableRenderer {
         array $visible_columns,
         array $column_names,
         array $styling_options = [],
-        string $detail_page_url = '',
         string $container_class = 'ujc-shortcode-resources-list',
         bool $enable_frontend_sorting = false
     ): string {
@@ -109,9 +108,9 @@ class ResourceTableRenderer {
             JAWNECENY_VERSION
         );
 
-        // Generate dynamic CSS - rows are clickable only if detail_page_url exists AND navigation_mode is not 'button'
+        // Generate dynamic CSS - rows are clickable only if navigation_mode is 'clickable'
         $navigation_mode = $styling_options['navigation_mode'] ?? '';
-        $has_clickable_rows = !empty($detail_page_url) && $navigation_mode !== 'button';
+        $has_clickable_rows = $navigation_mode === 'clickable';
         self::addDynamicCSS($styling_options, $has_clickable_rows);
 
         ?>
@@ -132,17 +131,19 @@ class ResourceTableRenderer {
                         $row_classes = [];
                         $navigation_mode = $styling_options['navigation_mode'] ?? '';
 
-                        // Make row clickable if detail_page_url is provided AND navigation_mode is NOT 'button'
-                        if (!empty($detail_page_url) && $navigation_mode !== 'button') {
+                        // Make row clickable if navigation_mode is 'clickable'
+                        $detail_url = '';
+                        if ($navigation_mode === 'clickable') {
                             $row_classes[] = 'clickable-row';
-                            $detail_url = rtrim($detail_page_url, '/') . '/' . urlencode($resource->nr_lokalu);
+                            $current_path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+                            $detail_url = rtrim($current_path, '/') . '/' . urlencode($resource->nr_lokalu);
                         }
                         ?>
                         <tr<?php
                             if (!empty($row_classes)) {
                                 echo ' class="' . esc_attr(implode(' ', $row_classes)) . '"';
                             }
-                            if (!empty($detail_page_url) && $navigation_mode !== 'button') {
+                            if ($navigation_mode === 'clickable' && !empty($detail_url)) {
                                 echo ' data-detail-url="' . esc_attr($detail_url) . '"';
                             }
                         ?>>
@@ -156,19 +157,7 @@ class ResourceTableRenderer {
                 </tbody>
             </table>
 
-            <!-- Price History Modal -->
-            <div id="price-history-modal" class="price-history-modal" style="display: none;">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3>Historia cen - <span id="modal-resource-name"></span></h3>
-                        <button class="modal-close">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <div id="history-loading">Ładowanie...</div>
-                        <div id="history-content"></div>
-                    </div>
-                </div>
-            </div>
+            <!-- Price History Modal rendered globally via PriceHistoryModal helper -->
         </div>
 
         <?php
@@ -367,15 +356,14 @@ class ResourceTableRenderer {
                 return '—';
 
             case self::COLUMN_ZOBACZ_WIECEJ:
-                // Only render button if navigation_mode is 'button' and detail_page_url is provided
+                // Only render button if navigation_mode is 'button'
                 if (($styling_options['navigation_mode'] ?? '') !== 'button') {
                     return '—';
                 }
 
-                $detail_url = $styling_options['detail_page_url'] ?? '';
-                if (empty($detail_url)) {
-                    return '—';
-                }
+                // Build URL using current page path + nr_lokalu
+                $current_path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+                $full_url = rtrim($current_path, '/') . '/' . urlencode($resource->nr_lokalu);
 
                 // Get button configuration with defaults
                 $btn_text = $styling_options['zobacz_btn_text'] ?? 'Zobacz więcej';
@@ -385,11 +373,8 @@ class ResourceTableRenderer {
                 $border_radius = $styling_options['zobacz_btn_border_radius'] ?? '4px';
                 $font_size = $styling_options['zobacz_btn_font_size'] ?? '0.875em';
 
-                // Build full URL
-                $full_url = rtrim($detail_url, '/') . '/' . urlencode($resource->nr_lokalu);
-
                 return sprintf(
-                    '<a href="%s" class="ujc-zobacz-wiecej-btn" target="_blank" rel="noopener noreferrer" style="padding: %s; background-color: %s; color: %s; border-radius: %s; font-size: %s;">%s</a>',
+                    '<a href="%s" class="ujc-zobacz-wiecej-btn" style="padding: %s; background-color: %s; color: %s; border-radius: %s; font-size: %s;">%s</a>',
                     esc_attr($full_url),
                     esc_attr($padding),
                     esc_attr($bg_color),

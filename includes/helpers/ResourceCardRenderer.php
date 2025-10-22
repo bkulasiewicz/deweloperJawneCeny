@@ -30,6 +30,14 @@ class ResourceCardRenderer {
         // Start output buffering
         ob_start();
 
+        // Ensure CSS is loaded (same pattern as ResourceTableRenderer)
+        wp_enqueue_style(
+            'resource-cards-css',
+            JAWNECENY_PLUGIN_URL . 'assets/blocks/resource-cards.css',
+            [],
+            JAWNECENY_VERSION
+        );
+
         // Generate dynamic CSS for cards
         self::addDynamicCSS($styling_options, $card_config);
 
@@ -42,19 +50,7 @@ class ResourceCardRenderer {
             <?php endforeach; ?>
         </div>
 
-        <!-- Price History Modal (shared with table view) -->
-        <div id="price-history-modal" class="price-history-modal" style="display: none;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>Historia cen - <span id="modal-resource-name"></span></h3>
-                    <button class="modal-close">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div id="history-loading">Ładowanie...</div>
-                    <div id="history-content"></div>
-                </div>
-            </div>
-        </div>
+        <!-- Price History Modal rendered globally via PriceHistoryModal helper -->
         <?php
 
         return ob_get_clean();
@@ -72,15 +68,15 @@ class ResourceCardRenderer {
     ): string {
 
         // Handle clickable cards OR button navigation
-        $detail_url = $card_config['detailPageUrl'] ?? '';
         $navigation_mode = $styling_options['navigation_mode'] ?? '';
         $clickable_attrs = '';
         $clickable_class = '';
 
-        // Only make card clickable if URL exists AND navigation_mode is NOT 'button'
-        if (!empty($detail_url) && $navigation_mode !== 'button') {
+        // Make card clickable if navigation_mode is 'clickable'
+        if ($navigation_mode === 'clickable') {
             $clickable_class = ' clickable-card';
-            $full_detail_url = rtrim($detail_url, '/') . '/' . urlencode($resource->nr_lokalu);
+            $current_path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+            $full_detail_url = rtrim($current_path, '/') . '/' . urlencode($resource->nr_lokalu);
             $clickable_attrs = ' data-detail-url="' . esc_attr($full_detail_url) . '"';
         }
 
@@ -99,8 +95,8 @@ class ResourceCardRenderer {
         $html .= '</div>';
 
         // Add zobacz więcej button if navigation_mode is 'button'
-        if (!empty($detail_url) && $navigation_mode === 'button') {
-            $html .= self::renderZobaczWiecejButton($resource, $detail_url, $styling_options);
+        if ($navigation_mode === 'button') {
+            $html .= self::renderZobaczWiecejButton($resource, $styling_options);
         }
 
         $html .= '</div>';
@@ -279,7 +275,11 @@ class ResourceCardRenderer {
     /**
      * Render Zobacz więcej button for card footer
      */
-    private static function renderZobaczWiecejButton($resource, string $detail_url, array $styling_options): string {
+    private static function renderZobaczWiecejButton($resource, array $styling_options): string {
+        // Build URL using current page path + nr_lokalu
+        $current_path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        $full_url = rtrim($current_path, '/') . '/' . urlencode($resource->nr_lokalu);
+
         $btn_text = $styling_options['zobacz_btn_text'] ?? 'Zobacz więcej';
         $bg_color = $styling_options['zobacz_btn_bg_color'] ?? '#007cba';
         $text_color = $styling_options['zobacz_btn_text_color'] ?? '#ffffff';
@@ -287,11 +287,9 @@ class ResourceCardRenderer {
         $border_radius = $styling_options['zobacz_btn_border_radius'] ?? '4px';
         $font_size = $styling_options['zobacz_btn_font_size'] ?? '0.875em';
 
-        $full_url = rtrim($detail_url, '/') . '/' . urlencode($resource->nr_lokalu);
-
         $html = '<div class="card-footer" style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e1e5e9; text-align: center;">';
         $html .= sprintf(
-            '<a href="%s" class="ujc-zobacz-wiecej-btn" target="_blank" rel="noopener noreferrer" style="display: inline-block; padding: %s; background-color: %s; color: %s; text-decoration: none; border-radius: %s; font-size: %s; transition: opacity 0.2s;" onmouseover="this.style.opacity=\'0.85\'" onmouseout="this.style.opacity=\'1\'">%s</a>',
+            '<a href="%s" class="ujc-zobacz-wiecej-btn" style="display: inline-block; padding: %s; background-color: %s; color: %s; text-decoration: none; border-radius: %s; font-size: %s; transition: opacity 0.2s;" onmouseover="this.style.opacity=\'0.85\'" onmouseout="this.style.opacity=\'1\'">%s</a>',
             esc_attr($full_url),
             esc_attr($padding),
             esc_attr($bg_color),

@@ -127,6 +127,21 @@ class ShortcodeGeneratorPage {
                                 </div>
 
                                 <div class="setting-group">
+                                    <label>Sposób wyświetlania</label>
+                                    <div>
+                                        <label style="display: block; margin-bottom: 8px;">
+                                            <input type="radio" name="display_mode" value="table" <?php checked($settings['display_mode'] ?? 'table', 'table'); ?>>
+                                            Tabela (lista wierszy)
+                                        </label>
+                                        <label style="display: block;">
+                                            <input type="radio" name="display_mode" value="cards" <?php checked($settings['display_mode'] ?? 'table', 'cards'); ?>>
+                                            Kafelki (siatka kart)
+                                        </label>
+                                    </div>
+                                    <p class="description">Wybierz sposób wyświetlania zasobów na stronie.</p>
+                                </div>
+
+                                <div class="setting-group">
                                     <label>Widoczne kolumny</label>
                                     <?php $this->render_columns_with_names($settings); ?>
                                     <p class="description">Zaznacz kolumny które mają być wyświetlane w tabeli.</p>
@@ -193,24 +208,22 @@ class ShortcodeGeneratorPage {
                         </div>
                         <div class="inside">
                             <div class="setting-group">
-                                <label for="detail-page-url">URL strony szczegółów</label>
-                                <input type="text" id="detail-page-url" name="detail_page_url" value="<?php echo esc_attr($settings['detail_page_url']); ?>" class="regular-text" placeholder="/mieszkania/">
-                                <p class="description">Podaj URL bazowy (np. /mieszkania/). Numer lokalu zostanie dodany automatycznie.</p>
-                            </div>
-
-                            <div class="setting-group" id="navigation-mode-group" style="display: <?php echo !empty($settings['detail_page_url']) ? 'block' : 'none'; ?>;">
                                 <label>Sposób nawigacji</label>
                                 <div>
-                                    <label style="display: inline-block; margin-right: 20px;">
+                                    <label style="display: block; margin-bottom: 8px;">
                                         <input type="radio" name="navigation_mode" value="" <?php checked($settings['navigation_mode'], ''); ?>>
+                                        Brak nawigacji
+                                    </label>
+                                    <label style="display: block; margin-bottom: 8px;">
+                                        <input type="radio" name="navigation_mode" value="clickable" <?php checked($settings['navigation_mode'], 'clickable'); ?>>
                                         Klikalne wiersze/karty
                                     </label>
-                                    <label style="display: inline-block;">
+                                    <label style="display: block;">
                                         <input type="radio" name="navigation_mode" value="button" <?php checked($settings['navigation_mode'], 'button'); ?>>
                                         Przycisk "Zobacz więcej"
                                     </label>
                                 </div>
-                                <p class="description">Wybierz sposób nawigacji: klikalne wiersze/karty lub dedykowany przycisk.</p>
+                                <p class="description">Wybierz sposób nawigacji do strony szczegółów zasobu. Numer lokalu zostanie dodany automatycznie do aktualnego URL.</p>
                             </div>
 
                             <div class="setting-group" id="button-config-group" style="display: <?php echo ($settings['navigation_mode'] ?? '') === 'button' ? 'block' : 'none'; ?>;">
@@ -244,6 +257,69 @@ class ShortcodeGeneratorPage {
                                         <label for="zobacz-btn-font-size">Rozmiar czcionki</label>
                                         <input type="text" id="zobacz-btn-font-size" name="zobacz_btn_font_size" value="<?php echo esc_attr($settings['zobacz_btn_font_size'] ?? '0.875em'); ?>" class="regular-text" placeholder="0.875em">
                                         <p class="description">Rozmiar tekstu (np. 0.875em lub 14px)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Konfiguracja kafelków -->
+                    <div class="postbox" id="card-config-section" style="display: <?php echo ($settings['display_mode'] ?? 'table') === 'cards' ? 'block' : 'none'; ?>;">
+                        <div class="postbox-header">
+                            <h2>Konfiguracja kafelków</h2>
+                        </div>
+                        <div class="inside">
+                            <div class="setting-group">
+                                <h4>Układ siatki</h4>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div>
+                                        <label for="cards-per-row">Kafelków w wierszu</label>
+                                        <select id="cards-per-row" name="cards_per_row">
+                                            <option value="1" <?php selected($settings['cards_per_row'] ?? '3', '1'); ?>>1</option>
+                                            <option value="2" <?php selected($settings['cards_per_row'] ?? '3', '2'); ?>>2</option>
+                                            <option value="3" <?php selected($settings['cards_per_row'] ?? '3', '3'); ?>>3</option>
+                                            <option value="4" <?php selected($settings['cards_per_row'] ?? '3', '4'); ?>>4</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="card-gap">Odstęp między kafelkami</label>
+                                        <input type="text" id="card-gap" name="card_gap" value="<?php echo esc_attr($settings['card_gap'] ?? '20px'); ?>" class="regular-text" placeholder="20px">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="setting-group">
+                                <h4>Stylizacja kafelków</h4>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                                    <div>
+                                        <label for="card-bg-color">Kolor tła</label>
+                                        <div class="color-input-wrapper">
+                                            <input type="color" id="card-bg-color" name="card_bg_color" value="<?php echo esc_attr($settings['card_bg_color'] ?? '#ffffff'); ?>" class="compact-color-input">
+                                            <span class="color-hex-display"><?php echo esc_html(strtoupper($settings['card_bg_color'] ?? '#FFFFFF')); ?></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="card-border-color">Kolor obramowania</label>
+                                        <div class="color-input-wrapper">
+                                            <input type="color" id="card-border-color" name="card_border_color" value="<?php echo esc_attr($settings['card_border_color'] ?? '#e0e0e0'); ?>" class="compact-color-input">
+                                            <span class="color-hex-display"><?php echo esc_html(strtoupper($settings['card_border_color'] ?? '#E0E0E0')); ?></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="card-border-radius">Zaokrąglenie rogów</label>
+                                        <input type="text" id="card-border-radius" name="card_border_radius" value="<?php echo esc_attr($settings['card_border_radius'] ?? '8px'); ?>" class="regular-text" placeholder="8px">
+                                    </div>
+                                    <div>
+                                        <label for="card-padding">Padding wewnętrzny</label>
+                                        <input type="text" id="card-padding" name="card_padding" value="<?php echo esc_attr($settings['card_padding'] ?? '20px'); ?>" class="regular-text" placeholder="20px">
+                                    </div>
+                                    <div>
+                                        <label for="card-shadow">Cień</label>
+                                        <input type="text" id="card-shadow" name="card_shadow" value="<?php echo esc_attr($settings['card_shadow'] ?? '0 2px 4px rgba(0,0,0,0.1)'); ?>" class="regular-text" placeholder="0 2px 4px rgba(0,0,0,0.1)">
+                                    </div>
+                                    <div>
+                                        <label for="card-hover-shadow">Cień przy hover</label>
+                                        <input type="text" id="card-hover-shadow" name="card_hover_shadow" value="<?php echo esc_attr($settings['card_hover_shadow'] ?? '0 4px 8px rgba(0,0,0,0.15)'); ?>" class="regular-text" placeholder="0 4px 8px rgba(0,0,0,0.15)">
                                     </div>
                                 </div>
                             </div>
@@ -391,19 +467,18 @@ class ShortcodeGeneratorPage {
                         <li><code>[resources_list types="residential_unit,parking_space"]</code> - mieszkania i miejsca postojowe</li>
                     </ul>
 
-                    <h3>Klikalne wiersze (opcjonalne):</h3>
-                    <p>Dodaj parametr <code>detail_page_url</code> aby wiersze tabeli były klikalne:</p>
+                    <h3>Nawigacja do szczegółów (opcjonalne):</h3>
+                    <p>Dodaj parametr <code>navigation_mode</code> aby włączyć nawigację do stron szczegółów:</p>
                     <ul>
-                        <li><code>[resources_list detail_page_url="/mieszkania/"]</code> - kliknięcie na lokal A1 przekieruje do <code>/mieszkania/A1</code></li>
-                        <li><code>[resources_list detail_page_url="/nieruchomosci/" types="parking_space"]</code> - miejsca postojowe z linkami</li>
-                        <li><code>[resources_list detail_page_url="/lokale/" types="residential_unit,parking_space"]</code> - wszystkie typy z linkami</li>
+                        <li><code>[resources_list navigation_mode="clickable"]</code> - klikalne wiersze/karty, kliknięcie przekieruje do /aktualna-strona/A1</li>
+                        <li><code>[resources_list navigation_mode="button"]</code> - przycisk "Zobacz więcej" w każdym wierszu</li>
+                        <li><code>[resources_list]</code> - brak nawigacji (domyślnie)</li>
                     </ul>
                     <p><strong>Uwagi:</strong></p>
                     <ul>
-                        <li>Numer lokalu jest automatycznie dodawany do URL (np. A1, MP-15)</li>
+                        <li>Numer lokalu jest automatycznie dodawany do aktualnego URL strony</li>
                         <li>Kliknięcie otwiera nową kartę przeglądarki</li>
                         <li>Przyciski "Historia" i "Karta lokalu" nadal działają normalnie</li>
-                        <li>Bez tego parametru wiersze nie są klikalne</li>
                     </ul>
                     
                     <div class="notice notice-warning inline">
@@ -691,7 +766,6 @@ class ShortcodeGeneratorPage {
                 ResourcesListShortcode::COLUMN_HISTORIA_CEN
             ],
             'column_names' => $this->getDefaultColumnNames(),
-            'detail_page_url' => '',
             // Styling options
             'header_bg_color' => '#f9f9f9',
             'header_text_color' => '#333333',
@@ -737,6 +811,17 @@ class ShortcodeGeneratorPage {
             'zobacz_btn_padding' => '6px 12px',
             'zobacz_btn_border_radius' => '4px',
             'zobacz_btn_font_size' => '0.875em',
+
+            // Display mode and card configuration
+            'display_mode' => 'table',
+            'cards_per_row' => '3',
+            'card_gap' => '20px',
+            'card_bg_color' => '#ffffff',
+            'card_border_color' => '#e0e0e0',
+            'card_border_radius' => '8px',
+            'card_padding' => '20px',
+            'card_shadow' => '0 2px 4px rgba(0,0,0,0.1)',
+            'card_hover_shadow' => '0 4px 8px rgba(0,0,0,0.15)',
 
             // Single resource settings
             'visible_columns_single' => [
@@ -814,11 +899,6 @@ class ShortcodeGeneratorPage {
             $shortcode .= " columns=\"{$columns_string}\"";
         }
 
-        // Add detail_page_url if provided
-        if (!empty($settings['detail_page_url'])) {
-            $shortcode .= " detail_page_url=\"{$settings['detail_page_url']}\"";
-        }
-
         // Add sortowanie
         if (!empty($settings['sort'])) {
             $shortcode .= " sort=\"{$settings['sort']}\"";
@@ -840,6 +920,23 @@ class ShortcodeGeneratorPage {
         $shortcode .= " text_color=\"{$settings['text_color']}\"";
         $shortcode .= " header_font_family=\"{$settings['header_font_family']}\"";
         $shortcode .= " content_font_family=\"{$settings['content_font_family']}\"";
+
+        // Add display mode
+        if (!empty($settings['display_mode']) && $settings['display_mode'] !== 'table') {
+            $shortcode .= " display_mode=\"{$settings['display_mode']}\"";
+        }
+
+        // Add card configuration if display_mode is 'cards'
+        if (($settings['display_mode'] ?? 'table') === 'cards') {
+            $shortcode .= " cards_per_row=\"{$settings['cards_per_row']}\"";
+            $shortcode .= " card_gap=\"{$settings['card_gap']}\"";
+            $shortcode .= " card_bg_color=\"{$settings['card_bg_color']}\"";
+            $shortcode .= " card_border_color=\"{$settings['card_border_color']}\"";
+            $shortcode .= " card_border_radius=\"{$settings['card_border_radius']}\"";
+            $shortcode .= " card_padding=\"{$settings['card_padding']}\"";
+            $shortcode .= " card_shadow=\"{$settings['card_shadow']}\"";
+            $shortcode .= " card_hover_shadow=\"{$settings['card_hover_shadow']}\"";
+        }
 
         $shortcode .= "]";
 
