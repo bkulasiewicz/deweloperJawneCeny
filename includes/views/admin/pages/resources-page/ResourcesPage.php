@@ -96,7 +96,7 @@ class ResourcesPage extends JawneCeny_AdminPage {
                 <h2>Brak danych o inwestycji</h2>
                 <p style="margin-bottom: 20px;">Aby dodać zasoby, musisz najpierw utworzyć inwestycję.</p>
                 <button type="button" class="button-primary" onclick="openInvestmentModal()" style="font-size: 16px; padding: 8px 20px;">
-                    <span class="dashicons dashicons-plus-alt2" style="font-size: 16px; line-height: 1; margin-right: 5px;"></span>
+                    <span class="dashicons dashicons-plus-alt2" style="font-size: 16px; line-height: 1; vertical-align: middle; margin-right: 5px;"></span>
                     Dodaj Inwestycję
                 </button>
             </div>
@@ -122,7 +122,7 @@ class ResourcesPage extends JawneCeny_AdminPage {
             <!-- Przycisk informacji o inwestycji -->
             <div style="margin: 20px 0;">
                 <button type="button" class="button" onclick="openInvestmentModal(<?php echo esc_attr($investment->id); ?>)" style="display: flex; align-items: center; gap: 5px;">
-                    <span class="dashicons dashicons-info" style="font-size: 16px; line-height: 1;"></span>
+                    <span class="dashicons dashicons-info" style="font-size: 16px; line-height: 1; vertical-align: middle;"></span>
                     <span>Dane Inwestycji</span>
                 </button>
             </div>
@@ -132,7 +132,7 @@ class ResourcesPage extends JawneCeny_AdminPage {
                 <h2 style="margin: 0;">Lista Zasobów</h2>
                 <div style="display: flex; gap: 10px;">
                     <button type="button" class="button-primary" onclick="openResourceModal('add')" style="display: flex; align-items: center; gap: 5px;">
-                        <span class="dashicons dashicons-plus-alt2" style="font-size: 16px; line-height: 1;"></span>
+                        <span class="dashicons dashicons-plus-alt2" style="font-size: 16px; line-height: 1; vertical-align: middle;"></span>
                         <span>Dodaj Zasób</span>
                     </button>
                 </div>

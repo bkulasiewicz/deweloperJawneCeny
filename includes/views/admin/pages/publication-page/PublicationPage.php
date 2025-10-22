@@ -14,16 +14,19 @@ class PublicationPage {
     private $generateFilesUseCase;
     private $getPublicationHistoryUseCase;
     private $csvFilesSection;
+    private $fileManager;
 
     public function __construct(
         GetPublicationHistoryUseCase $getPublicationHistoryUseCase,
         CsvFilesSection $csvFilesSection,
-        GenerateFilesUseCase $generateFilesUseCase
+        GenerateFilesUseCase $generateFilesUseCase,
+        FileManager $fileManager
     ) {
 
         $this->generateFilesUseCase = $generateFilesUseCase;
         $this->getPublicationHistoryUseCase = $getPublicationHistoryUseCase;
         $this->csvFilesSection = $csvFilesSection;
+        $this->fileManager = $fileManager;
 
         add_action('wp_ajax_jawneceny_publication_generate', [$this, 'ajax_generate_files']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
@@ -105,7 +108,7 @@ class PublicationPage {
 
                     <div class="ujc-publication-right">
                         <div class="ujc-publication-history">
-                            <h2>Historia Publikacji</h2>
+                            <h2>Historia Generowania</h2>
                             <?php $this->render_publication_history(); ?>
                         </div>
                     </div>
@@ -191,25 +194,33 @@ class PublicationPage {
     }
 
     private function render_public_urls() {
-        $upload_dir = wp_upload_dir();
-        $base_url = $upload_dir['baseurl'] . '/ujc-data';
-
-        $xml_url = $base_url . '/katalog-danych.xml';
+        $xml_url = $this->fileManager->getPublicUrl('katalog-danych.xml');
+        $md5_url = $this->fileManager->getPublicUrl('katalog-danych.md5');
 
         echo '<div style="border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: #fafafa; min-width: 400px;">';
         echo '<h4 style="margin: 0 0 10px 0; font-size: 14px; color: #333;">Publiczne adresy plików:</h4>';
-        echo '<div style="font-size: 13px; line-height: 1.6;">';
-        echo '<div><strong>Plik XML:</strong><br>';
+        echo '<div id="public-urls-content" style="font-size: 13px; line-height: 1.8;">';
+
+        echo '<div style="margin-bottom: 8px;"><strong>Plik XML:</strong><br>';
         echo '<a href="' . esc_url($xml_url) . '" target="_blank" style="color: #0073aa; text-decoration: none;">' . esc_html($xml_url) . '</a></div>';
+
+        echo '<div><strong>Plik MD5:</strong><br>';
+        echo '<a href="' . esc_url($md5_url) . '" target="_blank" style="color: #0073aa; text-decoration: none;">' . esc_html($md5_url) . '</a></div>';
+
         echo '</div>';
+
+        echo '<button type="button" class="button button-secondary" onclick="copyPublicUrls()" style="margin-top: 12px;">';
+        echo 'Kopiuj';
+        echo '</button>';
+
         echo '</div>';
     }
 
     private function render_manual_generation() {
         echo '<div style="background: #f0f0f1; border-radius: 4px; padding: 20px;">';
-        echo '<p>Wygeneruj i opublikuj najnowsze pliki danych:</p>';
-        echo '<button type="button" class="button button-primary" onclick="generateFiles()" id="generate-files-btn" style="margin-top: 10px;">';
-        echo '🔄 Generuj manualnie';
+        echo '<p style="margin: 0 0 15px 0; font-size: 14px;">Wygeneruj najnowsze pliki danych (XML i MD5):</p>';
+        echo '<button type="button" class="button button-primary" onclick="generateFiles()" id="generate-files-btn">';
+        echo 'Generuj Pliki';
         echo '</button>';
         echo '</div>';
     }
@@ -220,7 +231,7 @@ class PublicationPage {
 
         if (empty($history)) {
             echo '<div style="padding: 20px; background: #f0f0f1; border-radius: 4px; text-align: center; color: #666;">';
-            echo '<p>Brak historii publikacji.<br><small>Historia będzie widoczna po pierwszym generowaniu plików.</small></p>';
+            echo '<p>Brak historii generowania.<br><small>Historia będzie widoczna po pierwszym wygenerowaniu plików.</small></p>';
             echo '</div>';
             return;
         }

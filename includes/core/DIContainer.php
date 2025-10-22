@@ -416,7 +416,8 @@ class DIContainer {
             return new PublicationPage(
                 $c->get(GetPublicationHistoryUseCase::class),
                 $c->get(CsvFilesSection::class),
-                $c->get(GenerateFilesUseCase::class)
+                $c->get(GenerateFilesUseCase::class),
+                $c->get(FileManager::class)
             );
         });
 
@@ -468,6 +469,10 @@ class DIContainer {
             return new ShortcodeGeneratorPage(
                 $c->get(GetAllResourcesUseCase::class)
             );
+        });
+
+        $c->bind(InstructionsPage::class, function() use ($c) {
+            return new InstructionsPage();
         });
 
     }

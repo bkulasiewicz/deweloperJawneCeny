@@ -119,7 +119,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
                 <!-- Widok readonly -->
                 <div id="developer-readonly">
                     <div class="ujc-readonly-section">
-                        <h3>🏢 Dane podstawowe</h3>
+                        <h3>Dane podstawowe</h3>
                         <div class="ujc-readonly-grid">
                             <div class="ujc-readonly-item">
                                 <strong>Nazwa</strong>
@@ -149,7 +149,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
                     </div>
                     
                     <div class="ujc-readonly-section">
-                        <h3>📞 Dane kontaktowe</h3>
+                        <h3>Dane kontaktowe</h3>
                         <div class="ujc-readonly-grid">
                             <div class="ujc-readonly-item">
                                 <strong>Telefon</strong>
@@ -174,7 +174,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
                     
                     <div class="ujc-form-grid">
                         <div class="ujc-readonly-section">
-                            <h3>🏠 Adres siedziby</h3>
+                            <h3>Adres siedziby</h3>
                             <div class="ujc-readonly-grid">
                                 <div class="ujc-readonly-item">
                                     <strong>Województwo</strong>
@@ -198,7 +198,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
                         </div>
                         
                         <div class="ujc-readonly-section">
-                            <h3>🏪 Adres sprzedaży</h3>
+                            <h3>Adres sprzedaży</h3>
                             <div class="ujc-readonly-grid">
                                 <div class="ujc-readonly-item">
                                     <strong>Województwo</strong>
@@ -223,7 +223,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
                     </div>
                     
                     <p class="submit">
-                        <button type="button" id="edit-developer-btn" class="button-primary">✏️ Edytuj dane</button>
+                        <button type="button" id="edit-developer-btn" class="button-primary">Edytuj dane</button>
                     </p>
                 </div>
                 
@@ -238,7 +238,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
 
                     <!-- Dane podstawowe -->
                     <div class="ujc-form-section">
-                        <h3>🏢 Dane podstawowe</h3>
+                        <h3>Dane podstawowe</h3>
                         <div class="ujc-form-grid">
                             <div class="ujc-form-field">
                                 <label for="nazwa">Nazwa dostawcy <span class="required">*</span></label>
@@ -278,7 +278,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
                     
                     <!-- Dane kontaktowe -->
                     <div class="ujc-form-section">
-                        <h3>📞 Dane kontaktowe</h3>
+                        <h3>Dane kontaktowe</h3>
                         <div class="ujc-form-grid">
                             <div class="ujc-form-field">
                                 <label for="telefon">Telefon</label>
@@ -306,7 +306,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
                     <div class="ujc-form-grid">
                         <!-- Adres siedziby -->
                         <div class="ujc-form-section">
-                            <h3>🏠 Adres siedziby</h3>
+                            <h3>Adres siedziby</h3>
                             <div class="ujc-form-field">
                                 <label for="siedz_wojewodztwo">Województwo <span class="required">*</span></label>
                                 <input type="text" id="siedz_wojewodztwo" name="siedz_wojewodztwo" value="<?php echo esc_attr($developer->siedz_wojewodztwo ?? ''); ?>" required>
@@ -349,9 +349,9 @@ class SupplierDataPage extends JawneCeny_AdminPage {
                         
                         <!-- Adres sprzedaży -->
                         <div class="ujc-form-section">
-                            <h3>🏪 Adres lokalu sprzedaży</h3>
+                            <h3>Adres lokalu sprzedaży</h3>
                             <div class="ujc-copy-address">
-                                <button type="button" id="copy-address-btn" class="button">📋 Kopiuj adres siedziby</button>
+                                <button type="button" id="copy-address-btn" class="button">Kopiuj adres siedziby</button>
                             </div>
                             <div class="ujc-form-field">
                                 <label for="sprzed_wojewodztwo">Województwo <span class="required">*</span></label>
@@ -396,7 +396,7 @@ class SupplierDataPage extends JawneCeny_AdminPage {
                     
                     <!-- Dodatkowe informacje -->
                     <div class="ujc-form-section">
-                        <h3>📋 Dodatkowe informacje</h3>
+                        <h3>Dodatkowe informacje</h3>
                         <div class="ujc-form-field">
                             <label for="dodatkowe_lokalizacje">Dodatkowe lokalizacje sprzedaży</label>
                             <textarea id="dodatkowe_lokalizacje" name="dodatkowe_lokalizacje" rows="3"><?php echo esc_textarea($developer->dodatkowe_lokalizacje ?? ''); ?></textarea>
@@ -408,9 +408,9 @@ class SupplierDataPage extends JawneCeny_AdminPage {
                     </div>
                     
                     <p class="submit">
-                        <input type="submit" class="button-primary" value="<?php echo esc_attr($is_saved ? '💾 Zapisz zmiany' : '💾 Zapisz'); ?>">
+                        <input type="submit" class="button-primary" value="<?php echo esc_attr($is_saved ? 'Zapisz zmiany' : 'Zapisz'); ?>">
                         <?php if ($is_saved): ?>
-                            <button type="button" id="cancel-edit-btn" class="button">❌ Anuluj</button>
+                            <button type="button" id="cancel-edit-btn" class="button">Anuluj</button>
                         <?php endif; ?>
                     </p>
                 </form>

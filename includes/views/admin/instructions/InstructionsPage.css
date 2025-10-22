@@ -1,0 +1,255 @@
+/* Instructions Page - Minimal Accordion Design */
+.instructions-page {
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.instructions-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.instructions-content h1 {
+    color: #1d2327;
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.instructions-content > p {
+    color: #50575e;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+/* Accordion Structure */
+.accordion-item {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.accordion-header {
+    width: 100%;
+    background: #f9f9f9;
+    border: none;
+    padding: 20px 25px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s ease;
+}
+
+.accordion-header:hover {
+    background: #f0f0f1;
+}
+
+.accordion-header.active {
+    background: #f0f0f1;
+    border-bottom: 1px solid #ddd;
+}
+
+.accordion-title {
+    color: #1d2327;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.accordion-icon {
+    color: #2271b1;
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.accordion-header.active .accordion-icon {
+    transform: rotate(180deg);
+}
+
+.accordion-content {
+    display: none;
+    padding: 25px;
+    color: #1d2327;
+    line-height: 1.6;
+}
+
+/* Content Typography */
+.accordion-content h3 {
+    color: #1d2327;
+    font-size: 18px;
+    margin-top: 25px;
+    margin-bottom: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f1;
+}
+
+.accordion-content h3:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+.accordion-content h4 {
+    color: #1d2327;
+    font-size: 16px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.accordion-content p {
+    margin-bottom: 15px;
+    color: #50575e;
+}
+
+.accordion-content ol {
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+
+.accordion-content ol li {
+    margin-bottom: 12px;
+}
+
+.accordion-content ul {
+    margin-left: 20px;
+    margin-bottom: 15px;
+}
+
+.accordion-content ul li {
+    margin-bottom: 8px;
+}
+
+.accordion-content strong {
+    color: #1d2327;
+    font-weight: 600;
+}
+
+/* Info Boxes */
+.info-box {
+    background: #f6f7f7;
+    border-left: 4px solid #2271b1;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+.info-box p {
+    margin-bottom: 10px;
+}
+
+.info-box p:last-child {
+    margin-bottom: 0;
+}
+
+.info-box strong {
+    color: #2271b1;
+}
+
+/* Code Examples */
+.accordion-content code {
+    background: #f0f0f1;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+.accordion-content pre {
+    background: #f6f7f7;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 15px 0;
+}
+
+.accordion-content pre code {
+    background: none;
+    padding: 0;
+}
+
+/* Download Button */
+.download-button {
+    display: inline-block;
+    background: #2271b1;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    margin: 15px 0;
+    transition: background 0.2s ease;
+}
+
+.download-button:hover {
+    background: #135e96;
+    color: #fff;
+}
+
+/* Email Template */
+.email-template {
+    background: #f6f7f7;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 4px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.email-template p {
+    margin: 10px 0;
+    color: #1d2327;
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: #fff;
+}
+
+table th {
+    background: #f9f9f9;
+    color: #1d2327;
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #ddd;
+}
+
+table td {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f1;
+    vertical-align: top;
+}
+
+table tbody tr:hover {
+    background: #f9f9f9;
+}
+
+/* Responsive Design */
+@media (max-width: 782px) {
+    .instructions-content {
+        padding: 20px 15px;
+    }
+
+    .accordion-header {
+        padding: 15px 20px;
+    }
+
+    .accordion-title {
+        font-size: 16px;
+    }
+
+    .accordion-content {
+        padding: 20px;
+    }
+}

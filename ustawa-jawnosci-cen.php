@@ -4,7 +4,7 @@
  * Plugin URI: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
  * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
  * Description (EN): Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.7.58
+ * Version: 4.7.62
  * Requires at least: 6.2
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -199,6 +199,7 @@ class DeweloperJawneCeny {
         require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/pages/publication-page/PublicationPage.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/pages/DevConsoleTile.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/shortcode-generator/ShortcodeGeneratorPage.php';
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/instructions/InstructionsPage.php';
 
         // Controllers
         require_once JAWNECENY_PLUGIN_DIR . 'includes/controllers/AdminController.php';

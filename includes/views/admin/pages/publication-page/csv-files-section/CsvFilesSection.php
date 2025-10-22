@@ -38,8 +38,8 @@ class CsvFilesSection {
         $csvFiles = $this->getCsvFiles();
         ?>
         <div class="ujc-csv-files-section">
-            <h3>📄 Wygenerowane pliki CSV</h3>
-            
+            <h3>Wygenerowane pliki CSV</h3>
+
             <?php if (empty($csvFiles)): ?>
                 <div class="ujc-no-files">
                     <p>Brak wygenerowanych plików CSV.</p>
@@ -58,10 +58,10 @@ class CsvFilesSection {
                                 </div>
                             </div>
                             <div class="ujc-csv-file-actions">
-                                <a href="<?php echo esc_url($file->csv_url); ?>" 
-                                   target="_blank" 
+                                <a href="<?php echo esc_url($file->csv_url); ?>"
+                                   target="_blank"
                                    class="button button-secondary">
-                                    📥 Pobierz
+                                    Pobierz
                                 </a>
                             </div>
                         </div>

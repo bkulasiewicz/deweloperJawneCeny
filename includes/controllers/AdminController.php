@@ -18,6 +18,7 @@ class AdminController {
     private $resourcesPage;
     private $publicationPage;
     private $shortcodeGeneratorPage;
+    private $instructionsPage;
     private $devConsoleTile;
 
     public function __construct() {
@@ -48,6 +49,7 @@ class AdminController {
         $this->resourcesPage = DIContainer::get(ResourcesPage::class);
         $this->publicationPage = DIContainer::get(PublicationPage::class);
         $this->shortcodeGeneratorPage = DIContainer::get(ShortcodeGeneratorPage::class);
+        $this->instructionsPage = DIContainer::get(InstructionsPage::class);
 
     }
 
@@ -112,6 +114,15 @@ class AdminController {
             [$this, 'renderShortcodeGeneratorPage']
         );
 
+        add_submenu_page(
+            'ujc-dashboard',
+            'Instrukcja',
+            'Instrukcja',
+            'manage_options',
+            'ujc-instructions',
+            [$this, 'renderInstructionsPage']
+        );
+
     }
 
     /**
@@ -155,6 +166,10 @@ class AdminController {
 
     public function renderShortcodeGeneratorPage() {
         $this->shortcodeGeneratorPage->render();
+    }
+
+    public function renderInstructionsPage() {
+        $this->instructionsPage->render();
     }
 
 }
