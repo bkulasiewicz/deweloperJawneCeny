@@ -150,6 +150,40 @@
     color: #2271b1;
 }
 
+/* Important Notice - Subtle Warning Box */
+.important-notice {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-left: 4px solid #ff9800;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+.important-notice p {
+    margin-bottom: 10px;
+    color: #50575e;
+}
+
+.important-notice p:last-child {
+    margin-bottom: 0;
+}
+
+.important-notice strong {
+    color: #1d2327;
+    font-weight: 600;
+}
+
+.important-notice ul {
+    margin-left: 20px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+}
+
+.important-notice ul li {
+    margin-bottom: 6px;
+}
+
 /* Code Examples */
 .accordion-content code {
     background: #f0f0f1;

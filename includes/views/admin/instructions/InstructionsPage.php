@@ -70,36 +70,36 @@ class InstructionsPage {
                                 <li>Kliknij przycisk <strong>"Zapisz"</strong></li>
                             </ol>
 
-                            <div class="info-box" style="background: #fff3cd; border-left: 4px solid #ff9800; margin-top: 20px;">
-                                <p><strong>⚠️ BARDZO WAŻNE - Konfiguracja ma wpływ na późniejsze kroki!</strong></p>
+                            <div class="important-notice">
+                                <p><strong>BARDZO WAŻNE - Konfiguracja ma wpływ na późniejsze kroki!</strong></p>
 
-                                <p style="margin-top: 15px;"><strong>1. Konfiguracja komponentów</strong></p>
-                                <p>W formularzu inwestycji znajdziesz sekcję <strong>"Konfiguracja komponentów"</strong> z checkboxami:</p>
-                                <ul style="margin-left: 20px; margin-top: 8px;">
+                                <p><strong>1. Konfiguracja komponentów</strong></p>
+                                <p>W formularzu inwestycji znajdziesz sekcję <strong>"Konfiguracja komponentów"</strong> z opcjami do wyboru:</p>
+                                <ul>
                                     <li><strong>części nieruchomości</strong> (np. miejsce postojowe)</li>
                                     <li><strong>pomieszczenia przynależne</strong> (np. komórka lokatorska)</li>
                                     <li><strong>prawa niezbędne do korzystania z lokalu</strong></li>
                                     <li><strong>inne rodzaje świadczeń pieniężnych</strong></li>
                                 </ul>
-                                <p style="margin-top: 10px; font-weight: 600;">Zaznaczenie tych pól ma <strong>kluczowe znaczenie</strong>, ponieważ:</p>
-                                <ul style="margin-left: 20px; margin-top: 8px;">
+                                <p>Zaznaczenie tych pól ma <strong>kluczowe znaczenie</strong>, ponieważ:</p>
+                                <ul>
                                     <li>Określa sposób sprzedaży inwestycji i sposób raportowania cen do ministerstwa</li>
                                     <li>Odblokowuje dodatkowe pola cenowe w formularzu dodawania lokali/domów</li>
                                     <li>Wpływa na generowanie prawidłowych plików XML i CSV zgodnych z ustawą</li>
                                 </ul>
-                                <p style="margin-top: 10px;"><em>Przykład: Jeśli zaznaczysz "części nieruchomości", to przy dodawaniu lokalu pojawi się pole do wprowadzenia ceny za miejsce postojowe.</em></p>
+                                <p><em>Przykład: Jeśli zaznaczysz "części nieruchomości", to przy dodawaniu lokalu pojawi się pole do wprowadzenia ceny za miejsce postojowe.</em></p>
 
-                                <p style="margin-top: 15px;"><strong>2. Pola marketingowe</strong></p>
-                                <p>W formularzu inwestycji znajdziesz również sekcję <strong>"Pola marketingowe"</strong> z checkboxami:</p>
-                                <ul style="margin-left: 20px; margin-top: 8px;">
+                                <p><strong>2. Pola marketingowe</strong></p>
+                                <p>W formularzu inwestycji znajdziesz również sekcję <strong>"Pola marketingowe"</strong> z opcjami do wyboru:</p>
+                                <ul>
                                     <li><strong>Piętro</strong> - numer piętra nieruchomości</li>
                                     <li><strong>Liczba pokoi</strong> - ilość pokoi w mieszkaniu/domu</li>
                                     <li><strong>Dodatkowy opis</strong> - pole tekstowe na informacje marketingowe</li>
                                     <li><strong>Ogród</strong> - powierzchnia przynależnego ogrodu [m²]</li>
                                     <li><strong>Plan mieszkania</strong> - możliwość upload pliku PDF z planem</li>
                                 </ul>
-                                <p style="margin-top: 10px;">Zaznaczenie tych checkboxów włącza odpowiednie pola w formularzu dodawania zasobów (Krok 3). Te pola nie są raportowane do ministerstwa - służą tylko do wyświetlania dodatkowych informacji na Twojej stronie internetowej.</p>
-                                <p style="margin-top: 10px;"><em>Przykład: Jeśli zaznaczysz "Liczba pokoi", to przy dodawaniu lokalu będziesz mógł wprowadzić ilość pokoi, a informacja ta będzie wyświetlana w tabeli z mieszkaniami.</em></p>
+                                <p>Zaznaczenie tych opcji włącza odpowiednie pola w formularzu dodawania zasobów (Krok 3). Te pola nie są raportowane do ministerstwa - służą tylko do wyświetlania dodatkowych informacji na Twojej stronie internetowej.</p>
+                                <p><em>Przykład: Jeśli zaznaczysz "Liczba pokoi", to przy dodawaniu lokalu będziesz mógł wprowadzić ilość pokoi, a informacja ta będzie wyświetlana w tabeli z mieszkaniami.</em></p>
                             </div>
                         </div>
 
@@ -144,15 +144,18 @@ class InstructionsPage {
 
                             <p><strong>Co możesz skonfigurować:</strong></p>
                             <ul>
-                                <li>Typy nieruchomości: Zaznacz które rodzaje chcesz pokazać (mieszkania, garaże, itp.)</li>
-                                <li>Sposób wyświetlania: Tabela lub kafelki</li>
-                                <li>Widoczne kolumny: Zaznacz które informacje mają być widoczne (numer, cena, powierzchnia, itp.)</li>
-                                <li>Nazwy kolumn: Możesz zmienić nazwy każdej kolumny</li>
-                                <li>Kolejność kolumn: Przeciągnij kolumny aby zmienić ich kolejność</li>
-                                <li>Kolory: Zmień kolory tła, tekstu, nagłówków, przycisków</li>
-                                <li>Czcionki: Wybierz czcionki dla nagłówków i treści</li>
-                                <li>Nawigacja: Ustaw klikalne wiersze lub przycisk "Zobacz więcej"</li>
-                                <li>Sortowanie: Włącz sortowanie po kliknięciu w nagłówek kolumny</li>
+                                <li><strong>Typy nieruchomości</strong> - wybierz które rodzaje wyświetlać (lokale mieszkalne, domy jednorodzinne, garaże, miejsca postojowe, komórki lokatorskie, lokale usługowe)</li>
+                                <li><strong>Sposób wyświetlania</strong> - tabela lub kafelki</li>
+                                <li><strong>Widoczne kolumny</strong> - zaznacz które pola pokazać (numer lokalu, rodzaj, powierzchnia, pokoje, piętro, cena całkowita, cena za m², cena z dodatkami, status, ogród, dodatkowy opis, plan mieszkania PDF)</li>
+                                <li><strong>Nazwy kolumn</strong> - zmień nazwy wyświetlane w nagłówkach</li>
+                                <li><strong>Kolejność kolumn</strong> - przeciągnij aby zmienić kolejność</li>
+                                <li><strong>Filtrowanie w edytorze</strong> - ogranicz wyświetlane zasoby według statusu (dostępny, sprzedany, zarezerwowany), ceny (min/max), powierzchni (min/max), wybranych pięter lub liczby pokoi</li>
+                                <li><strong>Kolory</strong> - dostosuj kolory nagłówków, tekstu, podświetlenia wiersza, statusów, przycisków i okna historii cen</li>
+                                <li><strong>Czcionki</strong> - wybierz czcionki dla nagłówków i treści</li>
+                                <li><strong>Nawigacja</strong> - wybierz tryb: brak nawigacji, klikalne wiersze prowadzące do karty lokalu, lub przycisk "Zobacz więcej"</li>
+                                <li><strong>Sortowanie</strong> - włącz sortowanie po kliknięciu w nagłówek kolumny (dla użytkowników na stronie)</li>
+                                <li><strong>Przyciski akcji</strong> - skonfiguruj przycisk "Historia Cen" (wyświetla okno z historią zmian cen) i przycisk "Karta Lokalu" (link do planu PDF)</li>
+                                <li><strong>Integracja z blokiem filtrów</strong> - połącz z blokiem "Filtry Zasobów" aby użytkownicy mogli filtrować listę mieszkań</li>
                             </ul>
 
                             <ol start="6">
@@ -171,9 +174,14 @@ class InstructionsPage {
 
                             <p><strong>Co możesz skonfigurować:</strong></p>
                             <ul>
-                                <li>Dostępne filtry: Zaznacz które filtry mają być widoczne (rodzaj, pokoje, piętro, powierzchnia, cena, status)</li>
-                                <li>Kolory: Dostosuj kolory przycisków i tła</li>
-                                <li>Układ: Wybierz sposób wyświetlania filtrów</li>
+                                <li><strong>Grupy filtrów</strong> - dodaj sekcje (nagłówki) i przyciski filtrów dla pięter, powierzchni lub innych parametrów</li>
+                                <li><strong>Etykiety filtrów</strong> - zmień nazwy przycisków (np. "Parter", "40-50m²", "Powyżej 50m²")</li>
+                                <li><strong>Warunki filtrowania</strong> - ustaw typ: dokładna wartość, zakres (min-max) lub minimum</li>
+                                <li><strong>Kolory</strong> - dostosuj kolory nagłówka, tła grup filtrów, podświetlenia, przycisków "Zastosuj" i "Wyczyść"</li>
+                                <li><strong>Czcionki</strong> - wybierz czcionki dla nagłówka i treści</li>
+                                <li><strong>Odstępy</strong> - precyzyjnie ustaw odległości między filtrami, grupami i przyciskami</li>
+                                <li><strong>Tytuł widgetu</strong> - opcjonalny nagłówek nad całym blokiem filtrów</li>
+                                <li><strong>Teksty przycisków</strong> - zmień napisy "Zastosuj filtry" i "Wyczyść"</li>
                             </ul>
 
                             <div class="important">
@@ -196,11 +204,14 @@ class InstructionsPage {
 
                             <p><strong>Co możesz skonfigurować:</strong></p>
                             <ul>
-                                <li>Widoczne pola: Zaznacz które informacje mają być wyświetlane</li>
-                                <li>Nazwy pól: Zmień nazwy każdego pola</li>
-                                <li>Kolejność pół: Przeciągnij pola aby zmienić ich kolejność</li>
-                                <li>Kolory: Dostosuj kolory tła, tekstu, nagłówków</li>
-                                <li>Historia cen: Włącz/wyłącz przycisk historii cen</li>
+                                <li><strong>Widoczne pola</strong> - wybierz które dane wyświetlać (numer lokalu, rodzaj nieruchomości, powierzchnia, cena całkowita, cena za m², cena z dodatkami, status, pokoje, piętro, ogród, dodatkowy opis, plan mieszkania PDF)</li>
+                                <li><strong>Nazwy pól</strong> - zmień etykiety wyświetlane przy każdym polu</li>
+                                <li><strong>Kolejność pól</strong> - przeciągnij aby zmienić kolejność wyświetlania informacji</li>
+                                <li><strong>Kolory</strong> - dostosuj kolory tła karty, tekstu, etykiet, statusów i przycisków</li>
+                                <li><strong>Czcionki</strong> - wybierz czcionki dla nagłówków i treści</li>
+                                <li><strong>Przyciski akcji</strong> - skonfiguruj przycisk "Historia Cen" (tekst, kolory) i przycisk pobierania planu PDF</li>
+                                <li><strong>Okno historii cen</strong> - dostosuj wygląd wyskakującego okna z historią zmian cen (tło, nagłówek, przycisk zamknięcia)</li>
+                                <li><strong>Odstępy i rozmiary</strong> - precyzyjnie ustaw padding karty, marginesy i rozmiary czcionek</li>
                             </ul>
 
                             <div class="important">
@@ -214,33 +225,48 @@ class InstructionsPage {
                         </div>
 
                         <div class="method">
-                            <h3>Sposób B: Shortcode</h3>
+                            <h3>Sposób B: Shortcode (dla builderów typu Divi, Elementor, ACF)</h3>
+                            <p>Jeśli Twoja strona została stworzona za pomocą buildera (Divi, Elementor, ACF), który nie obsługuje bloków Gutenberg, użyj shortcode.</p>
 
-                            <h4>Jak użyć shortcode dla listy zasobów:</h4>
-                            <ol>
-                                <li>Przejdź do zakładki <strong>"Generator Shortcode"</strong> w menu wtyczki</li>
-                                <li>Przełącz na zakładkę <strong>"Lista zasobów"</strong></li>
-                                <li>Skonfiguruj wygląd tabeli używając formularza</li>
-                                <li>Na dole strony w sekcji "Wygenerowany shortcode" zobaczysz kod, np:<br>
-                                    <code>[resources_list types="residential_unit" columns="nr_lokalu:Numer,powierzchnia_uzytkowa:Powierzchnia,cena_calkowita:Cena"]</code>
-                                </li>
-                                <li>Skopiuj ten kod</li>
-                                <li>Otwórz stronę, gdzie chcesz wyświetlić mieszkania</li>
-                                <li>Dodaj blok <strong>"Shortcode"</strong></li>
-                                <li>Wklej skopiowany kod</li>
-                                <li>Zapisz stronę</li>
-                            </ol>
+                            <h4>Shortcode dla listy zasobów</h4>
+                            <p><strong>Podstawowe użycie:</strong></p>
+                            <pre><code>[resources_list]</code></pre>
 
-                            <h4>Jak użyć shortcode dla pojedynczego zasobu:</h4>
-                            <ol>
-                                <li>Utwórz stronę dla mieszkania (np. "/mieszkania/a1")</li>
-                                <li>Dodaj blok <strong>"Shortcode"</strong></li>
-                                <li>Wklej kod: <code>[resource_single]</code></li>
-                                <li>Shortcode automatycznie wykryje numer lokalu z adresu URL</li>
-                                <li>Zapisz stronę</li>
-                            </ol>
+                            <p><strong>Co możesz dostosować w shortcode:</strong></p>
+                            <ul>
+                                <li><strong>Rodzaje nieruchomości</strong> - wybierz które typy wyświetlać (lokale mieszkalne, domy jednorodzinne, garaże, miejsca postojowe, komórki lokatorskie, lokale usługowe)</li>
+                                <li><strong>Widoczne informacje</strong> - określ które dane pokazać: numer lokalu, rodzaj nieruchomości, powierzchnia, cena całkowita, cena za m², cena z dodatkami, status, piętro, liczba pokoi, dodatkowy opis, ogród, plan mieszkania, przycisk historii cen</li>
+                                <li><strong>Sposób wyświetlania</strong> - tabela lub kafelki</li>
+                                <li><strong>Kolory</strong> - dostosuj kolory nagłówków, tekstu, podświetlenia, statusów, przycisków</li>
+                                <li><strong>Czcionki</strong> - wybierz czcionki dla nagłówków i treści</li>
+                                <li><strong>Nawigacja</strong> - wybierz czy wiersze mają być klikalne, czy pokazać przycisk "Zobacz więcej", czy wyłączyć nawigację</li>
+                                <li><strong>Sortowanie</strong> - włącz sortowanie po kliknięciu w nagłówek kolumny oraz ustaw domyślną kolejność (rosnąco/malejąco)</li>
+                                <li><strong>Filtrowanie</strong> - ogranicz wyświetlane zasoby według wybranych kryteriów</li>
+                            </ul>
 
-                            <p class="note">W Generatorze Shortcode możesz też skonfigurować wygląd pojedynczego zasobu w zakładce "Szczegóły zasobu".</p>
+                            <p class="note"><strong>Wskazówka:</strong> Wszystkie dostępne parametry i przykłady użycia znajdziesz w zakładce <strong>"Generator Shortcode"</strong> w menu wtyczki. Generator automatycznie tworzy gotowy kod shortcode z wybranymi przez Ciebie ustawieniami.</p>
+
+                            <p class="note">Shortcode nie posiada zaawansowanych filtrów w panelu edytora (w przeciwieństwie do bloku Gutenberg). Wyświetla dane zgodnie z ustawionymi parametrami.</p>
+
+                            <h4>Shortcode dla szczegółów pojedynczego lokalu</h4>
+                            <p>Wyświetla kartę z detalami wybranego lokalu/mieszkania. Działa zarówno z blokami Gutenberg jak i builderami (Divi, Elementor, ACF).</p>
+
+                            <p><strong>Podstawowe użycie:</strong></p>
+                            <pre><code>[resource_single]</code></pre>
+                            <p class="note">Shortcode automatycznie wykrywa numer lokalu z adresu URL strony (np. /mieszkania/A1 → wyświetli lokal A1).</p>
+
+                            <p><strong>Co możesz dostosować:</strong></p>
+                            <ul>
+                                <li><strong>Widoczne informacje</strong> - wybierz które dane pokazać: numer lokalu, rodzaj nieruchomości, powierzchnia, piętro, liczba pokoi, cena całkowita, cena za m², cena z dodatkami, status, ogród, dodatkowy opis, plan mieszkania PDF, przycisk historii cen</li>
+                                <li><strong>Kolory karty</strong> - dostosuj kolor tła, ramki, tekstu i etykiet pól</li>
+                                <li><strong>Kolory statusów</strong> - osobne kolory dla statusu "dostępny", "sprzedany", "zarezerwowany"</li>
+                                <li><strong>Przyciski</strong> - skonfiguruj wygląd i tekst przycisków "Historia Cen" i "Plan mieszkania"</li>
+                                <li><strong>Odstępy</strong> - dostosuj padding karty, zaokrąglenie rogów, odstępy między polami</li>
+                            </ul>
+
+                            <p class="note"><strong>Wskazówka:</strong> Wszystkie parametry możesz skonfigurować w zakładce <strong>"Generator Shortcode"</strong> w menu wtyczki.</p>
+
+                            <p class="note"><strong>Ważne:</strong> Shortcode musi znajdować się na stronie, której URL kończy się numerem lokalu (np. /mieszkania/A1, /lokale/B12).</p>
                         </div>
                     </div>
                 </div>
@@ -248,31 +274,31 @@ class InstructionsPage {
                 <!-- Accordion Item 3 -->
                 <div class="accordion-item">
                     <button class="accordion-header" type="button">
-                        <span class="accordion-title">3. Następny krok - spełnienie wymogów prawnych</span>
+                        <span class="accordion-title">3. Spełnienie wymogów prawnych</span>
                         <span class="accordion-icon">▼</span>
                     </button>
                     <div class="accordion-content">
                         <h3>Dlaczego potrzebujesz więcej?</h3>
                         <p>
-                            Jako deweloper jesteś <strong>zobowiązany prawnie</strong> do przekazywania danych o cenach mieszkań
-                            do Ministerstwa Rozwoju i Technologii zgodnie z <strong>Ustawą o jawności cen nieruchomości</strong>.
+                            Zgodnie z ustawą, deweloperzy są zobowiązani do przekazywania danych o cenach mieszkań
+                            do Ministerstwa zgodnie z <strong>Ustawą o jawności cen nieruchomości</strong>.
                         </p>
                         <p>Do tej pory dodałeś dane i wyświetliłeś je na stronie. To świetny początek!</p>
-                        <p>Ale <strong>aby spełnić wymogi prawne</strong>, musisz:</p>
+                        <p>Ale <strong>aby pomóc w spełnieniu wymogów wynikających z ustawy</strong>, musisz:</p>
+                        <p class="note">Zgodnie z naszym rozumieniem ustawy:</p>
                         <ul>
                             <li>Generować pliki XML i CSV w formacie wymaganym przez ministerstwo</li>
                             <li>Automatycznie aktualizować te pliki codziennie</li>
                             <li>Udostępnić je ministerstwu przez publicznie dostępne adresy URL</li>
                         </ul>
-                        <p><strong>Bez tego możesz być narażony na kary prawne.</strong></p>
+                        <p><strong>Bez tego możesz być narażony na kary prawne.</strong> Szczegóły dotyczące obowiązków określa ustawa. W razie wątpliwości skonsultuj się z prawnikiem.</p>
 
                         <h3>Rozwiązanie: Pełna wersja wtyczki</h3>
-                        <p>Pełna wersja wtyczki automatyzuje cały proces zgodności z ustawą:</p>
+                        <p>Pełna wersja wtyczki pomaga w spełnieniu wymogów ustawy:</p>
                         <ul>
                             <li>Automatyczne generowanie plików XML i CSV - zgodnie z wymaganiami ministerstwa</li>
                             <li>Automatyczna aktualizacja co 24h - nie musisz pamiętać o niczym</li>
                             <li>Integracja z portalem dane.gov.pl - automatyczne zasilanie danych</li>
-                            <li>Pełna zgodność z ustawą - spokój prawny</li>
                         </ul>
 
                         <h3>Jak kupić pełną wersję?</h3>
@@ -333,7 +359,7 @@ class InstructionsPage {
 
                         <div class="step">
                             <h3>Krok 3: Pobierz formularz dla Ministerstwa</h3>
-                            <p>Przygotowaliśmy gotowy formularz, który musisz wypełnić i wysłać do Ministerstwa.</p>
+                            <p>Ministerstwo udostępniło formularz, który musisz wypełnić i wysłać do zgłoszenia automatyzacji.</p>
                             <div class="download">
                                 <a href="<?php echo esc_url(JAWNECENY_PLUGIN_URL . 'assets/documents/Dane_niezbedne_do_uruchomienia_automatyzacji.docx'); ?>"
                                    class="button button-primary button-large"
@@ -394,11 +420,13 @@ class InstructionsPage {
 
                         <div class="step">
                             <h3>Krok 5: Wyślij formularz do Ministerstwa</h3>
-                            <p>W polu <strong>"Do:"</strong> wpisz: <code>kontakt@dane.gov.pl</code></p>
-                            <p>W polu <strong>"Temat:"</strong> wpisz:<br>
-                            <code>"Wniosek o uruchomienie automatyzacji procesu udostępniania danych - [Nazwa Twojej firmy]"</code></p>
+                            <p>Wyślij email z wypełnionym formularzem:</p>
+                            <ul>
+                                <li><strong>Odbiorca:</strong> <code>kontakt@dane.gov.pl</code></li>
+                                <li><strong>Temat:</strong> Wniosek o uruchomienie automatyzacji procesu udostępniania danych - [Nazwa Twojej firmy]</li>
+                            </ul>
 
-                            <p>W treści e-maila napisz:</p>
+                            <p><strong>Treść e-maila:</strong></p>
                             <div class="email-template">
                                 <p>Dzień dobry,</p>
                                 <p>Przesyłam wypełniony formularz z danymi niezbędnymi do uruchomienia automatyzacji procesu udostępniania danych o cenach mieszkań.</p>
