@@ -13,8 +13,8 @@ if (!defined('ABSPATH')) {
 class HistoryTile {
     
     private $getPublicationHistoryUseCase;
-    
-    public function __construct(GetPublicationHistoryUseCase $getPublicationHistoryUseCase) {
+
+    public function __construct(?GetPublicationHistoryUseCase $getPublicationHistoryUseCase) {
         $this->getPublicationHistoryUseCase = $getPublicationHistoryUseCase;
     }
     

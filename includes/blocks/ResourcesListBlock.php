@@ -69,27 +69,64 @@ class ResourcesListBlock {
         // Prepare styling options
         $styling_options = self::buildStylingOptions($parsed_attributes);
 
-        // Choose renderer based on display mode
-        if ($parsed_attributes['displayMode'] === 'cards') {
-            // Use ResourceCardRenderer for card layout
+        // Prepare card configuration
+        $card_config = [
+            'cardsPerRow' => $parsed_attributes['cardsPerRow'],
+            'cardBgColor' => $parsed_attributes['cardBgColor'],
+            'cardBorderColor' => $parsed_attributes['cardBorderColor'],
+            'cardPadding' => $parsed_attributes['cardPadding'],
+            'cardBorderRadius' => $parsed_attributes['cardBorderRadius'],
+            'cardShadow' => $parsed_attributes['cardShadow'],
+            'cardHoverShadow' => $parsed_attributes['cardHoverShadow'],
+            'cardGap' => $parsed_attributes['cardGap']
+        ];
+
+        // Choose rendering strategy based on display mode and mobile switch
+        $display_mode = $parsed_attributes['displayMode'];
+        $mobile_switch = $parsed_attributes['mobileSwitchToCards'];
+
+        if ($display_mode === 'cards') {
+            // MODE 1: Cards only (no table)
             return ResourceCardRenderer::renderCardGrid(
                 $resources,
                 $ordered_columns,
                 $column_names,
                 $styling_options,
-                [
-                    'cardsPerRow' => $parsed_attributes['cardsPerRow'],
-                    'cardBgColor' => $parsed_attributes['cardBgColor'],
-                    'cardBorderColor' => $parsed_attributes['cardBorderColor'],
-                    'cardPadding' => $parsed_attributes['cardPadding'],
-                    'cardBorderRadius' => $parsed_attributes['cardBorderRadius'],
-                    'cardShadow' => $parsed_attributes['cardShadow'],
-                    'cardHoverShadow' => $parsed_attributes['cardHoverShadow'],
-                    'cardGap' => $parsed_attributes['cardGap']
-                ]
+                $card_config
             );
+        } elseif ($mobile_switch) {
+            // MODE 2: DUAL RENDERING - Table on desktop (>768px), Cards on mobile (<=768px)
+            // Progressive Enhancement: CSS media queries handle visibility switching
+            ob_start();
+            echo '<div class="ujc-dual-view-wrapper" data-display-mode="table" data-mobile-cards="true">';
+
+            // Desktop view (table) - hidden on mobile via CSS
+            echo '<div class="ujc-desktop-view">';
+            echo ResourceTableRenderer::renderTable(
+                $resources,
+                $ordered_columns,
+                $column_names,
+                $styling_options,
+                'resources-list-block',
+                $parsed_attributes['enableFrontendSorting']
+            );
+            echo '</div>';
+
+            // Mobile view (cards) - hidden on desktop via CSS
+            echo '<div class="ujc-mobile-view">';
+            echo ResourceCardRenderer::renderCardGrid(
+                $resources,
+                $ordered_columns,
+                $column_names,
+                $styling_options,
+                $card_config
+            );
+            echo '</div>';
+
+            echo '</div>';
+            return ob_get_clean();
         } else {
-            // Use ResourceTableRenderer for table layout (default)
+            // MODE 3: Table only (default)
             return ResourceTableRenderer::renderTable(
                 $resources,
                 $ordered_columns,
@@ -151,6 +188,7 @@ class ResourcesListBlock {
 
             // Display Mode Options
             'displayMode' => 'table', // 'table' | 'cards'
+            'mobileSwitchToCards' => false,
 
             // Card-specific Options
             'cardsPerRow' => 3,

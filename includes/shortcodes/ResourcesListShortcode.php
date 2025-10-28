@@ -98,6 +98,7 @@ class ResourcesListShortcode {
 
             // Display mode - 'table' (default) or 'cards'
             'display_mode' => 'table',
+            'mobile_switch_to_cards' => 'false',
 
             // Card-specific styling options
             'cards_per_row' => '3',
@@ -245,6 +246,8 @@ class ResourcesListShortcode {
             ];
 
             // Build card configuration for card display mode
+            $mobile_switch_to_cards = filter_var($atts['mobile_switch_to_cards'], FILTER_VALIDATE_BOOLEAN);
+
             $card_config = [
                 'cardsPerRow' => (int)$atts['cards_per_row'],
                 'cardGap' => $atts['card_gap'],
@@ -254,6 +257,7 @@ class ResourcesListShortcode {
                 'cardPadding' => $atts['card_padding'],
                 'cardShadow' => $atts['card_shadow'],
                 'cardHoverShadow' => $atts['card_hover_shadow'],
+                'mobileSwitchToCards' => $mobile_switch_to_cards,
             ];
 
             // Parse sortowanie z nowego formatu "field:order"
@@ -386,8 +390,12 @@ class ResourcesListShortcode {
         $filtered_resources = $frontend_use_case->execute($selected_types, $filterCriteria, $sortOptions);
         Logger::info("Shortcode: Got " . count($filtered_resources) . " filtered resources from GetResourcesForFrontendUseCase");
 
+        // Check if mobile switch is enabled
+        $mobile_switch = $card_config['mobileSwitchToCards'] ?? false;
+
         // Render based on display mode
         if ($display_mode === 'cards') {
+            // Cards mode: only cards (desktop and mobile)
             Logger::info("Shortcode: Rendering as card grid");
             return ResourceCardRenderer::renderCardGrid(
                 $filtered_resources,
@@ -396,9 +404,44 @@ class ResourcesListShortcode {
                 $styling_options,
                 $card_config
             );
+        } elseif ($mobile_switch) {
+            // DUAL RENDERING MODE: Table (desktop) + Cards (mobile)
+            Logger::info("Shortcode: Rendering with mobile switch - dual rendering (table + cards)");
+
+            ob_start();
+
+            // Wrapper with data attributes for CSS
+            echo '<div class="ujc-dual-view-wrapper" data-display-mode="table" data-mobile-cards="true">';
+
+            // Desktop View: Table (visible >768px)
+            echo '<div class="ujc-desktop-view">';
+            echo ResourceTableRenderer::renderTable(
+                $filtered_resources,
+                $visible_columns,
+                $column_names,
+                $styling_options,
+                'ujc-shortcode-resources-list',
+                $enable_frontend_sorting
+            );
+            echo '</div>'; // .ujc-desktop-view
+
+            // Mobile View: Cards (visible <=768px)
+            echo '<div class="ujc-mobile-view">';
+            echo ResourceCardRenderer::renderCardGrid(
+                $filtered_resources,
+                $visible_columns,
+                $column_names,
+                $styling_options,
+                $card_config
+            );
+            echo '</div>'; // .ujc-mobile-view
+
+            echo '</div>'; // .ujc-dual-view-wrapper
+
+            return ob_get_clean();
         } else {
+            // Table mode: only table (desktop and mobile)
             Logger::info("Shortcode: Rendering as table");
-            // Use ResourceTableRenderer for consistent rendering
             return ResourceTableRenderer::renderTable(
                 $filtered_resources,
                 $visible_columns,

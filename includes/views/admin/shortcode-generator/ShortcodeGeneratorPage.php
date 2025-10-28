@@ -138,6 +138,22 @@ class ShortcodeGeneratorPage {
                                             Kafelki (siatka kart)
                                         </label>
                                     </div>
+
+                                    <!-- Mobile Switch Checkbox -->
+                                    <div style="margin-top: 12px; padding: 12px; background: #f0f6fc; border-left: 3px solid #2271b1; border-radius: 4px;">
+                                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                            <input type="checkbox"
+                                                   id="mobile-switch-to-cards"
+                                                   name="mobile_switch_to_cards"
+                                                   value="1"
+                                                   <?php checked($settings['mobile_switch_to_cards'] ?? false, true); ?>>
+                                            <span style="font-weight: 500;">📱 Automatycznie przełącz na kafelki na mobile</span>
+                                        </label>
+                                        <p class="description" style="margin: 8px 0 0 28px; font-size: 12px; color: #666;">
+                                            Na ekranach &lt;768px tabela automatycznie zamieni się w kafelki dla lepszej czytelności.
+                                        </p>
+                                    </div>
+
                                     <p class="description">Wybierz sposób wyświetlania zasobów na stronie.</p>
                                 </div>
 
@@ -264,11 +280,16 @@ class ShortcodeGeneratorPage {
                     </div>
 
                     <!-- Konfiguracja kafelków -->
-                    <div class="postbox" id="card-config-section" style="display: <?php echo ($settings['display_mode'] ?? 'table') === 'cards' ? 'block' : 'none'; ?>;">
+                    <div class="postbox" id="card-config-section" style="display: <?php echo (($settings['display_mode'] ?? 'table') === 'cards' || ($settings['mobile_switch_to_cards'] ?? false)) ? 'block' : 'none'; ?>;">
                         <div class="postbox-header">
                             <h2>Konfiguracja kafelków</h2>
                         </div>
                         <div class="inside">
+                            <p class="description" style="margin-bottom: 16px; padding: 8px 12px; background: #fef7e0; border-left: 3px solid #f0b429; font-size: 13px;">
+                                💡 <strong>Te ustawienia są używane gdy:</strong><br>
+                                • Wybrano tryb "Kafelki" (desktop i mobile)<br>
+                                • LUB włączono automatyczne przełączanie na mobile
+                            </p>
                             <div class="setting-group">
                                 <h4>Układ siatki</h4>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -814,6 +835,7 @@ class ShortcodeGeneratorPage {
 
             // Display mode and card configuration
             'display_mode' => 'table',
+            'mobile_switch_to_cards' => false,
             'cards_per_row' => '3',
             'card_gap' => '20px',
             'card_bg_color' => '#ffffff',

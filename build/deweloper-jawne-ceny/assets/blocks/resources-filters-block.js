@@ -6,7 +6,7 @@
 
     // Available database fields
     const DATABASE_FIELDS = [
-        { label: 'Cena całkowita', value: 'total_price' },
+        { label: 'Cena lokalu', value: 'total_price' },
         { label: 'Cena za m²', value: 'price_per_m2' },
         { label: 'Powierzchnia użytkowa', value: 'usable_area' },
         { label: 'Powierzchnia ogrodu', value: 'garden_area' },

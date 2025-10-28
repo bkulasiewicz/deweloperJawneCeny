@@ -214,6 +214,12 @@ jQuery(document).ready(function($) {
             shortcode += ' display_mode="' + displayMode + '"';
         }
 
+        // Add mobile switch parameter
+        const mobileSwitchToCards = $('#mobile-switch-to-cards').is(':checked');
+        if (mobileSwitchToCards) {
+            shortcode += ' mobile_switch_to_cards="true"';
+        }
+
         // Add card configuration if display_mode is 'cards'
         if (displayMode === 'cards') {
             const cardsPerRow = $('#cards-per-row').val();
@@ -503,13 +509,31 @@ jQuery(document).ready(function($) {
         updatePreview();
     });
 
+    // Update card config section visibility
+    function updateCardConfigVisibility() {
+        const displayMode = $('input[name="display_mode"]:checked').val();
+        const mobileSwitchEnabled = $('#mobile-switch-to-cards').is(':checked');
+        const shouldShow = (displayMode === 'cards' || mobileSwitchEnabled);
+
+        $('#card-config-section').toggle(shouldShow);
+    }
+
     // Update shortcode when display mode changes
     $('input[name="display_mode"]').on('change', function() {
-        const isCards = $(this).val() === 'cards';
-        $('#card-config-section').toggle(isCards);
+        updateCardConfigVisibility();
         updateShortcodePreview();
         updatePreview();
     });
+
+    // Listen to mobile switch checkbox
+    $('#mobile-switch-to-cards').on('change', function() {
+        updateCardConfigVisibility();
+        updateShortcodePreview();
+        updatePreview();
+    });
+
+    // Initialize visibility on page load
+    updateCardConfigVisibility();
 
     // Update shortcode when card configuration changes
     $('#cards-per-row, #card-gap, #card-border-radius, #card-padding, #card-shadow, #card-hover-shadow').on('input change', function() {
@@ -704,8 +728,8 @@ jQuery(document).ready(function($) {
             'usable_area': 'Powierzchnia',
             'status': 'Status',
             'price_per_m2': 'Cena za m²',
-            'total_price': 'Cena całkowita',
-            'price_with_extras': 'Cena z dodatkami',
+            'total_price': 'Cena lokalu',
+            'price_with_extras': 'Cena pełna',
             'floor_number': 'Piętro',
             'room_count': 'Pokoje',
             'additional_description': 'Opis',
@@ -773,8 +797,8 @@ jQuery(document).ready(function($) {
             'additional_description': 'Opis',
             'garden_area': 'Ogród',
             'price_per_m2': 'Cena za m²',
-            'total_price': 'Cena całkowita',
-            'price_with_extras': 'Cena z dodatkami',
+            'total_price': 'Cena lokalu',
+            'price_with_extras': 'Cena pełna',
             'historia_cen': 'Historia cen',
             'floor_plan_pdf': 'Plan'
         };

@@ -69,8 +69,8 @@ class ResourceTableRenderer {
             ResourceDto::FIELD_POWIERZCHNIA_UZYTKOWA => 'Powierzchnia',
             ResourceDto::FIELD_STATUS => 'Status',
             PriceHistoryDto::FIELD_CENA_M2 => 'Cena za m²',
-            PriceHistoryDto::FIELD_CENA_CALKOWITA => 'Cena całkowita',
-            PriceHistoryDto::FIELD_CENA_Z_DODATKAMI => 'Cena z dodatkami',
+            PriceHistoryDto::FIELD_CENA_CALKOWITA => 'Cena lokalu',
+            PriceHistoryDto::FIELD_CENA_Z_DODATKAMI => 'Cena pełna',
             ResourceDto::FIELD_FLOOR_NUMBER => 'Piętro',
             ResourceDto::FIELD_ROOM_COUNT => 'Pokoje',
             ResourceDto::FIELD_ADDITIONAL_DESCRIPTION => 'Opis',
@@ -115,17 +115,18 @@ class ResourceTableRenderer {
 
         ?>
         <div class="<?php echo esc_attr($container_class); ?>">
-            <table class="resources-table"<?php echo $enable_frontend_sorting ? ' data-sortable="true"' : ''; ?>>
-                <thead>
-                    <tr>
-                        <?php foreach ($visible_columns as $column): ?>
-                            <th<?php echo $enable_frontend_sorting ? ' data-sort-key="' . esc_attr($column) . '"' : ''; ?>>
-                                <?php echo esc_html($column_names[$column] ?? ucfirst($column)); ?>
-                            </th>
-                        <?php endforeach; ?>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="resources-table-wrapper">
+                <table class="resources-table"<?php echo $enable_frontend_sorting ? ' data-sortable="true"' : ''; ?>>
+                    <thead>
+                        <tr>
+                            <?php foreach ($visible_columns as $column): ?>
+                                <th<?php echo $enable_frontend_sorting ? ' data-sort-key="' . esc_attr($column) . '"' : ''; ?>>
+                                    <?php echo esc_html($column_names[$column] ?? ucfirst($column)); ?>
+                                </th>
+                            <?php endforeach; ?>
+                        </tr>
+                    </thead>
+                    <tbody>
                     <?php foreach ($resources as $resource): ?>
                         <?php
                         $row_classes = [];
@@ -156,6 +157,7 @@ class ResourceTableRenderer {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div> <!-- .resources-table-wrapper -->
 
             <!-- Price History Modal rendered globally via PriceHistoryModal helper -->
         </div>

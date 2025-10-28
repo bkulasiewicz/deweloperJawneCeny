@@ -19,8 +19,8 @@
 
         // PriceHistoryDto fields
         'price_per_m2': 'Cena za m²',                     // PriceHistoryDto::FIELD_CENA_M2
-        'total_price': 'Cena całkowita',                  // PriceHistoryDto::FIELD_CENA_CALKOWITA
-        'price_with_extras': 'Cena z dodatkami',          // PriceHistoryDto::FIELD_CENA_Z_DODATKAMI
+        'total_price': 'Cena lokalu',                     // PriceHistoryDto::FIELD_CENA_CALKOWITA
+        'price_with_extras': 'Cena pełna',                // PriceHistoryDto::FIELD_CENA_Z_DODATKAMI
 
         // Functional columns
         'historia_cen': 'Historia cen',                    // ResourceTableRenderer::COLUMN_HISTORIA_CEN

@@ -19,8 +19,8 @@
 
         // Prices (3 fields)
         'price_per_m2': 'Cena za m²',
-        'total_price': 'Cena całkowita',
-        'price_with_extras': 'Cena z dodatkami',
+        'total_price': 'Cena lokalu',
+        'price_with_extras': 'Cena pełna',
 
         // Property part component (4 fields)
         'property_part_title': 'Część nieruchomości - tytuł',

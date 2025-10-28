@@ -161,11 +161,6 @@
     .resources-table td {
         padding: var(--table-padding, 12px 15px) !important;
     }
-
-    .resources-table th:nth-child(2),
-    .resources-table td:nth-child(2) {
-        display: none;
-    }
 }
 
 @media (max-width: 480px) {
@@ -174,11 +169,13 @@
         padding: var(--table-padding, 12px 15px) !important;
         font-size: 0.8em;
     }
+}
 
-    .resources-table th:nth-child(4),
-    .resources-table td:nth-child(4) {
-        display: none;
-    }
+/* Wrapper dla smooth horizontal scrolling */
+.resources-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
 }
 
 /* Gutenberg Block Editor - Drag & Drop Styles */
@@ -338,3 +335,54 @@
 .ujc-zobacz-wiecej-btn:hover {
     opacity: 0.85;
 }
+
+/* ========================================
+   Mobile Switch: Dual View Rendering
+   Progressive Enhancement - CSS Media Queries
+   ======================================== */
+
+/* Desktop (>768px): Show table, hide cards */
+@media (min-width: 769px) {
+    .ujc-dual-view-wrapper[data-mobile-cards="true"] .ujc-mobile-view {
+        display: none !important;
+    }
+
+    .ujc-dual-view-wrapper[data-mobile-cards="true"] .ujc-desktop-view {
+        display: block;
+    }
+}
+
+/* Mobile (<=768px): Hide table, show cards */
+@media (max-width: 768px) {
+    .ujc-dual-view-wrapper[data-mobile-cards="true"] .ujc-desktop-view {
+        display: none !important;
+    }
+
+    .ujc-dual-view-wrapper[data-mobile-cards="true"] .ujc-mobile-view {
+        display: block;
+    }
+}
+
+/* Performance: Prevent unnecessary rendering */
+.ujc-dual-view-wrapper:not([data-mobile-cards="true"]) .ujc-mobile-view {
+    display: none !important;
+}
+
+/* Accessibility: Screen readers announcement */
+.ujc-desktop-view::before,
+.ujc-mobile-view::before {
+    content: "";
+    speak: none; /* Do not announce wrapper divs */
+}
+
+/* Print: Show table view for printing */
+@media print {
+    .ujc-dual-view-wrapper[data-mobile-cards="true"] .ujc-mobile-view {
+        display: none !important;
+    }
+
+    .ujc-dual-view-wrapper[data-mobile-cards="true"] .ujc-desktop-view {
+        display: block !important;
+    }
+}
+

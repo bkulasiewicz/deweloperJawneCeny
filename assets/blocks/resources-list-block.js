@@ -19,8 +19,8 @@
 
         // PriceHistoryDto fields
         'price_per_m2': 'Cena za m²',                     // PriceHistoryDto::FIELD_CENA_M2
-        'total_price': 'Cena całkowita',                  // PriceHistoryDto::FIELD_CENA_CALKOWITA
-        'price_with_extras': 'Cena z dodatkami',          // PriceHistoryDto::FIELD_CENA_Z_DODATKAMI
+        'total_price': 'Cena lokalu',                     // PriceHistoryDto::FIELD_CENA_CALKOWITA
+        'price_with_extras': 'Cena pełna',                // PriceHistoryDto::FIELD_CENA_Z_DODATKAMI
 
         // Functional columns
         'historia_cen': 'Historia cen',                    // ResourceTableRenderer::COLUMN_HISTORIA_CEN
@@ -134,6 +134,10 @@
             displayMode: {
                 type: 'string',
                 default: 'table' // 'table' | 'cards'
+            },
+            mobileSwitchToCards: {
+                type: 'boolean',
+                default: false
             },
 
             // Card-specific Options
@@ -590,8 +594,26 @@
                             onChange: (value) => setAttributes({ displayMode: value })
                         }),
 
-                        // Conditional Card Settings - only show when cards mode is selected
-                        attributes.displayMode === 'cards' && el(Fragment, {},
+                        // Mobile switch checkbox
+                        attributes.displayMode === 'table' && el('div', {
+                            style: {
+                                marginTop: '12px',
+                                padding: '12px',
+                                background: '#f0f6fc',
+                                borderLeft: '3px solid #2271b1',
+                                borderRadius: '4px'
+                            }
+                        },
+                            el(CheckboxControl, {
+                                label: '📱 Automatycznie przełącz na kafelki na mobile',
+                                checked: attributes.mobileSwitchToCards,
+                                onChange: (checked) => setAttributes({ mobileSwitchToCards: checked }),
+                                help: 'Na urządzeniach mobilnych (<768px) tabela zamieni się w kafelki'
+                            })
+                        ),
+
+                        // Conditional Card Settings - show when cards mode OR mobile switch is enabled
+                        (attributes.displayMode === 'cards' || attributes.mobileSwitchToCards) && el(Fragment, {},
                             el('hr', { style: { margin: '16px 0' } }),
                             el('h4', { style: { margin: '0 0 12px', fontSize: '14px' } }, 'Ustawienia kafelków'),
 
