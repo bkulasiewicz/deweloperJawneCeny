@@ -171,7 +171,17 @@ class CSVFormatter {
         
         return $headers;
     }
-    
+
+    /**
+     * Format number for CSV - always 2 decimal places
+     */
+    private function formatNumber($value): string {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        return number_format((float)$value, 2, '.', '');
+    }
+
     /**
      * Convert resource data to CSV row
      * Dynamic row generation based on detected components
@@ -226,14 +236,14 @@ class CSVFormatter {
             // Property - use current prices from history
             $resource->rodzaj_nieruchomosci->getDisplayText(),
             $resource->nr_lokalu,
-            $resource->powierzchnia_uzytkowa ?? '',
-            $prices->cena_m2 ?? '',
+            $this->formatNumber($resource->powierzchnia_uzytkowa),
+            $this->formatNumber($prices->cena_m2),
             DateHelper::formatForCsv($prices->data_zmiany),
-            
+
             // Total price
-            $prices->cena_calkowita ?? '',
+            $this->formatNumber($prices->cena_calkowita),
             DateHelper::formatForCsv($prices->data_zmiany),
-            $prices->cena_z_dodatkami ?? '',
+            $this->formatNumber($prices->cena_z_dodatkami),
             DateHelper::formatForCsv($prices->data_cena_z_dodatkami)
         ];
         
@@ -242,32 +252,32 @@ class CSVFormatter {
             $row = array_merge($row, [
                 $resource->property_part_title ?? '',
                 $resource->property_part_designation ?? '',
-                $resource->property_part_price ?? '',
+                $this->formatNumber($resource->property_part_price),
                 $this->safeFormatDate($resource->property_part_price_date, 'property_part_price_date')
             ]);
         }
-        
+
         if ($componentFlags['has_belonging_rooms']) {
             $row = array_merge($row, [
                 $resource->belonging_room_title ?? '',
                 $resource->belonging_room_designation ?? '',
-                $resource->belonging_room_price ?? '',
+                $this->formatNumber($resource->belonging_room_price),
                 $this->safeFormatDate($resource->belonging_room_price_date, 'belonging_room_price_date')
             ]);
         }
-        
+
         if ($componentFlags['has_usage_rights']) {
             $row = array_merge($row, [
                 $resource->usage_right_title ?? '',
-                $resource->usage_right_price ?? '',
+                $this->formatNumber($resource->usage_right_price),
                 $this->safeFormatDate($resource->usage_right_price_date, 'usage_right_price_date')
             ]);
         }
-        
+
         if ($componentFlags['has_other_services']) {
             $row = array_merge($row, [
                 $resource->other_service_title ?? '',
-                $resource->other_service_price ?? '',
+                $this->formatNumber($resource->other_service_price),
                 $this->safeFormatDate($resource->other_service_price_date, 'other_service_price_date')
             ]);
         }
