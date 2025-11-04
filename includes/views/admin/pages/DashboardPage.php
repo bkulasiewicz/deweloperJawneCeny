@@ -16,7 +16,6 @@ class DashboardPage {
     private $developerRepository;
     private $investmentRepository;
     private $resourceRepository;
-    private $generateFilesUseCase;
     private $automationTile;
     private $historyTile;
     private $devConsoleTile;
@@ -25,7 +24,6 @@ class DashboardPage {
         DeveloperRepository $developerRepository,
         InvestmentRepository $investmentRepository,
         ResourceRepository $resourceRepository,
-        GenerateFilesUseCase $generateFilesUseCase,
         AutomationTile $automationTile,
         HistoryTile $historyTile,
         DevConsoleTile $devConsoleTile
@@ -33,31 +31,12 @@ class DashboardPage {
         $this->developerRepository = $developerRepository;
         $this->investmentRepository = $investmentRepository;
         $this->resourceRepository = $resourceRepository;
-        $this->generateFilesUseCase = $generateFilesUseCase;
         $this->automationTile = $automationTile;
         $this->historyTile = $historyTile;
         $this->devConsoleTile = $devConsoleTile;
 
         add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
-        add_action('wp_ajax_jawneceny_manual_generation', [$this, 'ajax_manual_generation']);
         add_action('wp_ajax_jawneceny_download_logs', [$this, 'ajax_download_logs']);
-    }
-    
-    public function ajax_manual_generation() {
-        try {
-            check_ajax_referer('jawneceny_admin_nonce', 'nonce');
-            if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
-            
-            $result = $this->generateFilesUseCase->execute(TriggerType::Manual);
-            
-            if ($result->isSuccess) {
-                wp_send_json_success($result->message);
-            } else {
-                wp_send_json_error($result->message);
-            }
-        } catch (Exception $e) {
-            wp_send_json_error('Błąd generowania: ' . $e->getMessage());
-        }
     }
     
     public function ajax_download_logs() {

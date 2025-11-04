@@ -433,7 +433,6 @@ class DIContainer {
                 $c->get(DeveloperRepository::class),
                 $c->get(InvestmentRepository::class),
                 $c->get(ResourceRepository::class),
-                $c->get(GenerateFilesUseCase::class),
                 $c->get(AutomationTile::class),
                 $c->get(HistoryTile::class),
                 $c->get(DevConsoleTile::class)

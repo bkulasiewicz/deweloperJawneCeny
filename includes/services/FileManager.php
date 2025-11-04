@@ -169,7 +169,7 @@ class FileManager {
     }
     
     /**
-     * Create or update .htaccess file to prevent caching of XML files and set CSV encoding
+     * Create or update .htaccess file to prevent caching of XML and MD5 files and set CSV encoding
      */
     private function ensureHtaccessExists(): void {
         $htaccess_path = $this->baseDirectory . '/.htaccess';
@@ -184,6 +184,13 @@ class FileManager {
         $expected_content .= "# Force CSV files to use UTF-8 encoding\n";
         $expected_content .= "<Files \"*.csv\">\n";
         $expected_content .= "    Header set Content-Type \"text/csv; charset=UTF-8\"\n";
+        $expected_content .= "</Files>\n\n";
+        $expected_content .= "# Prevent caching of MD5 checksum files\n";
+        $expected_content .= "<Files \"*.md5\">\n";
+        $expected_content .= "    Header set Cache-Control \"no-cache, no-store, must-revalidate\"\n";
+        $expected_content .= "    Header set Pragma \"no-cache\"\n";
+        $expected_content .= "    Header set Expires 0\n";
+        $expected_content .= "    Header set Content-Type \"text/plain; charset=UTF-8\"\n";
         $expected_content .= "</Files>\n\n";
         $expected_content .= "# Allow direct access to all files\n";
         $expected_content .= "Order Allow,Deny\n";
