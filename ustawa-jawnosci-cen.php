@@ -1,10 +1,9 @@
 <?php
 /**
- * Plugin Name: Deweloper Jawne Ceny
+ * Plugin Name: Developer Transparent Prices
  * Plugin URI: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
- * Description: Automatyzacja procesu dostarczania danych o cenach mieszkań zgodnie z polską Ustawą o jawności cen nieruchomości. Generowanie plików XML/CSV dla portalu dane.gov.pl.
- * Description (EN): Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.8.0
+ * Description: Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
+ * Version: 4.9.0
  * Requires at least: 6.2
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -91,7 +90,6 @@ class DeweloperJawneCeny {
         require_once JAWNECENY_PLUGIN_DIR . 'includes/enums/PropertyType.php';
         
         // Models
-        require_once JAWNECENY_PLUGIN_DIR . 'includes/models/DaneGovXmlDataset.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/models/ResourceFormData.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/models/PropertyPartFormData.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/models/BelongingRoomFormData.php';
@@ -115,8 +113,6 @@ class DeweloperJawneCeny {
         
         // Services
         require_once JAWNECENY_PLUGIN_DIR . 'includes/services/DateHelper.php';
-        require_once JAWNECENY_PLUGIN_DIR . 'includes/services/CSVFormatter.php';
-        require_once JAWNECENY_PLUGIN_DIR . 'includes/services/XMLFormatter.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/services/FileManager.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/helpers/ResourceTableRenderer.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/helpers/ResourceCardRenderer.php';
@@ -146,7 +142,6 @@ class DeweloperJawneCeny {
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Resources/UpdateResourceUseCase.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Resources/GetResourceByIdUseCase.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Resources/GetAllResourcesUseCase.php';
-        require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Resources/GetResourcesForGovernmentUseCase.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Resources/DeleteResourceUseCase.php';
         
         // UseCases - Developer
@@ -158,20 +153,12 @@ class DeweloperJawneCeny {
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Investment/UpdateInvestmentUseCase.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Investment/GetInvestmentUseCase.php';
         
-        // UseCases - File Generation
-        require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/FileGeneration/GenerateCSVFileUseCase.php';
-        require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/FileGeneration/GenerateFilesUseCase.php';
-        require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/FileGeneration/CreateDaneGovSubmissionFilesUseCase.php';
-        
         // UseCases - Publication History
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/PublicationHistory/AddPublicationHistoryUseCase.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/PublicationHistory/GetPublicationHistoryUseCase.php';
         
         // UseCases - Price History
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/PriceHistory/GetPriceHistoryUseCase.php';
-        
-        // UseCases - XML Resource
-        require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/XmlResource/AddXmlResourceUseCase.php';
         
         // UseCases - System
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/System/ImportResourcesUseCase.php';
@@ -440,8 +427,15 @@ add_action('init', function() {
         $filepath = $upload_dir['basedir'] . '/ujc-data/' . $filename;
 
         if (file_exists($filepath)) {
+            global $wp_filesystem;
             header('Content-Type: text/csv; charset=UTF-8');
-            readfile($filepath);
+
+            // Use WordPress Filesystem instead of readfile()
+            $file_contents = $wp_filesystem->get_contents($filepath);
+            if ($file_contents !== false) {
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- CSV file content should not be escaped
+                echo $file_contents;
+            }
             exit;
         }
     }

@@ -1,109 +1,62 @@
-=== Deweloper Jawne Ceny ===
+=== Developer Transparent Prices ===
 Contributors: ujcteam, deweloperjawneceny
 Donate link: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
 Tags: jawnosc, ceny, mieszkania, deweloper, nieruchomosci, ustawa, dane-gov-pl, oferty, katalog, automatyzacja, budownictwo
 Requires at least: 6.2
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 4.8.0
+Stable tag: 4.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Automatyzacja jawnych cen mieszkań dla deweloperów nieruchomości - generowanie danych zgodnie z polską ustawą o jawności cen do portalu dane.gov.pl.
-
-Automates transparent housing prices for real estate developers - generates data compliant with Polish price transparency law for dane.gov.pl portal.
+Automates real estate price data reporting for developers - generates compliant XML/CSV files for Polish price transparency law (dane.gov.pl portal).
 
 == Description ==
 
-**Deweloper Jawne Ceny** to narzędzie WordPress wspierające polskich deweloperów nieruchomości w spełnieniu wymogów Ustawy z dnia 21 maja 2025 r. o zmianie ustawy o ochronie praw nabywcy lokalu mieszkalnego w zakresie jawności cen mieszkań. Wtyczka automatyzuje proces publikacji jawnych cen nieruchomości w formacie wymaganym przez portal dane.gov.pl, ułatwiając deweloperom wypełnianie obowiązków prawnych.
-
-= Główne funkcje =
-
-* **Zarządzanie danymi dewelopera** - przechowywanie informacji o firmie deweloperskiej
-* **Katalog inwestycji** - zarządzanie projektami mieszkaniowymi  
-* **Cenniki mieszkań** - wprowadzanie i aktualizacja jawnych cen poszczególnych lokali
-* **Automatyczne generowanie plików** - tworzenie plików XML i CSV z jawnymi cenami zgodnych z wymogami portalu dane.gov.pl
-* **Historia publikacji** - śledzenie wszystkich publikacji danych
-* **Publiczne linki** - automatyczne udostępnianie plików dla organów państwowych
-* **Wyświetlanie na stronie** - podstawowe opcje prezentacji lokali dla klientów
-
-= Zgodność z prawem =
-
-Wtyczka została zaprojektowana zgodnie z wymogami polskich przepisów dotyczących jawności cen nieruchomości:
-
-* Automatyczne generowanie plików w formacie XML zgodnym ze schematem dane.gov.pl
-* Eksport danych w formacie CSV dla łatwej analizy
-* Publiczne udostępnianie danych pod stałymi adresami URL
-* Automatyczne tworzenie sum kontrolnych MD5
-
-= Wersje wtyczki =
-
-**Wersja darmowa:**
-* Pełne funkcje zarządzania danymi i ręczne generowanie plików
-* Podstawowe możliwości wyświetlania lokali na stronie internetowej
-* Narzędzie wspierające spełnienie wymogów prawnych
-
-**Wersja premium:**
-* Automatyzacja i zaplanowane publikowanie danych
-* Rozszerzona lista możliwości wyświetlania lokali na stronie internetowej
-* Zaawansowane opcje prezentacji oferty dla klientów
-
-= Dla kogo? =
-
-* **Deweloperzy nieruchomości** - firmy budujące mieszkania na sprzedaż
-* **Biura obsługi deweloperów** - firmy zarządzające procesem sprzedaży
-* **Kancelarie prawne** - obsługa compliance dla deweloperów
-* **Firmy consultingowe** - doradztwo w zakresie compliance
-
-= Wsparcie =
-
-Jeśli potrzebujesz pomocy z konfiguracją lub masz pytania, skorzystaj z formularza kontaktowego dostępnego na naszej stronie [www.deweloperjawneceny.pl](https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion).
-
-== Description (English) ==
-
-**Deweloper Jawne Ceny** is a WordPress tool that helps Polish real estate developers comply with the requirements of the Act of May 21, 2025 on amending the act on the protection of the rights of residential premises buyers regarding housing price transparency. The plugin automates the publication process, making it easier for developers to fulfill their legal obligations.
+**Developer Transparent Prices** is a WordPress plugin that helps Polish real estate developers comply with the requirements of the Act of May 21, 2025 on amending the act on the protection of the rights of residential premises buyers regarding housing price transparency. The plugin automates the publication process, making it easier for developers to fulfill their legal obligations.
 
 = Key Features =
 
-* **Developer data management** - storing information about the development company
-* **Investment catalog** - managing residential projects
-* **Property pricing** - entering and updating prices of individual units
-* **Automatic file generation** - creating XML and CSV files compliant with dane.gov.pl portal requirements
-* **Publication history** - tracking all data publications
-* **Public links** - automatic sharing of files for government authorities
-* **Website display** - basic options for presenting properties to clients
+* **Developer data management** - Store and manage development company information
+* **Investment catalog** - Manage multiple residential projects
+* **Property pricing** - Enter and update transparent prices for individual units
+* **Automatic file generation** - Create XML and CSV files compliant with dane.gov.pl portal requirements
+* **Publication history** - Track all data publications with detailed logs
+* **Public links** - Automatic file sharing for government authorities
+* **Website display** - Basic property presentation options for clients
 
 = Legal Compliance =
 
-The plugin has been designed in accordance with Polish regulations regarding real estate price transparency:
+The plugin is designed to meet Polish real estate price transparency regulations:
 
-* Automatic generation of XML files compliant with dane.gov.pl schema
-* Data export in CSV format for easy analysis
-* Public data sharing under permanent URLs
-* Automatic MD5 checksum generation
+* Automatic XML file generation compliant with dane.gov.pl schema
+* CSV data export for easy analysis and reporting
+* Public data sharing under permanent, stable URLs
+* Automatic MD5 checksum generation for data integrity
 
 = Plugin Versions =
 
 **Free version:**
 * Full data management features and manual file generation
-* Basic website display capabilities for properties
-* Tool supporting legal compliance
+* Basic property display capabilities for your website
+* Essential compliance tools to meet legal requirements
 
 **Premium version:**
 * Automation and scheduled data publishing
-* Extended website display options for properties
+* Extended property display options
 * Advanced client presentation features
+* Priority support
 
 = Who is it for? =
 
-* **Real estate developers** - companies building apartments for sale
-* **Developer service offices** - companies managing the sales process
-* **Law firms** - compliance support for developers
-* **Consulting companies** - compliance consulting
+* **Real estate developers** - Companies building apartments and housing for sale
+* **Developer service offices** - Agencies managing the sales process
+* **Law firms** - Providing compliance support for developers
+* **Consulting companies** - Offering compliance consulting services
 
 = Support =
 
-If you need help with configuration or have questions, use the contact form available on our website [www.deweloperjawneceny.pl](https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion).
+If you need help with configuration or have questions, please use the contact form on our website [www.deweloperjawneceny.pl](https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion).
 
 == Installation ==
 
