@@ -678,12 +678,58 @@ jQuery(document).ready(function($) {
     $('#copy-shortcode-single').on('click', function() {
         const $button = $(this);
         const shortcode = $('#generated-shortcode-single').text();
-        navigator.clipboard.writeText(shortcode).then(function() {
-            $button.text('Skopiowano!').addClass('button-primary');
-            setTimeout(() => {
-                $button.html('<span class="dashicons dashicons-admin-page"></span> Kopiuj shortcode').removeClass('button-primary');
-            }, 2000);
-        });
+        const originalHtml = '<span class="dashicons dashicons-admin-page"></span> Kopiuj shortcode';
+
+        // Try modern Clipboard API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(shortcode).then(function() {
+                $button.text('Skopiowano!').addClass('button-primary');
+                setTimeout(() => {
+                    $button.html(originalHtml).removeClass('button-primary');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Clipboard API failed:', err);
+                // Fallback to older method
+                const $temp = $('<textarea>');
+                $('body').append($temp);
+                $temp.val(shortcode).select();
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        $button.text('Skopiowano!').addClass('button-primary');
+                        setTimeout(() => {
+                            $button.html(originalHtml).removeClass('button-primary');
+                        }, 2000);
+                    } else {
+                        alert('Nie udało się skopiować shortcode. Skopiuj go ręcznie.');
+                    }
+                } catch (fallbackErr) {
+                    console.error('Fallback copy failed:', fallbackErr);
+                    alert('Nie udało się skopiować shortcode. Skopiuj go ręcznie.');
+                }
+                $temp.remove();
+            });
+        } else {
+            // Browser doesn't support Clipboard API - use fallback
+            const $temp = $('<textarea>');
+            $('body').append($temp);
+            $temp.val(shortcode).select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    $button.text('Skopiowano!').addClass('button-primary');
+                    setTimeout(() => {
+                        $button.html(originalHtml).removeClass('button-primary');
+                    }, 2000);
+                } else {
+                    alert('Nie udało się skopiować shortcode. Skopiuj go ręcznie.');
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                alert('Nie udało się skopiować shortcode. Skopiuj go ręcznie.');
+            }
+            $temp.remove();
+        }
     });
 
     // ========================================
@@ -847,16 +893,53 @@ jQuery(document).ready(function($) {
         e.stopPropagation();
     });
 
+    // Helper function to copy text to clipboard with fallback
+    function copyToClipboard(text, $button, successText, originalText) {
+        // Try modern Clipboard API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(function() {
+                $button.text('Skopiowano!').addClass('button-primary');
+                setTimeout(() => {
+                    $button.text(originalText).removeClass('button-primary');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Clipboard API failed:', err);
+                // Fallback to older method
+                fallbackCopy(text, $button, originalText);
+            });
+        } else {
+            // Browser doesn't support Clipboard API - use fallback
+            fallbackCopy(text, $button, originalText);
+        }
+    }
+
+    // Fallback copy method using deprecated execCommand
+    function fallbackCopy(text, $button, originalText) {
+        const $temp = $('<textarea>');
+        $('body').append($temp);
+        $temp.val(text).select();
+        try {
+            const successful = document.execCommand('copy');
+            if (successful) {
+                $button.text('Skopiowano!').addClass('button-primary');
+                setTimeout(() => {
+                    $button.text(originalText).removeClass('button-primary');
+                }, 2000);
+            } else {
+                alert('Nie udało się skopiować shortcode. Skopiuj go ręcznie.');
+            }
+        } catch (err) {
+            console.error('Fallback copy failed:', err);
+            alert('Nie udało się skopiować shortcode. Skopiuj go ręcznie.');
+        }
+        $temp.remove();
+    }
+
     // Copy shortcode to clipboard
     $('#copy-shortcode').on('click', function() {
-        const $button = $(this);  // Zapisz referencję do przycisku
+        const $button = $(this);
         const shortcode = $('#generated-shortcode').text();
-        navigator.clipboard.writeText(shortcode).then(function() {
-            $button.text('Skopiowano!').addClass('button-primary');
-            setTimeout(() => {
-                $button.text('Kopiuj').removeClass('button-primary');
-            }, 2000);
-        });
+        copyToClipboard(shortcode, $button, 'Skopiowano!', 'Kopiuj');
     });
 
     // Removed save functionality - shortcode is generated dynamically only
