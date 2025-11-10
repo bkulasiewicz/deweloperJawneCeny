@@ -80,7 +80,7 @@ jQuery(document).ready(function($) {
         const filterValue = $('#filterValue').val();
         const filteringCombined = (filterBy && filterBy !== '' && filterValue && filterValue.trim() !== '') ? filterBy + ':' + filterValue.trim() : '';
 
-        let shortcode = '[resources_list';
+        let shortcode = '[jawneceny_resources_list';
 
         if (selectedTypes.length > 0) {
             shortcode += ' types="' + selectedTypes.join(',') + '"';

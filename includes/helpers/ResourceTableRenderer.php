@@ -136,7 +136,7 @@ class ResourceTableRenderer {
                         $detail_url = '';
                         if ($navigation_mode === 'clickable') {
                             $row_classes[] = 'clickable-row';
-                            $current_path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+                            $current_path = wp_parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
                             $detail_url = rtrim($current_path, '/') . '/' . urlencode($resource->nr_lokalu);
                         }
                         ?>
@@ -364,7 +364,7 @@ class ResourceTableRenderer {
                 }
 
                 // Build URL using current page path + nr_lokalu
-                $current_path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+                $current_path = wp_parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
                 $full_url = rtrim($current_path, '/') . '/' . urlencode($resource->nr_lokalu);
 
                 // Get button configuration with defaults

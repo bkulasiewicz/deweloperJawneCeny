@@ -14,19 +14,40 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Premium DI Container Registration
+require_once __DIR__ . '/PremiumDIContainer.php';
+
+// Premium Models
+require_once __DIR__ . '/models/DaneGovXmlDataset.php';
+
+// Premium Services - Formatters
+require_once __DIR__ . '/services/CSVFormatter.php';
+require_once __DIR__ . '/services/XMLFormatter.php';
+
+// Premium Use Cases - File Generation
+require_once __DIR__ . '/UseCases/FileGeneration/GenerateFilesUseCase.php';
+require_once __DIR__ . '/UseCases/FileGeneration/GenerateCSVFileUseCase.php';
+require_once __DIR__ . '/UseCases/FileGeneration/CreateDaneGovSubmissionFilesUseCase.php';
+
+// Premium Use Cases - Supporting
+require_once __DIR__ . '/UseCases/XmlResource/AddXmlResourceUseCase.php';
+require_once __DIR__ . '/UseCases/Resources/GetResourcesForGovernmentUseCase.php';
+
+// Premium Use Cases - WP Cron Fallback
+require_once __DIR__ . '/UseCases/WpCronFallbackUseCase.php';
+
+// Premium Use Cases - External Cron
+require_once __DIR__ . '/UseCases/RegisterExternalCronUseCase.php';
+require_once __DIR__ . '/UseCases/UnregisterExternalCronUseCase.php';
+require_once __DIR__ . '/UseCases/UpdateExternalCronScheduleUseCase.php';
+require_once __DIR__ . '/UseCases/ToggleExternalCronUseCase.php';
+
 // Premium Controllers
 require_once __DIR__ . '/controllers/ExternalCronController.php';
 require_once __DIR__ . '/controllers/WpCronFallbackController.php';
 
 // Premium Repositories
 require_once __DIR__ . '/repositories/ExternalCronRepository.php';
-
-// Premium Use Cases
-require_once __DIR__ . '/UseCases/WpCronFallbackUseCase.php';
-require_once __DIR__ . '/UseCases/RegisterExternalCronUseCase.php';
-require_once __DIR__ . '/UseCases/UnregisterExternalCronUseCase.php';
-require_once __DIR__ . '/UseCases/UpdateExternalCronScheduleUseCase.php';
-require_once __DIR__ . '/UseCases/ToggleExternalCronUseCase.php';
 
 // Initialize Premium Components through DI Container
 DIContainer::get(ExternalCronController::class);

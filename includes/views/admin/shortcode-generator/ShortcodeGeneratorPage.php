@@ -483,17 +483,17 @@ class ShortcodeGeneratorPage {
                     
                     <h3>Przykłady użycia:</h3>
                     <ul>
-                        <li><code>[resources_list types="residential_unit"]</code> - tylko mieszkania</li>
-                        <li><code>[resources_list types="parking_space"]</code> - tylko miejsca postojowe</li>
-                        <li><code>[resources_list types="residential_unit,parking_space"]</code> - mieszkania i miejsca postojowe</li>
+                        <li><code>[jawneceny_resources_list types="residential_unit"]</code> - tylko mieszkania</li>
+                        <li><code>[jawneceny_resources_list types="parking_space"]</code> - tylko miejsca postojowe</li>
+                        <li><code>[jawneceny_resources_list types="residential_unit,parking_space"]</code> - mieszkania i miejsca postojowe</li>
                     </ul>
 
                     <h3>Nawigacja do szczegółów (opcjonalne):</h3>
                     <p>Dodaj parametr <code>navigation_mode</code> aby włączyć nawigację do stron szczegółów:</p>
                     <ul>
-                        <li><code>[resources_list navigation_mode="clickable"]</code> - klikalne wiersze/karty, kliknięcie przekieruje do /aktualna-strona/A1</li>
-                        <li><code>[resources_list navigation_mode="button"]</code> - przycisk "Zobacz więcej" w każdym wierszu</li>
-                        <li><code>[resources_list]</code> - brak nawigacji (domyślnie)</li>
+                        <li><code>[jawneceny_resources_list navigation_mode="clickable"]</code> - klikalne wiersze/karty, kliknięcie przekieruje do /aktualna-strona/A1</li>
+                        <li><code>[jawneceny_resources_list navigation_mode="button"]</code> - przycisk "Zobacz więcej" w każdym wierszu</li>
+                        <li><code>[jawneceny_resources_list]</code> - brak nawigacji (domyślnie)</li>
                     </ul>
                     <p><strong>Uwagi:</strong></p>
                     <ul>
@@ -915,7 +915,7 @@ class ShortcodeGeneratorPage {
         }
         $columns_string = implode(',', $columns_with_names);
 
-        $shortcode = "[resources_list types=\"{$types_string}\"";
+        $shortcode = "[jawneceny_resources_list types=\"{$types_string}\"";
 
         if (!empty($columns_string)) {
             $shortcode .= " columns=\"{$columns_string}\"";

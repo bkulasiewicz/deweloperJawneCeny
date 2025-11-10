@@ -52,7 +52,6 @@ class ResourceSingleRenderer {
         // Localize script (for modal)
         wp_localize_script('jawneceny-resources-widget', 'jawnecenyResourcesListAjax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('resources_list_nonce'),
             'strings' => [
                 'loading' => 'Ładowanie...',
                 'error' => 'Wystąpił błąd podczas ładowania historii cen.',

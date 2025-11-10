@@ -818,7 +818,7 @@ class ResourceModal extends JawneCeny_AdminPage {
 
         if (isset($uploaded['error'])) {
             Logger::error('UJC: handle_pdf_upload - Upload failed: ' . $uploaded['error']);
-            throw new Exception('Nie można zapisać przesłanego pliku: ' . $uploaded['error']);
+            throw new Exception('Nie można zapisać przesłanego pliku: ' . esc_html($uploaded['error']));
         }
 
         Logger::info('UJC: handle_pdf_upload - File uploaded successfully: ' . $new_filename);

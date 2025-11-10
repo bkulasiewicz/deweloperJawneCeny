@@ -75,7 +75,7 @@ class ResourceCardRenderer {
         // Make card clickable if navigation_mode is 'clickable'
         if ($navigation_mode === 'clickable') {
             $clickable_class = ' clickable-card';
-            $current_path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+            $current_path = wp_parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
             $full_detail_url = rtrim($current_path, '/') . '/' . urlencode($resource->nr_lokalu);
             $clickable_attrs = ' data-detail-url="' . esc_attr($full_detail_url) . '"';
         }
@@ -277,7 +277,7 @@ class ResourceCardRenderer {
      */
     private static function renderZobaczWiecejButton($resource, array $styling_options): string {
         // Build URL using current page path + nr_lokalu
-        $current_path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        $current_path = wp_parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
         $full_url = rtrim($current_path, '/') . '/' . urlencode($resource->nr_lokalu);
 
         $btn_text = $styling_options['zobacz_btn_text'] ?? 'Zobacz więcej';
@@ -424,7 +424,6 @@ class ResourceCardRenderer {
         // Localize script with AJAX data
         wp_localize_script('jawneceny-resources-widget', 'jawnecenyResourcesListAjax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('resources_list_nonce'),
             'strings' => [
                 'loading' => 'Ładowanie...',
                 'error' => 'Wystąpił błąd podczas ładowania historii cen.',

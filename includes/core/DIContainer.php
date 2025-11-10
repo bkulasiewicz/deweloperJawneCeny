@@ -30,6 +30,11 @@ class DIContainer {
             self::registerApplication();
             self::registerPresentation();
 
+            // Register premium features if available
+            if (class_exists('JawneCeny\\PremiumDIContainer')) {
+                PremiumDIContainer::register(self::$container);
+            }
+
             self::$isInitialized = true;
             $endTime = microtime(true);
             $initTime = round(($endTime - $startTime) * 1000, 2);
@@ -150,13 +155,6 @@ class DIContainer {
             );
         });
 
-        $c->bind(GetResourcesForGovernmentUseCase::class, function() use ($c) {
-            return new GetResourcesForGovernmentUseCase(
-                $c->get(ResourceRepository::class),
-                $c->get(PriceHistoryRepository::class)
-            );
-        });
-
         // Publication History Use Cases
         $c->bind(GetPublicationHistoryUseCase::class, function() use ($c) {
             return new GetPublicationHistoryUseCase(
@@ -209,45 +207,6 @@ class DIContainer {
             );
         });
 
-        // XML Resource Use Cases
-        $c->bind(AddXmlResourceUseCase::class, function() use ($c) {
-            return new AddXmlResourceUseCase(
-                $c->get(XmlResourceRepository::class),
-                $c->get(DeveloperRepository::class)
-            );
-        });
-
-        // File Generation Use Cases
-        $c->bind(GenerateCSVFileUseCase::class, function() use ($c) {
-            return new GenerateCSVFileUseCase(
-                $c->get(DeveloperRepository::class),
-                $c->get(InvestmentRepository::class),
-                $c->get(ResourceRepository::class),
-                $c->get(PriceHistoryRepository::class),
-                $c->get(CSVFormatter::class),
-                $c->get(FileManager::class),
-                $c->get(GetResourcesForGovernmentUseCase::class)
-            );
-        });
-
-        $c->bind(CreateDaneGovSubmissionFilesUseCase::class, function() use ($c) {
-            return new CreateDaneGovSubmissionFilesUseCase(
-                $c->get(XMLFormatter::class),
-                $c->get(FileManager::class),
-                $c->get(DeveloperRepository::class),
-                $c->get(XmlResourceRepository::class)
-            );
-        });
-
-        $c->bind(GenerateFilesUseCase::class, function() use ($c) {
-            return new GenerateFilesUseCase(
-                $c->get(GenerateCSVFileUseCase::class),
-                $c->get(CreateDaneGovSubmissionFilesUseCase::class),
-                $c->get(AddPublicationHistoryUseCase::class),
-                $c->get(AddXmlResourceUseCase::class)
-            );
-        });
-
         // System Use Cases
         $c->bind(ImportResourcesUseCase::class, function() use ($c) {
             return new ImportResourcesUseCase(
@@ -260,57 +219,6 @@ class DIContainer {
         $c->bind(ResetDatabaseUseCase::class, function() use ($c) {
             return new ResetDatabaseUseCase();
         });
-
-        // Premium Use Cases (conditional loading)
-        if (class_exists(WpCronFallbackUseCase::class)) {
-            $c->bind(WpCronFallbackUseCase::class, function() use ($c) {
-                return new WpCronFallbackUseCase(
-                    $c->get(SettingsRepository::class),
-                    $c->get(GetPublicationHistoryUseCase::class),
-                    $c->get(GenerateFilesUseCase::class)
-                );
-            });
-        }
-
-        if (class_exists(ToggleExternalCronUseCase::class)) {
-            $c->bind(ToggleExternalCronUseCase::class, function() use ($c) {
-                return new ToggleExternalCronUseCase(
-                    $c->get(RegisterExternalCronUseCase::class),
-                    $c->get(UnregisterExternalCronUseCase::class),
-                    $c->get(DeveloperRepository::class),
-                    $c->get(InvestmentRepository::class),
-                    $c->get(ResourceRepository::class)
-                );
-            });
-        }
-
-        if (class_exists(RegisterExternalCronUseCase::class)) {
-            $c->bind(RegisterExternalCronUseCase::class, function() use ($c) {
-                return new RegisterExternalCronUseCase(
-                    $c->get(ExternalCronRepository::class),
-                    $c->get(DeveloperRepository::class),
-                    $c->get(InvestmentRepository::class),
-                    $c->get(ResourceRepository::class)
-                );
-            });
-        }
-
-        if (class_exists(UnregisterExternalCronUseCase::class)) {
-            $c->bind(UnregisterExternalCronUseCase::class, function() use ($c) {
-                return new UnregisterExternalCronUseCase(
-                    $c->get(ExternalCronRepository::class)
-                );
-            });
-        }
-
-        if (class_exists(UpdateExternalCronScheduleUseCase::class)) {
-            $c->bind(UpdateExternalCronScheduleUseCase::class, function() use ($c) {
-                return new UpdateExternalCronScheduleUseCase(
-                    $c->get(ExternalCronRepository::class)
-                );
-            });
-        }
-
     }
 
     /**
@@ -322,8 +230,6 @@ class DIContainer {
 
         // Services jako singletony
         $c->singleton(FileManager::class);
-        $c->singleton(CSVFormatter::class);
-        $c->singleton(XMLFormatter::class);
         $c->singleton(DateHelper::class);
 
         // Modale - zwykłe bindings (nie singleton)
@@ -362,28 +268,6 @@ class DIContainer {
 
         $c->singleton(ShortcodeManager::class);
         $c->singleton(BlocksManager::class);
-
-        // Premium controllers (conditional loading)
-        if (class_exists(ExternalCronController::class)) {
-            $c->bind(ExternalCronController::class, function() use ($c) {
-                return new ExternalCronController(
-                    $c->get(ExternalCronRepository::class),
-                    $c->get(GenerateFilesUseCase::class),
-                    $c->get(UpdateExternalCronScheduleUseCase::class),
-                    $c->get(RegisterExternalCronUseCase::class),
-                    $c->get(UnregisterExternalCronUseCase::class)
-                );
-            });
-        }
-
-        if (class_exists(WpCronFallbackController::class)) {
-            $c->bind(WpCronFallbackController::class, function() use ($c) {
-                return new WpCronFallbackController(
-                    $c->get(WpCronFallbackUseCase::class)
-                );
-            });
-        }
-
     }
 
     /**
@@ -413,10 +297,15 @@ class DIContainer {
         });
 
         $c->bind(PublicationPage::class, function() use ($c) {
+            // GenerateFilesUseCase is premium - use conditional loading
+            $generateFilesUseCase = $c->has(GenerateFilesUseCase::class)
+                ? $c->get(GenerateFilesUseCase::class)
+                : null;
+
             return new PublicationPage(
                 $c->get(GetPublicationHistoryUseCase::class),
                 $c->get(CsvFilesSection::class),
-                $c->get(GenerateFilesUseCase::class),
+                $generateFilesUseCase,
                 $c->get(FileManager::class)
             );
         });

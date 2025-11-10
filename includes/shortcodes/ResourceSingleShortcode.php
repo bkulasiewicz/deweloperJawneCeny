@@ -200,7 +200,7 @@ class ResourceSingleShortcode {
             return null;
         }
 
-        $path = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+        $path = trim(wp_parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
         $segments = explode('/', $path);
 
         // Last segment is nr_lokalu

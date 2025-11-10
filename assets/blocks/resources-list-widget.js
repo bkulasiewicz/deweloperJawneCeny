@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('history-loading').style.display = 'block';
             document.getElementById('history-content').style.display = 'none';
             
-            // Make AJAX request
+            // Make AJAX request (no nonce - price history is public)
             fetch(jawnecenyResourcesListAjax.ajaxurl, {
                 method: 'POST',
                 headers: {
@@ -32,8 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: new URLSearchParams({
                     action: 'jawneceny_get_price_history',
-                    resource_id: resourceId,
-                    nonce: jawnecenyResourcesListAjax.nonce
+                    resource_id: resourceId
                 })
             })
             .then(response => response.json())

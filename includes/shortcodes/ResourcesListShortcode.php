@@ -8,15 +8,16 @@ if (!defined('ABSPATH')) {
 
 /**
  * Resources List Shortcode Handler
- * Handles the [resources_list] shortcode with filtering and customization options
+ * Handles the [jawneceny_resources_list] shortcode with filtering and customization options
+ * Also supports [resources_list] for backwards compatibility
  */
 class ResourcesListShortcode {
 
     // Functional column constants
     public const COLUMN_HISTORIA_CEN = 'historia_cen';
-    
+
     /**
-     * Handle resources_list shortcode with type-safe parsing
+     * Handle jawneceny_resources_list shortcode with type-safe parsing
      * All configuration comes from shortcode parameters with sensible defaults
      */
     public static function handle($atts) {
@@ -397,12 +398,14 @@ class ResourcesListShortcode {
         if ($display_mode === 'cards') {
             // Cards mode: only cards (desktop and mobile)
             Logger::info("Shortcode: Rendering as card grid");
-            return ResourceCardRenderer::renderCardGrid(
-                $filtered_resources,
-                $visible_columns,
-                $column_names,
-                $styling_options,
-                $card_config
+            return wp_kses_post(
+                ResourceCardRenderer::renderCardGrid(
+                    $filtered_resources,
+                    $visible_columns,
+                    $column_names,
+                    $styling_options,
+                    $card_config
+                )
             );
         } elseif ($mobile_switch) {
             // DUAL RENDERING MODE: Table (desktop) + Cards (mobile)
@@ -415,24 +418,28 @@ class ResourcesListShortcode {
 
             // Desktop View: Table (visible >768px)
             echo '<div class="ujc-desktop-view">';
-            echo ResourceTableRenderer::renderTable(
-                $filtered_resources,
-                $visible_columns,
-                $column_names,
-                $styling_options,
-                'ujc-shortcode-resources-list',
-                $enable_frontend_sorting
+            echo wp_kses_post(
+                ResourceTableRenderer::renderTable(
+                    $filtered_resources,
+                    $visible_columns,
+                    $column_names,
+                    $styling_options,
+                    'ujc-shortcode-resources-list',
+                    $enable_frontend_sorting
+                )
             );
             echo '</div>'; // .ujc-desktop-view
 
             // Mobile View: Cards (visible <=768px)
             echo '<div class="ujc-mobile-view">';
-            echo ResourceCardRenderer::renderCardGrid(
-                $filtered_resources,
-                $visible_columns,
-                $column_names,
-                $styling_options,
-                $card_config
+            echo wp_kses_post(
+                ResourceCardRenderer::renderCardGrid(
+                    $filtered_resources,
+                    $visible_columns,
+                    $column_names,
+                    $styling_options,
+                    $card_config
+                )
             );
             echo '</div>'; // .ujc-mobile-view
 
@@ -442,13 +449,15 @@ class ResourcesListShortcode {
         } else {
             // Table mode: only table (desktop and mobile)
             Logger::info("Shortcode: Rendering as table");
-            return ResourceTableRenderer::renderTable(
-                $filtered_resources,
-                $visible_columns,
-                $column_names,
-                $styling_options,
-                'ujc-shortcode-resources-list',  // Shortcode container class
-                $enable_frontend_sorting
+            return wp_kses_post(
+                ResourceTableRenderer::renderTable(
+                    $filtered_resources,
+                    $visible_columns,
+                    $column_names,
+                    $styling_options,
+                    'ujc-shortcode-resources-list',  // Shortcode container class
+                    $enable_frontend_sorting
+                )
             );
         }
     }

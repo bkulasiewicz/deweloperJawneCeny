@@ -182,8 +182,11 @@ jQuery(document).ready(function($) {
                 console.log('Investment saved successfully:', response.data);
                 alert('Inwestycja została zapisana pomyślnie!');
 
-                // Reload data and show in view mode
-                loadInvestmentData();
+                // Close modal and refresh page
+                window.closeInvestmentModal();
+                if (typeof loadResourcesList === 'function') {
+                    loadResourcesList();
+                }
             } else {
                 console.error('Error saving investment:', response.data);
                 alert('Błąd podczas zapisywania inwestycji: ' + response.data);

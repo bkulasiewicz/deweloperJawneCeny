@@ -128,7 +128,7 @@ wp plugin status ustawa-jawnosci-cen
 4. `AutomatedGenerator` manages automation (scheduling, history, status)
 5. Files are stored in `/wp-content/uploads/ujc-data/`
 6. Price changes are tracked in history table
-7. Public data can be displayed via shortcode `[resources_list]` or Gutenberg block `jawne-ceny/resources-list`
+7. Public data can be displayed via shortcode `[jawneceny_resources_list]` or Gutenberg block `jawne-ceny/resources-list`
 
 ## Important Constants
 
@@ -155,12 +155,12 @@ Key actions:
 
 The plugin provides two powerful ways to display property listings on frontend pages with full customization options:
 
-### 1. Shortcode `[resources_list]`
+### 1. Shortcode `[jawneceny_resources_list]`
 Advanced shortcode for developers and power users with parameter-based configuration.
 
 ### Basic Usage
 ```
-[resources_list]
+[jawneceny_resources_list]
 ```
 Displays residential units with default columns and styling.
 
@@ -169,7 +169,7 @@ Displays residential units with default columns and styling.
 #### Property Types (`types`)
 Comma-separated list of property types to display:
 - `residential_unit` - Lokal mieszkalny (default)
-- `single_family_house` - Dom jednorodzinny  
+- `single_family_house` - Dom jednorodzinny
 - `service_premises` - Lokal usługowy
 - `parking_space` - Miejsce postojowe
 - `storage_room` - Komórka lokatorska
@@ -177,7 +177,7 @@ Comma-separated list of property types to display:
 
 **Example:**
 ```
-[resources_list types="residential_unit,parking_space"]
+[jawneceny_resources_list types="residential_unit,parking_space"]
 ```
 
 #### Columns (`columns`)
@@ -200,7 +200,7 @@ Comma-separated list in format `field:display_name`. **The order of elements det
 
 **Example:**
 ```
-[resources_list columns="nr_lokalu:Numer,powierzchnia_uzytkowa:Powierzchnia,cena_calkowita:Cena,historia_cen:Historia"]
+[jawneceny_resources_list columns="nr_lokalu:Numer,powierzchnia_uzytkowa:Powierzchnia,cena_calkowita:Cena,historia_cen:Historia"]
 ```
 
 #### Clickable Rows (`detail_page_url`)
@@ -211,7 +211,7 @@ Optional parameter to make table rows clickable. When clicked, opens detail page
 
 **Example:**
 ```
-[resources_list detail_page_url="/mieszkania/"]
+[jawneceny_resources_list detail_page_url="/mieszkania/"]
 ```
 
 #### Styling Options
@@ -228,7 +228,7 @@ Optional parameter to make table rows clickable. When clicked, opens detail page
 
 **Custom property types and columns:**
 ```
-[resources_list
+[jawneceny_resources_list
     types="residential_unit,parking_space"
     columns="nr_lokalu:Lokal,rodzaj_nieruchomosci:Typ,powierzchnia_uzytkowa:Powierzchnia,cena_calkowita:Cena_całkowita,status:Status,historia_cen:Historia"
     button_bg_color="#28a745"
@@ -237,7 +237,7 @@ Optional parameter to make table rows clickable. When clicked, opens detail page
 
 **Single property type with custom styling:**
 ```
-[resources_list
+[jawneceny_resources_list
     types="single_family_house"
     columns="nr_lokalu:Dom,powierzchnia_uzytkowa:Powierzchnia,garden_area:Ogród,cena_calkowita:Cena,floor_plan_pdf:Plan"
     header_bg_color="#343a40"
@@ -247,7 +247,7 @@ Optional parameter to make table rows clickable. When clicked, opens detail page
 
 **Clickable rows with detail pages:**
 ```
-[resources_list
+[jawneceny_resources_list
     detail_page_url="/mieszkania/"
     types="residential_unit"
     columns="nr_lokalu:Numer,powierzchnia_uzytkowa:Powierzchnia,cena_calkowita:Cena"]
@@ -255,7 +255,7 @@ Optional parameter to make table rows clickable. When clicked, opens detail page
 
 **All features combined:**
 ```
-[resources_list
+[jawneceny_resources_list
     detail_page_url="/nieruchomosci/"
     types="residential_unit,parking_space"
     columns="nr_lokalu:Lokal,rodzaj_nieruchomosci:Typ,cena_calkowita:Cena,historia_cen:Historia"
@@ -269,12 +269,12 @@ Optional parameter to make table rows clickable. When clicked, opens detail page
 
 **Example - Different column orders:**
 ```
-[resources_list columns="cena_calkowita:Cena,nr_lokalu:Lokal,powierzchnia_uzytkowa:Powierzchnia"]
+[jawneceny_resources_list columns="cena_calkowita:Cena,nr_lokalu:Lokal,powierzchnia_uzytkowa:Powierzchnia"]
 ```
 Will display: Price | Unit Number | Area
 
 ```
-[resources_list columns="nr_lokalu:Lokal,powierzchnia_uzytkowa:Powierzchnia,cena_calkowita:Cena"]
+[jawneceny_resources_list columns="nr_lokalu:Lokal,powierzchnia_uzytkowa:Powierzchnia,cena_calkowita:Cena"]
 ```
 Will display: Unit Number | Area | Price
 

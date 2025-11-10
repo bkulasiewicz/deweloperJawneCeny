@@ -19,7 +19,7 @@ class PublicationPage {
     public function __construct(
         GetPublicationHistoryUseCase $getPublicationHistoryUseCase,
         CsvFilesSection $csvFilesSection,
-        GenerateFilesUseCase $generateFilesUseCase,
+        ?GenerateFilesUseCase $generateFilesUseCase,
         FileManager $fileManager
     ) {
 
@@ -61,6 +61,12 @@ class PublicationPage {
         Logger::info('PUBLICATION PAGE: ajax_generate_files started');
         check_ajax_referer('jawneceny_admin_nonce', 'nonce');
         if (!current_user_can('manage_options')) wp_send_json_error('Brak uprawnień');
+
+        // Premium feature check
+        if ($this->generateFilesUseCase === null) {
+            wp_send_json_error('Funkcja generowania plików dostępna tylko w Premium. <a href="https://www.deweloperjawneceny.pl" target="_blank">Kup Premium</a>.');
+            return;
+        }
 
         try {
             Logger::info('PUBLICATION PAGE: Starting GenerateFilesUseCase execution');

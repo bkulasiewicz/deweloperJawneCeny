@@ -72,8 +72,7 @@ class CreateDaneGovSubmissionFilesUseCase {
             }
 
             // Generuj XML - XMLFormatter TYLKO formatuje, NIE waliduje
-            $xmlFormatter = new XMLFormatter();
-            $xmlContent = $xmlFormatter->formatDatasetToXML($dataset);
+            $xmlContent = $this->xmlFormatter->formatDatasetToXML($dataset);
 
             // Generate filename
             $filename = $this->fileManager->generateXMLFilename();

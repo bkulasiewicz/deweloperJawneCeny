@@ -122,7 +122,6 @@ class BlocksManager {
 
         wp_localize_script('resources-list-widget-js', 'jawnecenyResourcesListAjax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('resources_list_nonce'),
             'strings' => [
                 'loading' => 'Ładowanie...',
                 'error' => 'Wystąpił błąd podczas ładowania historii cen.',
@@ -132,19 +131,21 @@ class BlocksManager {
     }
     
     public function ajax_get_price_history() {
-        check_ajax_referer('resources_list_nonce', 'nonce');
-
+        // No nonce verification - price history is public information
         $resource_id = absint($_POST['resource_id'] ?? 0);
 
         if (!$resource_id) {
-            wp_send_json_error('Nieprawidłowe ID zasobu');
+            wp_send_json_error([
+                'message' => 'Nieprawidłowe ID zasobu',
+                'code' => 'invalid_id'
+            ]);
             return;
         }
-        
+
         // Use DI Container for Use Cases
         $getPriceHistoryUseCase = DIContainer::get(GetPriceHistoryUseCase::class);
         $history = $getPriceHistoryUseCase->execute($resource_id);
-        
+
         wp_send_json_success([
             'history' => $history,
             'count' => count($history)

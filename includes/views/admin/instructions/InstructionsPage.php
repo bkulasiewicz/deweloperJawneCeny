@@ -230,7 +230,7 @@ class InstructionsPage {
 
                             <h4>Shortcode dla listy zasobów</h4>
                             <p><strong>Podstawowe użycie:</strong></p>
-                            <pre><code>[resources_list]</code></pre>
+                            <pre><code>[jawneceny_resources_list]</code></pre>
 
                             <p><strong>Co możesz dostosować w shortcode:</strong></p>
                             <ul>

@@ -256,6 +256,9 @@ class ResourceRepository {
         $priceTable = TableNames::getPriceHistory();
         global $wpdb;
 
+        // Initialize prepare values array with table name
+        $prepareValues = [$table];
+
         // Build base query
         $sql = "SELECT r.*";
 
@@ -264,7 +267,7 @@ class ResourceRepository {
             $sql .= ", p.total_price as total_price";
         }
 
-        $sql .= " FROM `{$table}` r";
+        $sql .= " FROM %i r";
 
         // Join price history if needed for filtering or sorting by price
         $needsPriceJoin = ($filters && ($filters->priceMin !== null || $filters->priceMax !== null)) ||
@@ -274,18 +277,20 @@ class ResourceRepository {
             $sql .= " LEFT JOIN (
                 SELECT resource_id,
                        total_price
-                FROM `{$priceTable}` p1
+                FROM %i p1
                 WHERE p1.id = (
                     SELECT MAX(p2.id)
-                    FROM `{$priceTable}` p2
+                    FROM %i p2
                     WHERE p2.resource_id = p1.resource_id
                 )
             ) p ON r.id = p.resource_id";
+
+            $prepareValues[] = $priceTable;
+            $prepareValues[] = $priceTable;
         }
 
         // Build WHERE clause
         $whereConditions = [];
-        $prepareValues = [];
 
         if ($filters && $filters->hasFilters()) {
             // Price range filter
@@ -356,25 +361,29 @@ class ResourceRepository {
             $orderField = $sort->getSqlFieldName();
             if ($orderField) {
                 if ($sort->requiresPriceJoin()) {
-                    $sql .= " ORDER BY total_price " . $sort->sortOrder;
+                    $sql .= " ORDER BY %i " . $sort->sortOrder;
+                    $prepareValues[] = 'total_price';
                 } else {
-                    $sql .= " ORDER BY r." . $orderField . " " . $sort->sortOrder;
+                    $sql .= " ORDER BY r.%i " . $sort->sortOrder;
+                    $prepareValues[] = $orderField;
                 }
             }
         } else {
             // Default ordering
-            $sql .= " ORDER BY r.id ASC";
+            $sql .= " ORDER BY r.%i ASC";
+            $prepareValues[] = ResourceDto::FIELD_ID;
         }
 
         Logger::info("ResourceRepository::readAllWithFiltersAndSort - SQL: " . $sql);
         Logger::info("ResourceRepository::readAllWithFiltersAndSort - Prepare values: " . esc_html(print_r($prepareValues, true)));
 
+        // Prepare SQL with placeholders - $sql contains placeholders (%i, %f, %s, %d)
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql contains valid placeholders built dynamically
+        $sql = $wpdb->prepare($sql, $prepareValues);
+
         // Execute query
-        if (!empty($prepareValues)) {
-            $results = $wpdb->get_results($wpdb->prepare($sql, $prepareValues), ARRAY_A);
-        } else {
-            $results = $wpdb->get_results($sql, ARRAY_A);
-        }
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is already prepared via $wpdb->prepare() above
+        $results = $wpdb->get_results($sql, ARRAY_A);
 
         if ($wpdb->last_error) {
             Logger::error("ResourceRepository::readAllWithFiltersAndSort - SQL Error: " . $wpdb->last_error);

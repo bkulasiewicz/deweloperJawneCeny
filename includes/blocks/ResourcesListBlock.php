@@ -87,12 +87,14 @@ class ResourcesListBlock {
 
         if ($display_mode === 'cards') {
             // MODE 1: Cards only (no table)
-            return ResourceCardRenderer::renderCardGrid(
-                $resources,
-                $ordered_columns,
-                $column_names,
-                $styling_options,
-                $card_config
+            return wp_kses_post(
+                ResourceCardRenderer::renderCardGrid(
+                    $resources,
+                    $ordered_columns,
+                    $column_names,
+                    $styling_options,
+                    $card_config
+                )
             );
         } elseif ($mobile_switch) {
             // MODE 2: DUAL RENDERING - Table on desktop (>768px), Cards on mobile (<=768px)
@@ -102,24 +104,28 @@ class ResourcesListBlock {
 
             // Desktop view (table) - hidden on mobile via CSS
             echo '<div class="ujc-desktop-view">';
-            echo ResourceTableRenderer::renderTable(
-                $resources,
-                $ordered_columns,
-                $column_names,
-                $styling_options,
-                'resources-list-block',
-                $parsed_attributes['enableFrontendSorting']
+            echo wp_kses_post(
+                ResourceTableRenderer::renderTable(
+                    $resources,
+                    $ordered_columns,
+                    $column_names,
+                    $styling_options,
+                    'resources-list-block',
+                    $parsed_attributes['enableFrontendSorting']
+                )
             );
             echo '</div>';
 
             // Mobile view (cards) - hidden on desktop via CSS
             echo '<div class="ujc-mobile-view">';
-            echo ResourceCardRenderer::renderCardGrid(
-                $resources,
-                $ordered_columns,
-                $column_names,
-                $styling_options,
-                $card_config
+            echo wp_kses_post(
+                ResourceCardRenderer::renderCardGrid(
+                    $resources,
+                    $ordered_columns,
+                    $column_names,
+                    $styling_options,
+                    $card_config
+                )
             );
             echo '</div>';
 
@@ -127,13 +133,15 @@ class ResourcesListBlock {
             return ob_get_clean();
         } else {
             // MODE 3: Table only (default)
-            return ResourceTableRenderer::renderTable(
-                $resources,
-                $ordered_columns,
-                $column_names,
-                $styling_options,
-                'resources-list-block',  // Different container class for block
-                $parsed_attributes['enableFrontendSorting']
+            return wp_kses_post(
+                ResourceTableRenderer::renderTable(
+                    $resources,
+                    $ordered_columns,
+                    $column_names,
+                    $styling_options,
+                    'resources-list-block',  // Different container class for block
+                    $parsed_attributes['enableFrontendSorting']
+                )
             );
         }
     }
