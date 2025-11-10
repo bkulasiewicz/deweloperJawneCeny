@@ -128,16 +128,16 @@ jQuery(document).ready(function($) {
         if (statusDisplayStyle && statusDisplayStyle !== 'badge') {
             shortcode += ' status_display_style="' + statusDisplayStyle + '"';
         }
-        if (statusFontSize && statusFontSize !== '0.875em') {
+        if (statusFontSize) {
             shortcode += ' status_font_size="' + statusFontSize + '"';
         }
-        if (statusPadding && statusPadding !== '4px 8px') {
+        if (statusPadding) {
             shortcode += ' status_padding="' + statusPadding + '"';
         }
-        if (statusBorderRadius && statusBorderRadius !== '4px') {
+        if (statusBorderRadius) {
             shortcode += ' status_border_radius="' + statusBorderRadius + '"';
         }
-        if (statusFontWeight && statusFontWeight !== '500') {
+        if (statusFontWeight) {
             shortcode += ' status_font_weight="' + statusFontWeight + '"';
         }
 
