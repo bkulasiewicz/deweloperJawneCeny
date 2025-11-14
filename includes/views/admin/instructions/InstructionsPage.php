@@ -42,7 +42,61 @@ class InstructionsPage {
                 <!-- Accordion Item 1 -->
                 <div class="accordion-item">
                     <button class="accordion-header" type="button">
-                        <span class="accordion-title">1. Pierwsze kroki - skonfiguruj wtyczkę</span>
+                        <span class="accordion-title">1. Instrukcja rejestracji profilu Dostawcy Danych (Dewelopera) na dane.gov.pl</span>
+                        <span class="accordion-icon">▼</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p class="intro">
+                            Przed rozpoczęciem korzystania z wtyczki, musisz zarejestrować się jako Dostawca Danych na portalu dane.gov.pl.
+                        </p>
+
+                        <div class="step">
+                            <h3>Krok 1: Rejestracja Konta Użytkownika</h3>
+                            <ol>
+                                <li><strong>Wejdź na stronę:</strong> Otwórz w przeglądarce adres <a href="https://dane.gov.pl" target="_blank">dane.gov.pl</a>.</li>
+                                <li><strong>Akceptacja:</strong> Zaakceptuj politykę prywatności i RODO.</li>
+                                <li><strong>Rozpocznij rejestrację:</strong> Kliknij przycisk "Zarejestruj się".</li>
+                                <li><strong>Podaj dane:</strong>
+                                    <ul>
+                                        <li>Wpisz adres e-mail, do którego masz dostęp.</li>
+                                        <li>Ustal hasło, które musi mieć przynajmniej 8 znaków i zawierać małą literę, dużą literę, liczbę oraz znak specjalny (np. wykrzyknik, hashtag, znak zapytania).</li>
+                                        <li>Wpisz ponownie hasło.</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Zgody i założenie konta:</strong> Zaakceptuj niezbędne zgody i kliknij "Załóż konto".</li>
+                                <li><strong>Aktywacja konta:</strong> Odbierz wiadomość e-mail wysłaną na podany adres i kliknij w link aktywacyjny, aby aktywować swoje konto.</li>
+                                <li><strong>Logowanie:</strong> Po aktywacji zaloguj się do portalu, używając podanego adresu e-mail i hasła.</li>
+                            </ol>
+                        </div>
+
+                        <div class="step">
+                            <h3>Krok 2: Wysłanie Wniosku o Status Dostawcy Danych</h3>
+                            <p>Po pomyślnej rejestracji i zalogowaniu, wyślij wiadomość e-mail w celu uzyskania statusu "Dostawca Danych - Deweloper":</p>
+                            <ol>
+                                <li><strong>Adres docelowy:</strong> Wyślij e-mail z adresu, który został użyty do rejestracji konta, na adres: <a href="mailto:kontakt@dane.gov.pl">kontakt@dane.gov.pl</a>.</li>
+                                <li><strong>Temat:</strong> Wpisz temat wiadomości: <code>Status dostawcy danych - Deweloper</code>.</li>
+                                <li><strong>Treść wiadomości:</strong> W mailu należy podać pełne dane dotyczące firmy (Dostawcy Danych):
+                                    <ul>
+                                        <li>Pełna nazwa dostawcy</li>
+                                        <li>Dane adresowe</li>
+                                        <li>Adres strony internetowej</li>
+                                        <li>Adres poczty elektronicznej (może być ogólny do firmy)</li>
+                                        <li>Numer telefonu (może być ogólny do firmy)</li>
+                                        <li>Numer faksu (jeżeli występuje)</li>
+                                        <li>REGON</li>
+                                        <li>Adres do doręczeń elektronicznych (e-doręczeń), jeżeli występuje</li>
+                                    </ul>
+                                </li>
+                            </ol>
+                            <p class="note">Po otrzymaniu statusu Dostawcy Danych, będziesz mógł publikować dane z wtyczki na portalu dane.gov.pl.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Accordion Item 2 -->
+                <div class="accordion-item">
+                    <button class="accordion-header" type="button">
+                        <span class="accordion-title">2. Pierwsze kroki - skonfiguruj wtyczkę</span>
                         <span class="accordion-icon">▼</span>
                     </button>
                     <div class="accordion-content">
@@ -117,10 +171,10 @@ class InstructionsPage {
                     </div>
                 </div>
 
-                <!-- Accordion Item 2 -->
+                <!-- Accordion Item 3 -->
                 <div class="accordion-item">
                     <button class="accordion-header" type="button">
-                        <span class="accordion-title">2. Wyświetlanie zasobów na stronie</span>
+                        <span class="accordion-title">3. Wyświetlanie zasobów na stronie</span>
                         <span class="accordion-icon">▼</span>
                     </button>
                     <div class="accordion-content">
@@ -271,10 +325,10 @@ class InstructionsPage {
                     </div>
                 </div>
 
-                <!-- Accordion Item 3 -->
+                <!-- Accordion Item 4 -->
                 <div class="accordion-item">
                     <button class="accordion-header" type="button">
-                        <span class="accordion-title">3. Spełnienie wymogów prawnych</span>
+                        <span class="accordion-title">4. Spełnienie wymogów prawnych</span>
                         <span class="accordion-icon">▼</span>
                     </button>
                     <div class="accordion-content">
@@ -312,10 +366,10 @@ class InstructionsPage {
                     </div>
                 </div>
 
-                <!-- Accordion Item 4 -->
+                <!-- Accordion Item 5 -->
                 <div class="accordion-item">
                     <button class="accordion-header" type="button">
-                        <span class="accordion-title">4. Włączenie automatyzacji i integracja z Ministerstwem</span>
+                        <span class="accordion-title">5. Włączenie automatyzacji i integracja z Ministerstwem</span>
                         <span class="accordion-icon">▼</span>
                     </button>
                     <div class="accordion-content">
