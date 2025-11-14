@@ -354,6 +354,20 @@ class InstructionsPage {
                                 <li><code>total_price</code> - cena lokalu</li>
                                 <li><code>price_per_m2</code> - cena za m²</li>
                                 <li><code>price_with_extras</code> - cena pełna</li>
+                                <li><code>property_part_title</code> - tytuł części składowej</li>
+                                <li><code>property_part_designation</code> - oznaczenie części składowej</li>
+                                <li><code>property_part_price</code> - cena części składowej</li>
+                                <li><code>property_part_price_date</code> - data ceny części składowej</li>
+                                <li><code>belonging_room_title</code> - tytuł pomieszczenia przynależnego</li>
+                                <li><code>belonging_room_designation</code> - oznaczenie pomieszczenia</li>
+                                <li><code>belonging_room_price</code> - cena pomieszczenia</li>
+                                <li><code>belonging_room_price_date</code> - data ceny pomieszczenia</li>
+                                <li><code>usage_right_title</code> - tytuł prawa użytkowania</li>
+                                <li><code>usage_right_price</code> - cena prawa użytkowania</li>
+                                <li><code>usage_right_price_date</code> - data ceny prawa użytkowania</li>
+                                <li><code>other_service_title</code> - tytuł innej usługi</li>
+                                <li><code>other_service_price</code> - cena innej usługi</li>
+                                <li><code>other_service_price_date</code> - data ceny innej usługi</li>
                             </ul>
 
                             <p><strong>Przykład:</strong></p>

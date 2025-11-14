@@ -30,7 +30,25 @@ class ResourceFieldShortcode {
         // Price fields (from price history)
         'total_price',
         'price_per_m2',
-        'price_with_extras'
+        'price_with_extras',
+        // Property part component
+        'property_part_title',
+        'property_part_designation',
+        'property_part_price',
+        'property_part_price_date',
+        // Belonging room component
+        'belonging_room_title',
+        'belonging_room_designation',
+        'belonging_room_price',
+        'belonging_room_price_date',
+        // Usage right component
+        'usage_right_title',
+        'usage_right_price',
+        'usage_right_price_date',
+        // Other service component
+        'other_service_title',
+        'other_service_price',
+        'other_service_price_date'
     ];
 
     /**
@@ -49,7 +67,21 @@ class ResourceFieldShortcode {
         'floor_plan_pdf' => 'floor_plan_pdf',
         'total_price' => 'cena_calkowita',
         'price_per_m2' => 'cena_m2',
-        'price_with_extras' => 'cena_z_dodatkami'
+        'price_with_extras' => 'cena_z_dodatkami',
+        'property_part_title' => 'property_part_title',
+        'property_part_designation' => 'property_part_designation',
+        'property_part_price' => 'property_part_price',
+        'property_part_price_date' => 'property_part_price_date',
+        'belonging_room_title' => 'belonging_room_title',
+        'belonging_room_designation' => 'belonging_room_designation',
+        'belonging_room_price' => 'belonging_room_price',
+        'belonging_room_price_date' => 'belonging_room_price_date',
+        'usage_right_title' => 'usage_right_title',
+        'usage_right_price' => 'usage_right_price',
+        'usage_right_price_date' => 'usage_right_price_date',
+        'other_service_title' => 'other_service_title',
+        'other_service_price' => 'other_service_price',
+        'other_service_price_date' => 'other_service_price_date'
     ];
 
     /**
