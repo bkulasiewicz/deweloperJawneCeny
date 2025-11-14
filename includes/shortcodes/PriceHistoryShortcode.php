@@ -72,16 +72,16 @@ class PriceHistoryShortcode {
             // Build data attributes
             $data_attrs = sprintf(
                 'data-total-price="%s" data-price-m2="%s" data-price-extras="%s" data-date="%s"',
-                esc_attr($item->total_price),
-                esc_attr($item->price_per_m2 ?? ''),
-                esc_attr($item->price_with_extras ?? ''),
-                esc_attr($item->price_date)
+                esc_attr($item->cena_calkowita),
+                esc_attr($item->cena_m2 ?? ''),
+                esc_attr($item->cena_z_dodatkami ?? ''),
+                esc_attr($item->data_zmiany)
             );
 
             // Build item HTML
             $output .= sprintf('<div class="price-history-item" %s>', $data_attrs);
-            $output .= sprintf('<span class="price">%s</span>', esc_html($item->total_price));
-            $output .= sprintf('<span class="date">%s</span>', esc_html($item->price_date));
+            $output .= sprintf('<span class="price">%s</span>', esc_html($item->cena_calkowita));
+            $output .= sprintf('<span class="date">%s</span>', esc_html($item->data_zmiany));
             $output .= '</div>';
         }
 
