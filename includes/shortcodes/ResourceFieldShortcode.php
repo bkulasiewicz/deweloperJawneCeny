@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
 class ResourceFieldShortcode {
 
     /**
-     * List of allowed field names (matching DTO properties)
+     * List of allowed field names (English names for client convenience)
      */
     private static $allowed_fields = [
         // Basic resource fields
@@ -31,6 +31,25 @@ class ResourceFieldShortcode {
         'total_price',
         'price_per_m2',
         'price_with_extras'
+    ];
+
+    /**
+     * Mapping of English field names to Polish property names
+     * (SinglePageResource uses Polish property names matching database columns)
+     */
+    private static $field_mapping = [
+        'unit_number' => 'nr_lokalu',
+        'property_type' => 'rodzaj_nieruchomosci',
+        'usable_area' => 'powierzchnia_uzytkowa',
+        'status' => 'status',
+        'floor_number' => 'floor_number',
+        'room_count' => 'room_count',
+        'additional_description' => 'additional_description',
+        'garden_area' => 'garden_area',
+        'floor_plan_pdf' => 'floor_plan_pdf',
+        'total_price' => 'cena_calkowita',
+        'price_per_m2' => 'cena_m2',
+        'price_with_extras' => 'cena_z_dodatkami'
     ];
 
     /**
@@ -68,9 +87,12 @@ class ResourceFieldShortcode {
                 return 'N/A';
             }
 
+            // Translate English field name to Polish property name
+            $english_field = $atts['field'];
+            $polish_property = self::$field_mapping[$english_field] ?? $english_field;
+
             // Get field value
-            $field = $atts['field'];
-            $value = isset($resource->{$field}) ? $resource->{$field} : null;
+            $value = isset($resource->{$polish_property}) ? $resource->{$polish_property} : null;
 
             // Return value or N/A
             if ($value === null || $value === '') {
