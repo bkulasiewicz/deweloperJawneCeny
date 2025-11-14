@@ -325,6 +325,59 @@ class InstructionsPage {
                     </div>
                 </div>
 
+                <!-- Accordion Item 3a -->
+                <div class="accordion-item">
+                    <button class="accordion-header" type="button">
+                        <span class="accordion-title">3a. Shortcode'y zaawansowane - pojedyncze pola</span>
+                        <span class="accordion-icon">▼</span>
+                    </button>
+                    <div class="accordion-content">
+                        <p class="intro">
+                            Dla użytkowników Elementor/Divi, którzy budują własne layouty. Zwraca surowe dane bez formatowania.
+                        </p>
+
+                        <div class="method">
+                            <h3>Pojedyncze pole</h3>
+                            <pre><code>[jawneceny_resource_field number="A1" field="usable_area"]</code></pre>
+
+                            <p><strong>Dostępne pola:</strong></p>
+                            <ul>
+                                <li><code>unit_number</code> - numer lokalu</li>
+                                <li><code>property_type</code> - typ nieruchomości</li>
+                                <li><code>usable_area</code> - powierzchnia (m²)</li>
+                                <li><code>status</code> - status</li>
+                                <li><code>floor_number</code> - piętro</li>
+                                <li><code>room_count</code> - liczba pokoi</li>
+                                <li><code>additional_description</code> - opis</li>
+                                <li><code>garden_area</code> - ogród (m²)</li>
+                                <li><code>floor_plan_pdf</code> - URL planu PDF</li>
+                                <li><code>total_price</code> - cena lokalu</li>
+                                <li><code>price_per_m2</code> - cena za m²</li>
+                                <li><code>price_with_extras</code> - cena pełna</li>
+                            </ul>
+
+                            <p><strong>Przykład:</strong></p>
+                            <pre><code>&lt;p&gt;Powierzchnia: [jawneceny_resource_field number="A1" field="usable_area"] m²&lt;/p&gt;
+&lt;p&gt;Cena: [jawneceny_resource_field number="A1" field="total_price"] zł&lt;/p&gt;</code></pre>
+                        </div>
+
+                        <div class="method">
+                            <h3>Historia cen</h3>
+                            <pre><code>[jawneceny_price_history number="A1"]</code></pre>
+
+                            <p><strong>Zwraca HTML z data-attributes:</strong></p>
+                            <pre><code>&lt;div class="jawneceny-price-history"&gt;
+    &lt;div class="price-history-item" data-total-price="450000" data-price-m2="9890" data-date="2024-01-15"&gt;
+        &lt;span class="price"&gt;450000&lt;/span&gt;
+        &lt;span class="date"&gt;2024-01-15&lt;/span&gt;
+    &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+                        </div>
+
+                        <p class="note"><strong>Błędy:</strong> Zwraca <code>N/A</code> gdy zasób/pole nie istnieje.</p>
+                    </div>
+                </div>
+
                 <!-- Accordion Item 4 -->
                 <div class="accordion-item">
                     <button class="accordion-header" type="button">

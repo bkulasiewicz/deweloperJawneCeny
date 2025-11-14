@@ -41,6 +41,12 @@ class ShortcodeManager {
 
         // Register resource single shortcode with prefix
         add_shortcode('jawneceny_resource_single', [ResourceSingleShortcode::class, 'handle']);
+
+        // Register resource field shortcode (extract single field values)
+        add_shortcode('jawneceny_resource_field', [ResourceFieldShortcode::class, 'handle']);
+
+        // Register price history shortcode
+        add_shortcode('jawneceny_price_history', [PriceHistoryShortcode::class, 'handle']);
     }
 
     /**
@@ -114,5 +120,7 @@ class ShortcodeManager {
         remove_shortcode('jawneceny_resources_list');
         remove_shortcode('resources_list'); // Backwards compatibility
         remove_shortcode('jawneceny_resource_single');
+        remove_shortcode('jawneceny_resource_field');
+        remove_shortcode('jawneceny_price_history');
     }
 }
