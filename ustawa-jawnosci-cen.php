@@ -3,7 +3,7 @@
  * Plugin Name: Developer Transparent Prices
  * Plugin URI: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
  * Description: Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.9.18
+ * Version: 4.9.20
  * Requires at least: 6.2
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -200,6 +200,8 @@ class DeweloperJawneCeny {
         // Shortcodes
         require_once JAWNECENY_PLUGIN_DIR . 'includes/shortcodes/ResourcesListShortcode.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/shortcodes/ResourceSingleShortcode.php';
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/shortcodes/ResourceFieldShortcode.php';
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/shortcodes/PriceHistoryShortcode.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/shortcodes/ShortcodeManager.php';
 
       
