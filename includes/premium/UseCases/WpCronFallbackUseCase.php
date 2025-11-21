@@ -65,7 +65,8 @@ class WpCronFallbackUseCase {
             
             // If last entry is success, check if it's older than 24 hours
             $current_time = time();
-            $time_since_last_success = $current_time - $last_entry->timestamp;
+            $last_entry_timestamp = strtotime($last_entry->timestamp . ' UTC');
+            $time_since_last_success = $current_time - $last_entry_timestamp;
             $hours_since_last_success = round($time_since_last_success / 3600, 1);
             
             Logger::info("WP Cron Fallback: Last successful generation was {$hours_since_last_success} hours ago");
