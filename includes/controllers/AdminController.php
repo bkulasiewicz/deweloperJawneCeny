@@ -21,6 +21,9 @@ class AdminController {
     private $instructionsPage;
     private $devConsoleTile;
 
+    // License Modal
+    private $licenseModal;
+
     public function __construct() {
 
         // Initialize WordPress admin hooks
@@ -37,6 +40,7 @@ class AdminController {
     private function initializeAdminHooks() {
         add_action('admin_menu', [$this, 'registerAdminMenu']);
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminAssets']);
+        add_action('admin_footer', [$this, 'renderLicenseModal']);
     }
 
     /**
@@ -51,6 +55,8 @@ class AdminController {
         $this->shortcodeGeneratorPage = DIContainer::get(ShortcodeGeneratorPage::class);
         $this->instructionsPage = DIContainer::get(InstructionsPage::class);
 
+        // Initialize license modal
+        $this->licenseModal = DIContainer::get(LicenseModal::class);
     }
 
     /**
@@ -170,6 +176,33 @@ class AdminController {
 
     public function renderInstructionsPage() {
         $this->instructionsPage->render();
+    }
+
+    /**
+     * Renders license modal if needed
+     *
+     * Only renders on plugin admin pages when license is invalid.
+     * Modal is full-screen and cannot be closed.
+     */
+    public function renderLicenseModal() {
+        // Check if we're on a plugin admin page
+        $screen = get_current_screen();
+        if (!$screen) {
+            return;
+        }
+
+        // Check if current page is one of our plugin pages
+        $plugin_pages = ['ujc-dashboard', 'ujc-developer', 'ujc-resources', 'ujc-publication', 'ujc-shortcode-generator', 'ujc-instructions'];
+        $is_plugin_page = in_array($screen->id, $plugin_pages, true) ||
+                         strpos($screen->id, 'ujc-') !== false ||
+                         strpos($screen->id, 'jawne-ceny') !== false;
+
+        if (!$is_plugin_page) {
+            return;
+        }
+
+        // Render modal
+        $this->licenseModal->render();
     }
 
 }

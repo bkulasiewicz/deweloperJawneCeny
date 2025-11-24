@@ -22,6 +22,55 @@ The plugin uses a freemium model with premium features separated:
 - **Use Cases**: All External Cron and Automation Use Cases
 - **Conditional Loading**: Only loaded when `includes/premium/` folder exists
 
+### Licensing System
+The plugin uses an **activation-only licensing strategy** for premium features:
+- **Validation**: License is validated only during manual activation via admin modal
+- **No Auto-Validation**: No periodic/automatic license checks or cron jobs
+- **Storage**: License data stored in `wp_options` as `jawneceny_license_data`
+- **Domain Binding**: Strict domain checking - detects domain mismatch
+- **API**: Uses LMFWC (License Manager for WooCommerce) on buildwisely.eu
+- **Expiration**: Supports `expiresAt` (explicit date) or `validFor` (days from activation)
+
+#### License Status (`LicenseStatus` enum)
+Located in `includes/enums/LicenseStatus.php`, defines 4 possible states:
+
+| Status | Description | Modal behavior |
+|--------|-------------|----------------|
+| `NONE` | No license data exists | Shows activation form |
+| `ACTIVE` | License valid and active | No modal (full access) |
+| `EXPIRED` | License past expiration date | Shows warning + renewal prompt |
+| `DOMAIN_MISMATCH` | Activated on different domain | Shows security warning |
+
+The enum provides methods for UI:
+- `getModalTitle()` - Returns appropriate modal header
+- `getModalMessage(?int $expires_at, ?string $domain)` - Returns contextual message
+- `isValid()` - Returns `true` only for `ACTIVE` status
+
+#### Key Components
+- `LicenseStatus` - Enum with 4 states and UI text methods
+- `LicenseValidator` - API communication service
+- `LicenseRepository` - License data persistence + `getStatus()` method
+- `ActivateLicenseUseCase` - Handles license activation flow
+- `LicenseModal` - Full-screen blocking UI with status-aware messages
+- `LicenseTile` - Dashboard tile showing license info
+- `LicenseConfig` - API credentials and endpoints
+
+#### License Data Structure (wp_options)
+```php
+[
+    'key'             => 'XXXX-XXXX-XXXX-XXXX',
+    'status'          => 'active',
+    'domain'          => 'example.com',
+    'activated_at'    => 1732438800,  // Unix timestamp
+    'expires_at'      => 1732525200,  // Unix timestamp or null (lifetime)
+    'last_checked'    => 1732438800,
+    'last_api_status' => 'success'
+]
+```
+
+- **Reliability**: Designed to prevent false lockouts due to network issues or server downtime
+- **User Experience**: Once activated, license remains valid until expiration or domain change
+
 ### Naming Conventions
 The codebase follows consistent, clean naming without prefixes:
 - **Use Cases**: `{Action}{Entity}UseCase` (e.g., `GenerateCSVFileUseCase`, `SaveResourceUseCase`)

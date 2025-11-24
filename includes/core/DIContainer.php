@@ -92,6 +92,7 @@ class DIContainer {
         $c->singleton(DeveloperRepository::class);
         $c->singleton(InvestmentRepository::class);
         $c->singleton(XmlResourceRepository::class);
+        $c->singleton(LicenseRepository::class);
 
         // Premium repositories (conditional loading)
         if (class_exists(ExternalCronRepository::class)) {
@@ -219,6 +220,14 @@ class DIContainer {
         $c->bind(ResetDatabaseUseCase::class, function() use ($c) {
             return new ResetDatabaseUseCase();
         });
+
+        // License Use Cases
+        $c->bind(ActivateLicenseUseCase::class, function() use ($c) {
+            return new ActivateLicenseUseCase(
+                $c->get(LicenseValidator::class),
+                $c->get(LicenseRepository::class)
+            );
+        });
     }
 
     /**
@@ -231,6 +240,7 @@ class DIContainer {
         // Services jako singletony
         $c->singleton(FileManager::class);
         $c->singleton(DateHelper::class);
+        $c->singleton(LicenseValidator::class);
 
         // Modale - zwykłe bindings (nie singleton)
         $c->bind(ResourceModal::class, function() use ($c) {
@@ -254,6 +264,13 @@ class DIContainer {
         $c->bind(HistoryModal::class, function() use ($c) {
             return new HistoryModal(
                 $c->get(GetPriceHistoryUseCase::class)
+            );
+        });
+
+        $c->bind(LicenseModal::class, function() use ($c) {
+            return new LicenseModal(
+                $c->get(ActivateLicenseUseCase::class),
+                $c->get(LicenseRepository::class)
             );
         });
 
@@ -324,7 +341,8 @@ class DIContainer {
                 $c->get(ResourceRepository::class),
                 $c->get(AutomationTile::class),
                 $c->get(HistoryTile::class),
-                $c->get(DevConsoleTile::class)
+                $c->get(DevConsoleTile::class),
+                $c->get(LicenseTile::class)
             );
         });
 
@@ -350,6 +368,12 @@ class DIContainer {
         $c->bind(HistoryTile::class, function() use ($c) {
             return new HistoryTile(
                 $c->get(GetPublicationHistoryUseCase::class)
+            );
+        });
+
+        $c->bind(LicenseTile::class, function() use ($c) {
+            return new LicenseTile(
+                $c->get(LicenseRepository::class)
             );
         });
 

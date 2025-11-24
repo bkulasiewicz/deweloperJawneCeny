@@ -19,6 +19,7 @@ class DashboardPage {
     private $automationTile;
     private $historyTile;
     private $devConsoleTile;
+    private $licenseTile;
 
     public function __construct(
         DeveloperRepository $developerRepository,
@@ -26,7 +27,8 @@ class DashboardPage {
         ResourceRepository $resourceRepository,
         AutomationTile $automationTile,
         HistoryTile $historyTile,
-        DevConsoleTile $devConsoleTile
+        DevConsoleTile $devConsoleTile,
+        LicenseTile $licenseTile
     ) {
         $this->developerRepository = $developerRepository;
         $this->investmentRepository = $investmentRepository;
@@ -34,6 +36,7 @@ class DashboardPage {
         $this->automationTile = $automationTile;
         $this->historyTile = $historyTile;
         $this->devConsoleTile = $devConsoleTile;
+        $this->licenseTile = $licenseTile;
 
         add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
         add_action('wp_ajax_jawneceny_download_logs', [$this, 'ajax_download_logs']);
@@ -96,9 +99,11 @@ class DashboardPage {
 
                 
                 <?php $this->automationTile->render(); ?>
-                
+
                 <?php $this->historyTile->render(); ?>
-                
+
+                <?php $this->licenseTile->render(); ?>
+
                 <?php
                 // Renderuj DEV Console jeśli dostępna
                 if (class_exists('DevConsoleTile')) {

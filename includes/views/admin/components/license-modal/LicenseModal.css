@@ -1,0 +1,245 @@
+/**
+ * License Modal Styles
+ *
+ * Full-screen overlay modal for license activation.
+ * Cannot be closed - forces user to activate license.
+ */
+
+/* Full-screen overlay */
+.jawneceny-license-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.85);
+	z-index: 100001; /* Above WordPress admin bar and menus */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* Modal content container */
+.jawneceny-license-content {
+	background: #fff;
+	border-radius: 8px;
+	max-width: 600px;
+	width: 90%;
+	max-height: 90vh;
+	overflow-y: auto;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+	animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		transform: translateY(-50px);
+		opacity: 0;
+	}
+	to {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+/* Header */
+.jawneceny-license-header {
+	padding: 30px 30px 20px;
+	border-bottom: 1px solid #e5e5e5;
+	text-align: center;
+}
+
+.jawneceny-license-header h2 {
+	margin: 0;
+	font-size: 24px;
+	font-weight: 600;
+	color: #1d2327;
+}
+
+/* Body */
+.jawneceny-license-body {
+	padding: 30px;
+}
+
+.license-intro {
+	font-size: 15px;
+	line-height: 1.6;
+	color: #50575e;
+	margin: 0 0 25px;
+	text-align: center;
+}
+
+/* Warning state (expired / domain mismatch) */
+.license-intro.license-warning {
+	background-color: #fcf0f1;
+	border: 1px solid #d63638;
+	border-left: 4px solid #d63638;
+	border-radius: 4px;
+	padding: 15px 20px;
+	color: #b32d2e;
+}
+
+/* Form */
+#jawneceny-license-activation-form {
+	margin: 0 0 30px;
+}
+
+.license-form-group {
+	margin-bottom: 20px;
+}
+
+.license-form-group label {
+	display: block;
+	font-weight: 600;
+	font-size: 14px;
+	margin-bottom: 8px;
+	color: #1d2327;
+}
+
+.license-key-input {
+	width: 100%;
+	padding: 12px 15px;
+	font-size: 16px;
+	font-family: 'Courier New', Courier, monospace;
+	letter-spacing: 2px;
+	border: 2px solid #dcdcde;
+	border-radius: 4px;
+	box-sizing: border-box;
+	transition: border-color 0.2s;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.license-key-input:focus {
+	outline: none;
+	border-color: #2271b1;
+	box-shadow: 0 0 0 1px #2271b1;
+}
+
+.license-key-input:disabled {
+	background-color: #f6f7f7;
+	cursor: not-allowed;
+}
+
+#jawneceny-license-activation-form button[type="submit"] {
+	width: 100%;
+	padding: 14px 20px;
+	font-size: 16px;
+	font-weight: 600;
+	margin-top: 10px;
+	cursor: pointer;
+	border: none;
+	border-radius: 4px;
+	transition: background-color 0.2s;
+}
+
+#jawneceny-license-activation-form button[type="submit"]:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* Messages */
+.license-message {
+	margin: 20px 0;
+	min-height: 20px;
+}
+
+.license-message p {
+	padding: 12px 15px;
+	border-radius: 4px;
+	margin: 0;
+	font-size: 14px;
+}
+
+.license-message .error {
+	background-color: #fcf0f1;
+	border-left: 4px solid #d63638;
+	color: #b32d2e;
+}
+
+.license-message .success {
+	background-color: #ecf7ed;
+	border-left: 4px solid #00a32a;
+	color: #007017;
+}
+
+/* Help section */
+.license-help {
+	margin-top: 30px;
+	padding-top: 25px;
+	border-top: 1px solid #e5e5e5;
+}
+
+.help-item {
+	margin-bottom: 20px;
+}
+
+.help-item:last-child {
+	margin-bottom: 0;
+}
+
+.help-item strong {
+	display: block;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1d2327;
+	margin-bottom: 8px;
+}
+
+.help-item p {
+	font-size: 13px;
+	line-height: 1.6;
+	color: #50575e;
+	margin: 0;
+}
+
+.help-item a.button {
+	margin-top: 10px;
+	text-decoration: none;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+	.jawneceny-license-content {
+		width: 95%;
+		max-height: 95vh;
+	}
+
+	.jawneceny-license-header {
+		padding: 20px 20px 15px;
+	}
+
+	.jawneceny-license-header h2 {
+		font-size: 20px;
+	}
+
+	.jawneceny-license-body {
+		padding: 20px;
+	}
+
+	.license-key-input {
+		font-size: 14px;
+		letter-spacing: 1px;
+	}
+}
+
+/* Accessibility */
+.license-key-input:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}
+
+button:focus-visible {
+	outline: 2px solid #2271b1;
+	outline-offset: 2px;
+}

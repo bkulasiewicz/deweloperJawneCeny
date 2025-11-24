@@ -13,8 +13,24 @@ if (!defined('ABSPATH')) {
  */
 class PremiumHelper {
     
+    /**
+     * Checks if premium version is active and licensed
+     *
+     * Returns true only if:
+     * 1. Premium folder exists (premium version installed)
+     * 2. License is valid (activated and not expired/domain-changed)
+     *
+     * @return bool True if premium features are available.
+     */
     public static function is_premium() {
-        return file_exists(JAWNECENY_PLUGIN_DIR . 'includes/premium/');
+        // Check if premium folder exists
+        if (!file_exists(JAWNECENY_PLUGIN_DIR . 'includes/premium/')) {
+            return false;
+        }
+
+        // Check if license is valid
+        $licenseRepo = DIContainer::get(LicenseRepository::class);
+        return $licenseRepo->isValid();
     }
     
     public static function get_upgrade_message() {

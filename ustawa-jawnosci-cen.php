@@ -3,7 +3,7 @@
  * Plugin Name: Developer Transparent Prices
  * Plugin URI: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
  * Description: Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 4.9.23
+ * Version: 5.0.5
  * Requires at least: 6.2
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -49,7 +49,6 @@ class DeweloperJawneCeny {
         add_action('admin_enqueue_scripts', [$this, 'enqueue_frontend_scripts']);
         add_action('init', [$this, 'handle_file_requests']);
 
-
     }
     
     public function init() {
@@ -82,13 +81,15 @@ class DeweloperJawneCeny {
         
         // Config
         require_once JAWNECENY_PLUGIN_DIR . 'includes/config/TableNames.php';
-        
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/config/LicenseConfig.php';
+
         // Enums
         require_once JAWNECENY_PLUGIN_DIR . 'includes/enums/PublicationStatus.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/enums/TriggerType.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/enums/ResourceStatus.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/enums/PropertyType.php';
-        
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/enums/LicenseStatus.php';
+
         // Models
         require_once JAWNECENY_PLUGIN_DIR . 'includes/models/ResourceFormData.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/models/PropertyPartFormData.php';
@@ -114,6 +115,7 @@ class DeweloperJawneCeny {
         // Services
         require_once JAWNECENY_PLUGIN_DIR . 'includes/services/DateHelper.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/services/FileManager.php';
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/services/LicenseValidator.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/helpers/ResourceTableRenderer.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/helpers/ResourceCardRenderer.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/helpers/ResourceSingleRenderer.php';
@@ -136,7 +138,8 @@ class DeweloperJawneCeny {
         require_once JAWNECENY_PLUGIN_DIR . 'includes/repositories/SettingsRepository.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/repositories/PublicationHistoryRepository.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/repositories/XmlResourceRepository.php';
-        
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/repositories/LicenseRepository.php';
+
         // UseCases - Resources
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Resources/CreateResourceUseCase.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Resources/UpdateResourceUseCase.php';
@@ -163,7 +166,10 @@ class DeweloperJawneCeny {
         // UseCases - System
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/System/ImportResourcesUseCase.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/System/ResetDatabaseUseCase.php';
-        
+
+        // UseCases - License
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/License/ActivateLicenseUseCase.php';
+
         // UseCases - Frontend
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Frontend/GetResourcesForFrontendUseCase.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/UseCases/Frontend/GetResourceForSinglePageUseCase.php';
@@ -173,10 +179,12 @@ class DeweloperJawneCeny {
         require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/components/investment-modal/InvestmentModal.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/components/resource-item/ResourceItem.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/components/history-modal/HistoryModal.php';
-        
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/components/license-modal/LicenseModal.php';
+
         // Dashboard Components
         require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/Dashboard/automation-tile/AutomationTile.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/Dashboard/HistoryTile.php';
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/Dashboard/LicenseTile.php';
 
         // Views - Admin Pages
         require_once JAWNECENY_PLUGIN_DIR . 'includes/views/admin/pages/DashboardPage.php';
