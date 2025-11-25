@@ -129,7 +129,7 @@ class LicenseModal {
 							<strong><?php esc_html_e( 'Nie masz jeszcze licencji?', 'ustawa-jawnosci-cen' ); ?></strong>
 							<p>
 								<a href="<?php echo esc_url( LicenseConfig::SHOP_URL ); ?>" target="_blank" class="button button-secondary">
-									<?php esc_html_e( 'Kup licencję premium', 'ustawa-jawnosci-cen' ); ?> →
+									<?php esc_html_e( 'Kup Licencje', 'ustawa-jawnosci-cen' ); ?> →
 								</a>
 							</p>
 						</div>

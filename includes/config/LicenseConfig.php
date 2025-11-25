@@ -45,7 +45,7 @@ class LicenseConfig {
 	 *
 	 * @var string
 	 */
-	const SHOP_URL = 'https://buildwisely.eu/shop/';
+	const SHOP_URL = 'https://buildwisely.eu/';
 
 	/**
 	 * Get full activation endpoint URL

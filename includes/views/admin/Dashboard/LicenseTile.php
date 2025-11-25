@@ -140,6 +140,6 @@ class LicenseTile {
 			return 'Bezterminowa';
 		}
 
-		return wp_date( 'd.m.Y', $expires_at );
+		return wp_date( 'd.m.Y H:i', $expires_at );
 	}
 }
