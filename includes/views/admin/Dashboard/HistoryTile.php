@@ -24,7 +24,7 @@ class HistoryTile {
     public function render() {
         ?>
         <div class="automation-control">
-            <h2>Historia Udostępniania</h2>
+            <h2>Historia Generowania</h2>
             <?php $this->render_history_list(); ?>
         </div>
         <?php
@@ -39,7 +39,7 @@ class HistoryTile {
         if (empty($history)) {
             ?>
             <p style="text-align: center; color: #666; margin: 20px 0;">
-                Brak historii udostępniania danych.<br>
+                Brak historii generowania.<br>
                 <small>Historia będzie widoczna po pierwszym generowaniu plików.</small>
             </p>
             <?php
