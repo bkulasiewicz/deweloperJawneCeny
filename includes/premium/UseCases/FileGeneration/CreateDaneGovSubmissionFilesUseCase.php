@@ -53,7 +53,8 @@ class CreateDaneGovSubmissionFilesUseCase {
             // Utwórz model danych z wszystkimi resources z bazy
             $dataset = new DaneGovXmlDataset(
                 $developer_data['developer_name'],
-                $developer_data['nip']
+                $developer_data['nip'],
+                $developer_data['website_url']
             );
 
             // Pobierz wszystkie XML resources z bazy i dodaj do dataset
@@ -158,6 +159,22 @@ class CreateDaneGovSubmissionFilesUseCase {
                     // Zachowaj oryginalny NIP (może mieć myślniki)
                     $validated_data['nip'] = $nip;
                     Logger::info('CreateDaneGov: NIP validation SUCCESS');
+                }
+            }
+
+            // 2c. Walidacja strony WWW - wymagana dla URL zbioru
+            $website_url = trim($developer->strona_www ?? '');
+            if (empty($website_url)) {
+                $errors[] = 'Strona WWW dewelopera jest wymagana dla elementu URL zbioru';
+                Logger::error('CreateDaneGov: Website URL is empty');
+            } else {
+                $url_length = strlen($website_url);
+                if ($url_length < 10 || $url_length > 1000) {
+                    $errors[] = 'URL strony WWW musi mieć od 10 do 1000 znaków (podano: ' . $url_length . ')';
+                    Logger::error('CreateDaneGov: Invalid website URL length: ' . $url_length);
+                } else {
+                    $validated_data['website_url'] = $website_url;
+                    Logger::info('CreateDaneGov: Website URL validation SUCCESS');
                 }
             }
         }

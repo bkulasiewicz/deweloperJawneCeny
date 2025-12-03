@@ -67,9 +67,12 @@ class XMLFormatter {
         // Title (dwujęzyczny) - z modelu
         $this->addTitleFromModel($xml, $datasetEl, $dataset->title);
         
-        // Description (dwujęzyczny) - z modelu  
+        // Description (dwujęzyczny) - z modelu
         $this->addDescriptionFromModel($xml, $datasetEl, $dataset->description);
-        
+
+        // URL strony opisującej zbiór danych - z modelu
+        $this->addTextElement($xml, $datasetEl, 'url', $dataset->url);
+
         // STAŁE wartości z modelu
         $this->addTextElement($xml, $datasetEl, 'updateFrequency', $dataset->updateFrequency);
         

@@ -43,17 +43,21 @@ class DaneGovXmlDataset {
     
     /** @var DaneGovDescription Opis w językach polskim i angielskim */
     public DaneGovDescription $description;
-    
+
+    /** @var string URL strony WWW opisującej zbiór danych */
+    public string $url;
+
     /** @var DaneGovResource[] Lista zasobów (plików CSV) */
     public array $resources = [];
     
     /**
      * Konstruktor - przyjmuje tylko dane zmienne
      */
-    public function __construct(string $developerName, string $nip) {
+    public function __construct(string $developerName, string $nip, string $websiteUrl) {
         $this->extIdent = $this->generateStableExtIdent($nip);
         $this->title = new DaneGovTitle($developerName);
         $this->description = new DaneGovDescription($developerName);
+        $this->url = $websiteUrl;
     }
     
     /**
