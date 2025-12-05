@@ -21,6 +21,16 @@ class XmlResourceRepository {
         global $wpdb;
 
         if (JawneCeny_SchemaManager::tableExists($this->table_name)) {
+            // Migration 1.9: Convert csv_url from full URL to relative path
+            $needsMigration = ($currentDbVersion === null) ||
+                              ($currentDbVersion !== null && version_compare($currentDbVersion, '1.9', '<'));
+
+            if ($needsMigration) {
+                Logger::info('XmlResourceRepository: Migrating csv_url to relative paths');
+                $migratedCount = $this->migrateToRelativePaths();
+                Logger::info('XmlResourceRepository: Migration completed - ' . $migratedCount . ' records');
+            }
+
             return true;
         }
 
@@ -99,7 +109,7 @@ class XmlResourceRepository {
     
     /**
      * Get single XML resource by ID
-     * 
+     *
      * @param int $id Resource ID
      * @return XmlResourceDto|null Resource or null if not found
      */
@@ -118,5 +128,29 @@ class XmlResourceRepository {
         }
 
         return XmlResourceDto::databaseToModel($result);
+    }
+
+    /**
+     * Migrate existing records from full URL to relative path
+     * Uses LOCATE to find /wp-content/ - works regardless of http/https or domain
+     *
+     * @return int Number of migrated records
+     */
+    public function migrateToRelativePaths(): int {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Using %i placeholder for table/column names
+        $result = $wpdb->query($wpdb->prepare(
+            "UPDATE %i SET %i = SUBSTRING(%i, LOCATE('/wp-content/', %i) + 1)
+             WHERE %i LIKE %s",
+            $this->table_name,
+            XmlResourceDto::FIELD_CSV_URL,
+            XmlResourceDto::FIELD_CSV_URL,
+            XmlResourceDto::FIELD_CSV_URL,
+            XmlResourceDto::FIELD_CSV_URL,
+            '%/wp-content/uploads/ujc-data/%'
+        ));
+
+        return $result !== false ? (int) $result : 0;
     }
 }

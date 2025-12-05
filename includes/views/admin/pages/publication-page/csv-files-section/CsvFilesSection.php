@@ -13,9 +13,11 @@ if (!defined('ABSPATH')) {
 class CsvFilesSection {
 
     private $xmlResourceRepo;
+    private $fileManager;
 
-    public function __construct(XmlResourceRepository $xmlResourceRepository) {
+    public function __construct(XmlResourceRepository $xmlResourceRepository, FileManager $fileManager) {
         $this->xmlResourceRepo = $xmlResourceRepository;
+        $this->fileManager = $fileManager;
         add_action('admin_enqueue_scripts', [$this, 'enqueue_assets']);
     }
     
@@ -58,7 +60,7 @@ class CsvFilesSection {
                                 </div>
                             </div>
                             <div class="ujc-csv-file-actions">
-                                <a href="<?php echo esc_url($file->csv_url); ?>"
+                                <a href="<?php echo esc_url($this->fileManager->buildFullUrlFromStoredPath($file->csv_url)); ?>"
                                    target="_blank"
                                    class="button button-secondary">
                                     Pobierz
@@ -82,16 +84,16 @@ class CsvFilesSection {
     private function getCsvFiles(): array {
         try {
             $files = $this->xmlResourceRepo->readAll();
-            
+
             // Sort by date descending (newest first)
             usort($files, function($a, $b) {
                 return strcmp($b->data_date, $a->data_date);
             });
-            
+
             return $files;
         } catch (Exception $e) {
             return [];
         }
     }
-    
+
 }

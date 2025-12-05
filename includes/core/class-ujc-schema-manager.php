@@ -55,7 +55,7 @@ class JawneCeny_SchemaManager {
 
         return true;
     }
-    
+
     /**
      * Usuwa wszystkie tabele (dev only)
      */

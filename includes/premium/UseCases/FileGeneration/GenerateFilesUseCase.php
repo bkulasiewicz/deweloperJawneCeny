@@ -55,9 +55,9 @@ class GenerateFilesUseCase {
             
             Logger::success('GenerateFiles: CSV generation SUCCESS: ' . ($csv_result['csv']['filename'] ?? 'unknown'));
             
-            // Save CSV resource to database for XML generation
+            // Save CSV resource to database for XML generation (use relative path for portability)
             Logger::info('GenerateFiles: Saving CSV resource to database...');
-            $xmlResourceResult = $this->addXmlResourceUseCase->execute($csv_result['csv']['url'] ?? '');
+            $xmlResourceResult = $this->addXmlResourceUseCase->execute($csv_result['csv']['relative_path'] ?? '');
             if (!$xmlResourceResult->isSuccess) {
                 $error_message = 'Błąd zapisu resource do bazy: ' . $xmlResourceResult->message;
                 Logger::error('GenerateFiles: Failed to save CSV resource: ' . $error_message);

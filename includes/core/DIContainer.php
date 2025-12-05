@@ -309,7 +309,8 @@ class DIContainer {
 
         $c->bind(CsvFilesSection::class, function() use ($c) {
             return new CsvFilesSection(
-                $c->get(XmlResourceRepository::class)
+                $c->get(XmlResourceRepository::class),
+                $c->get(FileManager::class)
             );
         });
 

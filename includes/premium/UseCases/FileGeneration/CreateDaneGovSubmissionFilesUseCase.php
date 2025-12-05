@@ -61,8 +61,8 @@ class CreateDaneGovSubmissionFilesUseCase {
             $allXmlResources = $this->xmlResourceRepository->readAll();
 
             foreach ($allXmlResources as $xmlResource) {
-                // Convert old URL format to direct path if needed (backward compatibility)
-                $csv_url = $this->convertToDirectPath($xmlResource->csv_url);
+                // Build full URL from stored path (handles relative paths and legacy ?file= format)
+                $csv_url = $this->fileManager->buildFullUrlFromStoredPath($xmlResource->csv_url);
 
                 $dataset->addResource(
                     $developer_data['developer_name'],
@@ -241,33 +241,4 @@ class CreateDaneGovSubmissionFilesUseCase {
         return $message;
     }
 
-    /**
-     * Convert old CSV URL format to direct path for backward compatibility
-     * Handles URLs saved before fix: https://example.com/?file=nazwa.csv
-     * Converts to: https://example.com/wp-content/uploads/ujc-data/nazwa.csv
-     *
-     * @param string $url Original URL from database
-     * @return string Converted URL (or original if already correct)
-     */
-    private function convertToDirectPath(string $url): string {
-        // Check if URL contains ?file= parameter
-        if (strpos($url, '?file=') === false) {
-            // URL is already in correct format
-            return $url;
-        }
-
-        // Extract filename after ?file=
-        $filename = substr($url, strpos($url, '?file=') + 6);
-
-        // Decode URL encoding (%C5%84 → ń)
-        $filename = urldecode($filename);
-
-        // Build new direct URL
-        $base_url = get_site_url() . '/wp-content/uploads/ujc-data';
-        $new_url = $base_url . '/' . $filename;
-
-        Logger::info("CreateDaneGov: Converting legacy CSV URL format");
-
-        return $new_url;
-    }
 }

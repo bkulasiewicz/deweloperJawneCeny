@@ -3,7 +3,7 @@
  * Plugin Name: Developer Transparent Prices
  * Plugin URI: https://www.deweloperjawneceny.pl/?utm_source=wordpress&utm_medium=general-link&utm_campaign=promotion
  * Description: Automates real estate price data reporting in compliance with Polish Real Estate Price Transparency Law. Generates XML/CSV files for dane.gov.pl portal.
- * Version: 5.0.6
+ * Version: 5.0.11
  * Requires at least: 6.2
  * Tested up to: 6.8
  * Requires PHP: 7.4
@@ -24,7 +24,7 @@ if (!defined('ABSPATH')) {
 
 define('JAWNECENY_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('JAWNECENY_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('JAWNECENY_DB_VERSION', '1.8');
+define('JAWNECENY_DB_VERSION', '1.9');
 define('JAWNECENY_VERSION', '4.6.18');
 
 class DeweloperJawneCeny {
@@ -54,9 +54,31 @@ class DeweloperJawneCeny {
     public function init() {
         JawneCeny\Logger::init();
         $this->load_dependencies();
-
+        $this->maybe_run_migrations();
     }
-    
+
+    /**
+     * Check and run database migrations if needed
+     * Runs on every page load via plugins_loaded hook
+     */
+    private function maybe_run_migrations(): void {
+        $settingsRepo = new JawneCeny\SettingsRepository();
+        $currentVersion = $settingsRepo->getDbVersion();
+
+        if ($currentVersion === null || version_compare($currentVersion, JAWNECENY_DB_VERSION, '<')) {
+            JawneCeny\Logger::info('DeweloperJawneCeny: DB version mismatch - current: ' . ($currentVersion ?: 'NULL') . ', expected: ' . JAWNECENY_DB_VERSION);
+
+            $success = JawneCeny\JawneCeny_SchemaManager::create_tables();
+
+            if ($success) {
+                $settingsRepo->setDbVersion(JAWNECENY_DB_VERSION);
+                JawneCeny\Logger::info('DeweloperJawneCeny: Migrations completed, DB version updated to ' . JAWNECENY_DB_VERSION);
+            } else {
+                JawneCeny\Logger::error('DeweloperJawneCeny: Migration failed');
+            }
+        }
+    }
+
     private function load_dependencies() {
         // WordPress filesystem functions
         require_once(ABSPATH . 'wp-admin/includes/file.php');
@@ -128,8 +150,8 @@ class DeweloperJawneCeny {
 
         // Core
         require_once JAWNECENY_PLUGIN_DIR . 'includes/core/abstract-ujc-admin-page.php';
-        
-        
+        require_once JAWNECENY_PLUGIN_DIR . 'includes/core/class-ujc-schema-manager.php';
+
         // Repositories
         require_once JAWNECENY_PLUGIN_DIR . 'includes/repositories/DeveloperRepository.php';
         require_once JAWNECENY_PLUGIN_DIR . 'includes/repositories/InvestmentRepository.php';

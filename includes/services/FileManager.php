@@ -73,10 +73,11 @@ class FileManager {
         return [
             'filepath' => $filepath,
             'filename' => $filename,
-            'url' => $this->getPublicUrl($filename)
+            'url' => $this->getPublicUrl($filename),
+            'relative_path' => $this->getRelativePath($filename)
         ];
     }
-    
+
     /**
      * Save XML content to file with MD5
      * 
@@ -231,6 +232,39 @@ class FileManager {
     public function getPublicUrl(string $filename): string {
         // All files use direct paths for dane.gov.pl compliance
         return $this->baseUrl . '/' . $filename;
+    }
+
+    /**
+     * Get relative path for file (for database storage)
+     * Returns path without domain for portability between environments
+     */
+    public function getRelativePath(string $filename): string {
+        return 'wp-content/uploads/ujc-data/' . $filename;
+    }
+
+    /**
+     * Build full URL from stored path/URL
+     * Handles relative paths and legacy ?file= format
+     *
+     * @param string $storedValue Value from database (relative path or legacy ?file= URL)
+     * @return string Full URL with current domain
+     */
+    public function buildFullUrlFromStoredPath(string $storedValue): string {
+        $siteUrl = get_site_url();
+
+        // 1. Ścieżka względna (po migracji) - nie zaczyna się od http
+        if (strpos($storedValue, 'http') !== 0) {
+            return $siteUrl . '/' . ltrim($storedValue, '/');
+        }
+
+        // 2. Legacy format ?file= (przed migracją tego formatu)
+        if (strpos($storedValue, '?file=') !== false) {
+            $filename = urldecode(substr($storedValue, strpos($storedValue, '?file=') + 6));
+            return $siteUrl . '/wp-content/uploads/ujc-data/' . $filename;
+        }
+
+        // Fallback - zwróć jak jest
+        return $storedValue;
     }
     
     /**
