@@ -145,7 +145,7 @@ class ResourceModal extends JawneCeny_AdminPage {
                                         </td>
                                     </tr>
                                     <tr>
-                                        <th><label for="modal-cena_calkowita">Cena Całkowita</label></th>
+                                        <th><label for="modal-cena_calkowita">Cena lokalu</label></th>
                                         <td>
                                             <input type="number" id="modal-cena_calkowita" name="cena_calkowita" step="0.01" min="0" class="regular-text"> zł
                                         </td>
@@ -154,13 +154,12 @@ class ResourceModal extends JawneCeny_AdminPage {
 
                                 <!-- Cena finalna na dole lewej kolumny -->
                                 <div id="final-price-section" style="margin-top: 20px;">
-                                    <h3>Cena finalna</h3>
+                                    <h3>Cena pełna</h3>
                                     <table class="form-table">
                                         <tr>
-                                            <th><label for="modal-cena_z_dodatkami">Cena uwzględniająca inne składowe</label></th>
+                                            <th><label for="modal-cena_z_dodatkami">Cena końcowa uwzględniająca wszystkie składowe zgodnie z art. 19a ust. 1</label></th>
                                             <td>
                                                 <input type="number" id="modal-cena_z_dodatkami" name="cena_z_dodatkami" step="0.01" min="0" class="regular-text" readonly> zł
-                                                <p class="description">Cena końcowa uwzględniająca wszystkie składowe zgodnie z art. 19a ust. 1 (opcjonalne)</p>
                                             </td>
                                         </tr>
                                     </table>
