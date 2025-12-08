@@ -1400,14 +1400,22 @@ class ShortcodeGeneratorPage {
         echo '<div class="setting-group">';
         echo '<h4>Filtrowanie</h4>';
 
-        echo '<div style="display: flex; gap: 10px; align-items: center;">';
+        echo '<div style="display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap;">';
         echo '<select id="filterBy" name="filterBy" style="width: 200px;">';
         echo '<option value="">Bez filtrowania</option>';
         echo '<option value="floor"' . selected($settings['filterBy'], 'floor', false) . '>Piętro</option>';
-        // TODO: Dodać w przyszłości: price, status, area, rooms
+        echo '<option value="status"' . selected($settings['filterBy'], 'status', false) . '>Status</option>';
         echo '</select>';
 
+        // Input tekstowy dla floor (ukryty gdy status wybrany)
         echo '<input type="text" id="filterValue" name="filterValue" value="' . esc_attr($settings['filterValue']) . '" placeholder="Wartość (np. 5)" class="regular-text" style="width: 150px;">';
+
+        // Checkboxy dla statusu (ukryte domyślnie, pokazane gdy status wybrany)
+        echo '<div id="filter-status-options" style="display: none;">';
+        echo '<label style="display: block; margin-bottom: 4px;"><input type="checkbox" name="filterStatusValues[]" value="available"> Dostępne</label>';
+        echo '<label style="display: block; margin-bottom: 4px;"><input type="checkbox" name="filterStatusValues[]" value="reserved"> Zarezerwowane</label>';
+        echo '<label style="display: block;"><input type="checkbox" name="filterStatusValues[]" value="sold"> Sprzedane</label>';
+        echo '</div>';
         echo '</div>';
 
         echo '</div>';

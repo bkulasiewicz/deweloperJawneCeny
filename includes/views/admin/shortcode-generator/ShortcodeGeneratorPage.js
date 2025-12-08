@@ -77,8 +77,23 @@ jQuery(document).ready(function($) {
 
         // Get filtering options - combine into single parameter
         const filterBy = $('#filterBy').val();
-        const filterValue = $('#filterValue').val();
-        const filteringCombined = (filterBy && filterBy !== '' && filterValue && filterValue.trim() !== '') ? filterBy + ':' + filterValue.trim() : '';
+        let filteringCombined = '';
+
+        if (filterBy === 'status') {
+            // Get selected status checkboxes
+            const selectedStatuses = $('input[name="filterStatusValues[]"]:checked').map(function() {
+                return this.value;
+            }).get();
+
+            if (selectedStatuses.length > 0) {
+                filteringCombined = 'status:' + selectedStatuses.join(',');
+            }
+        } else if (filterBy && filterBy !== '') {
+            const filterValue = $('#filterValue').val();
+            if (filterValue && filterValue.trim() !== '') {
+                filteringCombined = filterBy + ':' + filterValue.trim();
+            }
+        }
 
         let shortcode = '[jawneceny_resources_list';
 
@@ -567,13 +582,33 @@ jQuery(document).ready(function($) {
         updatePreview();
     });
 
-    // Update shortcode when sorting/filtering options change
-    $('#sort, #sort_order, #filterBy').on('change', function() {
+    // Update shortcode when sorting options change
+    $('#sort, #sort_order').on('change', function() {
+        updateShortcodePreview();
+        updatePreview();
+    });
+
+    // Handle filterBy change - toggle between text input and status checkboxes
+    $('#filterBy').on('change', function() {
+        const filterBy = $(this).val();
+        if (filterBy === 'status') {
+            $('#filterValue').hide();
+            $('#filter-status-options').show();
+        } else {
+            $('#filterValue').show();
+            $('#filter-status-options').hide();
+        }
         updateShortcodePreview();
         updatePreview();
     });
 
     $('#filterValue').on('input', function() {
+        updateShortcodePreview();
+        updatePreview();
+    });
+
+    // Update shortcode when status filter checkboxes change
+    $(document).on('change', 'input[name="filterStatusValues[]"]', function() {
         updateShortcodePreview();
         updatePreview();
     });

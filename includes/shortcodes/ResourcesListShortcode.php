@@ -357,9 +357,38 @@ class ResourcesListShortcode {
                     null               // unit number filter
                 );
 
+            case 'status':
+                // Support single status or comma-separated list: "available" or "available,sold"
+                $statusValues = array_map('trim', explode(',', $filterValue));
+                $validStatuses = [];
+
+                foreach ($statusValues as $statusValue) {
+                    try {
+                        $status = ResourceStatus::from($statusValue);
+                        $validStatuses[] = $status->value;
+                    } catch (\ValueError $e) {
+                        Logger::error("Invalid status value in shortcode filtering: {$statusValue}");
+                    }
+                }
+
+                if (empty($validStatuses)) {
+                    Logger::error("No valid status values found in filtering parameter");
+                    return new FilterCriteria();
+                }
+
+                Logger::info("Shortcode: Filtering by status = " . implode(', ', $validStatuses));
+                return new FilterCriteria(
+                    null, null,        // price min/max
+                    null, null,        // area min/max
+                    $validStatuses,    // status filter (array)
+                    null,              // floor filter
+                    null,              // rooms filter
+                    null,              // property types
+                    null               // unit number filter
+                );
+
             // TODO: Dodać w przyszłości:
             // case 'price': ...
-            // case 'status': ...
             // case 'area': ...
 
             default:
