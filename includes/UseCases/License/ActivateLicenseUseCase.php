@@ -50,12 +50,12 @@ class ActivateLicenseUseCase {
 		$license_key = sanitize_text_field( $license_key );
 
 		if (empty( $license_key )) {
-			return Result::failure( __( 'Klucz licencji nie może być pusty.', 'ustawa-jawnosci-cen' ) );
+			return Result::failure( __( 'Klucz licencji nie może być pusty.', 'deweloper-jawne-ceny' ) );
 		}
 
 		// Validate license key format (XXXX-XXXX-XXXX-XXXX).
 		if (! preg_match( '/^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$/i', $license_key )) {
-			return Result::failure( __( 'Nieprawidłowy format klucza licencji. Poprawny format: XXXX-XXXX-XXXX-XXXX', 'ustawa-jawnosci-cen' ) );
+			return Result::failure( __( 'Nieprawidłowy format klucza licencji. Poprawny format: XXXX-XXXX-XXXX-XXXX', 'deweloper-jawne-ceny' ) );
 		}
 
 		// Call LMFWC activation API.
@@ -100,9 +100,9 @@ class ActivateLicenseUseCase {
 		$saved = $this->repository->save( $license_data );
 
 		if (! $saved) {
-			return Result::failure( __( 'Błąd podczas zapisywania licencji. Spróbuj ponownie.', 'ustawa-jawnosci-cen' ) );
+			return Result::failure( __( 'Błąd podczas zapisywania licencji. Spróbuj ponownie.', 'deweloper-jawne-ceny' ) );
 		}
 
-		return Result::success( __( 'Licencja została pomyślnie aktywowana!', 'ustawa-jawnosci-cen' ) );
+		return Result::success( __( 'Licencja została pomyślnie aktywowana!', 'deweloper-jawne-ceny' ) );
 	}
 }

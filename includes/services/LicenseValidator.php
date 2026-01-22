@@ -35,7 +35,7 @@ class LicenseValidator {
 		if (empty( $license_key )) {
 			return array(
 				'success' => false,
-				'message' => __( 'License key cannot be empty.', 'ustawa-jawnosci-cen' ),
+				'message' => __( 'License key cannot be empty.', 'deweloper-jawne-ceny' ),
 				'data'    => null,
 			);
 		}
@@ -66,7 +66,7 @@ class LicenseValidator {
 		if (empty( $license_key )) {
 			return array(
 				'success' => false,
-				'message' => __( 'License key cannot be empty.', 'ustawa-jawnosci-cen' ),
+				'message' => __( 'License key cannot be empty.', 'deweloper-jawne-ceny' ),
 				'data'    => null,
 			);
 		}
@@ -96,7 +96,7 @@ class LicenseValidator {
 				'success' => false,
 				'message' => sprintf(
 					/* translators: %s: Error message */
-					__( 'Connection error: %s', 'ustawa-jawnosci-cen' ),
+					__( 'Connection error: %s', 'deweloper-jawne-ceny' ),
 					$response->get_error_message()
 				),
 				'data'    => null,
@@ -112,13 +112,13 @@ class LicenseValidator {
 
 		// Handle non-200 responses.
 		if (200 !== $response_code) {
-			$error_message = $body_data['message'] ?? __( 'Unknown API error.', 'ustawa-jawnosci-cen' );
+			$error_message = $body_data['message'] ?? __( 'Unknown API error.', 'deweloper-jawne-ceny' );
 
 			return array(
 				'success' => false,
 				'message' => sprintf(
 					/* translators: 1: HTTP code, 2: Error message */
-					__( 'API error (%1$d): %2$s', 'ustawa-jawnosci-cen' ),
+					__( 'API error (%1$d): %2$s', 'deweloper-jawne-ceny' ),
 					$response_code,
 					$error_message
 				),
@@ -130,7 +130,7 @@ class LicenseValidator {
 		if (! is_array( $body_data ) || ! isset( $body_data['success'] )) {
 			return array(
 				'success' => false,
-				'message' => __( 'Invalid API response format.', 'ustawa-jawnosci-cen' ),
+				'message' => __( 'Invalid API response format.', 'deweloper-jawne-ceny' ),
 				'data'    => null,
 			);
 		}
@@ -151,7 +151,7 @@ class LicenseValidator {
 			}
 
 			if (empty( $error_message )) {
-				$error_message = __( 'License validation failed.', 'ustawa-jawnosci-cen' );
+				$error_message = __( 'License validation failed.', 'deweloper-jawne-ceny' );
 			}
 
 			return array(

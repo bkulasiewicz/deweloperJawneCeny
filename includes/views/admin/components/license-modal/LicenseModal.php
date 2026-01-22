@@ -98,7 +98,7 @@ class LicenseModal {
 					<form id="jawneceny-license-activation-form">
 						<div class="license-form-group">
 							<label for="license_key">
-								<?php esc_html_e( 'Klucz licencji:', 'ustawa-jawnosci-cen' ); ?>
+								<?php esc_html_e( 'Klucz licencji:', 'deweloper-jawne-ceny' ); ?>
 							</label>
 							<input
 								type="text"
@@ -113,7 +113,7 @@ class LicenseModal {
 						</div>
 
 						<button type="submit" class="button button-primary button-large">
-							<?php esc_html_e( 'Aktywuj Licencję', 'ustawa-jawnosci-cen' ); ?>
+							<?php esc_html_e( 'Aktywuj Licencję', 'deweloper-jawne-ceny' ); ?>
 						</button>
 					</form>
 
@@ -121,15 +121,15 @@ class LicenseModal {
 
 					<div class="license-help">
 						<div class="help-item">
-							<strong><?php esc_html_e( 'Gdzie znajdę klucz licencji?', 'ustawa-jawnosci-cen' ); ?></strong>
-							<p><?php esc_html_e( 'Klucz licencji został wysłany na adres e-mail podany przy zakupie. Sprawdź folder "Spam" jeśli nie widzisz wiadomości.', 'ustawa-jawnosci-cen' ); ?></p>
+							<strong><?php esc_html_e( 'Gdzie znajdę klucz licencji?', 'deweloper-jawne-ceny' ); ?></strong>
+							<p><?php esc_html_e( 'Klucz licencji został wysłany na adres e-mail podany przy zakupie. Sprawdź folder "Spam" jeśli nie widzisz wiadomości.', 'deweloper-jawne-ceny' ); ?></p>
 						</div>
 
 						<div class="help-item">
-							<strong><?php esc_html_e( 'Nie masz jeszcze licencji?', 'ustawa-jawnosci-cen' ); ?></strong>
+							<strong><?php esc_html_e( 'Nie masz jeszcze licencji?', 'deweloper-jawne-ceny' ); ?></strong>
 							<p>
 								<a href="<?php echo esc_url( LicenseConfig::SHOP_URL ); ?>" target="_blank" class="button button-secondary">
-									<?php esc_html_e( 'Kup Licencje', 'ustawa-jawnosci-cen' ); ?> →
+									<?php esc_html_e( 'Kup Licencje', 'deweloper-jawne-ceny' ); ?> →
 								</a>
 							</p>
 						</div>
@@ -185,8 +185,8 @@ class LicenseModal {
 				'ajaxurl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'jawneceny_license_activation' ),
 				'strings' => array(
-					'activating' => __( 'Aktywacja...', 'ustawa-jawnosci-cen' ),
-					'error'      => __( 'Wystąpił błąd. Spróbuj ponownie.', 'ustawa-jawnosci-cen' ),
+					'activating' => __( 'Aktywacja...', 'deweloper-jawne-ceny' ),
+					'error'      => __( 'Wystąpił błąd. Spróbuj ponownie.', 'deweloper-jawne-ceny' ),
 				),
 			)
 		);
@@ -203,7 +203,7 @@ class LicenseModal {
 
 		// Check permissions.
 		if (! current_user_can( 'manage_options' )) {
-			wp_send_json_error( __( 'Brak uprawnień do aktywacji licencji.', 'ustawa-jawnosci-cen' ) );
+			wp_send_json_error( __( 'Brak uprawnień do aktywacji licencji.', 'deweloper-jawne-ceny' ) );
 			return;
 		}
 
@@ -211,7 +211,7 @@ class LicenseModal {
 		$license_key = isset( $_POST['license_key'] ) ? sanitize_text_field( $_POST['license_key'] ) : '';
 
 		if (empty( $license_key )) {
-			wp_send_json_error( __( 'Klucz licencji nie może być pusty.', 'ustawa-jawnosci-cen' ) );
+			wp_send_json_error( __( 'Klucz licencji nie może być pusty.', 'deweloper-jawne-ceny' ) );
 			return;
 		}
 
