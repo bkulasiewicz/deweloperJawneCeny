@@ -71,7 +71,7 @@ class ResourcesListBlock {
 
         // Prepare card configuration
         $card_config = [
-            'cardsPerRow' => $parsed_attributes['cardsPerRow'],
+            'cardSize' => $parsed_attributes['cardSize'],
             'cardBgColor' => $parsed_attributes['cardBgColor'],
             'cardBorderColor' => $parsed_attributes['cardBorderColor'],
             'cardPadding' => $parsed_attributes['cardPadding'],
@@ -199,7 +199,7 @@ class ResourcesListBlock {
             'mobileSwitchToCards' => false,
 
             // Card-specific Options
-            'cardsPerRow' => 3,
+            'cardSize' => 'normal', // 'small' | 'normal' | 'large'
             'cardGap' => '20px',
             'cardBgColor' => '#ffffff',
             'cardBorderColor' => '#e1e5e9',

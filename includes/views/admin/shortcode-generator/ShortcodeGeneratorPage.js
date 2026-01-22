@@ -235,9 +235,9 @@ jQuery(document).ready(function($) {
             shortcode += ' mobile_switch_to_cards="true"';
         }
 
-        // Add card configuration if display_mode is 'cards'
-        if (displayMode === 'cards') {
-            const cardsPerRow = $('#cards-per-row').val();
+        // Add card configuration if display_mode is 'cards' OR mobile_switch_to_cards is enabled
+        if (displayMode === 'cards' || mobileSwitchToCards) {
+            const cardSize = $('#card-size').val();
             const cardGap = $('#card-gap').val();
             const cardBgColor = $('#card-bg-color').val();
             const cardBorderColor = $('#card-border-color').val();
@@ -246,8 +246,8 @@ jQuery(document).ready(function($) {
             const cardShadow = $('#card-shadow').val();
             const cardHoverShadow = $('#card-hover-shadow').val();
 
-            if (cardsPerRow) {
-                shortcode += ' cards_per_row="' + cardsPerRow + '"';
+            if (cardSize) {
+                shortcode += ' card_size="' + cardSize + '"';
             }
             if (cardGap) {
                 shortcode += ' card_gap="' + cardGap + '"';
@@ -551,7 +551,7 @@ jQuery(document).ready(function($) {
     updateCardConfigVisibility();
 
     // Update shortcode when card configuration changes
-    $('#cards-per-row, #card-gap, #card-border-radius, #card-padding, #card-shadow, #card-hover-shadow').on('input change', function() {
+    $('#card-size, #card-gap, #card-border-radius, #card-padding, #card-shadow, #card-hover-shadow').on('input change', function() {
         updateShortcodePreview();
         updatePreview();
     });

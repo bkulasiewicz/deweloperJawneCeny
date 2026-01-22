@@ -41,10 +41,15 @@ class ResourceCardRenderer {
         // Generate dynamic CSS for cards
         self::addDynamicCSS($styling_options, $card_config);
 
-        // Determine cards per row
-        $cards_per_row = $card_config['cardsPerRow'] ?? 3;
+        // Determine card size for automatic responsive layout
+        $card_size = $card_config['cardSize'] ?? 'normal';
+        // Validate card size value
+        $allowed_sizes = ['small', 'normal', 'large'];
+        if (!in_array($card_size, $allowed_sizes, true)) {
+            $card_size = 'normal';
+        }
         ?>
-        <div class="resource-cards-grid cards-per-row-<?php echo esc_attr($cards_per_row); ?>">
+        <div class="resource-cards-grid card-size-<?php echo esc_attr($card_size); ?>">
             <?php foreach ($resources as $resource): ?>
                 <?php echo wp_kses_post(self::renderSingleCard($resource, $visible_columns, $column_names, $styling_options, $card_config)); ?>
             <?php endforeach; ?>

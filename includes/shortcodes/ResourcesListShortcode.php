@@ -102,7 +102,7 @@ class ResourcesListShortcode {
             'mobile_switch_to_cards' => 'false',
 
             // Card-specific styling options
-            'cards_per_row' => '3',
+            'card_size' => 'normal', // 'small' | 'normal' | 'large'
             'card_gap' => '20px',
             'card_bg_color' => '#ffffff',
             'card_border_color' => '#e0e0e0',
@@ -250,7 +250,7 @@ class ResourcesListShortcode {
             $mobile_switch_to_cards = filter_var($atts['mobile_switch_to_cards'], FILTER_VALIDATE_BOOLEAN);
 
             $card_config = [
-                'cardsPerRow' => (int)$atts['cards_per_row'],
+                'cardSize' => $atts['card_size'],
                 'cardGap' => $atts['card_gap'],
                 'cardBgColor' => $atts['card_bg_color'],
                 'cardBorderColor' => $atts['card_border_color'],

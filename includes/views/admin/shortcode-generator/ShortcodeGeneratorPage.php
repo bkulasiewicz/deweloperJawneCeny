@@ -294,13 +294,15 @@ class ShortcodeGeneratorPage {
                                 <h4>Układ siatki</h4>
                                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                                     <div>
-                                        <label for="cards-per-row">Kafelków w wierszu</label>
-                                        <select id="cards-per-row" name="cards_per_row">
-                                            <option value="1" <?php selected($settings['cards_per_row'] ?? '3', '1'); ?>>1</option>
-                                            <option value="2" <?php selected($settings['cards_per_row'] ?? '3', '2'); ?>>2</option>
-                                            <option value="3" <?php selected($settings['cards_per_row'] ?? '3', '3'); ?>>3</option>
-                                            <option value="4" <?php selected($settings['cards_per_row'] ?? '3', '4'); ?>>4</option>
+                                        <label for="card-size">Rozmiar kafelków</label>
+                                        <select id="card-size" name="card_size">
+                                            <option value="small" <?php selected($settings['card_size'] ?? 'normal', 'small'); ?>>Małe (więcej kolumn)</option>
+                                            <option value="normal" <?php selected($settings['card_size'] ?? 'normal', 'normal'); ?>>Normalne</option>
+                                            <option value="large" <?php selected($settings['card_size'] ?? 'normal', 'large'); ?>>Duże (mniej kolumn)</option>
                                         </select>
+                                        <p class="description" style="margin-top: 4px; font-size: 12px; color: #666;">
+                                            💡 Liczba kolumn dostosowuje się automatycznie do szerokości ekranu
+                                        </p>
                                     </div>
                                     <div>
                                         <label for="card-gap">Odstęp między kafelkami</label>
@@ -836,7 +838,7 @@ class ShortcodeGeneratorPage {
             // Display mode and card configuration
             'display_mode' => 'table',
             'mobile_switch_to_cards' => false,
-            'cards_per_row' => '3',
+            'card_size' => 'normal',
             'card_gap' => '20px',
             'card_bg_color' => '#ffffff',
             'card_border_color' => '#e0e0e0',
@@ -948,9 +950,9 @@ class ShortcodeGeneratorPage {
             $shortcode .= " display_mode=\"{$settings['display_mode']}\"";
         }
 
-        // Add card configuration if display_mode is 'cards'
-        if (($settings['display_mode'] ?? 'table') === 'cards') {
-            $shortcode .= " cards_per_row=\"{$settings['cards_per_row']}\"";
+        // Add card configuration if display_mode is 'cards' OR mobile_switch_to_cards is enabled
+        if (($settings['display_mode'] ?? 'table') === 'cards' || !empty($settings['mobile_switch_to_cards'])) {
+            $shortcode .= " card_size=\"{$settings['card_size']}\"";
             $shortcode .= " card_gap=\"{$settings['card_gap']}\"";
             $shortcode .= " card_bg_color=\"{$settings['card_bg_color']}\"";
             $shortcode .= " card_border_color=\"{$settings['card_border_color']}\"";

@@ -141,9 +141,9 @@
             },
 
             // Card-specific Options
-            cardsPerRow: {
-                type: 'number',
-                default: 3
+            cardSize: {
+                type: 'string',
+                default: 'normal' // 'small' | 'normal' | 'large'
             },
             cardGap: {
                 type: 'string',
@@ -618,14 +618,15 @@
                             el('h4', { style: { margin: '0 0 12px', fontSize: '14px' } }, 'Ustawienia kafelków'),
 
                             el(SelectControl, {
-                                label: 'Kafelków na rząd',
-                                value: attributes.cardsPerRow,
+                                label: 'Rozmiar kafelków',
+                                value: attributes.cardSize,
                                 options: [
-                                    { label: '2 kolumny', value: 2 },
-                                    { label: '3 kolumny', value: 3 },
-                                    { label: '4 kolumny', value: 4 }
+                                    { label: 'Małe (więcej kolumn)', value: 'small' },
+                                    { label: 'Normalne', value: 'normal' },
+                                    { label: 'Duże (mniej kolumn)', value: 'large' }
                                 ],
-                                onChange: (value) => setAttributes({ cardsPerRow: parseInt(value) })
+                                onChange: (value) => setAttributes({ cardSize: value }),
+                                help: 'Przeglądarka automatycznie dopasuje liczbę kolumn do szerokości ekranu'
                             }),
 
                             el(TextControl, {
@@ -1409,7 +1410,9 @@
                             attributes.visibleColumns.length === 1 ? ' pole' : ' pól'
                         ),
                         attributes.displayMode === 'cards' && el('div', { style: { marginBottom: '4px' } },
-                            '📐 Layout: ', attributes.cardsPerRow, ' kafelki na rząd'
+                            '📐 Rozmiar: ',
+                            attributes.cardSize === 'small' ? 'Małe' :
+                            attributes.cardSize === 'large' ? 'Duże' : 'Normalne'
                         ),
                         el('div', {},
                             '🎨 Kolory: ',
