@@ -252,11 +252,7 @@ class ResourceCardRenderer {
     private static function renderHistoriaButton($resource, array $styling_options): string {
         $button_text = $styling_options['historia_btn_text'] ?? 'Historia';
 
-        return '<div class="card-field card-action">
-            <button class="ujc-historia-btn" data-resource-id="' . esc_attr($resource->id) . '" data-resource-name="' . esc_attr($resource->nr_lokalu) . '">
-                ' . esc_html($button_text) . '
-            </button>
-        </div>';
+        return '<div class="card-field card-action"><button class="ujc-historia-btn" data-resource-id="' . esc_attr($resource->id) . '" data-resource-name="' . esc_attr($resource->nr_lokalu) . '">' . esc_html($button_text) . '</button></div>';
     }
 
     /**
@@ -270,11 +266,7 @@ class ResourceCardRenderer {
         $filename = basename($resource->floor_plan_pdf);
         $button_text = $styling_options['karta_btn_text'] ?? 'Karta lokalu';
 
-        return '<div class="card-field card-action">
-            <button class="download-floorplan-btn ujc-karta-btn" data-filename="' . esc_attr($filename) . '">
-                ' . esc_html($button_text) . '
-            </button>
-        </div>';
+        return '<div class="card-field card-action"><button class="download-floorplan-btn ujc-karta-btn" data-filename="' . esc_attr($filename) . '">' . esc_html($button_text) . '</button></div>';
     }
 
     /**
