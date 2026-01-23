@@ -100,7 +100,8 @@ class PremiumDIContainer {
                 $c->get(ExternalCronRepository::class),
                 $c->get(DeveloperRepository::class),
                 $c->get(InvestmentRepository::class),
-                $c->get(ResourceRepository::class)
+                $c->get(ResourceRepository::class),
+                $c->get(LicenseRepository::class)
             );
         });
 

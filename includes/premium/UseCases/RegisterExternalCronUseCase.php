@@ -16,17 +16,20 @@ class RegisterExternalCronUseCase {
     private $developerRepository;
     private $investmentRepository;
     private $resourceRepository;
-    
+    private $licenseRepository;
+
     public function __construct(
         ExternalCronRepository $repository,
         DeveloperRepository $developerRepository,
         InvestmentRepository $investmentRepository,
-        ResourceRepository $resourceRepository
+        ResourceRepository $resourceRepository,
+        LicenseRepository $licenseRepository
     ) {
         $this->repository = $repository;
         $this->developerRepository = $developerRepository;
         $this->investmentRepository = $investmentRepository;
         $this->resourceRepository = $resourceRepository;
+        $this->licenseRepository = $licenseRepository;
     }
     
     /**
@@ -48,12 +51,13 @@ class RegisterExternalCronUseCase {
             $endpoint = $site_url . '/wp-json/ujc/v1/external-cron';
             $domain = wp_parse_url($site_url, PHP_URL_HOST);
             
-            // Get plugin version and license ID
+            // Get plugin version and license key
             $plugin_version = defined('JAWNECENY_VERSION') ? JAWNECENY_VERSION : '2.0.10';
-            $license_id = 'DJC8N5Q1WZ';
-            
+            $license_data = $this->licenseRepository->get();
+            $license_key = $license_data['key'] ?? 'UNKNOWN';
+
             // Create title with metadata: domain | version | license
-            $title = $domain . ' | v' . $plugin_version . ' | ' . $license_id;
+            $title = $domain . ' | v' . $plugin_version . ' | ' . $license_key;
             
             // Get schedule configuration
             $available_schedules = $this->repository->getAvailableSchedules();
