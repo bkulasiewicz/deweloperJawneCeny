@@ -20,6 +20,7 @@ class DashboardPage {
     private $historyTile;
     private $devConsoleTile;
     private $licenseTile;
+    private $setupChecklistTile;
 
     public function __construct(
         DeveloperRepository $developerRepository,
@@ -28,7 +29,8 @@ class DashboardPage {
         AutomationTile $automationTile,
         HistoryTile $historyTile,
         DevConsoleTile $devConsoleTile,
-        LicenseTile $licenseTile
+        LicenseTile $licenseTile,
+        SetupChecklistTile $setupChecklistTile
     ) {
         $this->developerRepository = $developerRepository;
         $this->investmentRepository = $investmentRepository;
@@ -37,6 +39,7 @@ class DashboardPage {
         $this->historyTile = $historyTile;
         $this->devConsoleTile = $devConsoleTile;
         $this->licenseTile = $licenseTile;
+        $this->setupChecklistTile = $setupChecklistTile;
 
         add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
         add_action('wp_ajax_jawneceny_download_logs', [$this, 'ajax_download_logs']);
@@ -97,7 +100,8 @@ class DashboardPage {
             
             <div class="ujc-dashboard">
 
-                
+                <?php $this->setupChecklistTile->render(); ?>
+
                 <?php $this->automationTile->render(); ?>
 
                 <?php $this->historyTile->render(); ?>

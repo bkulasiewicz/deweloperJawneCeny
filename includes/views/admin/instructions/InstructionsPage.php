@@ -544,6 +544,7 @@ class InstructionsPage {
                             <p>Wyślij email z wypełnionym formularzem:</p>
                             <ul>
                                 <li><strong>Odbiorca:</strong> <code>kontakt@dane.gov.pl</code></li>
+                                <li><strong>DW (CC):</strong> <code>kontakt@deweloperjawneceny.pl</code></li>
                                 <li><strong>Temat:</strong> Wniosek o uruchomienie automatyzacji procesu udostępniania danych - [Nazwa Twojej firmy]</li>
                             </ul>
 

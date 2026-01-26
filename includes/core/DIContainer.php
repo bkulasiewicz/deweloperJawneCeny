@@ -343,7 +343,8 @@ class DIContainer {
                 $c->get(AutomationTile::class),
                 $c->get(HistoryTile::class),
                 $c->get(DevConsoleTile::class),
-                $c->get(LicenseTile::class)
+                $c->get(LicenseTile::class),
+                $c->get(SetupChecklistTile::class)
             );
         });
 
@@ -376,6 +377,10 @@ class DIContainer {
             return new LicenseTile(
                 $c->get(LicenseRepository::class)
             );
+        });
+
+        $c->bind(SetupChecklistTile::class, function() use ($c) {
+            return new SetupChecklistTile();
         });
 
         $c->bind(ShortcodeGeneratorPage::class, function() use ($c) {
