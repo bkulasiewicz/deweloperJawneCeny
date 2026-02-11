@@ -65,18 +65,18 @@ jQuery(document).ready(function($) {
         $('#view-proj-nr').text(data.proj_nr || 'Brak danych');
         $('#view-proj-kod').text(data.proj_kod || 'Brak danych');
 
-        // Configuration checkboxes view
-        $('#view-has_property_parts').text(data.has_property_parts ? 'Tak' : 'Nie');
-        $('#view-has_belonging_rooms').text(data.has_belonging_rooms ? 'Tak' : 'Nie');
-        $('#view-has_usage_rights').text(data.has_usage_rights ? 'Tak' : 'Nie');
-        $('#view-has_other_services').text(data.has_other_services ? 'Tak' : 'Nie');
+        // Configuration checkboxes view (disabled checkboxes)
+        $('#view-has_property_parts').prop('checked', Boolean(data.has_property_parts));
+        $('#view-has_belonging_rooms').prop('checked', Boolean(data.has_belonging_rooms));
+        $('#view-has_usage_rights').prop('checked', Boolean(data.has_usage_rights));
+        $('#view-has_other_services').prop('checked', Boolean(data.has_other_services));
 
-        // Marketing fields view
-        $('#view-show_floor_field').text(data.show_floor_field ? 'Tak' : 'Nie');
-        $('#view-show_rooms_field').text(data.show_rooms_field ? 'Tak' : 'Nie');
-        $('#view-show_description_field').text(data.show_description_field ? 'Tak' : 'Nie');
-        $('#view-show_garden_field').text(data.show_garden_field ? 'Tak' : 'Nie');
-        $('#view-show_floor_plan_field').text(data.show_floor_plan_field ? 'Tak' : 'Nie');
+        // Marketing fields view (disabled checkboxes)
+        $('#view-show_floor_field').prop('checked', Boolean(data.show_floor_field));
+        $('#view-show_rooms_field').prop('checked', Boolean(data.show_rooms_field));
+        $('#view-show_description_field').prop('checked', Boolean(data.show_description_field));
+        $('#view-show_garden_field').prop('checked', Boolean(data.show_garden_field));
+        $('#view-show_floor_plan_field').prop('checked', Boolean(data.show_floor_plan_field));
     }
 
     // Wypełnij formularz edycji danymi

@@ -118,50 +118,59 @@ class InvestmentModal extends JawneCeny_AdminPage {
                         <!-- Prawa kolumna - Konfiguracja -->
                         <div class="modal-column-right">
                             <h3 style="margin-top: 0;">Konfiguracja komponentów</h3>
-                            <p class="description">Elementy inwestycji uwzględnione w cenach zasobów:</p>
-                            
+                            <p class="description">Wskaż jakie elementy zawiera inwestycja, których cena nie jest uwzględniona w cenie lokalu/domu:</p>
+                            <p class="description" style="margin-top: 10px;"><strong>Inwestycja posiada nieujęte w cenie lokalu/domu:</strong></p>
+
                             <table class="form-table">
                                 <tr>
-                                    <th>Części nieruchomości:</th>
-                                    <td id="view-has_property_parts">-</td>
-                                </tr>
-                                <tr>
-                                    <th>Pomieszczenia przynależne:</th>
-                                    <td id="view-has_belonging_rooms">-</td>
-                                </tr>
-                                <tr>
-                                    <th>Prawa niezbędne:</th>
-                                    <td id="view-has_usage_rights">-</td>
-                                </tr>
-                                <tr>
-                                    <th>Inne świadczenia:</th>
-                                    <td id="view-has_other_services">-</td>
+                                    <td>
+                                        <label style="display: block; margin-bottom: 10px;">
+                                            <input type="checkbox" id="view-has_property_parts" disabled style="margin-right: 8px;">
+                                            <strong>części nieruchomości będące przedmiotem umowy</strong> (np. miejsce postojowe)
+                                        </label>
+                                        <label style="display: block; margin-bottom: 10px;">
+                                            <input type="checkbox" id="view-has_belonging_rooms" disabled style="margin-right: 8px;">
+                                            <strong>pomieszczenia przynależne</strong> (np. komórka lokatorska)
+                                        </label>
+                                        <label style="display: block; margin-bottom: 10px;">
+                                            <input type="checkbox" id="view-has_usage_rights" disabled style="margin-right: 8px;">
+                                            <strong>prawa niezbędne do korzystania z lokalu lub domu</strong>
+                                        </label>
+                                        <label style="display: block; margin-bottom: 10px;">
+                                            <input type="checkbox" id="view-has_other_services" disabled style="margin-right: 8px;">
+                                            <strong>inne rodzaje świadczeń pieniężnych na rzecz dewelopera</strong>
+                                        </label>
+                                    </td>
                                 </tr>
                             </table>
-                            
-                            <h3 style="margin-top: 20px;">Pola marketingowe</h3>
-                            <p class="description">Dodatkowe pola dostępne przy dodawaniu zasobów:</p>
-                            
+
+                            <h4 style="margin-top: 20px; margin-bottom: 10px;">Pola marketingowe (nieobowiązkowe)</h4>
+                            <p class="description" style="margin-bottom: 15px;">Dodatkowe pola dostępne przy dodawaniu zasobów (nie są raportowane do ministerstwa):</p>
+
                             <table class="form-table">
                                 <tr>
-                                    <th>Piętro:</th>
-                                    <td id="view-show_floor_field">-</td>
-                                </tr>
-                                <tr>
-                                    <th>Liczba pokoi:</th>
-                                    <td id="view-show_rooms_field">-</td>
-                                </tr>
-                                <tr>
-                                    <th>Dodatkowy opis:</th>
-                                    <td id="view-show_description_field">-</td>
-                                </tr>
-                                <tr>
-                                    <th>Ogród:</th>
-                                    <td id="view-show_garden_field">-</td>
-                                </tr>
-                                <tr>
-                                    <th>Plan mieszkania:</th>
-                                    <td id="view-show_floor_plan_field">-</td>
+                                    <td>
+                                        <label style="display: block; margin-bottom: 8px;">
+                                            <input type="checkbox" id="view-show_floor_field" disabled style="margin-right: 8px;">
+                                            <strong>Piętro</strong> - numer piętra nieruchomości
+                                        </label>
+                                        <label style="display: block; margin-bottom: 8px;">
+                                            <input type="checkbox" id="view-show_rooms_field" disabled style="margin-right: 8px;">
+                                            <strong>Liczba pokoi</strong> - ilość pokoi w mieszkaniu/domu
+                                        </label>
+                                        <label style="display: block; margin-bottom: 8px;">
+                                            <input type="checkbox" id="view-show_description_field" disabled style="margin-right: 8px;">
+                                            <strong>Dodatkowy opis</strong> - pole tekstowe na informacje marketingowe
+                                        </label>
+                                        <label style="display: block; margin-bottom: 8px;">
+                                            <input type="checkbox" id="view-show_garden_field" disabled style="margin-right: 8px;">
+                                            <strong>Ogród</strong> - powierzchnia przynależnego ogrodu [m²]
+                                        </label>
+                                        <label style="display: block; margin-bottom: 8px;">
+                                            <input type="checkbox" id="view-show_floor_plan_field" disabled style="margin-right: 8px;">
+                                            <strong>Plan mieszkania</strong> - możliwość upload pliku PDF z planem
+                                        </label>
+                                    </td>
                                 </tr>
                             </table>
                         </div>
@@ -216,7 +225,8 @@ class InvestmentModal extends JawneCeny_AdminPage {
                             <div class="modal-column-right">
                                 <h3 style="margin-top: 0;">Konfiguracja komponentów</h3>
                                 <p class="description">Wskaż jakie elementy zawiera inwestycja, których cena nie jest uwzględniona w cenie lokalu/domu:</p>
-                                
+                                <p class="description" style="margin-top: 10px;"><strong>Inwestycja posiada nieujęte w cenie lokalu/domu:</strong></p>
+
                                 <table class="form-table">
                                     <tr>
                                         <td>
